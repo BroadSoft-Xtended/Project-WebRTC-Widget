@@ -1,0 +1,478 @@
+/***************************************************
+ * webrtc.js
+ * Created on Mon Jan 14 15:32:43 GMT 2013 by nathan
+ *
+ * $Author$
+ * $Rev$
+ * $Date$
+ ***************************************************/
+@font-face {
+font-family: 'pictos';
+	src: url('pictos-web.eot');
+	src: local('☺'),
+	url('pictos-web.woff') format('woff'),
+	url('pictos-web.ttf') format('truetype'),
+	url('pictos-web.svg#webfontIyfZbseF') format('svg');
+}
+
+body {
+	background-color: #000000;
+}
+
+.icon {
+	text-decoration: none;
+	display: inline-block;
+	-webkit-font-smoothing: antialiased;
+}
+
+.icon:before {
+	content: attr(data-icon);
+	font-family:'pictos';
+	margin: 0 0.35em 0 0;
+	font-size: 30px;
+	font-weight: normal;
+	speak: none;
+}
+
+.button:active {
+	color: #fcd3a5;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f47a20), to(#faa51a));
+}
+
+.button:hover {
+	box-shadow: 1px 1px 20px #999;
+}
+
+.gradient .icon:before{
+	-webkit-background-clip: text;
+	color: transparent;
+}
+
+.gradient .connected_green:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#60FE10), to(#0A802D));
+}
+
+.gradient .registered_green:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#60FE10), to(#0A802D));
+}
+
+.gradient .connected_red:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#FA0101), to(#770808));
+}
+
+.gradient .registered_red:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#FA0101), to(#770808));
+}
+
+.gradient .group-a:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#0082FF), to(#000AF6));
+}
+
+.gradient .group-a:hover:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#000AF6), to(#0082FF));
+}
+
+.gradient .group-b:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#000AF6), to(#0082FF));
+}
+
+.gradient .group-b:hover:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#0082FF), to(#000AF6));
+}
+
+.gradient .group-c:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#7CDD07), to(#E99429));
+}
+
+.gradient .group-c:hover:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#E99429), to(#7CDD07));
+}
+
+.gradient .group-d:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#FFDD26), to(#FF0000));
+}
+
+.gradient .group-d:hover:before {
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#FF0000), to(#FFDD26));
+}
+
+#auth-popup {
+	display: none;
+	background: #333333;
+	padding: 10px; 	
+	border: 2px solid #DDDDDD;
+	float: left;
+	position: fixed;
+	top: 50%; 
+	left: 50%;
+	box-shadow: 0px 0px 20px #999999;
+	border-radius: 3px 3px 3px 3px;
+	font-size: 14px; 
+	line-height: 18px;
+}
+
+#auth-popup span {
+	color: #999999; 
+	font-size: 14px; 
+	line-height: 18px;
+}
+
+#auth-popup input {
+	background: #666666; 
+	border-bottom: 1px solid #333333;
+	border-left: 1px solid #000000;
+	border-right: 1px solid #333333;
+	border-top: 1px solid #000000;
+	color: #FFFFFF; 
+    border-radius: 3px 3px 3px 3px;
+	font-family: arial;
+	font-size: 16px;
+	padding: 6px 6px 4px;
+	width: 200px;
+}
+
+#auth-popup button {
+	border-color: #999999; 
+	border-width: 1px;
+	border-radius: 4px 4px 4px 4px;
+	color: #333333;
+	cursor: pointer;
+	padding: 6px 6px 4px;
+	margin-top: 10px;
+	font-size: 12px; 
+	width: 214px;
+}
+
+#auth-popup #alert {
+	font-size: 20px;
+	text-align: center;
+	color: #FF0000;
+}
+
+#main {
+	display: none;
+	position: absolute;
+	left: 25px;
+	color: #666666; 
+	font-family:arial;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+#main input {
+	background: #666666; 
+	border-bottom: 1px solid #333;
+	border-left: 1px solid #000;
+	border-right: 1px solid #333;
+	border-top: 1px solid #000;
+	color: #FFFFFF; 
+    border-radius: 3px 3px 3px 3px;
+	font-family:arial;
+	font-size: 16px;
+	padding: 6px 6px 4px;
+	width: 250px;
+}
+
+#dialpad-toggle {
+	position: absolute;
+	top: 25px;
+	left: 268px;
+}
+
+#main button {
+	position: absolute;
+	top: 16px;
+	left: 300px;
+	border-color: #000000; 
+	border-width: 1px;
+	border-radius: 4px 4px 4px 4px;
+	color: #333333;
+	cursor: pointer;
+	display: inline-block;
+	padding: 6px 6px 4px;
+	margin-top: 10px;
+	font: 12px; 
+	width: 100px;
+}
+
+#dialpad {
+	display: none;
+	position: absolute;
+	top: 80px;
+	left: 32px;
+	letter-spacing: 20px;
+}
+
+#dialpad button {
+	color: #333333;
+	opacity: 0.8;
+	font-family:arial;
+	font-size: 20px;
+	width: 50px;
+	border-color: #000000; 
+	border-width: 1px;
+	border-radius: 4px 4px 4px 4px;
+	font-weight: bold;
+	line-height: 50px;
+	cursor: pointer;
+}
+
+#dialpad button:active {
+	color: #FCD3A5;
+	background: -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A));
+}
+
+#dialpad button:hover {
+	box-shadow: 1px 1px 20px #999999;
+}
+
+#remote-video {
+	display: none;
+	position: absolute;
+	top: 100px;
+	right: 25px;
+	width: 640px;
+	height: 480px;
+	background-color: #191414;
+	border-radius: 4px 4px 4px 4px;
+	border: 2px solid #DDDDDD;
+	box-shadow: 0px 0px 20px #999999;
+}
+
+:-webkit-full-screen #remote-video {
+	display: none;
+	position: absolute;
+	top: 0px;
+	right: auto;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+#local-video {
+	display: none;
+	position: absolute;
+	top: 100px;
+	right: 505px;
+	width: 160px;
+	height: 120px;
+	background-color: #241D1D;
+  	border-radius: 4px 4px 4px 4px;
+	border: 2px solid #ddd;
+	box-shadow: 0px 0px 20px #999999;
+}
+
+:-webkit-full-screen #local-video {
+	display: none;
+	position: absolute;
+	top: 0px;
+	right: auto;
+	left: 0px;
+	width: 320px;
+	height: 240px;
+}
+
+#connected_green {
+	display: none;
+	position: absolute;
+	top: 25px;
+	right: 25px;
+}
+
+#registered_green {
+	display: none;
+	position: absolute;
+	top: 25px;
+	right: 90px;
+}
+
+#connected_red {
+	display: none;
+	position: absolute;
+	top: 25px;
+	right: 25px;
+}
+
+#registered_red {
+	display: none;
+	position: absolute;
+	top: 25px;
+	right: 90px;
+}
+
+#hangup {
+	display: none;
+	position: absolute;
+	top: 600px;
+	right: 25px;
+}
+
+:-webkit-full-screen #hangup {
+	display: none;
+	position: absolute;
+	top: auto;
+	bottom: 25px;
+	right: 25px;
+}
+
+#self-view {
+	display: none;
+	position: absolute;
+	top: 600px;
+	right: 580px;
+}
+
+:-webkit-full-screen #self-view {
+	display: none;
+	position: absolute;
+	top: auto;
+	right: auto;
+	bottom: 25px;
+	left: 100px;
+}
+
+#full-screen {
+	display: none;
+	position: absolute;
+	top: 600px;
+	right: 630px;
+}
+
+:-webkit-full-screen #full-screen {
+	display: none;
+	position: absolute;
+	top: auto;
+	right: auto;
+	bottom: 25px;
+	left: 25px;
+}
+
+#timer {
+	display: none;
+	position: absolute;
+	top: 600px;
+	right: 475px;
+	font-family: arial;
+	font-size: 20px; 
+	color: #90510c;
+}
+
+:-webkit-full-screen #timer {
+	display: none;
+	position: absolute;
+	top: auto;
+	right: auto;
+	bottom: 25px;
+	left: 200px;
+}
+
+#messages {
+	position: absolute;
+	top: 600px;
+	right: 120px;
+	font-family:arial;
+	font-size: 20px; 
+}
+
+.normal {
+	color: #999999;
+}
+
+.success {
+	color: #00FF00;
+}
+
+.warning {
+	color: #FFFF00;
+}
+
+.alert {
+	color: #FF0000;
+}
+
+#call_history {
+	display: none;
+	position: absolute;
+	top: 330px;
+	left: 25px;
+	width: 395px;
+	height: 375px;
+	background-color: #191414;
+	border-radius: 4px 4px 4px 4px;
+	border: 2px solid #DDDDDD;
+	box-shadow: 0px 0px 20px #999999;
+}
+
+#call_history .history_call {
+	position: absolute;
+	color: #0082FF;
+	left: 10px;
+	font-family:arial;
+	font-size: 18px;
+	text-decoration: none;
+}
+
+#call_history .history_destination {
+	position: absolute;
+	color: #0082FF;
+	left: 60px;
+	font-family:arial;
+	font-size: 18px;
+	text-decoration: none;
+}
+
+#call_history .history_direction {
+	position: absolute;
+	color: #0082FF;
+	left: 220px;
+	font-family:arial;
+	font-size: 18px; 
+}
+
+#call_history .history_status {
+	position: absolute;
+	color: #0082FF;
+	left: 260px;
+	font-family:arial;
+	font-size: 18px; 
+}
+
+#call_history .history_date {
+	position: absolute;
+	color: #0082FF;
+	left: 10px;
+	font-family:arial;
+	font-size: 10px; 
+}
+
+#call_history .history_length {
+	position: absolute;
+	color: #0082FF;
+	left: 220px;
+	font-family:arial;
+	font-size: 10px; 
+}
+
+#call_history .row_space {
+	padding: .5em;
+}
+
+#history-toggle {
+	position: absolute;
+	top: 200px;
+	left: 225px;
+}
+
+#call-stats {
+	position: absolute;
+	top: 200px;
+	left: 270px;
+}
+
+#history-clear {
+	display: none;
+	position: absolute;
+	top: 355px;
+	left: 420px;
+}

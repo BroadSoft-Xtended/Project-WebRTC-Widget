@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Exario Networks WebRTC Client</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta name="Author" content="Exario Networks, Inc."/>
+	<link rel="stylesheet" href="stylesheet.css" type="text/css"/>
+	<script src="jquery-1.9.0.min.js" type="text/javascript"></script>
+	<script src="jquery-ui-1.10.0.custom.min.js" type="text/javascript"></script>
+	<script src="jssip-0.2.1.js" type="text/javascript"></script>
+	<script src="webrtc.js" type="text/javascript"></script>
+</head>
+
+<body>
+
+<div id="auth-popup">
+	<span>Username</span><br>
+	<input id="username" type=text value=""/><br>
+	<span>Password</span><br>
+	<input id="password" type="password" value=""/><br>
+	<br>
+	<div id="alert"></div>
+	<button class="button" id="auth-popup_button" type="button">Sign in</button>
+</div>
+
+<div id="main">
+	<span>Enter Destination URI:</span><br>
+	<input id="destination" type=text value=""/>
+	<div class="gradient">
+		<div id="dialpad-toggle">
+			<a href="" title="Toggle Dialpad" class="icon group-c" data-icon="|"></a>
+		</div>
+	</div>
+	<button class="button" id="call_button" type="button">Call</button>
+</div>
+
+<div id="dialpad">
+	<div>
+		<button>1</button>
+		<button>2</button>
+		<button>3</button>
+	</div>
+	<div>
+		<button>4</button>
+		<button>5</button>
+		<button>6</button>
+	</div>
+	<div>
+		<button>7</button>
+		<button>8</button>
+		<button>9</button>
+	</div>
+	<div>
+		<button>*</button>
+		<button>0</button>
+		<button>#</button>
+	</div>
+	<div class="gradient">
+		<div id="history-toggle">
+			<a href="" title="Toggle History" class="icon group-a" data-icon="n"></a>
+		</div>
+		<div id="call-stats">
+			<a href="" title="Call Stats" class="icon group-b" data-icon="x"></a>
+		</div>
+	</div>          
+</div>
+
+<div id="call_history">
+	<div class="row_space"></div>
+	<div id="row0">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>
+	<div id="row1">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>
+	<div id="row2">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>
+	<div id="row3">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>
+	<div id="row4">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>
+	<div id="row5">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>
+	<div id="row6">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>
+	<div id="row7">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>	
+	<div id="row8">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="row_space"></div>	
+	<div id="row9">
+		<a href="" title="Call ID" class="history_call"></a>
+		<a href="" title="Number" class="history_destination"></a>
+		<span class="history_direction"></span><span class="history_status"></span><br>
+		<span class="history_date"></span><span class="history_length"></span>
+	</div>
+	<div class="gradient">
+		<div id="history-clear">
+			<a href="" title="Clear History" class="icon group-d" data-icon="#"></a>
+		</div>
+	</div>
+</div>   
+
+<div id="messages"></div>
+<div id="timer"></div>
+
+<div id="video">
+	<video id="remote-video" autoplay></video>
+	<video id="local-video" autoplay></video>
+	<div class="gradient">
+		<div id="hangup">
+			<a href="" title="Hangup" class="icon group-c" data-icon="D"></a>
+		</div>          
+		<div id="self-view">
+			<a href="" title="Toggle Self View" class="icon group-b" data-icon="V"></a>
+		</div>
+		<div id="full-screen">
+			<a href="" title="Full Screen" class="icon group-a" data-icon="`"></a>	          
+		</div>
+	</div>
+</div>
+
+
+
+<div class="gradient">
+	<div id="connected_green">
+		<span title="Websockets Connected" class="icon connected_green" data-icon="j"></span>
+	</div>
+	<div id="registered_green">
+		<span title="Registered" class="icon registered_green" data-icon="K"></span>
+	</div>
+	<div id="connected_red">
+		<span title="Websockets Disconnected" class="icon connected_red" data-icon="j"></span>
+	</div>
+	<div id="registered_red">
+		<span title="Unregistered" class="icon registered_red" data-icon="K"></span>
+	</div>
+</div>
+      
+</body>
+</html>
