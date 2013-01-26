@@ -12,7 +12,7 @@ $(document).ready(function() {
 var userid = getSearchVariable("userid");
 register = (getSearchVariable("register") == "true");
 destination = getSearchVariable("destination");
-currentCallArray = new Array(6);
+currentCallArray = new Array(5);
 password = false;
 main_destination = $("#main input#destination");
 soundOut = document.createElement("audio");
@@ -210,7 +210,6 @@ function setCookie(type, remoteParty, direction, state) {
 		var cookie_key = ("call_" + callNumber + "=" + currentCallArray[1]);
 		var cookie_expires = ("expires=" + timestamp.toUTCString());
 
-		
 		var cookieValue = (cookie_key + "|" + currentCallArray[2] + "|" + currentCallArray[3] + "|" + state + "|" + formatedDuration + "|" + cookie_expires);
 		document.cookie = cookieValue;	
 	}
@@ -291,6 +290,8 @@ $(function() {
 selfView = true;
 $('#self-view').bind('click', function(e) {
 	e.preventDefault();
+	soundOut.setAttribute("src", "click.ogg");
+    soundOut.play();
 	if (selfView == true) {
 		$("#local-video").fadeOut(100);
 		selfView = false;
@@ -300,7 +301,9 @@ $('#self-view').bind('click', function(e) {
 	}
 });
 
-$('#call_button').click(function() {		
+$('#call_button').click(function() {	
+	soundOut.setAttribute("src", "click.ogg");
+    soundOut.play();	
 	$('button#call_button.button').fadeOut(1000);
 	var destination = main_destination.val();
 	url_call(destination);
@@ -309,6 +312,8 @@ $('#call_button').click(function() {
 dialpad = false;
 $('#dialpad-toggle').bind('click', function(e) {
 	e.preventDefault();
+	soundOut.setAttribute("src", "click.ogg");
+    soundOut.play();
 	if (dialpad == true) {
 		$("#dialpad").fadeOut(100);
 		dialpad = false;
@@ -320,10 +325,14 @@ $('#dialpad-toggle').bind('click', function(e) {
 
 $("#call-stats").bind('click', function(e) {
 	e.preventDefault();
+	soundOut.setAttribute("src", "click.ogg");
+    soundOut.play();
 });
 
 $('#hangup').bind('click', function(e) {
 	e.preventDefault();
+	soundOut.setAttribute("src", "click.ogg");
+    soundOut.play();
 	sipSession.terminate();
 	setCookie("update", false, false, "hangup");
 	endCall();
@@ -332,6 +341,8 @@ $('#hangup').bind('click', function(e) {
 var history = false;
 $('#history-toggle').bind('click', function(e) {
 	e.preventDefault();
+	soundOut.setAttribute("src", "click.ogg");
+    soundOut.play();
 	if (history == true) {
 		$("#call_history, #history-clear").fadeOut(100);
 		history = false;
@@ -340,6 +351,40 @@ $('#history-toggle').bind('click', function(e) {
 		showHistory(1);
 		history = true;
 	}
+});
+
+$("#call_history").bind('click', function(e) {
+	var clicked = (e.target.innerText)
+	var callID = (e.target.parentElement.firstElementChild.firstChild.nodeValue);
+});
+
+fullscreen = false;
+$('#full-screen').bind('click', function(e) {
+	e.preventDefault();
+	soundOut.setAttribute("src", "click.ogg");
+    soundOut.play();
+	if (fullscreen == true) {
+		document.webkitCancelFullScreen();
+		fullscreen = false;
+	} else if (fullscreen == false) {
+		video.webkitRequestFullScreen();
+		fullscreen = true;
+	}
+});
+
+$("#history-clear").bind('click', function(e) {
+	e.preventDefault();
+	soundOut.setAttribute("src", "click.ogg");
+    soundOut.play();
+   	var cookies = document.cookie.split(";");
+    for (var i = 0; i < cookies.length; i++) {
+	 	var cookie = cookies[i];
+		var eqPos = cookie.indexOf("=");
+		var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+    	document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+   	}
+ 	$("#call_history, #history-clear").fadeOut(100);
+ 	var history = false;
 });
 
 // Dialpad functions
@@ -362,39 +407,6 @@ $("#dialpad").bind('click', function(e) {
     soundOut.setAttribute("src", "dtmf-" + file + ".ogg");
     soundOut.play();
 	main_destination.val(main_destination.val() + digit);
-});
-
-$("#call_history").bind('click', function(e) {
-	var clicked = (e.target.innerText)
-	var callID = (e.target.parentElement.firstElementChild.firstChild.nodeValue);
-	console.log(callID);
-	console.log(clicked);
-});
-
-fullscreen = false;
-$('#full-screen').bind('click', function(e) {
-	e.preventDefault();
-	if (fullscreen == true) {
-		document.webkitCancelFullScreen();
-		fullscreen = false;
-	} else if (fullscreen == false) {
-		video.webkitRequestFullScreen();
-		fullscreen = true;
-	}
-});
-
-$("#history-clear").bind('click', function(e) {
-	e.preventDefault();
-   	var cookies = document.cookie.split(";");
-	
-    for (var i = 0; i < cookies.length; i++) {
-	 	var cookie = cookies[i];
-		var eqPos = cookie.indexOf("=");
-		var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-    	document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-   	}
- 	$("#call_history, #history-clear").fadeOut(100);
- 	var history = false;
 });
 
 // Initial function selection
