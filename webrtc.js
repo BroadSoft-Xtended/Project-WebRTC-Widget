@@ -14,6 +14,10 @@ register = (getSearchVariable("register") == "true");
 destination = getSearchVariable("destination");
 currentCallArray = new Array(6);
 password = false;
+main_destination = $("#main input#destination");
+soundOut = document.createElement("audio");
+soundOut.volume = 1;
+firstDigit = true;
 
 // Make it eaiser to pull variables from URL
 function getSearchVariable(variable) {
@@ -26,11 +30,13 @@ function getSearchVariable(variable) {
        return(false);
 }
 
+// Startup timer
 function startTimer () {
 	refreshTimer = showTimer(timer);
 	setInterval(refreshTimer, 1000);
 }
-    
+
+// Display the timer on the screen
 function showTimer () {
 	var element = timer, seconds = -1;
 	return function () {
@@ -45,6 +51,7 @@ function showTimer () {
 	};
 }
 
+// Auth popup
 function authPopUp() {
 	if (!userid==false) {
 		$("#auth-popup input#username").val(userid);
@@ -79,6 +86,7 @@ function message(text, level) {
 	$("#messages").toggleClass(level).text(text).fadeIn(10).fadeOut(10000);
 }
 
+// Make sure destination has proper format
 function validateDestination (destination) {
 	var domain = "204.117.64.121";
 	if (destination.indexOf("sip:") === -1) {
@@ -106,6 +114,13 @@ function url_call(destination) {
             remoteView: document.getElementById("remote-video")
         }
 	};
+	
+	$("#hangup, #timer").fadeIn(1000);
+	startTimer();
+	setCookie("new", destination, ">");
+	
+	// Start the Call
+	sipSession.connect(destination, options);
 
 	// Session event handlers
 	sipSession.on('connecting', function(e) {
@@ -125,29 +140,10 @@ function url_call(destination) {
 		message("Call Ended", "normal");
 		endCall();
 	});
-
-	$("#hangup, #timer").fadeIn(1000);
-	startTimer();
-	setCookie("new", destination, ">");
-	
-	try {
-	sipSession.connect(destination, options);
-	} catch(e) {	
-		return;
-	}
-
 }
-
-main_destination = $("#main input#destination");
 
 function guiStart(userid) {
 	$("#main, #local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
-	$('#call_button').click(function() {		
-		var destination = main_destination.val();
-		console.log(destination);
-		$('#call_button').fadeOut(1000);
-		url_call(destination);
-	});
 }
 
 function showHistory(page) {	
@@ -191,6 +187,7 @@ function endCall() {
 	$("#main, #call_button, #local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
 }
 
+// Store call stats in array, then in cookie on update
 function setCookie(type, remoteParty, direction, state) {
 	if (type=="new") {
 		timestamp = new Date();
@@ -220,10 +217,9 @@ function setCookie(type, remoteParty, direction, state) {
 	
 }
 
-// Startup
+// Initial startup
 function onLoad(userid, destination, password) {
 	// Config settings
-	var register_config = "sdfad"
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
@@ -231,10 +227,26 @@ function onLoad(userid, destination, password) {
 	    'stun_server': 'stun:stun.stunprotocol.org',
 	    'trace_sip': true,
 	    'hack_via_tcp': true,
-	    'register': false
 	};
+
+	// Modify config object based password
+	if (password == false) {
+		config.registration = 'false';
+	} else {
+		config.registration = 'true';
+		config.password = password;
+	}
 	
+	// SIP stack
 	sipStack = new JsSIP.UA(config);
+
+	// Start SIP Stack
+	sipStack.start();
+	
+	// If there is not a destination in URL start the GUI
+	if(destination==false) {
+		guiStart(userid);
+	}
 	
 	// sipStack callbacks 
 	sipStack.on('connected', function(e) {
@@ -246,14 +258,12 @@ function onLoad(userid, destination, password) {
 	});
 	sipStack.on('disconnected', function(e) {
 		$('#connected_red').fadeIn(1000);
-		}
-	);
+		});
 	sipStack.on('newSession', function(e) {
 		if (e.data.session.direction == "incoming") {
 			incommingCall(e);
-			}
 		}
-	);
+	});
 	sipStack.on('registered', function(e) {
 		$('#registered_green').fadeIn(1000);
 		if (!destination==false) {
@@ -262,20 +272,17 @@ function onLoad(userid, destination, password) {
 	});	
 	sipStack.on('registrationFailed', function(e) {
 		$('#registered_red').fadeIn(1000);
-		}
-	);
-	sipStack.start();
-	if(destination==false) {
-		guiStart(userid);
-	}
+	});
 }
 
+// Incoming call function
 function incommingCall(message) {
 	console.log(message);
 	console.log(message.data.session.request.from.uri);
 	console.log(message.data.session);
 }
 
+// Allow the local video window to be draggable, required jQuery.UI
 $(function() {
 	$("#local-video").draggable();
 });
@@ -293,6 +300,12 @@ $('#self-view').bind('click', function(e) {
 	}
 });
 
+$('#call_button').click(function() {		
+	$('button#call_button.button').fadeOut(1000);
+	var destination = main_destination.val();
+	url_call(destination);
+});
+
 dialpad = false;
 $('#dialpad-toggle').bind('click', function(e) {
 	e.preventDefault();
@@ -303,6 +316,10 @@ $('#dialpad-toggle').bind('click', function(e) {
 		$("#dialpad").fadeIn(100);
 		dialpad = true;
 	}
+});
+
+$("#call-stats").bind('click', function(e) {
+	e.preventDefault();
 });
 
 $('#hangup').bind('click', function(e) {
@@ -325,6 +342,7 @@ $('#history-toggle').bind('click', function(e) {
 	}
 });
 
+// Dialpad functions
 $("#dialpad").bind('click', function(e) {
 	var digit = (e.toElement.innerText);
 	if (digit.length != 1) {
@@ -376,12 +394,10 @@ $("#history-clear").bind('click', function(e) {
     	document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
    	}
  	$("#call_history, #history-clear").fadeOut(100);
+ 	var history = false;
 });
 
-$("#call-stats").bind('click', function(e) {
-	e.preventDefault();
-});
-
+// Initial function selection
 if (!userid==false & register==false) {
 	password = false;
 	onLoad(userid, destination, password);
@@ -389,8 +405,5 @@ if (!userid==false & register==false) {
 	authPopUp(userid, password);
 }
 
-soundOut = document.createElement("audio");
-soundOut.volume = 1;
-firstDigit = true;
 
 });
