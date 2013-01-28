@@ -31,7 +31,7 @@ function getSearchVariable(variable) {
 }
 
 
-// Startup timer
+// Start timer
 function startTimer () {
 	timmer_running = true;
 	var startTimer = showTimer();
@@ -39,6 +39,7 @@ function startTimer () {
 	$("#timer").fadeIn(100);
 }
 
+// Stop timer
 function stopTimer () {
 	$("#timer").fadeOut(100);
 	clearInterval(call_timer);
@@ -87,10 +88,13 @@ function authPopUp() {
 		$("#auth-popup").fadeOut(300);
 		onLoad(userid, false, password);
 		guiStart(userid, password);
-	});
+	});;
 }
 
+// Display status messages
 function message(text, level) {
+	$("#messages").stop(true, true);
+	$("#messages").removeClass("normal success warning alert");
 	$("#messages").toggleClass(level).text(text).fadeIn(10).fadeOut(10000);
 }
 
@@ -124,7 +128,6 @@ function url_call(destination) {
 	};
 	
 	$("#hangup").fadeIn(1000);
-	startTimer();
 	setCookie("new", destination, ">");
 	
 	// Start the Call
@@ -142,6 +145,7 @@ function url_call(destination) {
 		endCall();
 	});
 	sipSession.on('started', function(e) {
+		startTimer();
 		message("Call Started", "success");
 	});
 	sipSession.on('ended', function(e) {
@@ -235,7 +239,7 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-	    'outbound_proxy_set': 'ws://proxy.exarionetworks.com:8060',
+	    'outbound_proxy_set': 'ws://cbridge1.exarionetworks.com:8060',
 	    'stun_server': 'stun:stun.stunprotocol.org',
 	    'trace_sip': true,
 	    'hack_via_tcp': true,
@@ -243,9 +247,9 @@ function onLoad(userid, destination, password) {
 
 	// Modify config object based password
 	if (password == false) {
-		config.registration = 'false';
+		config.register = false;
 	} else {
-		config.registration = 'true';
+		config.register = true;
 		config.password = password;
 	}
 	
@@ -262,7 +266,9 @@ function onLoad(userid, destination, password) {
 	
 	// sipStack callbacks 
 	sipStack.on('connected', function(e) {
+		$('#connected_red').fadeOut(100);
 		$('#connected_green').fadeIn(1000);
+		message("Connected", "success");
 		if (!destination==false & register==false) {
 			$("#local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
 			url_call(destination);
@@ -276,15 +282,17 @@ function onLoad(userid, destination, password) {
 			incommingCall(e);
 		}
 	});
-	sipStack.on('registered', function(e) {
+	if (!password == false) {
+		sipStack.on('registered', function(e) {
 		$('#registered_green').fadeIn(1000);
 		if (!destination==false) {
 			url_call(destination);
-		}
-	});	
-	sipStack.on('registrationFailed', function(e) {
+			}
+		});
+		sipStack.on('registrationFailed', function(e) {
 		$('#registered_red').fadeIn(1000);
-	});
+		});
+	};
 }
 
 // Incoming call function
@@ -319,7 +327,11 @@ $('#call_button').click(function() {
     soundOut.play();	
 	$('button#call_button.button').fadeOut(1000);
 	var destination = main_destination.val();
-	url_call(destination);
+	if (destination == "") {
+		message("Invalid Number", "alert");
+	} else {
+		url_call(destination);
+	}
 });
 
 dialpad = false;
@@ -420,6 +432,8 @@ $("#dialpad").bind('click', function(e) {
     soundOut.setAttribute("src", "dtmf-" + file + ".ogg");
     soundOut.play();
 	main_destination.val(main_destination.val() + digit);
+	var body = "Signal = " + digit + "\nDuration = 120" ;
+	sipSession.sendINFO("application/dtmf", body, options=null);
 });
 
 // Initial function selection
@@ -429,6 +443,5 @@ if (!userid==false & register==false) {
 } else {
 	authPopUp(userid, password);
 }
-
 
 });
