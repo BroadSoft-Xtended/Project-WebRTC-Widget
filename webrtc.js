@@ -30,10 +30,18 @@ function getSearchVariable(variable) {
        return(false);
 }
 
+
 // Startup timer
 function startTimer () {
-	refreshTimer = showTimer(timer);
-	setInterval(refreshTimer, 1000);
+	timmer_running = true;
+	var startTimer = showTimer();
+	call_timer = setInterval(startTimer, 1000);
+	$("#timer").fadeIn(100);
+}
+
+function stopTimer () {
+	$("#timer").fadeOut(100);
+	clearInterval(call_timer);
 }
 
 // Display the timer on the screen
@@ -115,7 +123,7 @@ function url_call(destination) {
         }
 	};
 	
-	$("#hangup, #timer").fadeIn(1000);
+	$("#hangup").fadeIn(1000);
 	startTimer();
 	setCookie("new", destination, ">");
 	
@@ -183,7 +191,12 @@ function showHistory(page) {
 }
 
 function endCall() {
-	$("#hangup, #timer").fadeOut(100);
+	$("#hangup").fadeOut(100);
+	stopTimer();
+	// Clear last image from video tags
+	$("#local-video").removeAttr("src");
+	$("#remote-video").removeAttr("src");
+	// Bring up the main elements
 	$("#main, #call_button, #local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
 }
 
