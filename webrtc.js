@@ -19,6 +19,7 @@ main_destination = $("#main input#destination");
 soundOut = document.createElement("audio");
 soundOut.volume = 1;
 firstDigit = true;
+timer_running = false;
 
 // Make it eaiser to pull variables from URL
 function getSearchVariable(variable) {
@@ -101,19 +102,18 @@ function message(text, level) {
 
 // Make sure destination has proper format
 function validateDestination (destination) {
-	var domain = "204.117.64.121";
+	var domain = "cbridge1.exarionetworks.com";
 	if (destination.indexOf("sip:") === -1) {
 		destination = ("sip:" + destination);
-		if ((destination.indexOf("@" & ".") === -1)) {
-			destination = (destination + "@" + domain);
-			console.log()
-		}
+	}
+	if ((destination.indexOf("@") === -1)) {
+		destination = (destination + "@" + domain);
 	}
 	return(destination); 
 }
 
 // URL call
-function url_call(destination) {
+function uriCall(destination) {
 	var destination = validateDestination(destination);
 	sipSession = new JsSIP.Session(sipStack);
 
@@ -155,7 +155,12 @@ function url_call(destination) {
 		message("Progressing", "normal");
 	});
 	sipSession.on('failed', function(e) {
-		message("Call Failed", "alert");
+		var sip_reason = e.data.response.reason_phrase;
+		if (sip_reason == null) {
+			message("Call Failed", "alert");	
+		} else {
+			message(sip_reason, "alert");
+		}
 		endCall();
 	});
 	sipSession.on('started', function(e) {
@@ -210,12 +215,14 @@ function showHistory(page) {
 
 function endCall() {
 	$("#hangup").fadeOut(100);
-	stopTimer();
 	// Clear last image from video tags
 	$("#local-video").removeAttr("src");
 	$("#remote-video").removeAttr("src");
 	// Bring up the main elements
 	$("#main, #call_button, #local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
+	if (timer_running == true) {
+		stopTimer
+	}
 }
 
 // Store call stats in array, then in cookie on update
@@ -344,7 +351,7 @@ $('#call_button').click(function() {
 		message("Invalid Number", "alert");
 	} else {
 		$('button#call_button.button').fadeOut(1000);
-		url_call(destination);
+		uriCall(destination);
 	}
 });
 
