@@ -219,7 +219,7 @@ JsSIP.Event = function(type, sender, data) {
  */
 
 JsSIP.c = {
-  USER_AGENT: JsSIP.name() +' '+ JsSIP.version(),
+  USER_AGENT: "Exario Networks WebRTC - 1.0",
 
   // Modules and Classes names for logging purposes
   // Modules
@@ -1435,7 +1435,7 @@ JsSIP.IncomingRequest.prototype.reply = function(code, reason, extraHeaders, bod
     response += 'Content-Length: ' + length + '\r\n\r\n';
     response += body;
   } else {
-    response += '\r\n';
+    response += 'Content-Length: ' + 0 + '\r\n\r\n';
   }
 
   this.server_transaction.receiveResponse(code, response, onSuccess, onFailure);
@@ -1479,7 +1479,8 @@ JsSIP.IncomingRequest.prototype.reply_sl = function(code, reason) {
   response += 'To: ' + to + '\r\n';
   response += 'From: ' + this.getHeader('From') + '\r\n';
   response += 'Call-ID: ' + this.call_id + '\r\n';
-  response += 'CSeq: ' + this.cseq + ' ' + this.method + '\r\n\r\n';
+  response += 'CSeq: ' + this.cseq + ' ' + this.method + '\r\n';
+  response += 'Content-Length: ' + 0 + '\r\n\r\n';
 
   this.transport.send(response);
 };
@@ -1495,6 +1496,7 @@ JsSIP.IncomingResponse = function() {
   this.reason_phrase = null;
 };
 JsSIP.IncomingResponse.prototype = new JsSIP.IncomingMessage();
+
 
 /**
  * @fileoverview Transactions
@@ -3730,7 +3732,7 @@ JsSIP.Session.prototype.cancel = function(reason) {
  * @param {String} body
  * @param {Array} [extraHeaders]
  */
-JsSIP.Session.prototype.sendINFO = function(application, body, extraHeaders) {
+JsSIP.Session.prototype.sendINFO = function(application, body, eventHandlers, extraHeaders) {
   var info, options;
 
   // Check Session Status
@@ -3750,6 +3752,7 @@ JsSIP.Session.prototype.sendINFO = function(application, body, extraHeaders) {
 
   options = options || {};
   options.application = application;
+  options.eventHandlers = eventHandlers;
   options.body = body || null;
   options.extraHeaders = extraHeaders || [];
 

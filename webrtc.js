@@ -118,7 +118,7 @@ function url_call(destination) {
 	sipSession = new JsSIP.Session(sipStack);
 
 	var constraints = {
-		"mandatory": {
+		mandatory: {
 			minWidth: 1280,
 			minHeight: 720
 		}
@@ -253,7 +253,7 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-		'outbound_proxy_set': 'ws://cbridge1.exarionetworks.com:8060',
+		'outbound_proxy_set': 'ws://proxy.exarionetworks.com:8060',
 		'stun_server': 'stun:stun.stunprotocol.org',
 		'trace_sip': true,
 		'hack_via_tcp': true,
