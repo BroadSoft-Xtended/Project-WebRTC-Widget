@@ -239,6 +239,19 @@ body {
 	box-shadow: 0px 0px 20px #999999;
 }
 
+#remote-video.hd {
+	display: none;
+	position: absolute;
+	top: 100px;
+	right: 25px;
+	width: 1280px;
+	height: 720px;
+	background-color: #191414;
+	border-radius: 4px 4px 4px 4px;
+	border: 2px solid #DDDDDD;
+	box-shadow: 0px 0px 20px #999999;
+}
+
 :-webkit-full-screen #remote-video {
 	display: none;
 	position: absolute;
@@ -263,6 +276,18 @@ body {
 	box-shadow: 0px 0px 20px #999999;
 }
 
+#local-video.hd {
+	display: none;
+	position: absolute;
+	top: 100px;
+	right: 985px;
+	width: 320px;
+	height: 180px;
+	background-color: #241D1D;
+  	border-radius: 4px 4px 4px 4px;
+	border: 2px solid #ddd;
+	box-shadow: 0px 0px 20px #999999;
+}
 :-webkit-full-screen #local-video {
 	display: none;
 	position: absolute;
@@ -308,6 +333,13 @@ body {
 	right: 25px;
 }
 
+#hangup.hd {
+	display: none;
+	position: absolute;
+	top: 840px;
+	right: 25px;
+}
+
 :-webkit-full-screen #hangup {
 	display: none;
 	position: absolute;
@@ -321,6 +353,13 @@ body {
 	position: absolute;
 	top: 600px;
 	right: 580px;
+}
+
+#self-view.hd {
+	display: none;
+	position: absolute;
+	top: 840px;
+	right: 1220px;
 }
 
 :-webkit-full-screen #self-view {
@@ -337,6 +376,13 @@ body {
 	position: absolute;
 	top: 600px;
 	right: 630px;
+}
+
+#full-screen.hd {
+	display: none;
+	position: absolute;
+	top: 840px;
+	right: 1270px;
 }
 
 :-webkit-full-screen #full-screen {
@@ -358,6 +404,15 @@ body {
 	color: #90510c;
 }
 
+#timer.hd {
+	position: absolute;
+	top: 840px;
+	right: 1115px;
+	font-family: arial;
+	font-size: 20px; 
+	color: #90510c;
+}
+
 :-webkit-full-screen #timer {
 	display: none;
 	position: absolute;
@@ -371,6 +426,14 @@ body {
 	position: absolute;
 	top: 600px;
 	right: 120px;
+	font-family:arial;
+	font-size: 20px; 
+}
+
+#messages.hd {
+	position: absolute;
+	top: 840px;
+	right: 760px;
 	font-family:arial;
 	font-size: 20px; 
 }
@@ -464,7 +527,7 @@ body {
 	left: 225px;
 }
 
-#call-stats {
+#settings {
 	position: absolute;
 	top: 200px;
 	left: 270px;

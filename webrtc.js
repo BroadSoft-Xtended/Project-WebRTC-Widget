@@ -12,6 +12,7 @@ $(document).ready(function() {
 var userid = getSearchVariable("userid");
 register = (getSearchVariable("register") == "true");
 destination = getSearchVariable("destination");
+hd = (getSearchVariable("hd") == "true"); 
 currentCallArray = new Array(5);
 password = false;
 main_destination = $("#main input#destination");
@@ -82,7 +83,7 @@ function authPopUp() {
 			return;
 		}
 		if (password == "") {
-			$("#alert").text("Invalid Passowrd").fadeIn(10).fadeOut(4000);
+			$("#alert").text("Invalid Password").fadeIn(10).fadeOut(4000);
 			return;
 		}
 		$("#auth-popup").fadeOut(300);
@@ -116,10 +117,23 @@ function url_call(destination) {
 	var destination = validateDestination(destination);
 	sipSession = new JsSIP.Session(sipStack);
 
+	var constraints = {
+		"mandatory": {
+			minWidth: 1280,
+			minHeight: 720
+		}
+	};
+
+	if (hd == true) {
+		var video = constraints;
+	} else {
+		var video = true;
+	}
+
     var options = {
         mediaType: {
             audio: true,
-            video: true
+            video: video
         },
         views: {
             selfView: document.getElementById("local-video"),
@@ -239,10 +253,10 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-	    'outbound_proxy_set': 'ws://cbridge1.exarionetworks.com:8060',
-	    'stun_server': 'stun:stun.stunprotocol.org',
-	    'trace_sip': true,
-	    'hack_via_tcp': true,
+		'outbound_proxy_set': 'ws://cbridge1.exarionetworks.com:8060',
+		'stun_server': 'stun:stun.stunprotocol.org',
+		'trace_sip': true,
+		'hack_via_tcp': true,
 	};
 
 	// Modify config object based password
@@ -325,11 +339,11 @@ $('#self-view').bind('click', function(e) {
 $('#call_button').click(function() {	
 	soundOut.setAttribute("src", "click.ogg");
     soundOut.play();	
-	$('button#call_button.button').fadeOut(1000);
 	var destination = main_destination.val();
 	if (destination == "") {
 		message("Invalid Number", "alert");
 	} else {
+		$('button#call_button.button').fadeOut(1000);
 		url_call(destination);
 	}
 });
@@ -348,10 +362,17 @@ $('#dialpad-toggle').bind('click', function(e) {
 	}
 });
 
-$("#call-stats").bind('click', function(e) {
+$("#settings").bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
     soundOut.play();
+    if (hd == true) {
+    	$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").removeClass("hd");
+    	history = false;
+    } else if (history == false) {
+    	$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").addClass("hd");
+    	hd = true;
+    }   
 });
 
 $('#hangup').bind('click', function(e) {
@@ -363,7 +384,7 @@ $('#hangup').bind('click', function(e) {
 	endCall();
 });
 
-var history = false;
+history = false;
 $('#history-toggle').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
@@ -408,8 +429,7 @@ $("#history-clear").bind('click', function(e) {
 		var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
     	document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
    	}
- 	$("#call_history, #history-clear").fadeOut(100);
- 	var history = false;
+   	$('#history-toggle').click();
 });
 
 // Dialpad functions
@@ -437,7 +457,11 @@ $("#dialpad").bind('click', function(e) {
 });
 
 // Initial function selection
-if (!userid==false & register==false) {
+if (hd == true) {
+	$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").addClass("hd");
+}
+
+if (!userid == false & register == false) {
 	password = false;
 	onLoad(userid, destination, password);
 } else {
