@@ -17,7 +17,7 @@ currentCallArray = new Array(5);
 password = false;
 main_destination = $("#main input#destination");
 soundOut = document.createElement("audio");
-soundOut.volume = 1;
+soundOut.volume = .05;
 firstDigit = true;
 timer_running = false;
 
@@ -130,22 +130,23 @@ function uriCall(destination) {
 		var video = true;
 	}
 
-    var options = {
-        mediaType: {
-            audio: true,
-            video: video
-        },
-        views: {
-            selfView: document.getElementById("local-video"),
-            remoteView: document.getElementById("remote-video")
-        }
+	var options = {
+		mediaType: {
+            		audio: true,
+            		video: true
+        	}
 	};
+        
+	var views = {
+		selfView: document.getElementById("local-video"),
+		remoteView: document.getElementById("remote-video")
+        };
 	
 	$("#hangup").fadeIn(1000);
 	setCookie("new", destination, ">");
 	
 	// Start the Call
-	sipSession.connect(destination, options);
+	sipSession.connect(destination, views, options);
 
 	// Session event handlers
 	sipSession.on('connecting', function(e) {
@@ -260,8 +261,8 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-		'outbound_proxy_set': 'ws://proxy.exarionetworks.com:8060',
-		'stun_server': 'stun:stun.stunprotocol.org',
+		'ws_servers': 'ws://cbridge1.exarionetworks.com:8060',
+		'stun_servers': 'stun:107.23.150.92',
 		'trace_sip': true,
 		'hack_via_tcp': true,
 	};
@@ -287,8 +288,8 @@ function onLoad(userid, destination, password) {
 	
 	// sipStack callbacks 
 	sipStack.on('connected', function(e) {
-		$('#connected_red').fadeOut(100);
-		$('#connected_green').fadeIn(1000);
+		$("#connected").removeClass("alert");
+		$("#connected").toggleClass("success").fadeIn(1000);
 		message("Connected", "success");
 		if (!destination==false & register==false) {
 			$("#local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
@@ -296,7 +297,8 @@ function onLoad(userid, destination, password) {
 		}
 	});
 	sipStack.on('disconnected', function(e) {
-		$('#connected_red').fadeIn(1000);
+		$("#connected").removeClass("success");
+                $("#connected").toggleClass("alert").fadeIn(1000);
 		});
 	sipStack.on('newSession', function(e) {
 		if (e.data.session.direction == "incoming") {
@@ -305,13 +307,15 @@ function onLoad(userid, destination, password) {
 	});
 	if (!password == false) {
 		sipStack.on('registered', function(e) {
-		$('#registered_green').fadeIn(1000);
+		$("#registered").removeClass("alert");
+                $("#registered").toggleClass("success").fadeIn(1000);
 		if (!destination==false) {
 			url_call(destination);
 			}
 		});
 		sipStack.on('registrationFailed', function(e) {
-		$('#registered_red').fadeIn(1000);
+		$("#registered").removeClass("success");
+                $("#registered").toggleClass("alert").fadeIn(1000);
 		});
 	};
 }
@@ -333,7 +337,7 @@ selfView = true;
 $('#self-view').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
-    soundOut.play();
+	soundOut.play();
 	if (selfView == true) {
 		$("#local-video").fadeOut(100);
 		selfView = false;
@@ -345,7 +349,7 @@ $('#self-view').bind('click', function(e) {
 
 $('#call_button').click(function() {	
 	soundOut.setAttribute("src", "click.ogg");
-    soundOut.play();	
+	soundOut.play();	
 	var destination = main_destination.val();
 	if (destination == "") {
 		message("Invalid Number", "alert");
@@ -359,7 +363,7 @@ dialpad = false;
 $('#dialpad-toggle').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
-    soundOut.play();
+	soundOut.play();
 	if (dialpad == true) {
 		$("#dialpad").fadeOut(100);
 		dialpad = false;
@@ -372,38 +376,39 @@ $('#dialpad-toggle').bind('click', function(e) {
 $("#settings").bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
-    soundOut.play();
-    if (hd == true) {
-    	$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").removeClass("hd");
-    	history = false;
-    } else if (history == false) {
-    	$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").addClass("hd");
-    	hd = true;
-    }   
+	soundOut.play();
+	if (hd == true) {
+		$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").removeClass("hd");
+		hd = false;
+	} else if (hd == false) {
+		$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").addClass("hd");
+	hd = true;
+	}   
 });
 
 $('#hangup').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
-    soundOut.play();
+	soundOut.play();
 	sipSession.terminate();
 	setCookie("update", false, false, "hangup");
 	endCall();
 });
 
-history = false;
+history_pressed = false;
 $('#history-toggle').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
-    soundOut.play();
-	if (history == true) {
+	soundOut.play();
+	if (history_pressed == true) {
+		history_pressed = false;
 		$("#call_history, #history-clear").fadeOut(100);
-		history = false;
-	} else if (history == false) {
+	} else if (history_pressed == false) {
+		history_pressed = true;
 		$("#call_history, #history-clear").fadeIn(100);
 		showHistory(1);
-		history = true;
 	}
+	e.stopPropagation();
 });
 
 $("#call_history").bind('click', function(e) {
@@ -415,7 +420,7 @@ fullscreen = false;
 $('#full-screen').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
-    soundOut.play();
+	soundOut.play();
 	if (fullscreen == true) {
 		document.webkitCancelFullScreen();
 		fullscreen = false;
@@ -428,20 +433,22 @@ $('#full-screen').bind('click', function(e) {
 $("#history-clear").bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
-    soundOut.play();
+	soundOut.play();
    	var cookies = document.cookie.split(";");
-    for (var i = 0; i < cookies.length; i++) {
-	 	var cookie = cookies[i];
+	for (var i = 0; i < cookies.length; i++) {
+		var cookie = cookies[i];
 		var eqPos = cookie.indexOf("=");
 		var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-    	document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    		document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
    	}
    	$('#history-toggle').click();
 });
 
 // Dialpad functions
 $("#dialpad").bind('click', function(e) {
-	var digit = (e.toElement.innerText);
+	var digit = (e.target.textContent);
+	dtmfOut = document.createElement("audio");
+        dtmfOut.volume = 1;
 	if (digit.length != 1) {
 		return;
 	}
@@ -449,15 +456,15 @@ $("#dialpad").bind('click', function(e) {
 		main_destination.val("");
 		firstDigit = false;
 	}
-    if (digit == "*") {
+	if (digit == "*") {
 		file = "star";
-    } else if (digit == "#") {
-    	file = "pound";
-    } else {
-    	file = digit;
-    }
-    soundOut.setAttribute("src", "dtmf-" + file + ".ogg");
-    soundOut.play();
+	} else if (digit == "#") {
+		file = "pound";
+	} else {
+		file = digit;
+	}
+	dtmfOut.setAttribute("src", "dtmf-" + file + ".ogg");
+	dtmfOut.play();
 	main_destination.val(main_destination.val() + digit);
 	var body = "Signal = " + digit + "\nDuration = 120" ;
 	sipSession.sendINFO("application/dtmf", body, options=null);
