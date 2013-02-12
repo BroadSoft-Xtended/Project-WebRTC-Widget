@@ -1,10 +1,12 @@
 /***************************************************
  * webrtc.js
- * Created on Mon Jan 14 15:32:43 GMT 2013 by nathan
+ * Created on Mon Jan 14 15:32:43 GMT 2013 by:
+ * Nathan Stratton <nathan@robotics.net>
  *
- * $Author$
- * $Rev$
- * $Date$
+ * Copyright 2013 Exario Networks
+ * 
+ * JsSIP library is MIT-license code: 
+ * http://www.opensource.org/licenses/mit-license.php
  ***************************************************/
 $(document).ready(function() {
 
@@ -18,7 +20,6 @@ password = false;
 main_destination = $("#main input#destination");
 soundOut = document.createElement("audio");
 soundOut.volume = .05;
-firstDigit = true;
 timer_running = false;
 
 // Make it eaiser to pull variables from URL
@@ -35,7 +36,7 @@ function getSearchVariable(variable) {
 
 // Start timer
 function startTimer () {
-	timmer_running = true;
+	timer_running = true;
 	var startTimer = showTimer();
 	call_timer = setInterval(startTimer, 1000);
 	$("#timer").fadeIn(100);
@@ -131,9 +132,9 @@ function uriCall(destination) {
 	}
 
 	var options = {
-		mediaType: {
+		mediaTypes: {
             		audio: true,
-            		video: true
+            		video: video
         	}
 	};
         
@@ -222,7 +223,7 @@ function endCall() {
 	// Bring up the main elements
 	$("#main, #call_button, #local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
 	if (timer_running == true) {
-		stopTimer
+		stopTimer();
 	}
 }
 
@@ -261,7 +262,7 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-		'ws_servers': 'ws://cbridge1.exarionetworks.com:8060',
+		'ws_servers': 'ws://proxy.exarionetworks.com:8060',
 		'stun_servers': 'stun:107.23.150.92',
 		'trace_sip': true,
 		'hack_via_tcp': true,
@@ -326,6 +327,29 @@ function incommingCall(message) {
 	console.log(message.data.session.request.from.uri);
 	console.log(message.data.session);
 }
+
+// What we do when we get a digit
+function pressDTMF (digit) {
+        dtmfOut = document.createElement("audio");
+        dtmfOut.volume = 1;
+        if (digit.length != 1) {
+                return;
+        }
+        if (digit == "*") {
+                file = "star";
+        } else if (digit == "#") {
+                file = "pound";
+        } else {
+                file = digit;
+        }
+        dtmfOut.setAttribute("src", "dtmf-" + file + ".ogg");
+        dtmfOut.play();
+	console.log("digit=" + digit);
+        main_destination.val(main_destination.val() + digit);
+	if (timer_running == true) {
+        	sipSession.sendDTMF(digit, options=null);
+        }
+};
 
 // Allow the local video window to be draggable, required jQuery.UI
 $(function() {
@@ -444,31 +468,21 @@ $("#history-clear").bind('click', function(e) {
    	$('#history-toggle').click();
 });
 
-// Dialpad functions
+// Dialpad digits
 $("#dialpad").bind('click', function(e) {
-	var digit = (e.target.textContent);
-	dtmfOut = document.createElement("audio");
-        dtmfOut.volume = 1;
-	if (digit.length != 1) {
-		return;
-	}
-	if (firstDigit == true) {
-		main_destination.val("");
-		firstDigit = false;
-	}
-	if (digit == "*") {
-		file = "star";
-	} else if (digit == "#") {
-		file = "pound";
-	} else {
-		file = digit;
-	}
-	dtmfOut.setAttribute("src", "dtmf-" + file + ".ogg");
-	dtmfOut.play();
-	main_destination.val(main_destination.val() + digit);
-	var body = "Signal = " + digit + "\nDuration = 120" ;
-	sipSession.sendINFO("application/dtmf", body, options=null);
+	pressDTMF(e.target.textContent)
 });
+
+// Digits from keyboard
+document.onkeypress=function(e){
+	var e=window.event || e
+	if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42) {
+		var digit = String.fromCharCode(e.charCode);
+	}
+	if (timer_running == true) {
+		pressDTMF(digit);
+	}
+};
 
 // Initial function selection
 if (hd == true) {
