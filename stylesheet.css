@@ -43,31 +43,31 @@ body {
 	box-shadow: 0px 0px 10px #999;
 }
 
-.group-a:before {
+.groupA:before {
 	color: #000AF6;
 }
 
-.group-a:hover:before {
+.groupA:hover:before {
 	color: #0082FF;
 }
 
-.group-b:before {
+.groupB:before {
 	color: #FFDD26;
 }
 
-.group-b:hover:before {
+.groupB:hover:before {
 	color: #FF0000;
 }
 
-.group-c:before {
+.groupC:before {
 	color: #7CDD07;
 }
 
-.group-c:hover:before {
+.groupC:hover:before {
 	color: #E99429;
 }
 
-#auth-popup {
+#authPopup {
 	display: none;
 	background: #333333;
 	padding: 10px; 	
@@ -82,13 +82,13 @@ body {
 	line-height: 18px;
 }
 
-#auth-popup span {
+#authPopup span {
 	color: #999999; 
 	font-size: 14px; 
 	line-height: 18px;
 }
 
-#auth-popup input {
+#authPopup input {
 	background: #666666; 
 	border-bottom: 1px solid #333333;
 	border-left: 1px solid #000000;
@@ -102,7 +102,7 @@ body {
 	width: 200px;
 }
 
-#auth-popup button {
+#authPopup button {
 	border-color: #999999; 
 	border-width: 1px;
 	border-radius: 4px;
@@ -114,7 +114,7 @@ body {
 	width: 214px;
 }
 
-#auth-popup #alert {
+#authPopup #alert {
 	font-size: 20px;
 	text-align: center;
 	color: #FF0000;
@@ -144,7 +144,7 @@ body {
 	width: 250px;
 }
 
-#dialpad-toggle {
+#dialpadToggle {
 	position: absolute;
 	top: 25px;
 	left: 268px;
@@ -200,7 +200,7 @@ body {
 	box-shadow: 1px 1px 20px #999999;
 }
 
-#remote-video {
+#remoteVideo {
 	display: none;
 	position: absolute;
 	top: 100px;
@@ -213,7 +213,7 @@ body {
 	box-shadow: 0px 0px 10px #999999;
 }
 
-#remote-video.hd {
+#remoteVideo.hd {
 	display: none;
 	position: absolute;
 	top: 100px;
@@ -226,7 +226,7 @@ body {
 	box-shadow: 0px 0px 10px #999999;
 }
 
-:-webkit-full-screen #remote-video {
+:-webkit-full-screen #remoteVideo {
 	display: none;
 	position: absolute;
 	top: 0px;
@@ -237,7 +237,7 @@ body {
 	border: none;
 }
 
-#local-video {
+#localVideo {
 	display: none;
 	position: absolute;
 	top: 100px;
@@ -250,7 +250,7 @@ body {
 	box-shadow: 0px 0px 10px #999999;
 }
 
-#local-video.hd {
+#localVideo.hd {
 	display: none;
 	position: absolute;
 	top: 100px;
@@ -263,7 +263,7 @@ body {
 	box-shadow: 0px 0px 10px #999999;
 }
 
-:-webkit-full-screen #local-video {
+:-webkit-full-screen #localVideo {
 	display: none;
 	position: absolute;
 	top: 0px;
@@ -273,7 +273,7 @@ body {
 	height: 240px;
 }
 
-:-webkit-full-screen #local-video.hd {
+:-webkit-full-screen #localVideo.hd {
 	display: none;
 	position: absolute;
 	top: 0px;
@@ -320,21 +320,21 @@ body {
 	right: 25px;
 }
 
-#self-view {
+#selfView {
 	display: none;
 	position: absolute;
 	top: 600px;
 	right: 580px;
 }
 
-#self-view.hd {
+#selfView.hd {
 	display: none;
 	position: absolute;
 	top: 840px;
 	right: 1220px;
 }
 
-:-webkit-full-screen #self-view {
+:-webkit-full-screen #selfView {
 	display: none;
 	position: absolute;
 	top: auto;
@@ -343,21 +343,21 @@ body {
 	left: 100px;
 }
 
-#full-screen {
+#fullScreen {
 	display: none;
 	position: absolute;
 	top: 600px;
 	right: 630px;
 }
 
-#full-screen.hd {
+#fullScreen.hd {
 	display: none;
 	position: absolute;
 	top: 840px;
 	right: 1270px;
 }
 
-:-webkit-full-screen #full-screen {
+:-webkit-fullScreen #fullScreen {
 	display: none;
 	position: absolute;
 	top: auto;
@@ -426,7 +426,7 @@ body {
 	color: #FF0000;
 }
 
-#call_history {
+#callHistory {
 	display: none;
 	position: absolute;
 	top: 330px;
@@ -439,7 +439,7 @@ body {
 	box-shadow: 0px 0px 10px #999999;
 }
 
-#call_history .history_call {
+#callHistory .historyCall {
 	position: absolute;
 	color: #0082FF;
 	left: 10px;
@@ -448,7 +448,7 @@ body {
 	text-decoration: none;
 }
 
-#call_history .history_destination {
+#callHistory .historyDestination {
 	position: absolute;
 	color: #0082FF;
 	left: 60px;
@@ -457,7 +457,7 @@ body {
 	text-decoration: none;
 }
 
-#call_history .history_direction {
+#callHistory .historyDirection {
 	position: absolute;
 	color: #0082FF;
 	left: 220px;
@@ -465,7 +465,7 @@ body {
 	font-size: 18px; 
 }
 
-#call_history .history_status {
+#callHistory .historyStatus {
 	position: absolute;
 	color: #0082FF;
 	left: 260px;
@@ -473,7 +473,7 @@ body {
 	font-size: 18px; 
 }
 
-#call_history .history_date {
+#callHistory .historyDate {
 	position: absolute;
 	color: #0082FF;
 	left: 10px;
@@ -481,7 +481,7 @@ body {
 	font-size: 10px; 
 }
 
-#call_history .history_length {
+#callHistory .historyLength {
 	position: absolute;
 	color: #0082FF;
 	left: 220px;
@@ -489,11 +489,11 @@ body {
 	font-size: 10px; 
 }
 
-#call_history .row_space {
+#callHistory .rowSpace {
 	padding: .5em;
 }
 
-#history-toggle {
+#historyToggle {
 	position: absolute;
 	top: 200px;
 	left: 225px;
@@ -505,7 +505,7 @@ body {
 	left: 270px;
 }
 
-#history-clear {
+#historyClear {
 	display: none;
 	position: absolute;
 	top: 355px;

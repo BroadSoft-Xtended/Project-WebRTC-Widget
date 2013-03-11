@@ -17,10 +17,10 @@ destination = getSearchVariable("destination");
 hd = (getSearchVariable("hd") == "true"); 
 currentCallArray = new Array(5);
 password = false;
-main_destination = $("#main input#destination");
+mainDestination = $("#main input#destination");
 soundOut = document.createElement("audio");
 soundOut.volume = .05;
-timer_running = false;
+timerRunning = false;
 
 // Make it eaiser to pull variables from URL
 function getSearchVariable(variable) {
@@ -36,16 +36,17 @@ function getSearchVariable(variable) {
 
 // Start timer
 function startTimer () {
-	timer_running = true;
+	timerRunning = true;
 	var startTimer = showTimer();
-	call_timer = setInterval(startTimer, 1000);
+	callTimer = setInterval(startTimer, 1000);
 	$("#timer").fadeIn(100);
 }
 
 // Stop timer
 function stopTimer () {
 	$("#timer").fadeOut(100);
-	clearInterval(call_timer);
+	timerRunning = false;
+	clearInterval(callTimer);
 }
 
 // Display the timer on the screen
@@ -60,25 +61,25 @@ function showTimer () {
         secs %= 60;
         formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (secs < 10 ? "0" : "") + secs;
 		$("#timer").text(formatedDuration);
-	};
+	}
 }
 
 // Auth popup
 function authPopUp() {
 	if (!userid==false) {
-		$("#auth-popup input#username").val(userid);
+		$("#authPopup input#username").val(userid);
 	}
 	
-	$("#auth-popup").keypress(function(e) {
+	$("#authPopup").keypress(function(e) {
 		if (e.which == 13) {
-			$('#auth-popup_button').click();
+			$('#authPopupButton').click();
 		}
 	})
 	
-	$("#auth-popup").fadeIn(300);
-	$('#auth-popup_button').click(function() {
-		var userid = $("#auth-popup input#username").val();
-		var password = $("#auth-popup input#password").val();
+	$("#authPopup").fadeIn(300);
+	$('#authPopupButton').click(function() {
+		var userid = $("#authPopup input#username").val();
+		var password = $("#authPopup input#password").val();
 		register=true;
 		if (userid == "") {
 			$("#alert").text("Invalid Username").fadeIn(10).fadeOut(4000);
@@ -88,7 +89,7 @@ function authPopUp() {
 			$("#alert").text("Invalid Password").fadeIn(10).fadeOut(4000);
 			return;
 		}
-		$("#auth-popup").fadeOut(300);
+		$("#authPopup").fadeOut(300);
 		onLoad(userid, false, password);
 		guiStart(userid, password);
 	});;
@@ -123,7 +124,7 @@ function uriCall(destination) {
 			minWidth: 1280,
 			minHeight: 720
 		}
-	};
+	}
 
 	if (hd == true) {
 		var video = constraints;
@@ -136,12 +137,12 @@ function uriCall(destination) {
             		audio: true,
             		video: video
         	}
-	};
+	}
         
 	var views = {
-		selfView: document.getElementById("local-video"),
-		remoteView: document.getElementById("remote-video")
-        };
+		selfView: document.getElementById("localVideo"),
+		remoteView: document.getElementById("remoteVideo")
+        }
 	
 	$("#hangup").fadeIn(1000);
 	setCookie("new", destination, ">");
@@ -157,11 +158,11 @@ function uriCall(destination) {
 		message("Progressing", "normal");
 	});
 	sipSession.on('failed', function(e) {
-		var sip_reason = e.data.response.reason_phrase;
-		if (sip_reason == null) {
+		var sipReason = e.data.response.reason_phrase;
+		if (sipReason == null) {
 			message("Call Failed", "alert");	
 		} else {
-			message(sip_reason, "alert");
+			message(sipReason, "alert");
 		}
 		endCall();
 	});
@@ -176,7 +177,7 @@ function uriCall(destination) {
 }
 
 function guiStart(userid) {
-	$("#main, #local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
+	$("#main, #localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
 }
 
 function showHistory(page) {	
@@ -197,20 +198,20 @@ function showHistory(page) {
 			var tempDate = new Date();
 			var callArray = value.split('|');
 			var destination = callArray[1];
-			var history_direction = callArray[2];
-			var history_status = callArray[3];
-			var history_length = callArray[4];
-			var history_date = tempDate.toUTCString(callArray[0]);
-			var history_destination = destination.replace(/sip:([^@]+)@.+/,"$1");
-			var history_call = key.replace(/^\D*(\d+)$/,"$1");
+			var historyDirection = callArray[2];
+			var historyStatus = callArray[3];
+			var historyLength = callArray[4];
+			var historyDate = tempDate.toUTCString(callArray[0]);
+			var historyDestination = destination.replace(/sip:([^@]+)@.+/,"$1");
+			var historyCall = key.replace(/^\D*(\d+)$/,"$1");
 
 			// Display Call History
-			$("#row" + i + " .history_call").text(history_call);
-			$("#row" + i + " .history_destination").text(history_destination);
-			$("#row" + i + " .history_direction").text(history_direction);
-			$("#row" + i + " .history_status").text(history_status);
-			$("#row" + i + " .history_date").text(history_date);
-			$("#row" + i + " .history_length").text(history_length);
+			$("#row" + i + " .historyCall").text(historyCall);
+			$("#row" + i + " .historyDestination").text(historyDestination);
+			$("#row" + i + " .historyDirection").text(historyDirection);
+			$("#row" + i + " .historyStatus").text(historyStatus);
+			$("#row" + i + " .historyDate").text(historyDate);
+			$("#row" + i + " .historyLength").text(historyLength);
 		}
 	}
 }
@@ -218,11 +219,11 @@ function showHistory(page) {
 function endCall() {
 	$("#hangup").fadeOut(100);
 	// Clear last image from video tags
-	$("#local-video").removeAttr("src");
-	$("#remote-video").removeAttr("src");
+	$("#localVideo").removeAttr("src");
+	$("#remoteVideo").removeAttr("src");
 	// Bring up the main elements
-	$("#main, #call_button, #local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
-	if (timer_running == true) {
+	$("#main, #callButton, #localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
+	if (timerRunning == true) {
 		stopTimer();
 	}
 }
@@ -247,10 +248,10 @@ function setCookie(type, remoteParty, direction, state) {
 		callNumber++;
 		var expires = 365;
 		timestamp.setDate(timestamp.getDate() + expires);
-		var cookie_key = ("call_" + callNumber + "=" + currentCallArray[1]);
-		var cookie_expires = ("expires=" + timestamp.toUTCString());
+		var cookieKey = ("call_" + callNumber + "=" + currentCallArray[1]);
+		var cookieExpires = ("expires=" + timestamp.toUTCString());
 
-		var cookieValue = (cookie_key + "|" + currentCallArray[2] + "|" + currentCallArray[3] + "|" + state + "|" + formatedDuration + "|" + cookie_expires);
+		var cookieValue = (cookieKey + "|" + currentCallArray[2] + "|" + currentCallArray[3] + "|" + state + "|" + formatedDuration + "|" + cookieExpires);
 		document.cookie = cookieValue;	
 	}
 	
@@ -262,11 +263,11 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-		'ws_servers': 'ws://proxy.exarionetworks.com:8060',
-		'stun_servers': 'stun:107.23.150.92',
+		'ws_servers': 'ws://10.13.0.241:8060',
+		'stun_servers': 'stun:stun.exarionetworks.com',
 		'trace_sip': true,
 		'hack_via_tcp': true,
-	};
+	}
 
 	// Modify config object based password
 	if (password == false) {
@@ -293,8 +294,8 @@ function onLoad(userid, destination, password) {
 		$("#connected").toggleClass("success").fadeIn(1000);
 		message("Connected", "success");
 		if (!destination==false & register==false) {
-			$("#local-video, #remote-video, #self-view, #full-screen").fadeIn(1000);
-			url_call(destination);
+			$("#localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
+			urlCall(destination);
 		}
 	});
 	sipStack.on('disconnected', function(e) {
@@ -311,14 +312,14 @@ function onLoad(userid, destination, password) {
 		$("#registered").removeClass("alert");
                 $("#registered").toggleClass("success").fadeIn(1000);
 		if (!destination==false) {
-			url_call(destination);
+			urlCall(destination);
 			}
 		});
 		sipStack.on('registrationFailed', function(e) {
 		$("#registered").removeClass("success");
                 $("#registered").toggleClass("alert").fadeIn(1000);
 		});
-	};
+	}
 }
 
 // Incoming call function
@@ -345,46 +346,46 @@ function pressDTMF (digit) {
         dtmfOut.setAttribute("src", "dtmf-" + file + ".ogg");
         dtmfOut.play();
 	console.log("digit=" + digit);
-        main_destination.val(main_destination.val() + digit);
-	if (timer_running == true) {
+        mainDestination.val(mainDestination.val() + digit);
+	if (timerRunning == true) {
         	sipSession.sendDTMF(digit, options=null);
         }
-};
+}
 
 // Allow the local video window to be draggable, required jQuery.UI
 $(function() {
-	$("#local-video").draggable();
+	$("#localVideo").draggable();
 });
 
 // Buttons
 selfView = true;
-$('#self-view').bind('click', function(e) {
+$('#selfView').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
 	if (selfView == true) {
-		$("#local-video").fadeOut(100);
+		$("#localVideo").fadeOut(100);
 		selfView = false;
 	} else if (selfView == false) {
-		$("#local-video").fadeIn(100);
+		$("#localVideo").fadeIn(100);
 		selfView = true;
 	}
 });
 
-$('#call_button').click(function() {	
+$('#callButton').click(function() {	
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();	
-	var destination = main_destination.val();
+	var destination = mainDestination.val();
 	if (destination == "") {
 		message("Invalid Number", "alert");
 	} else {
-		$('button#call_button.button').fadeOut(1000);
+		$('button#callButton.button').fadeOut(1000);
 		uriCall(destination);
 	}
 });
 
 dialpad = false;
-$('#dialpad-toggle').bind('click', function(e) {
+$('#dialpadToggle').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
@@ -402,10 +403,10 @@ $("#settings").bind('click', function(e) {
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
 	if (hd == true) {
-		$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").removeClass("hd");
+		$("#localVideo, #remoteVideo, #selfView, #fullScreen, #hangup, #messages, #timer").removeClass("hd");
 		hd = false;
 	} else if (hd == false) {
-		$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").addClass("hd");
+		$("#localVideo, #remoteVideo, #selfView, #fullScreen, #hangup, #messages, #timer").addClass("hd");
 	hd = true;
 	}   
 });
@@ -419,29 +420,29 @@ $('#hangup').bind('click', function(e) {
 	endCall();
 });
 
-history_pressed = false;
-$('#history-toggle').bind('click', function(e) {
+historyPressed = false;
+$('#historyToggle').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
-	if (history_pressed == true) {
-		history_pressed = false;
-		$("#call_history, #history-clear").fadeOut(100);
-	} else if (history_pressed == false) {
-		history_pressed = true;
-		$("#call_history, #history-clear").fadeIn(100);
+	if (historyPressed == true) {
+		historyPressed = false;
+		$("#callHistory, #historyClear").fadeOut(100);
+	} else if (historyPressed == false) {
+		historyPressed = true;
+		$("#callHistory, #historyClear").fadeIn(100);
 		showHistory(1);
 	}
 	e.stopPropagation();
 });
 
-$("#call_history").bind('click', function(e) {
+$("#callHistory").bind('click', function(e) {
 	var clicked = (e.target.innerText)
 	var callID = (e.target.parentElement.firstElementChild.firstChild.nodeValue);
 });
 
 fullscreen = false;
-$('#full-screen').bind('click', function(e) {
+$('#fullScreen').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
@@ -454,7 +455,7 @@ $('#full-screen').bind('click', function(e) {
 	}
 });
 
-$("#history-clear").bind('click', function(e) {
+$("#historyClear").bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
@@ -465,7 +466,7 @@ $("#history-clear").bind('click', function(e) {
 		var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
     		document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
    	}
-   	$('#history-toggle').click();
+   	$('#historyToggle').click();
 });
 
 // Dialpad digits
@@ -479,14 +480,14 @@ document.onkeypress=function(e){
 	if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42) {
 		var digit = String.fromCharCode(e.charCode);
 	}
-	if (timer_running == true) {
+	if (timerRunning == true) {
 		pressDTMF(digit);
 	}
-};
+}
 
 // Initial function selection
 if (hd == true) {
-	$("#local-video, #remote-video, #self-view, #full-screen, #hangup, #messages, #timer").addClass("hd");
+	$("#localVideo, #remoteVideo, #selfView, #fullScreen, #hangup, #messages, #timer").addClass("hd");
 }
 
 if (!userid == false & register == false) {
