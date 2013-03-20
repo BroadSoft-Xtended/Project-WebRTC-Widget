@@ -6,9 +6,9 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta name="Author" content="Exario Networks, Inc."/>
 	<link rel="stylesheet" href="stylesheet.css" type="text/css"/>
-	<script src="jquery-1.9.0.js" type="text/javascript"></script>
+	<script src="jquery-1.9.0.min.js" type="text/javascript"></script>
 	<script src="jquery-ui-1.10.0.custom.min.js" type="text/javascript"></script>
-	<script src="jssip-0.2.1.js" type="text/javascript"></script>
+	<script src="jssip-0.3.0.min.js" type="text/javascript"></script>
 	<script src="webrtc.js" type="text/javascript"></script>
 </head>
 
@@ -58,7 +58,7 @@
 		<a href="" title="Toggle History" class="icon groupA" data-icon="n"></a>
 	</div>
 	<div id="settings">
-		<a href="" title="Settings" class="icon groupA" data-icon="x"></a>
+		<a href="" title="HD 720p" class="icon groupA" data-icon="x"></a>
 	</div>
 </div>
 
@@ -67,70 +67,70 @@
 	<div id="row0">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>
 	<div id="row1">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>
 	<div id="row2">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>
 	<div id="row3">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>
 	<div id="row4">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>
 	<div id="row5">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>
 	<div id="row6">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>
 	<div id="row7">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>	
 	<div id="row8">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 	<div class="rowSpace"></div>	
 	<div id="row9">
 		<a href="" title="Call ID" class="historyCall"></a>
 		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><span class="historyStatus"></span><br>
+		<span class="historyDirection"></span><br>
 		<span class="historyDate"></span><span class="historyLength"></span>
 	</div>
 		<div id="historyClear">
@@ -144,19 +144,17 @@
 <div id="video">
 	<video id="remoteVideo" autoplay></video>
 	<video id="localVideo" autoplay></video>
-	<div id="hangup">
-		<a href="" title="Hangup" class="icon groupB" data-icon="D"></a>
-	</div>          
 	<div id="selfView">
 		<a href="" title="Toggle Self View" class="icon groupA" data-icon="V"></a>
 	</div>
 	<div id="fullScreen">
 		<a href="" title="Full Screen" class="icon groupA" data-icon="`"></a>	          
 	</div>
+	<button class="button" id="hangup" type="button">Hangup</button>
 </div>
 
 <div id="connected">
-	<span title="Websockets Connected" class="icon" data-icon="j"></span>
+	<span title="Websockets Status" class="icon" data-icon="j"></span>
 </div>
 
 <div id="registered">

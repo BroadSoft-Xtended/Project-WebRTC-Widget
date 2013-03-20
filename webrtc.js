@@ -15,7 +15,7 @@ var userid = getSearchVariable("userid");
 register = (getSearchVariable("register") == "true");
 destination = getSearchVariable("destination");
 hd = (getSearchVariable("hd") == "true"); 
-currentCallArray = new Array(5);
+currentCallArray = new Array(4);
 password = false;
 mainDestination = $("#main input#destination");
 soundOut = document.createElement("audio");
@@ -104,7 +104,7 @@ function message(text, level) {
 
 // Make sure destination has proper format
 function validateDestination (destination) {
-	var domain = "cbridge1.exarionetworks.com";
+	var domain = "204.117.64.103";
 	if (destination.indexOf("sip:") === -1) {
 		destination = ("sip:" + destination);
 	}
@@ -117,7 +117,7 @@ function validateDestination (destination) {
 // URL call
 function uriCall(destination) {
 	var destination = validateDestination(destination);
-	sipSession = new JsSIP.Session(sipStack);
+	sipRTCSession = new JsSIP.RTCSession(sipStack);
 
 	var constraints = {
 		mandatory: {
@@ -148,29 +148,24 @@ function uriCall(destination) {
 	setCookie("new", destination, ">");
 	
 	// Start the Call
-	sipSession.connect(destination, views, options);
+	sipRTCSession.connect(destination, views, options);
 
-	// Session event handlers
-	sipSession.on('connecting', function(e) {
+	// RTCSession event handlers
+	sipRTCSession.on('connecting', function(e) {
 		message("Connecting", "normal");
 	});
-	sipSession.on('progress', function(e) {
+	sipRTCSession.on('progress', function(e) {
 		message("Progressing", "normal");
 	});
-	sipSession.on('failed', function(e) {
-		var sipReason = e.data.response.reason_phrase;
-		if (sipReason == null) {
-			message("Call Failed", "alert");	
-		} else {
-			message(sipReason, "alert");
-		}
+	sipRTCSession.on('failed', function(e) {
+		message(e.data.cause, "alert");	
 		endCall();
 	});
-	sipSession.on('started', function(e) {
+	sipRTCSession.on('started', function(e) {
 		startTimer();
 		message("Call Started", "success");
 	});
-	sipSession.on('ended', function(e) {
+	sipRTCSession.on('ended', function(e) {
 		message("Call Ended", "normal");
 		endCall();
 	});
@@ -199,8 +194,7 @@ function showHistory(page) {
 			var callArray = value.split('|');
 			var destination = callArray[1];
 			var historyDirection = callArray[2];
-			var historyStatus = callArray[3];
-			var historyLength = callArray[4];
+			var historyLength = callArray[3];
 			var historyDate = tempDate.toUTCString(callArray[0]);
 			var historyDestination = destination.replace(/sip:([^@]+)@.+/,"$1");
 			var historyCall = key.replace(/^\D*(\d+)$/,"$1");
@@ -209,7 +203,6 @@ function showHistory(page) {
 			$("#row" + i + " .historyCall").text(historyCall);
 			$("#row" + i + " .historyDestination").text(historyDestination);
 			$("#row" + i + " .historyDirection").text(historyDirection);
-			$("#row" + i + " .historyStatus").text(historyStatus);
 			$("#row" + i + " .historyDate").text(historyDate);
 			$("#row" + i + " .historyLength").text(historyLength);
 		}
@@ -229,7 +222,7 @@ function endCall() {
 }
 
 // Store call stats in array, then in cookie on update
-function setCookie(type, remoteParty, direction, state) {
+function setCookie(type, remoteParty, direction) {
 	if (type=="new") {
 		timestamp = new Date();
 		var epoch = timestamp.getTime();
@@ -251,7 +244,7 @@ function setCookie(type, remoteParty, direction, state) {
 		var cookieKey = ("call_" + callNumber + "=" + currentCallArray[1]);
 		var cookieExpires = ("expires=" + timestamp.toUTCString());
 
-		var cookieValue = (cookieKey + "|" + currentCallArray[2] + "|" + currentCallArray[3] + "|" + state + "|" + formatedDuration + "|" + cookieExpires);
+		var cookieValue = (cookieKey + "|" + currentCallArray[2] + "|" + currentCallArray[3] + "|" + formatedDuration + "|" + cookieExpires);
 		document.cookie = cookieValue;	
 	}
 	
@@ -263,8 +256,8 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-		'ws_servers': 'ws://10.13.0.241:8060',
-		'stun_servers': 'stun:stun.exarionetworks.com',
+		'ws_servers': 'ws://webrtc-gw.exarionetworks.com:8060',
+		'stun_servers': 'stun:204.117.64.101',
 		'trace_sip': true,
 		'hack_via_tcp': true,
 	}
@@ -302,7 +295,7 @@ function onLoad(userid, destination, password) {
 		$("#connected").removeClass("success");
                 $("#connected").toggleClass("alert").fadeIn(1000);
 		});
-	sipStack.on('newSession', function(e) {
+	sipStack.on('newRTCSession', function(e) {
 		if (e.data.session.direction == "incoming") {
 			incommingCall(e);
 		}
@@ -348,7 +341,7 @@ function pressDTMF (digit) {
 	console.log("digit=" + digit);
         mainDestination.val(mainDestination.val() + digit);
 	if (timerRunning == true) {
-        	sipSession.sendDTMF(digit, options=null);
+        	sipRTCSession.sendDTMF(digit, options=null);
         }
 }
 
@@ -415,9 +408,12 @@ $('#hangup').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
-	sipSession.terminate();
-	setCookie("update", false, false, "hangup");
+	sipRTCSession.terminate();
+	setCookie("update", false, false);
 	endCall();
+	if (fullScreen == true) {
+		$('#fullScreen').click();
+	}
 });
 
 historyPressed = false;
@@ -441,17 +437,17 @@ $("#callHistory").bind('click', function(e) {
 	var callID = (e.target.parentElement.firstElementChild.firstChild.nodeValue);
 });
 
-fullscreen = false;
+fullScreen = false;
 $('#fullScreen').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
-	if (fullscreen == true) {
+	if (fullScreen == true) {
 		document.webkitCancelFullScreen();
-		fullscreen = false;
-	} else if (fullscreen == false) {
+		fullScreen = false;
+	} else if (fullScreen == false) {
 		video.webkitRequestFullScreen();
-		fullscreen = true;
+		fullScreen = true;
 	}
 });
 
