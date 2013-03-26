@@ -21,6 +21,7 @@ mainDestination = $("#main input#destination");
 soundOut = document.createElement("audio");
 soundOut.volume = .05;
 timerRunning = false;
+formatedDuration = "00:00:00";
 
 // Make it eaiser to pull variables from URL
 function getSearchVariable(variable) {
@@ -117,7 +118,6 @@ function validateDestination (destination) {
 // URL call
 function uriCall(destination) {
 	var destination = validateDestination(destination);
-	sipRTCSession = new JsSIP.RTCSession(sipStack);
 
 	var constraints = {
 		mandatory: {
@@ -132,43 +132,60 @@ function uriCall(destination) {
 		var video = true;
 	}
 
+  var eventHandlers = {
+	  'progress': function(e) {
+		  message("Progressing", "normal");
+	  },
+
+	  'failed': function(e) {
+		  message(e.data.cause, "alert");	
+		  endCall();
+	  },
+
+	  'started': function(e) {
+		  var localStreams, remoteStreams;
+      rtcSession = e.sender;
+		  if (window.mozRTCPeerConnection) {
+			  localStreams = rtcSession.rtcMediaHandler.peerConnection.localStreams;
+			  remoteStreams = rtcSession.rtcMediaHandler.peerConnection.remoteStreams;
+		  } else {
+			  localStreams = rtcSession.getLocalStreams();
+			  remoteStreams = rtcSession.getRemoteStreams();
+    	}
+		  if ( localStreams.length > 0) {
+			  selfView.src = window.URL.createObjectURL(localStreams[0]);
+		  }
+		  if ( remoteStreams.length > 0) {
+			  remoteView.src = window.URL.createObjectURL(remoteStreams[0]);
+		  }
+		  startTimer();
+		  message("Call Started", "success");
+	  },
+
+    'ended': function(e) {
+		message("Call Ended", "normal");
+		endCall();
+    }
+	};
+
 	var options = {
-		mediaTypes: {
-            		audio: true,
-            		video: video
-        	}
-	}
+		mediaConstraints: {
+      audio: true,
+      video: video
+      },
+    RTCConstraints: {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]},
+    eventHandlers: eventHandlers
+	};
         
-	var views = {
-		selfView: document.getElementById("localVideo"),
-		remoteView: document.getElementById("remoteVideo")
-        }
+	var selfView = document.getElementById("localVideo");
+	var remoteView = document.getElementById("remoteVideo");
 	
 	$("#hangup").fadeIn(1000);
 	setCookie("new", destination, ">");
 	
 	// Start the Call
-	sipRTCSession.connect(destination, views, options);
+	sipStack.call(destination, options);
 
-	// RTCSession event handlers
-	sipRTCSession.on('connecting', function(e) {
-		message("Connecting", "normal");
-	});
-	sipRTCSession.on('progress', function(e) {
-		message("Progressing", "normal");
-	});
-	sipRTCSession.on('failed', function(e) {
-		message(e.data.cause, "alert");	
-		endCall();
-	});
-	sipRTCSession.on('started', function(e) {
-		startTimer();
-		message("Call Started", "success");
-	});
-	sipRTCSession.on('ended', function(e) {
-		message("Call Ended", "normal");
-		endCall();
-	});
 }
 
 function guiStart(userid) {
@@ -256,11 +273,11 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-		'ws_servers': 'ws://webrtc-gw.exarionetworks.com:8060',
+		'ws_servers': 'ws://proxy.exarionetworks.com:8060',
 		'stun_servers': 'stun:204.117.64.101',
 		'trace_sip': true,
 		'hack_via_tcp': true,
-	}
+	};
 
 	// Modify config object based password
 	if (password == false) {
@@ -273,8 +290,9 @@ function onLoad(userid, destination, password) {
 	// SIP stack
 	sipStack = new JsSIP.UA(config);
 
-	// Start SIP Stack
-	sipStack.start();
+  // Start SIP Stack
+  $("#connected").toggleClass("alert").fadeIn(10);
+  sipStack.start();
 	
 	// If there is not a destination in URL start the GUI
 	if(destination==false) {
@@ -285,6 +303,7 @@ function onLoad(userid, destination, password) {
 	sipStack.on('connected', function(e) {
 		$("#connected").removeClass("alert");
 		$("#connected").toggleClass("success").fadeIn(1000);
+    $("#callButton").fadeIn(1000);
 		message("Connected", "success");
 		if (!destination==false & register==false) {
 			$("#localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
@@ -293,24 +312,27 @@ function onLoad(userid, destination, password) {
 	});
 	sipStack.on('disconnected', function(e) {
 		$("#connected").removeClass("success");
-                $("#connected").toggleClass("alert").fadeIn(1000);
-		});
-	sipStack.on('newRTCSession', function(e) {
+    $("#connected").toggleClass("alert").fadeIn(1000);
+    endCall();
+    $("#callButton").fadeOut(100);
+	});
+  sipStack.on('newRTCSession', function(e) {
 		if (e.data.session.direction == "incoming") {
 			incommingCall(e);
 		}
 	});
+
 	if (!password == false) {
 		sipStack.on('registered', function(e) {
 		$("#registered").removeClass("alert");
-                $("#registered").toggleClass("success").fadeIn(1000);
+    $("#registered").toggleClass("success").fadeIn(1000);
 		if (!destination==false) {
 			urlCall(destination);
 			}
 		});
 		sipStack.on('registrationFailed', function(e) {
 		$("#registered").removeClass("success");
-                $("#registered").toggleClass("alert").fadeIn(1000);
+    $("#registered").toggleClass("alert").fadeIn(1000);
 		});
 	}
 }
@@ -324,25 +346,25 @@ function incommingCall(message) {
 
 // What we do when we get a digit
 function pressDTMF (digit) {
-        dtmfOut = document.createElement("audio");
-        dtmfOut.volume = 1;
-        if (digit.length != 1) {
-                return;
-        }
-        if (digit == "*") {
-                file = "star";
-        } else if (digit == "#") {
-                file = "pound";
-        } else {
-                file = digit;
-        }
-        dtmfOut.setAttribute("src", "dtmf-" + file + ".ogg");
-        dtmfOut.play();
+  dtmfOut = document.createElement("audio");
+  dtmfOut.volume = 1;
+  if (digit.length != 1) {
+    return;
+  }
+  if (digit == "*") {
+    file = "star";
+  } else if (digit == "#") {
+    file = "pound";
+  } else {
+    file = digit;
+  }
+  dtmfOut.setAttribute("src", "dtmf-" + file + ".ogg");
+  dtmfOut.play();
 	console.log("digit=" + digit);
-        mainDestination.val(mainDestination.val() + digit);
+  mainDestination.val(mainDestination.val() + digit);
 	if (timerRunning == true) {
-        	sipRTCSession.sendDTMF(digit, options=null);
-        }
+    rtcSession.sendDTMF(digit, options=null);
+  }
 }
 
 // Allow the local video window to be draggable, required jQuery.UI
@@ -408,7 +430,7 @@ $('#hangup').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
-	sipRTCSession.terminate();
+	rtcSession.terminate();
 	setCookie("update", false, false);
 	endCall();
 	if (fullScreen == true) {
