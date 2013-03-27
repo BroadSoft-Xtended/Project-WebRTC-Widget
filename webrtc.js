@@ -105,7 +105,7 @@ function message(text, level) {
 
 // Make sure destination has proper format
 function validateDestination (destination) {
-	var domain = "204.117.64.103";
+	var domain = "204.117.64.121";
 	if (destination.indexOf("sip:") === -1) {
 		destination = ("sip:" + destination);
 	}
@@ -170,12 +170,14 @@ function uriCall(destination) {
 
 	var options = {
 		mediaConstraints: {
-      audio: true,
-      video: video
-      },
-    RTCConstraints: {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]},
+       audio: true,
+       video: video
+    },
+    RTCConstraints: {'optional': [],'mandatory': {}},
     eventHandlers: eventHandlers
-	};
+  };
+	
+  console.log(options); 
         
 	var selfView = document.getElementById("localVideo");
 	var remoteView = document.getElementById("remoteVideo");
@@ -185,7 +187,7 @@ function uriCall(destination) {
 	
 	// Start the Call
 	sipStack.call(destination, options);
-
+  message("Performaning NAT Tests", "success");
 }
 
 function guiStart(userid) {
@@ -274,7 +276,7 @@ function onLoad(userid, destination, password) {
 	var config  = {
 		'uri': sip_uri,
 		'ws_servers': 'ws://proxy.exarionetworks.com:8060',
-		'stun_servers': 'stun:204.117.64.101',
+		'stun_servers': 'stun:204.117.64.117',
 		'trace_sip': true,
 		'hack_via_tcp': true,
 	};
