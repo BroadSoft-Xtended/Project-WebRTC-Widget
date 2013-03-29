@@ -153,10 +153,10 @@ function uriCall(destination) {
 			  remoteStreams = rtcSession.getRemoteStreams();
     	}
 		  if ( localStreams.length > 0) {
-			  selfView.src = window.URL.createObjectURL(localStreams[0]);
+			  selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
 		  }
 		  if ( remoteStreams.length > 0) {
-			  remoteView.src = window.URL.createObjectURL(remoteStreams[0]);
+			  remoteView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
 		  }
 		  startTimer();
 		  message("Call Started", "success");
@@ -187,7 +187,7 @@ function uriCall(destination) {
 	
 	// Start the Call
 	sipStack.call(destination, options);
-  message("Performaning NAT Tests", "success");
+  message("Performing NAT Tests", "success");
 }
 
 function guiStart(userid) {
