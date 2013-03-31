@@ -160,6 +160,7 @@ function uriCall(destination) {
 		  }
 		  startTimer();
 		  message("Call Started", "success");
+      $("#muteAudio").fadeIn(1000);
 	  },
 
     'ended': function(e) {
@@ -229,7 +230,8 @@ function showHistory(page) {
 }
 
 function endCall() {
-	$("#hangup").fadeOut(100);
+	$("#hangup, muteAudio").fadeOut(100);
+  isMuted = false;
 	// Clear last image from video tags
 	$("#localVideo").removeAttr("src");
 	$("#remoteVideo").removeAttr("src");
@@ -420,10 +422,10 @@ $("#settings").bind('click', function(e) {
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
 	if (hd == true) {
-		$("#localVideo, #remoteVideo, #selfView, #fullScreen, #hangup, #messages, #timer").removeClass("hd");
+		$("#localVideo, #remoteVideo, #selfView, #fullScreen, #muteAudio, #hangup, #messages, #timer").removeClass("hd");
 		hd = false;
 	} else if (hd == false) {
-		$("#localVideo, #remoteVideo, #selfView, #fullScreen, #hangup, #messages, #timer").addClass("hd");
+		$("#localVideo, #remoteVideo, #selfView, #fullScreen, #muteAudio, #hangup, #messages, #timer").addClass("hd");
 	hd = true;
 	}   
 });
@@ -473,6 +475,24 @@ $('#fullScreen').bind('click', function(e) {
 		video.webkitRequestFullScreen();
 		fullScreen = true;
 	}
+});
+
+isMuted = false;
+$('#muteAudio').bind('click', function(e) {
+  e.preventDefault();
+  soundOut.setAttribute("src", "click.ogg");
+  soundOut.play();
+  local_media = rtcSession.getLocalStreams()[0];
+  local_audio = local_media.getAudioTracks()[0];
+    if (isMuted) {
+      $("#muteAudio a.icon").removeClass("groupD");
+      isMuted = false;
+      local_audio.enabled = true;
+    } else {
+      $("#muteAudio a.icon").addClass("groupD");
+      isMuted = true;
+      local_audio.enabled = false;
+    }
 });
 
 $("#historyClear").bind('click', function(e) {

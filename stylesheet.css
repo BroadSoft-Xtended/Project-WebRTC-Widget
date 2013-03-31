@@ -67,6 +67,14 @@ body {
 	color: #E99429;
 }
 
+.groupD:before {
+  color: #FF0000;
+}
+
+.groupD:hover:before {
+  color: #FF5F5F;
+}
+
 #authPopup {
 	display: none;
 	background: #333333;
@@ -306,18 +314,18 @@ body {
 }
 
 #hangup {
-        position: absolute;
-        top: 585px;
-        right: 25px;
-        border-color: #000000;
-        border-width: 1px;
-        border-radius: 4px;
-        color: #333333;
-        cursor: pointer;
+  position: absolute;
+  top: 585px;
+  right: 25px;
+  border-color: #000000;
+  border-width: 1px;
+  border-radius: 4px;
+  color: #333333;
+  cursor: pointer;
 	display: none;
-        padding: 6px 6px 4px;
-        margin-top: 10px;
-        width: 80px;
+  padding: 6px 6px 4px;
+  margin-top: 10px;
+  width: 80px;
 }
 
 #hangup.hd {
@@ -381,11 +389,35 @@ body {
 	left: 25px;
 }
 
+#muteAudio {
+  display: none;
+  position: absolute;
+  top: 600px;
+  right: 530px;
+}
+
+#muteAudio.hd {
+  display: none;
+  position: absolute;
+  top: 840px;
+  right: 1170px;
+}
+
+:-webkit-full-screen #muteAudio {
+  display: none;
+  position: absolute;
+  top: auto;
+  right: auto;
+  bottom: 25px;
+  left: 175px;
+}
+
+
 #timer {
 	display: none;
 	position: absolute;
 	top: 600px;
-	right: 475px;
+	right: 425px;
 	font-family: arial;
 	font-size: 20px; 
 	color: #90510c;
