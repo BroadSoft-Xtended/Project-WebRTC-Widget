@@ -230,7 +230,7 @@ function showHistory(page) {
 }
 
 function endCall() {
-	$("#hangup, muteAudio").fadeOut(100);
+	$("#hangup, #muteAudio").fadeOut(100);
   isMuted = false;
 	// Clear last image from video tags
 	$("#localVideo").removeAttr("src");
