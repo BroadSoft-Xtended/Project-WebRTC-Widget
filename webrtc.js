@@ -25,13 +25,15 @@ formatedDuration = "00:00:00";
 
 // Make it eaiser to pull variables from URL
 function getSearchVariable(variable) {
-       var search = window.location.search.substring(1);
-       var vars = search.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
+  var search = window.location.search.substring(1);
+  var vars = search.split("&");
+  for (var i=0;i<vars.length;i++) {
+    var pair = vars[i].split("=");
+    if(pair[0] == variable){
+      return pair[1];
+    }
+  }
+  return(false);
 }
 
 
@@ -55,14 +57,14 @@ function showTimer () {
 	var element = timer, seconds = -1;
 	return function () {
 		++seconds;
-        var secs = seconds;
-        var hrs = Math.floor(secs / 3600);
-        secs %= 3600;
-        var mns = Math.floor(secs / 60);
-        secs %= 60;
-        formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (secs < 10 ? "0" : "") + secs;
-		$("#timer").text(formatedDuration);
-	}
+      var secs = seconds;
+      var hrs = Math.floor(secs / 3600);
+      secs %= 3600;
+      var mns = Math.floor(secs / 60);
+      secs %= 60;
+      formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (secs < 10 ? "0" : "") + secs;
+      $("#timer").text(formatedDuration);
+  }
 }
 
 // Auth popup
@@ -156,7 +158,7 @@ function uriCall(destination) {
 			  selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
 		  }
 		  if ( remoteStreams.length > 0) {
-			  remoteView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
+			  remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
 		  }
 		  startTimer();
 		  message("Call Started", "success");
@@ -268,7 +270,6 @@ function setCookie(type, remoteParty, direction) {
 		var cookieValue = (cookieKey + "|" + currentCallArray[2] + "|" + currentCallArray[3] + "|" + formatedDuration + "|" + cookieExpires);
 		document.cookie = cookieValue;	
 	}
-	
 }
 
 // Initial startup
@@ -488,7 +489,7 @@ $('#muteAudio').bind('click', function(e) {
       $("#muteAudio a.icon").removeClass("groupD");
       isMuted = false;
       local_audio.enabled = true;
-    } else {
+    } else if (isMuted == false) {
       $("#muteAudio a.icon").addClass("groupD");
       isMuted = true;
       local_audio.enabled = false;
