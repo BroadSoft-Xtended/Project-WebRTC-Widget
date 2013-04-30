@@ -331,7 +331,7 @@ body {
 #hangup.hd {
 	display: none;
 	position: absolute;
-	top: 840px;
+	top: 830px;
 	right: 25px;
 }
 
@@ -426,7 +426,7 @@ body {
 #timer.hd {
 	position: absolute;
 	top: 840px;
-	right: 1115px;
+	right: 1015px;
 	font-family: arial;
 	font-size: 20px; 
 	color: #90510c;
@@ -452,7 +452,7 @@ body {
 #messages.hd {
 	position: absolute;
 	top: 840px;
-	right: 760px;
+	right: 460px;
 	font-family:arial;
 	font-size: 20px; 
 }

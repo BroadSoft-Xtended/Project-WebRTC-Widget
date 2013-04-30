@@ -22,6 +22,10 @@ soundOut = document.createElement("audio");
 soundOut.volume = .05;
 timerRunning = false;
 formatedDuration = "00:00:00";
+wsGateway = '204.117.64.103';
+wsPort = 8060;
+stunServer = '204.117.64.117';
+stunPort = 3478;
 
 // Make it eaiser to pull variables from URL
 function getSearchVariable(variable) {
@@ -194,7 +198,7 @@ function uriCall(destination) {
 }
 
 function guiStart(userid) {
-	$("#main, #localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
+	$("#main, #localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen").fadeIn(1000);
 }
 
 function showHistory(page) {	
@@ -278,8 +282,8 @@ function onLoad(userid, destination, password) {
 	var sip_uri = (userid + '@exarionetworks.com');
 	var config  = {
 		'uri': sip_uri,
-		'ws_servers': 'ws://proxy.exarionetworks.com:8060',
-		'stun_servers': 'stun:204.117.64.117',
+		'ws_servers': 'ws://' + wsGateway + ':' + wsPort,
+		'stun_servers': 'stun:' + stunServer + ':' + stunPort,
 		'trace_sip': true,
 		'hack_via_tcp': true,
 	};
@@ -423,10 +427,10 @@ $("#settings").bind('click', function(e) {
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
 	if (hd == true) {
-		$("#localVideo, #remoteVideo, #selfView, #fullScreen, #muteAudio, #hangup, #messages, #timer").removeClass("hd");
+		$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").removeClass("hd");
 		hd = false;
 	} else if (hd == false) {
-		$("#localVideo, #remoteVideo, #selfView, #fullScreen, #muteAudio, #hangup, #messages, #timer").addClass("hd");
+		$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").addClass("hd");
 	hd = true;
 	}   
 });
@@ -528,7 +532,7 @@ document.onkeypress=function(e){
 
 // Initial function selection
 if (hd == true) {
-	$("#localVideo, #remoteVideo, #selfView, #fullScreen, #hangup, #messages, #timer").addClass("hd");
+	$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").addClass("hd");
 }
 
 if (!userid == false & register == false) {
