@@ -22,10 +22,14 @@ soundOut = document.createElement("audio");
 soundOut.volume = .05;
 timerRunning = false;
 formatedDuration = "00:00:00";
-wsGateway = '204.117.64.103';
+wsGateway = '204.117.64.118';
 wsPort = 8060;
 stunServer = '204.117.64.117';
 stunPort = 3478;
+domainFrom = 'exarionetworks.com';
+domainTo = '204.117.64.103';
+allowOutside = true;
+
 
 // Make it eaiser to pull variables from URL
 function getSearchVariable(variable) {
@@ -40,6 +44,18 @@ function getSearchVariable(variable) {
   return(false);
 }
 
+// Generate a random userid
+function randomUserid() {
+  var chars = "0123456789abcdef";
+  var string_length = 10;
+  var randomstring = '';
+  userid = '';
+  for (var i=0; i<string_length; i++) {
+    var rnum = Math.floor(Math.random() * chars.length);
+    userid += chars.substring(rnum,rnum+1);
+    }
+  return(userid);
+}
 
 // Start timer
 function startTimer () {
@@ -73,7 +89,7 @@ function showTimer () {
 
 // Auth popup
 function authPopUp() {
-	if (!userid==false) {
+	if (!userid == false) {
 		$("#authPopup input#username").val(userid);
 	}
 	
@@ -104,19 +120,23 @@ function authPopUp() {
 
 // Display status messages
 function message(text, level) {
-	$("#messages").stop(true, true);
+  console.log(text);
+	$("#messages").stop(true, true).fadeOut();
 	$("#messages").removeClass("normal success warning alert");
 	$("#messages").toggleClass(level).text(text).fadeIn(10).fadeOut(10000);
 }
 
-// Make sure destination has proper format
+// Make sure destination allowed and in proper format
 function validateDestination (destination) {
-	var domain = "204.117.64.121";
 	if (destination.indexOf("sip:") === -1) {
 		destination = ("sip:" + destination);
 	}
-	if ((destination.indexOf("@") === -1)) {
-		destination = (destination + "@" + domain);
+  if ((destination.indexOf(domainTo) === -1 ) && allowOutside == false) {
+    message("Invalid Domain", "alert");
+    return(false);
+	}
+  if ((destination.indexOf("@") === -1)) {
+		destination = (destination + "@" + domainTo);
 	}
 	return(destination); 
 }
@@ -124,8 +144,13 @@ function validateDestination (destination) {
 // URL call
 function uriCall(destination) {
 	var destination = validateDestination(destination);
+  if (destination == false) {
+    return;
+  }
 
-	var constraints = {
+  $('button#callButton.button').fadeOut(1000);
+	
+  var constraints = {
 		mandatory: {
 			minWidth: 1280,
 			minHeight: 720
@@ -140,11 +165,14 @@ function uriCall(destination) {
 
   var eventHandlers = {
 	  'progress': function(e) {
-		  message("Progressing", "normal");
+		  message("Ringing", "normal");
+      soundOut.setAttribute("src", "ringback.ogg");
+      soundOut.play();
 	  },
 
 	  'failed': function(e) {
-		  message(e.data.cause, "alert");	
+		  message(e.data.cause, "alert");
+      soundOut.pause();
 		  endCall();
 	  },
 
@@ -164,7 +192,8 @@ function uriCall(destination) {
 		  if ( remoteStreams.length > 0) {
 			  remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
 		  }
-		  startTimer();
+		  soundOut.pause();
+      startTimer();
 		  message("Call Started", "success");
       $("#muteAudio").fadeIn(1000);
 	  },
@@ -184,8 +213,6 @@ function uriCall(destination) {
     eventHandlers: eventHandlers
   };
 	
-  console.log(options); 
-        
 	var selfView = document.getElementById("localVideo");
 	var remoteView = document.getElementById("remoteVideo");
 	
@@ -193,12 +220,12 @@ function uriCall(destination) {
 	setCookie("new", destination, ">");
 	
 	// Start the Call
-	sipStack.call(destination, options);
   message("Performing NAT Tests", "success");
+	sipStack.call(destination, options);
 }
 
 function guiStart(userid) {
-	$("#main, #localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen").fadeIn(1000);
+	$("#main, #localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
 }
 
 function showHistory(page) {	
@@ -279,7 +306,7 @@ function setCookie(type, remoteParty, direction) {
 // Initial startup
 function onLoad(userid, destination, password) {
 	// Config settings
-	var sip_uri = (userid + '@exarionetworks.com');
+	var sip_uri = (userid + '@' + domainFrom);
 	var config  = {
 		'uri': sip_uri,
 		'ws_servers': 'ws://' + wsGateway + ':' + wsPort,
@@ -290,10 +317,10 @@ function onLoad(userid, destination, password) {
 
 	// Modify config object based password
 	if (password == false) {
-		config.register = false;
+		config.register = false
 	} else {
-		config.register = true;
-		config.password = password;
+		config.register = true,
+		config.password = password
 	}
 	
 	// SIP stack
@@ -304,7 +331,7 @@ function onLoad(userid, destination, password) {
   sipStack.start();
 	
 	// If there is not a destination in URL start the GUI
-	if(destination==false) {
+	if(destination == false) {
 		guiStart(userid);
 	}
 	
@@ -314,7 +341,7 @@ function onLoad(userid, destination, password) {
 		$("#connected").toggleClass("success").fadeIn(1000);
     $("#callButton").fadeIn(1000);
 		message("Connected", "success");
-		if (!destination==false & register==false) {
+		if (!destination== false & register == false) {
 			$("#localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
 			urlCall(destination);
 		}
@@ -335,7 +362,7 @@ function onLoad(userid, destination, password) {
 		sipStack.on('registered', function(e) {
 		$("#registered").removeClass("alert");
     $("#registered").toggleClass("success").fadeIn(1000);
-		if (!destination==false) {
+		if (!destination == false) {
 			urlCall(destination);
 			}
 		});
@@ -403,7 +430,6 @@ $('#callButton').click(function() {
 	if (destination == "") {
 		message("Invalid Number", "alert");
 	} else {
-		$('button#callButton.button').fadeOut(1000);
 		uriCall(destination);
 	}
 });
@@ -535,11 +561,13 @@ if (hd == true) {
 	$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").addClass("hd");
 }
 
-if (!userid == false & register == false) {
-	password = false;
-	onLoad(userid, destination, password);
+if (register == true) {
+  authPopUp(userid, password);
 } else {
-	authPopUp(userid, password);
+  if (!userid) {
+    randomUserid();
+  }
+  onLoad(userid, destination, password);
 }
 
 });
