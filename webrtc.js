@@ -19,7 +19,7 @@ currentCallArray = new Array(4);
 password = false;
 mainDestination = $("#main input#destination");
 soundOut = document.createElement("audio");
-soundOut.volume = .05;
+soundOut.volume = 1;
 timerRunning = false;
 formatedDuration = "00:00:00";
 wsGateway = '204.117.64.118';
@@ -382,8 +382,6 @@ function incommingCall(message) {
 
 // What we do when we get a digit
 function pressDTMF (digit) {
-  dtmfOut = document.createElement("audio");
-  dtmfOut.volume = 1;
   if (digit.length != 1) {
     return;
   }
@@ -394,8 +392,8 @@ function pressDTMF (digit) {
   } else {
     file = digit;
   }
-  dtmfOut.setAttribute("src", "dtmf-" + file + ".ogg");
-  dtmfOut.play();
+  soundOut.setAttribute("src", "dtmf-" + file + ".ogg");
+  soundOut.play();
 	console.log("digit=" + digit);
   mainDestination.val(mainDestination.val() + digit);
 	if (timerRunning == true) {
