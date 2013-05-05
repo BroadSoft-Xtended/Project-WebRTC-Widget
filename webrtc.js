@@ -178,7 +178,6 @@ function uriCall(destination) {
 
 	  'started': function(e) {
 		  var localStreams, remoteStreams;
-      rtcSession = e.sender;
 		  if (window.mozRTCPeerConnection) {
 			  localStreams = rtcSession.rtcMediaHandler.peerConnection.localStreams;
 			  remoteStreams = rtcSession.rtcMediaHandler.peerConnection.remoteStreams;
@@ -353,6 +352,7 @@ function onLoad(userid, destination, password) {
     $("#callButton").fadeOut(100);
 	});
   sipStack.on('newRTCSession', function(e) {
+    rtcSession = e.data.session;
 		if (e.data.session.direction == "incoming") {
 			incommingCall(e);
 		}
@@ -465,7 +465,7 @@ $('#hangup').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
 	soundOut.play();
-	rtcSession.terminate();
+  rtcSession.terminate();
 	setCookie("update", false, false);
 	endCall();
 	if (fullScreen == true) {
