@@ -375,6 +375,9 @@ function onLoad(userid, destination, password) {
 
 // Incoming call function
 function incommingCall(message) {
+  message("Incoming Call", "normal");
+  soundOut.setAttribute("src", "ringtone.ogg");
+  soundOut.play();
 	console.log(message);
 	console.log(message.data.session.request.from.uri);
 	console.log(message.data.session);
