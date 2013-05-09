@@ -549,3 +549,39 @@ body {
 	top: 355px;
 	left: 290px;
 }
+
+#callStats {
+  display: none;
+  position: absolute;
+	top: 730px;
+	left: 25px;
+	width: 500px;
+	height: 200px;
+	background-color: #191414;
+	border-radius: 4px;
+	border: 2px solid #DDDDDD;
+	box-shadow: 0px 0px 10px #999999;
+}
+
+#callStats .statsVideo {
+	position: absolute;
+  white-space: pre-wrap;
+	color: #0082FF;
+	left: 10px;
+	font-family:arial;
+	font-size: 18px;
+	text-decoration: none;
+}
+
+#callStats .statsAudio {
+	position: absolute;
+  white-space: pre-wrap;
+	color: #0082FF;
+	left: 250px;
+  float: left;
+	font-family:arial;
+	font-size: 18px;
+	text-decoration: none;
+}
+
+

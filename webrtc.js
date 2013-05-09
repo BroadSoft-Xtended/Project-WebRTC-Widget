@@ -22,12 +22,12 @@ soundOut = document.createElement("audio");
 soundOut.volume = 1;
 timerRunning = false;
 formatedDuration = "00:00:00";
-wsGateway = '204.117.64.118';
+wsGateway = '204.117.64.121';
 wsPort = 8060;
 stunServer = '204.117.64.117';
 stunPort = 3478;
 domainFrom = 'exarionetworks.com';
-domainTo = '204.117.64.103';
+domainTo = '204.117.64.121';
 allowOutside = true;
 
 
@@ -60,7 +60,7 @@ function randomUserid() {
 // Start timer
 function startTimer () {
 	timerRunning = true;
-	var startTimer = showTimer();
+	var startTimer = runningTimer();
 	callTimer = setInterval(startTimer, 1000);
 	$("#timer").fadeIn(100);
 }
@@ -73,7 +73,7 @@ function stopTimer () {
 }
 
 // Display the timer on the screen
-function showTimer () {
+function runningTimer () {
 	var element = timer, seconds = -1;
 	return function () {
 		++seconds;
@@ -84,6 +84,7 @@ function showTimer () {
       secs %= 60;
       formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (secs < 10 ? "0" : "") + secs;
       $("#timer").text(formatedDuration);
+      processStats();
   }
 }
 
@@ -221,6 +222,75 @@ function uriCall(destination) {
 	// Start the Call
   message("Performing NAT Tests", "success");
 	sipStack.call(destination, options);
+}
+
+videoOutBytesPrev = 0;
+videoInBytesPrev=0;
+audioOutBytesPrev = 0;
+audioInBytesPrev = 0;
+
+function processStats() {
+  RTCPeerConnection = rtcSession.rtcMediaHandler.peerConnection;
+  RTCPeerConnection.getStats(function (stats) {
+    var videoPacketLoss = 0;
+    var audioPacketLoss = 0
+    var results = stats.result();
+    for (var i = 0; i < results.length; ++i) {
+      var res = results[i];
+      if (!res.local || res.local === res) {
+        if (res.type == 'ssrc' && res.stat('googFrameHeightSent')) {
+          var videoOutBytesNow = res.stat('bytesSent');
+          var videoOutBitRate = Math.round((videoOutBytesNow - videoOutBytesPrev) * 8 / 1024);
+          videoOutBytesPrev = videoOutBytesNow;
+          var videoOutFrameRate = res.stat('googFrameRateSent');
+        }
+        else if (res.type == 'ssrc' && res.stat('googFrameHeightReceived')) {
+          var videoInBytesNow = res.stat('bytesReceived');
+          var videoInBitRate = Math.round((videoInBytesNow - videoInBytesPrev) * 8 / 1024);
+          videoInBytesPrev = videoInBytesNow;
+          var videoPacketsLost = parseInt(res.stat('packetsLost'));
+          var videoPacketsReceived = parseInt(res.stat('packetsReceived'));
+          var videoInFrameRate = res.stat('googFrameRateReceived');
+          if (videoPacketsLost > 0) {
+            var videoPacketLoss = Math.round((videoPacketsLost * 100 / (videoPacketsReceived + videoPacketsLost))*100)/100;
+          }
+        }
+        else if (res.type == 'ssrc' && res.stat('audioInputLevel')) {
+          var audioOutBytesNow = res.stat('bytesSent');
+          var audioOutBitRate = Math.round((audioOutBytesNow - audioOutBytesPrev) * 8 / 1024);
+          audioOutBytesPrev = audioOutBytesNow;
+          var audioInputLevel = res.stat('audioInputLevel');
+        }
+        else if (res.type == 'ssrc' && res.stat('audioOutputLevel')) {
+          var audioInBytesNow = res.stat('bytesReceived');
+          var audioInBitRate = Math.round((audioInBytesNow - audioInBytesPrev) * 8 / 1024);
+          audioInBytesPrev = audioInBytesNow;
+          var audioPacketsLost = res.stat('packetsLost');
+          var audioPacketsReceived = res.stat('packetsReceived');
+          var audioJitter = res.stat('googJitterReceived');
+          var audioOutputLevel = res.stat('audioOutputLevel');
+          if (audioPacketsLost > 0) {
+            var audioPacketLoss = Math.round((audioPacketsLost * 100 / (audioPacketsReceived + audioPacketsLost))*100)/100;
+          }
+        }
+        else if (res.type == 'ssrc' && res.stat('googRtt') && res.stat('googJitterReceived')) {
+          var videoJitter = res.stat('googJitterReceived');
+        }
+      }
+      $("#callStats .statsVideo").text("Video Stats\n\n"
+        + "Bitrate out: " + videoOutBitRate + " kb/s\n"
+        + "Bitrate in: " + videoInBitRate + " kb/s\n"
+        + "Lost: " + videoPacketsLost + " packets " + videoPacketLoss + "%\n"
+        + "Jitter: " + videoJitter + " ms\n"
+        + "Frame Rate: " + videoOutFrameRate + " out " + videoInFrameRate + " in\n");
+      $("#callStats .statsAudio").text("Audio Stats\n\n"
+        + "Bitrate out: " + audioOutBitRate + " kb/s\n"
+        + "Bitrate in: " + audioInBitRate + " kb/s\n"
+        + "Lost: " + audioPacketsLost + " packets " + audioPacketLoss + "%\n"
+        + "Jitter: " + audioJitter + " ms\n"
+        + "Audio Level: " + audioOutputLevel + " out " + audioInputLevel + " in\n");
+    }
+  });
 }
 
 function guiStart(userid) {
@@ -527,6 +597,7 @@ $('#muteAudio').bind('click', function(e) {
     }
 });
 
+showStats = false;
 $("#historyClear").bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "click.ogg");
@@ -549,12 +620,21 @@ $("#dialpad").bind('click', function(e) {
 // Digits from keyboard
 document.onkeypress=function(e){
 	var e=window.event || e
-	if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42) {
-		var digit = String.fromCharCode(e.charCode);
-	}
-	if (timerRunning == true) {
-		pressDTMF(digit);
-	}
+  if (timerRunning == true) {
+	  if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42) {
+		  var digit = String.fromCharCode(e.charCode);
+		  pressDTMF(digit);
+    }
+    else if (e.charCode == 83) {
+      if (showStats == false) {
+        $("#callStats").fadeIn(1000);
+        showStats = true;
+      } else if (showStats) {
+        $("#callStats").fadeOut(100);
+        showStats = false;
+      }
+	  }
+  }
 }
 
 // Initial function selection
