@@ -16,6 +16,7 @@ register = (getSearchVariable("register") == "true");
 destination = getSearchVariable("destination");
 hd = (getSearchVariable("hd") == "true"); 
 audioOnly = (getSearchVariable("audioOnly") == "true");
+displayName = getSearchVariable("name").toString().replace("+"," ");
 currentCallArray = new Array(4);
 password = false;
 mainDestination = $("#main input#destination");
@@ -135,7 +136,10 @@ function authPopUp() {
 	$('#authPopupButton').click(function() {
 		var userid = $("#authPopup input#username").val();
 		var password = $("#authPopup input#password").val();
-		register=true;
+    if ($("#authPopup input#displayName").val()) {
+      displayName = $("#authPopup input#displayName").val();
+		}
+    register=true;
 		if (userid == "") {
 			$("#alert").text("Invalid Username").fadeIn(10).fadeOut(4000);
 			return;
@@ -437,6 +441,11 @@ function onLoad(userid, destination, password) {
 		'trace_sip': true,
 		'hack_via_tcp': true,
 	};
+
+  // Add Display Name if set
+  if (displayName.indexOf("false") === -1) {
+    config.display_name = displayName
+  }
 
 	// Modify config object based password
 	if (password == false) {
