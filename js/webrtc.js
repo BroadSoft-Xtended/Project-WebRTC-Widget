@@ -15,20 +15,45 @@ var userid = getSearchVariable("userid");
 register = (getSearchVariable("register") == "true");
 destination = getSearchVariable("destination");
 hd = (getSearchVariable("hd") == "true"); 
+audioOnly = (getSearchVariable("audioOnly") == "true");
 currentCallArray = new Array(4);
 password = false;
 mainDestination = $("#main input#destination");
+volumeClick = 1;
 soundOut = document.createElement("audio");
-soundOut.volume = 1;
+soundOut.volume = volumeClick;
+volumeDTMF = 1;
+soundOutDTMF = document.createElement("audio");
+soundOutDTMF.volume = volumeDTMF;
 timerRunning = false;
 formatedDuration = "00:00:00";
-wsGateway = '204.117.64.121';
+wsGateway = '204.117.64.118';
 wsPort = 8060;
 stunServer = '204.117.64.117';
 stunPort = 3478;
 domainFrom = 'exarionetworks.com';
-domainTo = '204.117.64.121';
+domainTo = '204.117.64.103';
 allowOutside = true;
+maxCallLength = getSearchVariable("maxCallLength");
+endCallURL = false;
+enableHD = true;
+enableCallControl = true;
+enableCallTimer = false;
+enableCallHistory = true;
+enableFullScreen = true;
+enableSelfView = true;
+enableCallStats = false;
+enableMute = true;
+enableMessages = true;
+enableRegistrationIcon = true;
+enableConnectionIcon = true;
+messageProgress = "Ringing";
+messageOutsideDomain = "Invalid Destination";
+messageStarted = "Call Started";
+messageEnded = "Call Ended";
+messageCall = "Performing NAT Tests";
+messageConnected = "Connected";
+messageEmptyDestination = "Invalid Number";
 
 
 // Make it eaiser to pull variables from URL
@@ -62,7 +87,9 @@ function startTimer () {
 	timerRunning = true;
 	var startTimer = runningTimer();
 	callTimer = setInterval(startTimer, 1000);
-	$("#timer").fadeIn(100);
+  if (enableCallTimer) {
+	  $("#timer").fadeIn(100);
+  }
 }
 
 // Stop timer
@@ -78,6 +105,10 @@ function runningTimer () {
 	return function () {
 		++seconds;
       var secs = seconds;
+      if (maxCallLength && seconds >= maxCallLength) {
+        endCall();
+        return;
+      }
       var hrs = Math.floor(secs / 3600);
       secs %= 3600;
       var mns = Math.floor(secs / 60);
@@ -115,13 +146,15 @@ function authPopUp() {
 		}
 		$("#authPopup").fadeOut(300);
 		onLoad(userid, false, password);
-		guiStart(userid, password);
+		guiStart(true);
 	});;
 }
 
 // Display status messages
 function message(text, level) {
-  console.log(text);
+  if(!enableMessages) {
+    return;
+  }
 	$("#messages").stop(true, true).fadeOut();
 	$("#messages").removeClass("normal success warning alert");
 	$("#messages").toggleClass(level).text(text).fadeIn(10).fadeOut(10000);
@@ -133,7 +166,7 @@ function validateDestination (destination) {
 		destination = ("sip:" + destination);
 	}
   if ((destination.indexOf(domainTo) === -1 ) && allowOutside == false) {
-    message("Invalid Domain", "alert");
+    message(messageOutsideDomain, "alert");
     return(false);
 	}
   if ((destination.indexOf("@") === -1)) {
@@ -160,14 +193,16 @@ function uriCall(destination) {
 
 	if (hd == true) {
 		var video = constraints;
-	} else {
-		var video = true;
+	} else if (audioOnly) {
+		var video = false;
+  } else {
+    var video = true;
 	}
 
   var eventHandlers = {
 	  'progress': function(e) {
-		  message("Ringing", "normal");
-      soundOut.setAttribute("src", "ringback.ogg");
+		  message(messageProgress, "normal");
+      soundOut.setAttribute("src", "media/ringback.ogg");
       soundOut.play();
 	  },
 
@@ -194,12 +229,14 @@ function uriCall(destination) {
 		  }
 		  soundOut.pause();
       startTimer();
-		  message("Call Started", "success");
-      $("#muteAudio").fadeIn(1000);
+		  message(messageStarted, "success");
+      if (enableMute) {
+        $("#muteAudio").fadeIn(1000);
+      }
 	  },
 
     'ended': function(e) {
-		message("Call Ended", "normal");
+		message(messageEnded, "normal");
 		endCall();
     }
 	};
@@ -220,7 +257,7 @@ function uriCall(destination) {
 	setCookie("new", destination, ">");
 	
 	// Start the Call
-  message("Performing NAT Tests", "success");
+  message(messageCall, "success");
 	sipStack.call(destination, options);
 }
 
@@ -277,24 +314,38 @@ function processStats() {
           var videoJitter = res.stat('googJitterReceived');
         }
       }
-      $("#callStats .statsVideo").text("Video Stats\n\n"
+      $("#callStats .statsVideo").text("Video Statistics\n\n"
         + "Bitrate out: " + videoOutBitRate + " kb/s\n"
         + "Bitrate in: " + videoInBitRate + " kb/s\n"
         + "Lost: " + videoPacketsLost + " packets " + videoPacketLoss + "%\n"
         + "Jitter: " + videoJitter + " ms\n"
-        + "Frame Rate: " + videoOutFrameRate + " out " + videoInFrameRate + " in\n");
-      $("#callStats .statsAudio").text("Audio Stats\n\n"
+        + "Frame Rate out: " + videoOutFrameRate + " in: " + videoInFrameRate + "\n");
+      $("#callStats .statsAudio").text("Audio Statistics\n\n"
         + "Bitrate out: " + audioOutBitRate + " kb/s\n"
         + "Bitrate in: " + audioInBitRate + " kb/s\n"
         + "Lost: " + audioPacketsLost + " packets " + audioPacketLoss + "%\n"
         + "Jitter: " + audioJitter + " ms\n"
-        + "Audio Level: " + audioOutputLevel + " out " + audioInputLevel + " in\n");
+        + "Audio Level out: " + audioOutputLevel + " in: " + audioInputLevel + "\n");
     }
   });
 }
 
-function guiStart(userid) {
-	$("#main, #localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
+function guiStart(main) {
+  $("#remoteVideo").fadeIn(1000)
+  if(main){
+    if(enableCallControl) {
+      $("#main, button#callButton.button").fadeIn(1000);
+    }
+  }
+  if(enableSelfView) {
+    $("#localVideo, #selfView").fadeIn(1000);
+  }
+  if(enableFullScreen) {
+    $("#fullScreen").fadeIn(1000);
+  }
+  if(enableCallStats) {
+    $("#callStats").fadeIn(1000);
+  }
 }
 
 function showHistory(page) {	
@@ -338,7 +389,7 @@ function endCall() {
 	$("#localVideo").removeAttr("src");
 	$("#remoteVideo").removeAttr("src");
 	// Bring up the main elements
-	$("#main, #callButton, #localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
+  guiStart(true);
 	if (timerRunning == true) {
 		stopTimer();
 	}
@@ -346,6 +397,9 @@ function endCall() {
 
 // Store call stats in array, then in cookie on update
 function setCookie(type, remoteParty, direction) {
+  if (!enableCallHistory) {
+    return;
+  }
 	if (type=="new") {
 		timestamp = new Date();
 		var epoch = timestamp.getTime();
@@ -396,28 +450,34 @@ function onLoad(userid, destination, password) {
 	sipStack = new JsSIP.UA(config);
 
   // Start SIP Stack
-  $("#connected").toggleClass("alert").fadeIn(10);
+  if (enableConnectionIcon) {
+    $("#connected").toggleClass("alert").fadeIn(10);
+  }
   sipStack.start();
 	
 	// If there is not a destination in URL start the GUI
 	if(destination == false) {
-		guiStart(userid);
+		guiStart(true);
 	}
 	
 	// sipStack callbacks 
 	sipStack.on('connected', function(e) {
-		$("#connected").removeClass("alert");
-		$("#connected").toggleClass("success").fadeIn(1000);
-    $("#callButton").fadeIn(1000);
-		message("Connected", "success");
-		if (!destination== false & register == false) {
-			$("#localVideo, #remoteVideo, #selfView, #fullScreen").fadeIn(1000);
-			urlCall(destination);
+    if (enableConnectionIcon) {
+		  $("#connected").removeClass("alert");
+		  $("#connected").toggleClass("success").fadeIn(1000);
+      $("#callButton").fadeIn(1000);
+    }
+		message(messageConnected, "success");
+		if (!destination == false & register == false) {
+			guiStart(false);
+      uriCall(destination);
 		}
 	});
 	sipStack.on('disconnected', function(e) {
-		$("#connected").removeClass("success");
-    $("#connected").toggleClass("alert").fadeIn(1000);
+    if (enableConnectionIcon) {
+		  $("#connected").removeClass("success");
+      $("#connected").toggleClass("alert").fadeIn(1000);
+    }
     endCall();
     $("#callButton").fadeOut(100);
 	});
@@ -430,15 +490,19 @@ function onLoad(userid, destination, password) {
 
 	if (!password == false) {
 		sipStack.on('registered', function(e) {
-		$("#registered").removeClass("alert");
-    $("#registered").toggleClass("success").fadeIn(1000);
+    if (enableRegisterationIcon) {
+		  $("#registered").removeClass("alert");
+      $("#registered").toggleClass("success").fadeIn(1000);
+    }
 		if (!destination == false) {
-			urlCall(destination);
+			uriCall(destination);
 			}
 		});
 		sipStack.on('registrationFailed', function(e) {
-		$("#registered").removeClass("success");
-    $("#registered").toggleClass("alert").fadeIn(1000);
+    if (enableRegistrationIcon) {
+		  $("#registered").removeClass("success");
+      $("#registered").toggleClass("alert").fadeIn(1000);
+    }
 		});
 	}
 }
@@ -446,7 +510,7 @@ function onLoad(userid, destination, password) {
 // Incoming call function
 function incommingCall(message) {
   message("Incoming Call", "normal");
-  soundOut.setAttribute("src", "ringtone.ogg");
+  soundOut.setAttribute("src", "media/ringtone.ogg");
   soundOut.play();
 	console.log(message);
 	console.log(message.data.session.request.from.uri);
@@ -465,9 +529,8 @@ function pressDTMF (digit) {
   } else {
     file = digit;
   }
-  soundOut.setAttribute("src", "dtmf-" + file + ".ogg");
-  soundOut.play();
-	console.log("digit=" + digit);
+  soundOutDTMF.setAttribute("src", "media/dtmf-" + file + ".ogg");
+  soundOutDTMF.play();
   mainDestination.val(mainDestination.val() + digit);
 	if (timerRunning == true) {
     rtcSession.sendDTMF(digit, options=null);
@@ -483,7 +546,7 @@ $(function() {
 selfView = true;
 $('#selfView').bind('click', function(e) {
 	e.preventDefault();
-	soundOut.setAttribute("src", "click.ogg");
+	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
 	if (selfView == true) {
 		$("#localVideo").fadeOut(100);
@@ -495,11 +558,11 @@ $('#selfView').bind('click', function(e) {
 });
 
 $('#callButton').click(function() {	
-	soundOut.setAttribute("src", "click.ogg");
+	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();	
 	var destination = mainDestination.val();
 	if (destination == "") {
-		message("Invalid Number", "alert");
+		message(messageEmptyDestination, "alert");
 	} else {
 		uriCall(destination);
 	}
@@ -508,7 +571,7 @@ $('#callButton').click(function() {
 dialpad = false;
 $('#dialpadToggle').bind('click', function(e) {
 	e.preventDefault();
-	soundOut.setAttribute("src", "click.ogg");
+	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
 	if (dialpad == true) {
 		$("#dialpad").fadeOut(100);
@@ -521,7 +584,7 @@ $('#dialpadToggle').bind('click', function(e) {
 
 $("#settings").bind('click', function(e) {
 	e.preventDefault();
-	soundOut.setAttribute("src", "click.ogg");
+	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
 	if (hd == true) {
 		$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").removeClass("hd");
@@ -534,7 +597,7 @@ $("#settings").bind('click', function(e) {
 
 $('#hangup').bind('click', function(e) {
 	e.preventDefault();
-	soundOut.setAttribute("src", "click.ogg");
+	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
   rtcSession.terminate();
 	setCookie("update", false, false);
@@ -547,7 +610,7 @@ $('#hangup').bind('click', function(e) {
 historyPressed = false;
 $('#historyToggle').bind('click', function(e) {
 	e.preventDefault();
-	soundOut.setAttribute("src", "click.ogg");
+	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
 	if (historyPressed == true) {
 		historyPressed = false;
@@ -568,7 +631,7 @@ $("#callHistory").bind('click', function(e) {
 fullScreen = false;
 $('#fullScreen').bind('click', function(e) {
 	e.preventDefault();
-	soundOut.setAttribute("src", "click.ogg");
+	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
 	if (fullScreen == true) {
 		document.webkitCancelFullScreen();
@@ -582,7 +645,7 @@ $('#fullScreen').bind('click', function(e) {
 isMuted = false;
 $('#muteAudio').bind('click', function(e) {
   e.preventDefault();
-  soundOut.setAttribute("src", "click.ogg");
+  soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
   local_media = rtcSession.getLocalStreams()[0];
   local_audio = local_media.getAudioTracks()[0];
@@ -597,10 +660,9 @@ $('#muteAudio').bind('click', function(e) {
     }
 });
 
-showStats = false;
 $("#historyClear").bind('click', function(e) {
 	e.preventDefault();
-	soundOut.setAttribute("src", "click.ogg");
+	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
    	var cookies = document.cookie.split(";");
 	for (var i = 0; i < cookies.length; i++) {
@@ -617,6 +679,7 @@ $("#dialpad").bind('click', function(e) {
 	pressDTMF(e.target.textContent)
 });
 
+showStats = false;
 // Digits from keyboard
 document.onkeypress=function(e){
 	var e=window.event || e
@@ -638,7 +701,7 @@ document.onkeypress=function(e){
 }
 
 // Initial function selection
-if (hd == true) {
+if (enableHD == true & hd == true) {
 	$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").addClass("hd");
 }
 

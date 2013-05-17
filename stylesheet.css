@@ -10,9 +10,9 @@
 font-family: 'pictos';
 	src: url('pictos-web.eot');
 	src: local('☺'),
-	url('pictos-web.woff') format('woff'),
-	url('pictos-web.ttf') format('truetype'),
-	url('pictos-web.svg#webfontIyfZbseF') format('svg');
+	url('fonts/pictos-web.woff') format('woff'),
+	url('fonts/pictos-web.ttf') format('truetype'),
+	url('fonts/pictos-web.svg#webfontIyfZbseF') format('svg');
 }
 
 body {
@@ -583,5 +583,3 @@ body {
 	font-size: 18px;
 	text-decoration: none;
 }
-
-
