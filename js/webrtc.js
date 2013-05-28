@@ -161,7 +161,7 @@ function message(text, level) {
   }
 	$("#messages").stop(true, true).fadeOut();
 	$("#messages").removeClass("normal success warning alert");
-	$("#messages").toggleClass(level).text(text).fadeIn(10).fadeOut(10000);
+	$("#messages").addClass(level).text(text).fadeIn(10).fadeOut(10000);
 }
 
 // Make sure destination allowed and in proper format
@@ -186,7 +186,7 @@ function uriCall(destination) {
     return;
   }
 
-  $('button#callButton.button').fadeOut(1000);
+  $('#call').fadeOut(1000);
 	
   var constraints = {
 		mandatory: {
@@ -335,17 +335,17 @@ function processStats() {
 }
 
 function guiStart(main) {
-  $("#remoteVideo").fadeIn(1000)
+  $("#remoteVideo, #videoBar").fadeIn(1000)
   if(main){
     if(enableCallControl) {
-      $("#main, button#callButton.button").fadeIn(1000);
+      $("#main, #call, #dialpadShow").fadeIn(1000);
     }
   }
   if(enableSelfView) {
-    $("#localVideo, #selfView").fadeIn(1000);
+    $("#localVideo, #selfViewDisable").fadeIn(1000);
   }
   if(enableFullScreen) {
-    $("#fullScreen").fadeIn(1000);
+    $("#fullScreenExpand").fadeIn(1000);
   }
   if(enableCallStats) {
     $("#callStats").fadeIn(1000);
@@ -459,9 +459,6 @@ function onLoad(userid, destination, password) {
 	sipStack = new JsSIP.UA(config);
 
   // Start SIP Stack
-  if (enableConnectionIcon) {
-    $("#connected").toggleClass("alert").fadeIn(10);
-  }
   sipStack.start();
 	
 	// If there is not a destination in URL start the GUI
@@ -473,8 +470,8 @@ function onLoad(userid, destination, password) {
 	sipStack.on('connected', function(e) {
     if (enableConnectionIcon) {
 		  $("#connected").removeClass("alert");
-		  $("#connected").toggleClass("success").fadeIn(1000);
-      $("#callButton").fadeIn(1000);
+		  $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
+      //$("#call").fadeIn(1000);
     }
 		message(messageConnected, "success");
 		if (!destination == false & register == false) {
@@ -485,10 +482,10 @@ function onLoad(userid, destination, password) {
 	sipStack.on('disconnected', function(e) {
     if (enableConnectionIcon) {
 		  $("#connected").removeClass("success");
-      $("#connected").toggleClass("alert").fadeIn(1000);
+      $("#connected").addClass("alert").fadeIn(100);
     }
     endCall();
-    $("#callButton").fadeOut(100);
+    $("#call").fadeOut(100);
 	});
   sipStack.on('newRTCSession', function(e) {
     rtcSession = e.data.session;
@@ -499,19 +496,19 @@ function onLoad(userid, destination, password) {
 
 	if (!password == false) {
 		sipStack.on('registered', function(e) {
-    if (enableRegisterationIcon) {
-		  $("#registered").removeClass("alert");
-      $("#registered").toggleClass("success").fadeIn(1000);
+      if (enableRegisterationIcon) {
+		    $("#registered").removeClass("alert");
+        $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
     }
 		if (!destination == false) {
 			uriCall(destination);
 			}
 		});
 		sipStack.on('registrationFailed', function(e) {
-    if (enableRegistrationIcon) {
-		  $("#registered").removeClass("success");
-      $("#registered").toggleClass("alert").fadeIn(1000);
-    }
+      if (enableRegistrationIcon) {
+		    $("#registered").removeClass("success");
+        $("#registered").addClass("alert").fadeIn(100);
+      }
 		});
 	}
 }
@@ -552,21 +549,8 @@ $(function() {
 });
 
 // Buttons
-selfView = true;
-$('#selfView').bind('click', function(e) {
-	e.preventDefault();
-	soundOut.setAttribute("src", "media/click.ogg");
-	soundOut.play();
-	if (selfView == true) {
-		$("#localVideo").fadeOut(100);
-		selfView = false;
-	} else if (selfView == false) {
-		$("#localVideo").fadeIn(100);
-		selfView = true;
-	}
-});
-
-$('#callButton').click(function() {	
+$('#call').bind('click', function(e) {
+  e.preventDefault();
 	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();	
 	var destination = mainDestination.val();
@@ -577,43 +561,100 @@ $('#callButton').click(function() {
 	}
 });
 
-dialpad = false;
-$('#dialpadToggle').bind('click', function(e) {
-	e.preventDefault();
-	soundOut.setAttribute("src", "media/click.ogg");
-	soundOut.play();
-	if (dialpad == true) {
-		$("#dialpad").fadeOut(100);
-		dialpad = false;
-	} else if (dialpad == false) {
-		$("#dialpad").fadeIn(100);
-		dialpad = true;
-	}
-});
-
-$("#settings").bind('click', function(e) {
-	e.preventDefault();
-	soundOut.setAttribute("src", "media/click.ogg");
-	soundOut.play();
-	if (hd == true) {
-		$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").removeClass("hd");
-		hd = false;
-	} else if (hd == false) {
-		$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").addClass("hd");
-	hd = true;
-	}   
-});
-
 $('#hangup').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
   rtcSession.terminate();
-	setCookie("update", false, false);
+  setCookie("update", false, false);
 	endCall();
 	if (fullScreen == true) {
-		$('#fullScreen').click();
+		$('#fullScreenContract').click();
 	}
+});
+
+$('#fullScreenExpand').bind('click', function(e) {
+	e.preventDefault();
+	soundOut.setAttribute("src", "media/click.ogg");
+	soundOut.play();
+  video.webkitRequestFullScreen();
+  fullScreen = true;
+  $("#fullScreenExpand").fadeOut(100);
+  $("#fullScreenContract").fadeIn(1000);
+});
+
+$('#fullScreenContract').bind('click', function(e) {
+	e.preventDefault();
+	soundOut.setAttribute("src", "media/click.ogg");
+	soundOut.play();
+  document.webkitCancelFullScreen();
+  fullScreen = false;
+  $("#fullScreenContract").fadeOut(100);
+  $("#fullScreenExpand").fadeIn(1000);
+});
+
+$('#selfViewDisable').bind('click', function(e) {
+	e.preventDefault();
+	soundOut.setAttribute("src", "media/click.ogg");
+	soundOut.play();
+  $("#localVideo, #selfViewDisable").fadeOut(100);
+  $("#selfViewEnable").fadeIn(1000);
+});
+
+$('#selfViewEnable').bind('click', function(e) {
+	e.preventDefault();
+	soundOut.setAttribute("src", "media/click.ogg");
+	soundOut.play();
+  $("#selfViewEnable").fadeOut(1000);
+  $("#localVideo, #selfViewDisable").fadeIn(1000);
+});
+
+$('#muteAudio').bind('click', function(e) {
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  local_media = rtcSession.getLocalStreams()[0];
+  local_audio = local_media.getAudioTracks()[0];
+  $("#muteAudio").fadeOut(1000);
+  $("#unmuteAudio").fadeIn(1000);
+});
+
+$('#unmuteAudio').bind('click', function(e) {
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  local_audio.enabled = true;
+  $("#unmuteAudio").fadeOut(1000);
+  $("#muteAudio").fadeIn(1000);
+});
+
+$('#dialpadShow').bind('click', function(e) {
+	e.preventDefault();
+	soundOut.setAttribute("src", "media/click.ogg");
+	soundOut.play();
+  $("#dialpadShow").fadeOut(1000);
+  $("#dialpad, #dialpadHide").fadeIn(1000);
+});
+
+$('#dialpadHide').bind('click', function(e) {
+	e.preventDefault();
+	soundOut.setAttribute("src", "media/click.ogg");
+	soundOut.play();
+  $("#dialpad, #dialpadHide").fadeOut(1000);
+  $("#dialpadShow").fadeIn(1000);
+});
+
+$("#settings").bind('click', function(e) {
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+	soundOut.play();
+	if (hd == false) {
+		$("*").removeClass("hd");
+		hd = false;
+	} else if (hd == true) {
+		$("*").addClass("hd");
+	hd = true;
+	}   
 });
 
 historyPressed = false;
@@ -635,38 +676,6 @@ $('#historyToggle').bind('click', function(e) {
 $("#callHistory").bind('click', function(e) {
 	var clicked = (e.target.innerText)
 	var callID = (e.target.parentElement.firstElementChild.firstChild.nodeValue);
-});
-
-fullScreen = false;
-$('#fullScreen').bind('click', function(e) {
-	e.preventDefault();
-	soundOut.setAttribute("src", "media/click.ogg");
-	soundOut.play();
-	if (fullScreen == true) {
-		document.webkitCancelFullScreen();
-		fullScreen = false;
-	} else if (fullScreen == false) {
-		video.webkitRequestFullScreen();
-		fullScreen = true;
-	}
-});
-
-isMuted = false;
-$('#muteAudio').bind('click', function(e) {
-  e.preventDefault();
-  soundOut.setAttribute("src", "media/click.ogg");
-  soundOut.play();
-  local_media = rtcSession.getLocalStreams()[0];
-  local_audio = local_media.getAudioTracks()[0];
-    if (isMuted) {
-      $("#muteAudio a.icon").removeClass("groupD");
-      isMuted = false;
-      local_audio.enabled = true;
-    } else if (isMuted == false) {
-      $("#muteAudio a.icon").addClass("groupD");
-      isMuted = true;
-      local_audio.enabled = false;
-    }
 });
 
 $("#historyClear").bind('click', function(e) {
@@ -711,7 +720,7 @@ document.onkeypress=function(e){
 
 // Initial function selection
 if (enableHD == true & hd == true) {
-	$("#localVideo, #remoteVideo, #selfView, #muteAudio, #fullScreen, #hangup, #messages, #timer").addClass("hd");
+  $('#settings').click();
 }
 
 if (register == true) {
