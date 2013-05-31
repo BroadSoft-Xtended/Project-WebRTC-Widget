@@ -17,7 +17,7 @@ register = (getSearchVariable("register") == "true");
 destination = getSearchVariable("destination");
 hd = (getSearchVariable("hd") == "true"); 
 audioOnly = (getSearchVariable("audioOnly") == "true");
-displayName = getSearchVariable("name").toString().replace("+"," ");
+displayName = getSearchVariable("name").toString().replace("%20"," ");
 currentCallArray = new Array(4);
 password = false;
 mainDestination = $("#callControl input#destination");
@@ -260,8 +260,8 @@ function uriCall(destination) {
 	var selfView = document.getElementById("localVideo");
 	var remoteView = document.getElementById("remoteVideo");
 	
-	$("#hangup").css('color', 'red');
-	setCookie("new", destination, ">");
+	$("#hangup").fadeIn(1000);
+  setCookie("new", destination, ">");
 	
 	// Start the Call
   message(messageCall, "success");
@@ -338,7 +338,7 @@ function processStats() {
 }
 
 function guiStart() {
-  $("#remoteVideo, #videoBar, #muteAudio, #hangup").fadeIn(1000)
+  $("#remoteVideo, #videoBar, #muteAudio").fadeIn(1000)
   if(enableCallControl && showCallControl) {
       $("#callControl, #call").fadeIn(1000);
     }
@@ -391,8 +391,7 @@ function showHistory(page) {
 }
 
 function endCall() {
-  $("#hangup").css('color', 'white');
-	$("#muteAudio").fadeOut(100);
+	$("#hangup, #muteAudio").fadeOut(100);
   isMuted = false;
 	// Clear last image from video tags
 	$("#localVideo").removeAttr("src");

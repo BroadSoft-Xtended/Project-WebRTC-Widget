@@ -223,12 +223,12 @@ body {
 }
 
 .icon-hangup:before {
-  content: "\e00f";
-  color: #FFFFFF;
+  content: "\e00e";
+  color: #FF0000;
 }
 
 .icon-hangup:hover:before {
-  content: "\e00f";
+  content: "\e00e";
   color: #EFA233;
 }
 
