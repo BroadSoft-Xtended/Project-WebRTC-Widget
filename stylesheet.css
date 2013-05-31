@@ -1,10 +1,9 @@
 /***************************************************
- * webrtc.js
- * Created on Mon Jan 14 15:32:43 GMT 2013 by nathan
+ * Created on Mon Jan 14 15:32:43 GMT 2013 by:
+ * Nathan Stratton <nathan@robotics.net>
  *
- * $Author$
- * $Rev$
- * $Date$
+ * Copyright 2013 Exario Networks
+ * http://www.exarionetworks.com
  ***************************************************/
 
 @font-face {
@@ -15,20 +14,21 @@
 }
 
 body {
-	background-color: #000000;
+	background-color: #FFFFFF;
 }
 
-#main {
+#callControl {
 	display: none;
-	position: absolute;
-	left: 25px;
+	position: relative;
+	left: 0px;
+  height: 75px;
 	color: #666666; 
 	font-family:arial;
 	font-size: 18px;
 	font-weight: bold;
 }
 
-#main input {
+#callControl input {
 	background: #666666; 
 	border-bottom: 1px solid #333;
 	border-left: 1px solid #000;
@@ -42,44 +42,36 @@ body {
 	width: 250px;
 }
 
-#logo {
-  position: absolute;
-  border: 0px;
+#main {
+  position: relative;
   top: 0px;
-  left: 460px;
-}
-
-#logo.hd{
-  position: absolute;
-  border: 0px;
-  top: 0px;
-  left: 1100px;
+  left: 0px;
 }
 
 #remoteVideo {
 	display: none;
 	position: absolute;
-	top: 100px;
-	left: 25px;
+	top: 0px;
+	left: 0px;
 	width: 640px;
 	height: 480px;
 	background-color: #191414;
 	border-radius: 4px;
 	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #999999;
+	box-shadow: 0px 0px 10px #000000;
 }
 
 #remoteVideo.hd {
 	display: none;
 	position: absolute;
-	top: 100px;
-	left: 25px;
+	top: 0px;
+	left: 0px;
 	width: 1280px;
 	height: 720px;
 	background-color: #191414;
 	border-radius: 4px;
 	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #999999;
+	box-shadow: 0px 0px 10px #000000;
 }
 
 :-webkit-full-screen #remoteVideo {
@@ -97,8 +89,8 @@ body {
 #localVideo {
 	display: none;
 	position: absolute;
-	top: 455px;
-	left: 30px;
+	top: 355px;
+	left: 5px;
 	width: 160px;
 	height: 120px;
 	background-color: #241D1D;
@@ -110,8 +102,8 @@ body {
 #localVideo.hd {
 	display: none;
 	position: absolute;
-	top: 635px;
-	left: 30px;
+	top: 535px;
+	left: 5px;
 	width: 320px;
 	height: 180px;
 	background-color: #241D1D;
@@ -135,21 +127,26 @@ body {
 #videoBar {
   display: none;
 	position: absolute;
-	top: 585px;
-	left: 25px;
+	top: 485px;
+	left: 0px;
 	width: 640px;
 	height: 40px;
-	background-color: #474343;
+  background: black;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#404040', endColorstr='#000000',GradientType=0 );
+  background-image: -ms-linear-gradient(center top , #404040, #000000);
+  background-image: linear-gradient(to bottom, #404040, #000000);
+  background-image: -webkit-linear-gradient(#404040, #000000);
+  background-image: -moz-linear-gradient(top, #404040, #000000);
 	border-radius: 4px;
 	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #999999;
+	box-shadow: 0px 0px 10px #000000;
 }
 
 #videoBar.hd {
   display: none;
 	position: absolute;
-	top: 825px;
-	left: 25px;
+	top: 725px;
+	left: 0px;
 	width: 1280px;
 	height: 40px;
 	background-color: #474343;
@@ -185,26 +182,26 @@ body {
   display: none;
   position: absolute;
   z-index: 10;
-	top: 33px;
-	left: 300px;
+  top: 25px;
+	left: 265px;
 }
 
 #call.hd {
 	display: none;
   position: absolute;
   z-index: 10;
-	top: 33px;
-	right: 300px;
+	top: 25px;
+	right: 265px;
 }
 
 .icon-call:before {
-  content: "\e001";
-  color: #99FF66;
+  content: "\e00e";
+  color: #3B9E3B;
 }
 
 .icon-call:hover:before {
-  content: "\e001";
-  color: #FCD3A5;
+  content: "\e00e";
+  color: #EFA233;
 }
 
 /* Hangup Button */
@@ -213,26 +210,26 @@ body {
   display: none;
   position: absolute;
   z-index: 10;
-  top: 593px;
-  left: 630px;
+  top: 493px;
+  left: 605px;
 }
 
 #hangup.hd {
 	display: none;
 	position: absolute;
   z-index: 10;
-	top: 833px;
-	left: 1275px;
+	top: 733px;
+	left: 1245px;
 }
 
 .icon-hangup:before {
-  content: "\e002";
-  color: #FF0000;
+  content: "\e00f";
+  color: #FFFFFF;
 }
 
 .icon-hangup:hover:before {
-  content: "\e002";
-  color: #FCD3A5;
+  content: "\e00f";
+  color: #EFA233;
 }
 
 /* FullScreen Expand Button */
@@ -241,26 +238,26 @@ body {
   display: none;
 	position: absolute;
   z-index: 10;
-	top: 593px;
-	left: 35px;
+	top: 493px;
+	left: 15px;
 }
 
 #fullScreenExpand.hd {
 	display: none;
 	position: absolute;
   z-index: 10;
-	top: 833px;
-	left: 35px;
+	top: 733px;
+	left: 15px;
 }
 
 .icon-fullScreenExpand:before {
-  content: "\e00b";
-  color: #000AF6;
+  content: "\e001";
+  color: #FFFFFF;
 }
 
 .icon-fullScreenExpand:hover:before {
-  content: "\e00b";
-  color: #FCD3A5;
+  content: "\e001";
+  color: #EFA233;
 }
 
 /* FullScreen Contract Button */
@@ -274,13 +271,13 @@ body {
 }
 
 .icon-fullScreenContract:before {
-  content: "\e00c";
-  color: #000AF6;
+  content: "\e002";
+  color: #FFFFFF;
 }
 
 .icon-fullScreenContract:hover:before {
-  content: "\e00c";
-  color: #FCD3A5;
+  content: "\e002";
+  color: #EFA233;
 }
 
 /* Self View Disable Button */
@@ -289,26 +286,26 @@ body {
 	display: none;
 	position: absolute;
   z-index: 10;
-	top: 593px;
-	left: 80px;
+	top: 493px;
+	left: 55px;
 }
 
 #selfViewDisable.hd {
 	display: none;
 	position: absolute;
   z-index: 10;
-	top: 833px;
-	left: 80px;
+	top: 733px;
+	left: 55px;
 }
 
 .icon-selfViewDisable:before {
-  content: "\e00f";
-  color: #000AF6;
+  content: "\e000";
+  color: #FFFFFF;
 }
 
 .icon-selfViewDisable:hover:before {
-  content: "\e00f";
-  color: #FCD3A5;
+  content: "\e000";
+  color: #EFA233;
 }
 
 /* Self View Enable Button */
@@ -317,26 +314,26 @@ body {
 	display: none;
 	position: absolute;
   z-index: 10;
-	top: 593px;
-	left: 80px;
+	top: 493px;
+	left: 55px;
 }
 
 #selfViewEnable.hd {
 	display: none;
 	position: absolute;
   z-index: 10;
-	top: 833px;
-	right: 80px;
+	top: 733px;
+	right: 55px;
 }
 
 .icon-selfViewEnable:before {
-  content: "\e00f";
-  color: #000AF6;
+  content: "\e015";
+  color: #EFA233;
 }
 
 .icon-selfViewEnable:hover:before {
-  content: "\e00f";
-  color: #FCD3A5;
+  content: "\e015";
+  color: #EFA233;
 }
 
 /* Mute Audio Button */
@@ -345,26 +342,26 @@ body {
   display: none;
   position: absolute;
   z-index: 10;
-  top: 593px;
-  left: 120px;
+  top: 493px;
+  left: 130px;
 }
 
 #muteAudio.hd {
   display: none;
   position: absolute;
   z-index: 10;
-  top: 833px;
-  left: 120px;
+  top: 733px;
+  left: 130px;
 }
 
 .icon-muteAudio:before {
-  content: "\e00d";
-  color: #000AF6;
+  content: "\e007";
+  color: #FFFFFF;
 }
 
 .icon-muteAudio:hover:before {
-  content: "\e00d";
-  color: #FCD3A5;
+  content: "\e007";
+  color: #EFA233;
 }
 
 /* Unmute Audio Button */
@@ -373,26 +370,26 @@ body {
   display: none;
   position: absolute;
   z-index: 10;
-  top: 593px;
-  left: 120px;
+  top: 493px;
+  left: 130px;
 }
 
 #unmuteAudio.hd {
   display: none;
   position: absolute;
   z-index: 10;
-  top: 833px;
-  left: 120px;
+  top: 733px;
+  left: 130px;
 }
 
 .icon-unmuteAudio:before {
-  content: "\e00e";
-  color: #FF0000;
+  content: "\e008";
+  color: #EFA233;
 }
 
 .icon-unmuteAudio:hover:before {
-  content: "\e00e";
-  color: #FCD3A5;
+  content: "\e008";
+  color: #EFA233;
 }
 
 /* Dialpad Show Button */
@@ -401,26 +398,26 @@ body {
   display: none;
 	position: absolute;
   z-index: 10;
-	top: 593px;
-	left: 585px;
+	top: 493px;
+	left: 95px;
 }
 
 #dialpadShow.hd {
   display: none;
   position: absolute;
   z-index: 10;
-  top: 833px;
-  left: 1225px;
+  top: 733px;
+  left: 95px;
 }
 
 .icon-dialpadShow:before {
-  content: "\e007";
-  color: #000AF6;
+  content: "\e00a";
+  color: #FFFFFF;
 }
 
 .icon-dialpadShow:hover:before {
-  content: "\e007";
-  color: #FCD3A5;
+  content: "\e00a";
+  color: #EFA233;
 }
 
 /* Dialpad Hide Button */
@@ -429,34 +426,34 @@ body {
 	display: none;
   position: absolute;
   z-index: 10;
-	top: 593px;
-	left: 585px;
+	top: 493px;
+	left: 95px;
 }
 
 #dialpadHide.hd {
   display: none;
   position: absolute;
   z-index: 10;
-  top: 833px;
-  left: 1225px;
+  top: 733px;
+  left: 95px;
 }
 
 .icon-dialpadHide:before {
-  content: "\e007";
-  color: #FF0000;
+  content: "\e00a";
+  color: #EFA233;
 }
 
 .icon-dialpadHide:hover:before {
-  content: "\e007";
-  color: #FCD3A5;
+  content: "\e00a";
+  color: #EFA233;
 }
 
 .icon-link:before {
-  content: "\e006";
+  content: "\e00b";
 }
 
 .button:active {
-	color: #FCD3A5;
+	color: #EFA233;
 	background: -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A));
 	background: linear-gradient(to bottom left, #7CDD07, #FAA51A);
 }
@@ -522,16 +519,16 @@ body {
   display: none;
 	position: absolute;
   z-index: 20;
-	top: 423px;
-	left: 540px;
+	top: 323px;
+	left: 515px;
 	letter-spacing: 5px;
 }
 
 #dialpad.hd {
 	position: absolute;
   z-index: 20;
-	top: 663px;
-	left: 1180px;
+	top: 563px;
+	left: 1155px;
 	letter-spacing: 5px;
 }
 
@@ -553,7 +550,7 @@ body {
 }
 
 #dialpad button:active {
-	color: #FCD3A5;
+	color: #EFA233;
 	background: -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A));
 	background: linear-gradient(to left bottom, #F47A20, #FAA51A);
 }
@@ -565,55 +562,55 @@ body {
 #connected {
 	display: none;
 	position: absolute;
-	top: 113px;
-	left: 630px;
+	top: 13px;
+	left: 605px;
 }
 
 #connected.hd {
   display: none;
 	position: absolute;
-	top: 113px;
-	left: 1270px;
+	top: 13px;
+	left: 1245px;
 }
 
 #registered {
   display: none;
 	position: absolute;
 	color: #60FE10;
-	top: 113px;
-	left: 590px;
+	top: 13px;
+	left: 570px;
 }
 
 #registered.hd {
   display: none;
 	position: absolute;
 	color: #60FE10;
-	top: 113px;
-	left: 1220px;
+	top: 13px;
+	left: 1190px;
 }
 
 #timer {
 	display: none;
 	position: absolute;
-	top: 594px;
+	top: 494px;
 	left: 320px;
 	font-family: arial;
 	font-size: 20px; 
-	color: #90510c;
+	color: #FFFFFF;
 }
 
 #timer.hd {
 	position: absolute;
-	top: 834px;
+	top: 734px;
 	left: 640px;
 	font-family: arial;
 	font-size: 20px; 
-	color: #90510c;
+	color: #FFFFFF;
 }
 
 #messages {
 	position: absolute;
-	top: 550px;
+	top: 450px;
 	left: 300px;
 	font-family:arial;
 	font-size: 20px; 
@@ -621,7 +618,7 @@ body {
 
 #messages.hd {
 	position: absolute;
-	top: 790px;
+	top: 690px;
 	left: 900px;
 	font-family:arial;
 	font-size: 20px; 
@@ -752,4 +749,16 @@ body {
 	font-family:arial;
 	font-size: 18px;
 	text-decoration: none;
+}
+
+.message{
+  position: absolute;
+  top: 340px;
+  left: 75px;
+  width: 540px;
+  background-color: #191414;
+  text-align: center;
+  display:none;
+  color:white;
+  z-index: 10;
 }

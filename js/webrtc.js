@@ -1,13 +1,14 @@
 /***************************************************
- * webrtc.js
  * Created on Mon Jan 14 15:32:43 GMT 2013 by:
  * Nathan Stratton <nathan@robotics.net>
  *
  * Copyright 2013 Exario Networks
+ * http://www.exarionetworks.com
  * 
  * JsSIP library is MIT-license code: 
  * http://www.opensource.org/licenses/mit-license.php
  ***************************************************/
+
 $(document).ready(function() {
 
 // Default URL variables
@@ -19,7 +20,7 @@ audioOnly = (getSearchVariable("audioOnly") == "true");
 displayName = getSearchVariable("name").toString().replace("+"," ");
 currentCallArray = new Array(4);
 password = false;
-mainDestination = $("#main input#destination");
+mainDestination = $("#callControl input#destination");
 volumeClick = 1;
 soundOut = document.createElement("audio");
 soundOut.volume = volumeClick;
@@ -28,26 +29,30 @@ soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 timerRunning = false;
 formatedDuration = "00:00:00";
-wsGateway = '204.117.64.121';
+wsGateway = '199.19.194.149';
 wsPort = 8060;
-stunServer = '204.117.64.117';
-stunPort = 3478;
-domainFrom = 'exarionetworks.com';
-domainTo = '204.117.64.121';
+stunServer = '74.125.139.127';
+stunPort = 19302;
+domainFrom = 'webrtc.broadsoft.com';
+//domainTo = '10.2.0.21';
+domainTo = '199.19.194.150';
 allowOutside = true;
 maxCallLength = getSearchVariable("maxCallLength");
-endCallURL = false;
+endCallURL = "http://webrtc.exarionetworks.com";
 enableHD = true;
+showCallControl = (getSearchVariable("show") == "true");
 enableCallControl = true;
 enableCallTimer = true;
 enableCallHistory = true;
 enableFullScreen = true;
 enableSelfView = true;
 enableCallStats = false;
+enableDialpad = true;
 enableMute = true;
 enableMessages = true;
 enableRegistrationIcon = true;
 enableConnectionIcon = true;
+enableWindowDrag = true;
 messageProgress = "Ringing";
 messageOutsideDomain = "Invalid Destination";
 messageStarted = "Call Started";
@@ -55,9 +60,8 @@ messageEnded = "Call Ended";
 messageCall = "Performing NAT Tests";
 messageConnected = "Connected";
 messageEmptyDestination = "Invalid Number";
+console.log(endCallURL);
 
-
-// Make it eaiser to pull variables from URL
 function getSearchVariable(variable) {
   var search = window.location.search.substring(1);
   var vars = search.split("&");
@@ -150,7 +154,6 @@ function authPopUp() {
 		}
 		$("#authPopup").fadeOut(300);
 		onLoad(userid, false, password);
-		guiStart(true);
 	});;
 }
 
@@ -257,7 +260,7 @@ function uriCall(destination) {
 	var selfView = document.getElementById("localVideo");
 	var remoteView = document.getElementById("remoteVideo");
 	
-	$("#hangup").fadeIn(1000);
+	$("#hangup").css('color', 'red');
 	setCookie("new", destination, ">");
 	
 	// Start the Call
@@ -334,12 +337,13 @@ function processStats() {
   });
 }
 
-function guiStart(main) {
-  $("#remoteVideo, #videoBar").fadeIn(1000)
-  if(main){
-    if(enableCallControl) {
-      $("#main, #call, #dialpadShow").fadeIn(1000);
+function guiStart() {
+  $("#remoteVideo, #videoBar, #muteAudio, #hangup").fadeIn(1000)
+  if(enableCallControl && showCallControl) {
+      $("#callControl, #call").fadeIn(1000);
     }
+  if(enableDialpad) {
+    $("#dialpadShow").fadeIn(1000);
   }
   if(enableSelfView) {
     $("#localVideo, #selfViewDisable").fadeIn(1000);
@@ -387,13 +391,14 @@ function showHistory(page) {
 }
 
 function endCall() {
-	$("#hangup, #muteAudio").fadeOut(100);
+  $("#hangup").css('color', 'white');
+	$("#muteAudio").fadeOut(100);
   isMuted = false;
 	// Clear last image from video tags
 	$("#localVideo").removeAttr("src");
 	$("#remoteVideo").removeAttr("src");
 	// Bring up the main elements
-  guiStart(true);
+  guiStart();
 	if (timerRunning == true) {
 		stopTimer();
 	}
@@ -433,8 +438,12 @@ function setCookie(type, remoteParty, direction) {
 // Initial startup
 function onLoad(userid, destination, password) {
 	// Config settings
-	var sip_uri = (userid + '@' + domainFrom);
-	var config  = {
+  if ((userid.indexOf("@") === -1)) {
+    var sip_uri = (userid + "@" + domainFrom);
+  } else {
+	  var sip_uri = userid;
+	}
+  var config  = {
 		'uri': sip_uri,
 		'ws_servers': 'ws://' + wsGateway + ':' + wsPort,
 		'stun_servers': 'stun:' + stunServer + ':' + stunPort,
@@ -461,10 +470,8 @@ function onLoad(userid, destination, password) {
   // Start SIP Stack
   sipStack.start();
 	
-	// If there is not a destination in URL start the GUI
-	if(destination == false) {
-		guiStart(true);
-	}
+	// Start the GUI
+	guiStart();
 	
 	// sipStack callbacks 
 	sipStack.on('connected', function(e) {
@@ -475,7 +482,6 @@ function onLoad(userid, destination, password) {
     }
 		message(messageConnected, "success");
 		if (!destination == false & register == false) {
-			guiStart(false);
       uriCall(destination);
 		}
 	});
@@ -544,9 +550,12 @@ function pressDTMF (digit) {
 }
 
 // Allow the local video window to be draggable, required jQuery.UI
-$(function() {
-	$("#localVideo").draggable();
-});
+
+if (enableWindowDrag) {
+  $(function() {
+	  $("#localVideo").draggable();
+  });
+}
 
 // Buttons
 $('#call').bind('click', function(e) {
@@ -573,14 +582,15 @@ $('#hangup').bind('click', function(e) {
 	}
 });
 
+fullScreen = true;
 $('#fullScreenExpand').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
   video.webkitRequestFullScreen();
   fullScreen = true;
-  $("#fullScreenExpand").fadeOut(100);
-  $("#fullScreenContract").fadeIn(1000);
+  //$("#fullScreenExpand").fadeOut(100);
+  //$("#fullScreenContract").fadeIn(1000);
 });
 
 $('#fullScreenContract').bind('click', function(e) {
@@ -717,6 +727,31 @@ document.onkeypress=function(e){
 	  }
   }
 }
+
+function compatibilityCheck(){
+  var ua = detect.parse(navigator.userAgent);
+  console.log(ua.browser.family);
+  var isChrome = /chrom(e|ium)/.test(ua.browser.family.toLowerCase());
+  var isSupportedBrowser = isChrome;
+  if(!isSupportedBrowser){;
+  return "A Chrome browser is required for this demo, please go to <a href='https://chrome.google.com'>https://chrome.google.com</a> to download";
+  }
+
+  var major = ua.browser.major;
+  console.log(major);
+  if(isChrome && major < 25) {
+  return "Your version of Chrome must be upgraded for this demo to at least version 25";
+  }
+}
+
+var msg = compatibilityCheck();
+if(msg) {
+  $('#message').html(msg).show();
+}
+
+
+
+
 
 // Initial function selection
 if (enableHD == true & hd == true) {
