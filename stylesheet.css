@@ -9,8 +9,8 @@
 @font-face {
   font-family: 'Exario-Icon-Fonts';
     src: local("☺"),
-      url('fonts/Exario-Icon-Fonts.ttf') format('truetype'),
-      url('fonts/Exario-Icon-Fonts.svg#Exario-Icon-Fonts') format('svg');
+      url('fonts/Exario-Icon-Fonts.svg#Exario-Icon-Fonts') format('svg'),
+      url('fonts/Exario-Icon-Fonts.ttf') format('truetype');
 }
 
 body {
@@ -394,7 +394,7 @@ body {
 
 /* Dialpad Show Button */
 
-#dialpadShow {
+#dialpadIconShow {
   display: none;
 	position: absolute;
   z-index: 10;
@@ -402,7 +402,7 @@ body {
 	left: 95px;
 }
 
-#dialpadShow.hd {
+#dialpadIconShow.hd {
   display: none;
   position: absolute;
   z-index: 10;
@@ -422,7 +422,7 @@ body {
 
 /* Dialpad Hide Button */
 
-#dialpadHide {
+#dialpadIconHide {
 	display: none;
   position: absolute;
   z-index: 10;
@@ -430,7 +430,7 @@ body {
 	left: 95px;
 }
 
-#dialpadHide.hd {
+#dialpadIconHide.hd {
   display: none;
   position: absolute;
   z-index: 10;
@@ -751,9 +751,9 @@ body {
 	text-decoration: none;
 }
 
-.message{
+.unsupported {
   position: absolute;
-  top: 340px;
+  top: 240px;
   left: 75px;
   width: 540px;
   background-color: #191414;

@@ -18,29 +18,11 @@ destination = getSearchVariable("destination");
 hd = (getSearchVariable("hd") == "true"); 
 audioOnly = (getSearchVariable("audioOnly") == "true");
 displayName = getSearchVariable("name").toString().replace("%20"," ");
-currentCallArray = new Array(4);
-password = false;
-mainDestination = $("#callControl input#destination");
-volumeClick = 1;
-soundOut = document.createElement("audio");
-soundOut.volume = volumeClick;
-volumeDTMF = 1;
-soundOutDTMF = document.createElement("audio");
-soundOutDTMF.volume = volumeDTMF;
-timerRunning = false;
-formatedDuration = "00:00:00";
-wsGateway = '199.19.194.149';
-wsPort = 8060;
-stunServer = '74.125.139.127';
-stunPort = 19302;
-domainFrom = 'webrtc.broadsoft.com';
-//domainTo = '10.2.0.21';
-domainTo = '199.19.194.150';
-allowOutside = true;
 maxCallLength = getSearchVariable("maxCallLength");
-endCallURL = "http://webrtc.exarionetworks.com";
+hideCallControl = (getSearchVariable("hide") == "true");
+
+// Enable Client Features
 enableHD = true;
-showCallControl = (getSearchVariable("show") == "true");
 enableCallControl = true;
 enableCallTimer = true;
 enableCallHistory = true;
@@ -53,6 +35,26 @@ enableMessages = true;
 enableRegistrationIcon = true;
 enableConnectionIcon = true;
 enableWindowDrag = true;
+
+// Client Variables
+password = false;
+volumeClick = 1;
+soundOut = document.createElement("audio");
+soundOut.volume = volumeClick;
+volumeDTMF = 1;
+soundOutDTMF = document.createElement("audio");
+soundOutDTMF.volume = volumeDTMF;
+timerRunning = false;
+wsGateway = '199.19.194.149';
+wsPort = 8060;
+stunServer = '74.125.139.127';
+stunPort = 19302;
+domainFrom = 'webrtc.broadsoft.com';
+domainTo = '199.19.194.150';
+allowOutside = true;
+endCallURL = false;
+
+// Client Messages
 messageProgress = "Ringing";
 messageOutsideDomain = "Invalid Destination";
 messageStarted = "Call Started";
@@ -60,8 +62,8 @@ messageEnded = "Call Ended";
 messageCall = "Performing NAT Tests";
 messageConnected = "Connected";
 messageEmptyDestination = "Invalid Number";
-console.log(endCallURL);
 
+// Pull the URL variables out of URL
 function getSearchVariable(variable) {
   var search = window.location.search.substring(1);
   var vars = search.split("&");
@@ -87,6 +89,7 @@ function randomUserid() {
   return(userid);
 }
 
+formatedDuration = "00:00:00";
 // Start timer
 function startTimer () {
 	timerRunning = true;
@@ -153,7 +156,7 @@ function authPopUp() {
 			return;
 		}
 		$("#authPopup").fadeOut(300);
-		onLoad(userid, false, password);
+		onLoad(userid, password);
 	});;
 }
 
@@ -209,7 +212,7 @@ function uriCall(destination) {
   var eventHandlers = {
 	  'progress': function(e) {
 		  message(messageProgress, "normal");
-      soundOut.setAttribute("src", "media/ringback.ogg");
+      soundOut.setAttribute("src", "media/dtmf-ringback.ogg");
       soundOut.play();
 	  },
 
@@ -339,11 +342,11 @@ function processStats() {
 
 function guiStart() {
   $("#remoteVideo, #videoBar, #muteAudio").fadeIn(1000)
-  if(enableCallControl && showCallControl) {
+  if(enableCallControl && !hideCallControl) {
       $("#callControl, #call").fadeIn(1000);
     }
   if(enableDialpad) {
-    $("#dialpadShow").fadeIn(1000);
+    $("#dialpadIconShow").fadeIn(1000);
   }
   if(enableSelfView) {
     $("#localVideo, #selfViewDisable").fadeIn(1000);
@@ -401,8 +404,12 @@ function endCall() {
 	if (timerRunning == true) {
 		stopTimer();
 	}
+  if (!endCallURL == false) {
+    window.location = endCallURL;
+  }
 }
 
+currentCallArray = new Array(4);
 // Store call stats in array, then in cookie on update
 function setCookie(type, remoteParty, direction) {
   if (!enableCallHistory) {
@@ -435,7 +442,7 @@ function setCookie(type, remoteParty, direction) {
 }
 
 // Initial startup
-function onLoad(userid, destination, password) {
+function onLoad(userid, password) {
 	// Config settings
   if ((userid.indexOf("@") === -1)) {
     var sip_uri = (userid + "@" + domainFrom);
@@ -477,12 +484,8 @@ function onLoad(userid, destination, password) {
     if (enableConnectionIcon) {
 		  $("#connected").removeClass("alert");
 		  $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
-      //$("#call").fadeIn(1000);
     }
 		message(messageConnected, "success");
-		if (!destination == false & register == false) {
-      uriCall(destination);
-		}
 	});
 	sipStack.on('disconnected', function(e) {
     if (enableConnectionIcon) {
@@ -499,15 +502,13 @@ function onLoad(userid, destination, password) {
 		}
 	});
 
+  // Registration callbacks only if registering
 	if (!password == false) {
 		sipStack.on('registered', function(e) {
       if (enableRegisterationIcon) {
 		    $("#registered").removeClass("alert");
         $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
-    }
-		if (!destination == false) {
-			uriCall(destination);
-			}
+      }
 		});
 		sipStack.on('registrationFailed', function(e) {
       if (enableRegistrationIcon) {
@@ -516,18 +517,23 @@ function onLoad(userid, destination, password) {
       }
 		});
 	}
+  // Start a call
+  if (!destination == false) {
+    uriCall(destination);
+  }
 }
 
 // Incoming call function
 function incommingCall(message) {
   message("Incoming Call", "normal");
-  soundOut.setAttribute("src", "media/ringtone.ogg");
+  soundOut.setAttribute("src", "media/dtmf-ringtone.ogg");
   soundOut.play();
 	console.log(message);
 	console.log(message.data.session.request.from.uri);
 	console.log(message.data.session);
 }
 
+mainDestination = $("#callControl input#destination");
 // What we do when we get a digit
 function pressDTMF (digit) {
   if (digit.length != 1) {
@@ -581,15 +587,13 @@ $('#hangup').bind('click', function(e) {
 	}
 });
 
-fullScreen = true;
+fullScreen = false;
 $('#fullScreenExpand').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
   video.webkitRequestFullScreen();
   fullScreen = true;
-  //$("#fullScreenExpand").fadeOut(100);
-  //$("#fullScreenContract").fadeIn(1000);
 });
 
 $('#fullScreenContract').bind('click', function(e) {
@@ -622,8 +626,9 @@ $('#muteAudio').bind('click', function(e) {
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
-  local_media = rtcSession.getLocalStreams()[0];
-  local_audio = local_media.getAudioTracks()[0];
+  localMedia = rtcSession.getLocalStreams()[0];
+  localAudio = localMedia.getAudioTracks()[0];
+  localAudio.enabled = false;
   $("#muteAudio").fadeOut(1000);
   $("#unmuteAudio").fadeIn(1000);
 });
@@ -632,25 +637,25 @@ $('#unmuteAudio').bind('click', function(e) {
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
-  local_audio.enabled = true;
+  localAudio.enabled = true;
   $("#unmuteAudio").fadeOut(1000);
   $("#muteAudio").fadeIn(1000);
 });
 
-$('#dialpadShow').bind('click', function(e) {
+$('#dialpadIconShow').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
-  $("#dialpadShow").fadeOut(1000);
-  $("#dialpad, #dialpadHide").fadeIn(1000);
+  $("#dialIconpadShow").fadeOut(1000);
+  $("#dialpad, #dialpadIconHide").fadeIn(1000);
 });
 
-$('#dialpadHide').bind('click', function(e) {
+$('#dialpadIconHide').bind('click', function(e) {
 	e.preventDefault();
 	soundOut.setAttribute("src", "media/click.ogg");
 	soundOut.play();
-  $("#dialpad, #dialpadHide").fadeOut(1000);
-  $("#dialpadShow").fadeIn(1000);
+  $("#dialpad, #dialpadIconHide").fadeOut(1000);
+  $("#dialpadIconShow").fadeIn(1000);
 });
 
 $("#settings").bind('click', function(e) {
@@ -716,41 +721,41 @@ document.onkeypress=function(e){
 		  pressDTMF(digit);
     }
     else if (e.charCode == 83) {
-      if (showStats == false) {
-        $("#callStats").fadeIn(1000);
-        showStats = true;
-      } else if (showStats) {
-        $("#callStats").fadeOut(100);
-        showStats = false;
-      }
+    stats();
 	  }
   }
 }
 
-function compatibilityCheck(){
+function stats () {
+  if (enableStats) {
+    if (showStats == false) {
+      $("#callStats").fadeIn(1000);
+       showStats = true;
+     } else if (showStats) {
+       $("#callStats").fadeOut(100);
+       showStats = false;
+     }
+  }
+}
+
+function compatibilityCheck() {
   var ua = detect.parse(navigator.userAgent);
-  console.log(ua.browser.family);
   var isChrome = /chrom(e|ium)/.test(ua.browser.family.toLowerCase());
   var isSupportedBrowser = isChrome;
-  if(!isSupportedBrowser){;
+  if(!isSupportedBrowser) {
   return "A Chrome browser is required for this demo, please go to <a href='https://chrome.google.com'>https://chrome.google.com</a> to download";
   }
 
   var major = ua.browser.major;
-  console.log(major);
   if(isChrome && major < 25) {
   return "Your version of Chrome must be upgraded for this demo to at least version 25";
   }
 }
 
-var msg = compatibilityCheck();
-if(msg) {
-  $('#message').html(msg).show();
+var unsupported = compatibilityCheck();
+if(unsupported) {
+  $('#unsupported').html(unsupported).show();
 }
-
-
-
-
 
 // Initial function selection
 if (enableHD == true & hd == true) {
@@ -763,7 +768,7 @@ if (register == true) {
   if (!userid) {
     randomUserid();
   }
-  onLoad(userid, destination, password);
 }
 
+onLoad(userid, password);
 });
