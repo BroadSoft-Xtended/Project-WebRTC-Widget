@@ -28,7 +28,7 @@ enableCallTimer = true;
 enableCallHistory = true;
 enableFullScreen = true;
 enableSelfView = true;
-enableCallStats = false;
+enableCallStats = true;
 enableDialpad = true;
 enableMute = true;
 enableMessages = true;
@@ -45,8 +45,8 @@ volumeDTMF = 1;
 soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 timerRunning = false;
-wsGateway = '199.19.194.149';
-wsPort = 8060;
+wssGateway = '204.117.64.103';
+wssPort = 8060;
 stunServer = '74.125.139.127';
 stunPort = 19302;
 domainFrom = 'webrtc.broadsoft.com';
@@ -299,7 +299,7 @@ function processStats() {
           var videoPacketsReceived = parseInt(res.stat('packetsReceived'));
           var videoInFrameRate = res.stat('googFrameRateReceived');
           if (videoPacketsLost > 0) {
-            var videoPacketLoss = Math.round((videoPacketsLost * 100 / (videoPacketsReceived + videoPacketsLost))*100)/100;
+            var videoPacketLoss = Math.round((videoPacketsLost * 100 / (videoPacketsReceived + videoPacketsLost))*100);
           }
         }
         else if (res.type == 'ssrc' && res.stat('audioInputLevel')) {
@@ -317,7 +317,7 @@ function processStats() {
           var audioJitter = res.stat('googJitterReceived');
           var audioOutputLevel = res.stat('audioOutputLevel');
           if (audioPacketsLost > 0) {
-            var audioPacketLoss = Math.round((audioPacketsLost * 100 / (audioPacketsReceived + audioPacketsLost))*100)/100;
+            var audioPacketLoss = Math.round((audioPacketsLost * 100 / (audioPacketsReceived + audioPacketsLost))*100);
           }
         }
         else if (res.type == 'ssrc' && res.stat('googRtt') && res.stat('googJitterReceived')) {
@@ -327,15 +327,32 @@ function processStats() {
       $("#callStats .statsVideo").text("Video Statistics\n\n"
         + "Bitrate out: " + videoOutBitRate + " kb/s\n"
         + "Bitrate in: " + videoInBitRate + " kb/s\n"
-        + "Lost: " + videoPacketsLost + " packets " + videoPacketLoss + "%\n"
+        + "Lost: " + videoPacketsLost + " packets " + (videoPacketLoss/100) + "%\n"
         + "Jitter: " + videoJitter + " ms\n"
         + "Frame Rate out: " + videoOutFrameRate + " in: " + videoInFrameRate + "\n");
       $("#callStats .statsAudio").text("Audio Statistics\n\n"
         + "Bitrate out: " + audioOutBitRate + " kb/s\n"
         + "Bitrate in: " + audioInBitRate + " kb/s\n"
-        + "Lost: " + audioPacketsLost + " packets " + audioPacketLoss + "%\n"
+        + "Lost: " + audioPacketsLost + " packets " + (audioPacketLoss/100) + "%\n"
         + "Jitter: " + audioJitter + " ms\n"
         + "Audio Level out: " + audioOutputLevel + " in: " + audioInputLevel + "\n");
+
+    }
+    if (videoPacketLoss < 10) {
+      $("#quality1").fadeIn(10);
+      $("#quality2, #quality3, #quality4").fadeOut(10);
+    }
+    else if (videoPacketLoss > 10 && videoPacketLoss < 20) {
+      $("#quality2").fadeIn(10);
+      $("#quality1, #quality3, #quality4").fadeOut(10);
+    }
+    else if (videoPacketLoss > 20 && videoPacketLoss < 100) {
+      $("#quality3").fadeIn(10);
+      $("#quality1, #quality2, #quality4").fadeOut(10);
+    }
+    else if (videoPacketLoss > 100 && videoPacketLoss < 1000) {
+      $("#quality4").fadeIn(10);
+      $("#quality1, #quality2, #quality3").fadeOut(10);
     }
   });
 }
@@ -353,9 +370,6 @@ function guiStart() {
   }
   if(enableFullScreen) {
     $("#fullScreenExpand").fadeIn(1000);
-  }
-  if(enableCallStats) {
-    $("#callStats").fadeIn(1000);
   }
 }
 
@@ -451,7 +465,7 @@ function onLoad(userid, password) {
 	}
   var config  = {
 		'uri': sip_uri,
-		'ws_servers': 'ws://' + wsGateway + ':' + wsPort,
+		'ws_servers': 'wss://' + wssGateway + ':' + wssPort + '/sip',
 		'stun_servers': 'stun:' + stunServer + ':' + stunPort,
 		'trace_sip': true,
 		'hack_via_tcp': true,
@@ -555,7 +569,6 @@ function pressDTMF (digit) {
 }
 
 // Allow the local video window to be draggable, required jQuery.UI
-
 if (enableWindowDrag) {
   $(function() {
 	  $("#localVideo").draggable();
@@ -721,13 +734,13 @@ document.onkeypress=function(e){
 		  pressDTMF(digit);
     }
     else if (e.charCode == 83) {
-    stats();
+    callStats();
 	  }
   }
 }
 
-function stats () {
-  if (enableStats) {
+function callStats() {
+  if (enableCallStats) {
     if (showStats == false) {
       $("#callStats").fadeIn(1000);
        showStats = true;
@@ -741,14 +754,22 @@ function stats () {
 function compatibilityCheck() {
   var ua = detect.parse(navigator.userAgent);
   var isChrome = /chrom(e|ium)/.test(ua.browser.family.toLowerCase());
-  var isSupportedBrowser = isChrome;
-  if(!isSupportedBrowser) {
-  return "A Chrome browser is required for this demo, please go to <a href='https://chrome.google.com'>https://chrome.google.com</a> to download";
+  var isFirefox = /firefox/.test(ua.browser.family.toLowerCase());
+  
+  // Only Chrome 25+ and Firefox Nightly 24+ are supported
+  if (!isChrome && !isFirefox) {
+    return "Chrome or Firefox Nightly is required, please go to:<br>" +
+    "<a href='http://chrome.google.com'>http://chrome.google.com</a> or <a href='http:nightly.mozilla.org'>http://nightly.mozilla.org</a>";
   }
-
   var major = ua.browser.major;
-  if(isChrome && major < 25) {
-  return "Your version of Chrome must be upgraded for this demo to at least version 25";
+  if (isChrome && major < 25) {
+    return "Your version of Chrome must be upgraded to at least version 25<br>" +
+    "Please go to: <a href='http://chrome.google.com'>http://chrome.google.com</a>";
+  } else {
+    if (isFirefox && major < 24) {
+      return "Your version of Firefox must be upgraded to at least Firefox Nightly<br>" +
+      "Please go to: <a href='http:nightly.mozilla.org'>http://nightly.mozilla.org</a>";
+    }
   }
 }
 

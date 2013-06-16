@@ -168,7 +168,7 @@ body {
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide {
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4 {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -327,12 +327,12 @@ body {
 }
 
 .icon-selfViewEnable:before {
-  content: "\e015";
+  content: "\e009";
   color: #EFA233;
 }
 
 .icon-selfViewEnable:hover:before {
-  content: "\e015";
+  content: "\e009";
   color: #EFA233;
 }
 
@@ -446,6 +446,63 @@ body {
 .icon-dialpadHide:hover:before {
   content: "\e00a";
   color: #EFA233;
+}
+
+/* Dialpad Hide Button */
+#quality1 {
+	display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+
+.icon-quality1:before {
+  content: "\e003";
+  color: #00FF00;
+  opacity: .4;
+}
+
+#quality2 {
+	display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+
+.icon-quality2:before {
+  content: "\e006";
+  color: #FFFF00;
+  opacity: .4;
+}
+
+#quality3 {
+	display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+
+.icon-quality3:before {
+  content: "\e005";
+  color: #FF9900;
+  opacity: .4;
+}
+
+#quality4 {
+	display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+
+.icon-quality4:before {
+  content: "\e004";
+  color: #FF0000;
+  opacity: .4;
 }
 
 .icon-link:before {
@@ -754,8 +811,8 @@ body {
 .unsupported {
   position: absolute;
   top: 240px;
-  left: 75px;
-  width: 540px;
+  left: 30px;
+  width: 600px;
   background-color: #191414;
   text-align: center;
   display:none;
