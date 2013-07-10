@@ -4032,22 +4032,38 @@ RTCSession.prototype.sendDTMF = function(tones, options) {
 /**
  * RTCPeerconnection handlers
  */
-RTCSession.prototype.getLocalStreams = function() {
-  return this.rtcMediaHandler &&
-    this.rtcMediaHandler.peerConnection &&
-    this.rtcMediaHandler.peerConnection.getLocalStreams() || [];
-};
 
-RTCSession.prototype.getRemoteStreams = function() {
-  return this.rtcMediaHandler &&
-    this.rtcMediaHandler.peerConnection &&
-    this.rtcMediaHandler.peerConnection.getRemoteStreams() || [];
-};
 
 
 /**
  * Session Management
  */
+// Modified to support Firefox 22
+RTCSession.prototype.getLocalStreams = function() {
+  if (this.rtcMediaHandler.peerConnection.localStreams) {
+    return this.rtcMediaHandler &&
+      this.rtcMediaHandler.peerConnection &&
+      this.rtcMediaHandler.peerConnection.localStreams || [];
+  }
+  else {
+    return this.rtcMediaHandler &&
+      this.rtcMediaHandler.peerConnection &&
+      this.rtcMediaHandler.peerConnection.getLocalStreams() || [];
+  }
+};
+
+RTCSession.prototype.getRemoteStreams = function() {
+  if (this.rtcMediaHandler.peerConnection.remoteStreams) {
+    return this.rtcMediaHandler &&
+      this.rtcMediaHandler.peerConnection &&
+      this.rtcMediaHandler.peerConnection.remoteStreams || [];
+  }
+  else {
+    return this.rtcMediaHandler &&
+      this.rtcMediaHandler.peerConnection &&
+      this.rtcMediaHandler.peerConnection.getRemoteStreams() || [];
+  }
+};
 
 /**
 * @private

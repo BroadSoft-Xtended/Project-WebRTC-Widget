@@ -476,7 +476,7 @@ function onLoad(userid, password) {
     'uri': sip_uri,
     'ws_servers': 'wss://' + wssGateway + ':' + wssPort,
     'stun_servers': 'stun:' + stunServer + ':' + stunPort,
-    'trace_sip': false,
+    'trace_sip': true,
     'hack_via_tcp': true,
   };
 
@@ -504,7 +504,7 @@ function onLoad(userid, password) {
 	
   // sipStack callbacks 
   sipStack.on('connected', function(e) {
-  if (enableConnectionIcon) {
+    if (enableConnectionIcon) {
       $("#connected").removeClass("alert");
       $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
     }
