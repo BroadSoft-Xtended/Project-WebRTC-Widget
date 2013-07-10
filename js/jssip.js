@@ -1,5 +1,5 @@
 /*
- * JsSIP version 0.3.0
+ * JsSIP version 0.3.7
  * Copyright (c) 2012-2013 José Luis Millán - Versatica <http://www.versatica.com>
  * Homepage: http://jssip.net
  * License: http://jssip.net/license
@@ -21,7 +21,7 @@ var JsSIP = (function() {
 
   Object.defineProperties(JsSIP, {
     version: {
-      get: function(){ return '0.3.0'; }
+      get: function(){ return '0.3.7'; }
     },
     name: {
       get: function(){ return 'JsSIP'; }
@@ -461,7 +461,8 @@ Timers = {
   TIMER_J: 0  * T1,
   TIMER_K: 0  * T4,
   TIMER_L: 64 * T1,
-  TIMER_M: 64 * T1
+  TIMER_M: 64 * T1,
+  PROVISIONAL_RESPONSE_INTERVAL: 60000  // See RFC 3261 Section 13.3.1.1
 };
 
 JsSIP.Timers = Timers;
@@ -607,7 +608,7 @@ Transport.prototype = {
     this.connected = false;
     this.lastTransportError.code = e.code;
     this.lastTransportError.reason = e.reason;
-    console.warn(LOG_PREFIX +'WebSocket disconnected (code: ' + e.code + (e.reason? '| reason: ' + e.reason : '') +')');
+    console.log(LOG_PREFIX +'WebSocket disconnected (code: ' + e.code + (e.reason? '| reason: ' + e.reason : '') +')');
 
     if(e.wasClean === false) {
       console.warn(LOG_PREFIX +'WebSocket abrupt disconnection');
@@ -1106,7 +1107,7 @@ OutgoingRequest.prototype = {
     }
 
     msg += 'Supported: ' +  JsSIP.UA.C.SUPPORTED +'\r\n';
-    msg += 'User-Agent: Exario Networks WebRTC - 1.1' +'\r\n';
+    msg += 'User-Agent: Exario Networks WebRTC - 1.3' +'\r\n';
 
     if(this.body) {
       length = JsSIP.Utils.str_utf8_length(this.body);
@@ -1348,7 +1349,7 @@ IncomingRequest.prototype.reply = function(code, reason, extraHeaders, body, onS
     response += 'Via: ' + this.getHeader('via', v) + '\r\n';
   }
 
-  if(!this.to_tag) {
+  if(!this.to_tag && code > 100) {
     to += ';tag=' + JsSIP.Utils.newTag();
   } else if(this.to_tag && !this.s('to').hasParam('tag')) {
     to += ';tag=' + this.to_tag;
@@ -1405,7 +1406,7 @@ IncomingRequest.prototype.reply_sl = function(code, reason) {
 
   to = this.getHeader('To');
 
-  if(!this.to_tag) {
+  if(!this.to_tag && code > 100) {
     to += ';tag=' + JsSIP.Utils.newTag();
   } else if(this.to_tag && !this.s('to').hasParam('tag')) {
     to += ';tag=' + this.to_tag;
@@ -1916,7 +1917,10 @@ var InviteClientTransactionPrototype = function() {
     window.clearTimeout(this.D);
     window.clearTimeout(this.M);
     delete this.request_sender.ua.transactions.ict[this.id];
-    this.request_sender.onTransportError();
+
+    if (this.state !== C.STATUS_ACCEPTED) {
+      this.request_sender.onTransportError();
+    }
   };
 
   // RFC 6026 7.2
@@ -2173,7 +2177,10 @@ var InviteServerTransactionPrototype = function() {
 
       console.log(LOG_PREFIX +'transport error occurred, deleting INVITE server transaction ' + this.id);
 
-      window.clearTimeout(this.reliableProvisionalTimer);
+      if (this.resendProvisionalTimer !== null) {
+        window.clearInterval(this.resendProvisionalTimer);
+        this.resendProvisionalTimer = null;
+      }
       window.clearTimeout(this.L);
       window.clearTimeout(this.H);
       window.clearTimeout(this.I);
@@ -2181,21 +2188,9 @@ var InviteServerTransactionPrototype = function() {
     }
   };
 
-  this.timer_reliableProvisional = function(retransmissions) {
-    var
-      tr = this,
-      response = this.last_response,
-      timeout = JsSIP.Timers.T1 * (Math.pow(2, retransmissions + 1));
-
-    if(retransmissions > 8) {
-      window.clearTimeout(this.reliableProvisionalTimer);
-    } else {
-      retransmissions += 1;
-      if(!this.transport.send(response)) {
-        this.onTransportError();
-      }
-      this.reliableProvisionalTimer = window.setTimeout(function() {
-        tr.timer_reliableProvisional(retransmissions);}, timeout);
+  this.resend_provisional = function() {
+    if(!this.transport.send(this.last_response)) {
+      this.onTransportError();
     }
   };
 
@@ -2214,11 +2209,11 @@ var InviteServerTransactionPrototype = function() {
       }
     }
 
-    if(status_code > 100 && status_code <= 199) {
-      // Trigger the reliableProvisionalTimer only for the first non 100 provisional response.
-      if(!this.reliableProvisionalTimer) {
-        this.reliableProvisionalTimer = window.setTimeout(function() {
-          tr.timer_reliableProvisional(1);}, JsSIP.Timers.T1);
+    if(status_code > 100 && status_code <= 199 && this.state === C.STATUS_PROCEEDING) {
+      // Trigger the resendProvisionalTimer only for the first non 100 provisional response.
+      if(this.resendProvisionalTimer === null) {
+        this.resendProvisionalTimer = window.setInterval(function() {
+          tr.resend_provisional();}, JsSIP.Timers.PROVISIONAL_RESPONSE_INTERVAL);
       }
     } else if(status_code >= 200 && status_code <= 299) {
       switch(this.state) {
@@ -2228,7 +2223,10 @@ var InviteServerTransactionPrototype = function() {
           this.L = window.setTimeout(function() {
             tr.timer_L();
           }, JsSIP.Timers.TIMER_L);
-          window.clearTimeout(this.reliableProvisionalTimer);
+          if (this.resendProvisionalTimer !== null) {
+            window.clearInterval(this.resendProvisionalTimer);
+            this.resendProvisionalTimer = null;
+          }
           /* falls through */
         case C.STATUS_ACCEPTED:
           // Note that this point will be reached for proceeding tr.state also.
@@ -2245,7 +2243,10 @@ var InviteServerTransactionPrototype = function() {
     } else if(status_code >= 300 && status_code <= 699) {
       switch(this.state) {
         case C.STATUS_PROCEEDING:
-          window.clearTimeout(this.reliableProvisionalTimer);
+          if (this.resendProvisionalTimer !== null) {
+            window.clearInterval(this.resendProvisionalTimer);
+            this.resendProvisionalTimer = null;
+          }
           if(!this.transport.send(response)) {
             this.onTransportError();
             if (onFailure) {
@@ -2338,7 +2339,7 @@ Transactions.InviteServerTransaction = function(request, ua) {
 
   ua.transactions.ist[this.id] = this;
 
-  this.reliableProvisionalTimer = null;
+  this.resendProvisionalTimer = null;
 
   request.reply(100);
 };
@@ -2409,6 +2410,7 @@ Transactions.checkTransaction = function(ua, request) {
     case JsSIP.C.CANCEL:
       tr = ua.transactions.ist[request.via_branch];
       if(tr) {
+        request.reply_sl(200);
         if(tr.state === C.STATUS_PROCEEDING) {
           return false;
         } else {
@@ -2860,7 +2862,6 @@ Registrator = function(ua, transport) {
 
   this.registrar = ua.configuration.registrar_server;
   this.expires = ua.configuration.register_expires;
-  this.min_expires = ua.configuration.register_min_expires;
 
   // Call-ID and CSeq values RFC3261 10.2
   this.call_id = JsSIP.Utils.createRandomToken(22);
@@ -2911,12 +2912,18 @@ Registrator.prototype = {
     * @private
     */
     this.receiveResponse = function(response) {
-      var contact, expires, min_expires,
+      var contact, expires,
         contacts = response.countHeader('contact');
 
       // Discard responses to older REGISTER/un-REGISTER requests.
       if(response.cseq !== this.cseq) {
         return;
+      }
+
+      // Clear registration timer
+      if (this.registrationTimer !== null) {
+        window.clearTimeout(this.registrationTimer);
+        this.registrationTimer = null;
       }
 
       switch(true) {
@@ -2956,6 +2963,7 @@ Registrator.prototype = {
           // Re-Register before the expiration interval has elapsed.
           // For that, decrease the expires value. ie: 3 seconds
           this.registrationTimer = window.setTimeout(function() {
+            self.registrationTimer = null;
             self.register();
           }, (expires * 1000) - 3000);
 
@@ -2975,11 +2983,10 @@ Registrator.prototype = {
         // Interval too brief RFC3261 10.2.8
         case /^423$/.test(response.status_code):
           if(response.hasHeader('min-expires')) {
-            min_expires = response.getHeader('min-expires');
-            expires = (min_expires - this.expires);
-            this.registrationTimer = window.setTimeout(function() {
-              self.register();
-            }, this.expires * 1000);
+            // Increase our registration interval to the suggested minimum
+            this.expires = response.getHeader('min-expires');
+            // Attempt the registration again immediately 
+            this.register();
           } else { //This response MUST contain a Min-Expires header field
             console.warn(LOG_PREFIX +'423 response received for REGISTER without Min-Expires');
             this.registrationFailure(response, JsSIP.C.causes.SIP_FAILURE_CODE);
@@ -3025,7 +3032,10 @@ Registrator.prototype = {
     this.registered = false;
 
     // Clear the registration timer.
-    window.clearTimeout(this.registrationTimer);
+    if (this.registrationTimer !== null) {
+      window.clearTimeout(this.registrationTimer);
+      this.registrationTimer = null;
+    }
 
     if(options.all) {
       extraHeaders.push('Contact: *');
@@ -3118,7 +3128,10 @@ Registrator.prototype = {
   */
   onTransportClosed: function() {
     this.registered_before = this.registered;
-    window.clearTimeout(this.registrationTimer);
+    if (this.registrationTimer !== null) {
+      window.clearTimeout(this.registrationTimer);
+      this.registrationTimer = null;
+    }
 
     if(this.registered) {
       this.registered = false;
@@ -3263,36 +3276,19 @@ RTCMediaHandler.prototype = {
       }
     };
 
-    if (window.mozRTCPeerConnection) {
-      this.peerConnection.createOffer(
-        function(sessionDescription){
-          self.setLocalDescription(
-            sessionDescription,
-            onFailure
-          );
-        },
-        function(e) {
-          console.error(LOG_PREFIX +'unable to create offer');
-          console.error(e);
-          onFailure();
-        },
-        {"optional": [], "mandatory": {"MozDontOfferDataChannel": true}}
-      );
-    } else {
-      this.peerConnection.createOffer(
-        function(sessionDescription){
-          self.setLocalDescription(
-            sessionDescription,
-            onFailure
-          );
-        },
-        function(e) {
-          console.error(LOG_PREFIX +'unable to create offer');
-          console.error(e);
-          onFailure();
-        }
-      );
-    }
+    this.peerConnection.createOffer(
+      function(sessionDescription){
+        self.setLocalDescription(
+          sessionDescription,
+          onFailure
+        );
+      },
+      function(e) {
+        console.error(LOG_PREFIX +'unable to create offer');
+        console.error(e);
+        onFailure();
+      }
+    );
   },
 
   createAnswer: function(onSuccess, onFailure) {
@@ -3328,8 +3324,10 @@ RTCMediaHandler.prototype = {
 
     this.peerConnection.setLocalDescription(
       sessionDescription,
-      function() {
-        if (window.mozRTCPeerConnection) {
+      function(){
+        // Disable ICE
+        if (disableICE) {
+          console.log("Configured to disable ICE!");
           if (!sent) {
             self.onIceCompleted();
             sent = true;
@@ -3458,6 +3456,18 @@ RTCMediaHandler.prototype = {
   * @param {Function} onFailure
   */
   onMessage: function(type, body, onSuccess, onFailure) {
+    // Grab video SDP
+    var videoSection = body.split("m=video");
+    // Add b=AS: bandwidth if it does not exist
+    if (videoSection[1].indexOf("b=AS:") === -1) {
+      videoSection[1] = videoSection[1].replace(/(.*c=IN\s+IP4.*)/, "$&\nb=AS:" + videoBandwidth);
+    } else {
+      // Change b=AS: in video SDP
+      videoSection[1] = videoSection[1].replace(/b=AS:\d{1,4}/, "b=AS:" + videoBandwidth);
+      body = videoSection.join("");
+    }
+    body = videoSection[0] + "m=video" + videoSection[1];
+    console.log("Modifying SDP!!!!\n" + body);
     this.peerConnection.setRemoteDescription(
       new JsSIP.WebRTC.RTCSessionDescription({type: type, sdp:body}),
       onSuccess,
@@ -3853,6 +3863,8 @@ RTCSession.prototype.answer = function(options) {
       var
         // run for reply success callback
         replySucceeded = function() {
+          var timeout = JsSIP.Timers.T1;
+
           self.status = C.STATUS_WAITING_FOR_ACK;
 
           /**
@@ -3860,24 +3872,24 @@ RTCSession.prototype.answer = function(options) {
            * Response retransmissions cannot be accomplished by transaction layer
            *  since it is destroyed when receiving the first 2xx answer
            */
-          self.timers.invite2xxTimer = window.setTimeout(function invite2xxRetransmission(retransmissions) {
-              retransmissions = retransmissions || 1;
-
-              var timeout = JsSIP.Timers.T1 * (Math.pow(2, retransmissions));
-
-              if((retransmissions * JsSIP.Timers.T1) <= JsSIP.Timers.T2) {
-                retransmissions += 1;
-
-                request.reply(200, null, ['Contact: '+ self.contact], body);
-
-                self.timers.invite2xxTimer = window.setTimeout(invite2xxRetransmission(retransmissions),
-                  timeout
-                );
-              } else {
-                window.clearTimeout(self.timers.invite2xxTimer);
+          self.timers.invite2xxTimer = window.setTimeout(function invite2xxRetransmission() {
+              if (self.status !== C.STATUS_WAITING_FOR_ACK) {
+                return;
               }
+
+              request.reply(200, null, ['Contact: '+ self.contact], body);
+
+              if (timeout < JsSIP.Timers.T2) {
+                timeout = timeout * 2;
+                if (timeout > JsSIP.Timers.T2) {
+                  timeout = JsSIP.Timers.T2;
+                }
+              }
+              self.timers.invite2xxTimer = window.setTimeout(
+                invite2xxRetransmission, timeout
+              );
             },
-            JsSIP.Timers.T1
+            timeout
           );
 
           /**
@@ -4078,7 +4090,9 @@ RTCSession.prototype.init_incoming = function(request) {
   }
 
   //Initialize Media Session
-  this.rtcMediaHandler = new RTCMediaHandler(this);
+  this.rtcMediaHandler = new RTCMediaHandler(this,
+    {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}
+  );
   this.rtcMediaHandler.onMessage(
     'offer',
     request.body,
@@ -4324,15 +4338,13 @@ RTCSession.prototype.receiveRequest = function(request) {
     * established.
     */
 
-    // Reply 487
-    this.request.reply(487);
-
     /*
     * Terminate the whole session in case the user didn't accept nor reject the
     *request opening the session.
     */
     if(this.status === C.STATUS_WAITING_FOR_ANSWER) {
       this.status = C.STATUS_CANCELED;
+      this.request.reply(487);
       this.failed('remote', request, JsSIP.C.causes.CANCELED);
     }
   } else {
@@ -4493,6 +4505,11 @@ RTCSession.prototype.receiveResponse = function(response) {
         break;
       }
 
+      // An error on dialog creation will fire 'failed' event
+      if (!this.createDialog(response, 'UAC')) {
+        break;
+      }
+
       this.rtcMediaHandler.onMessage(
         'answer',
         response.body,
@@ -4501,13 +4518,8 @@ RTCSession.prototype.receiveResponse = function(response) {
          * SDP Answer fits with Offer. Media will start
          */
         function() {
-          // An error on dialog creation will fire 'failed' event
-          if (!session.createDialog(response, 'UAC')) {
-            return;
-          }
-
-          session.sendACK();
           session.status = C.STATUS_CONFIRMED;
+          session.sendACK();
           session.started('remote', response);
         },
         /*
@@ -4681,6 +4693,7 @@ RTCSession.prototype.started = function(originator, message) {
   session.start_time = new Date();
 
   session.emit(event_name, session, {
+    originator: originator,
     response: message || null
   });
 };
@@ -5425,7 +5438,6 @@ UA.prototype.receiveRequest = function(request) {
         request.reply(481);
         break;
       case JsSIP.C.CANCEL:
-        request.reply(200);
         session = this.findSession(request);
         if(session) {
           session.receiveRequest(request);
@@ -5762,6 +5774,9 @@ UA.prototype.loadConfig = function(configuration) {
       case 'uri':
       case 'registrar_server':
         console.log('· ' + parameter + ': ' + settings[parameter]);
+        break;
+      case 'password':
+        console.log('· ' + parameter + ': ' + 'NOT SHOWN');
         break;
       default:
         console.log('· ' + parameter + ': ' + window.JSON.stringify(settings[parameter]));
