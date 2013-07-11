@@ -777,11 +777,10 @@ body {
 #callStats {
   display: none;
   position: absolute;
-	top: 500px;
+	top: 10px;
 	right: 25px;
 	width: 500px;
-	height: 200px;
-	background-color: #191414;
+	/*background-color: #191414;*/
 	border-radius: 4px;
 	border: 2px solid #DDDDDD;
 	box-shadow: 0px 0px 10px #999999;

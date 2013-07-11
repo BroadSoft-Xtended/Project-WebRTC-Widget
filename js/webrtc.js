@@ -45,12 +45,18 @@ volumeDTMF = 1;
 soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 timerRunning = false;
-wssGateway = '204.117.64.103';
-wssPort = 8060;
-stunServer = '74.125.139.127';
-stunPort = 19302;
-domainFrom = 'webrtc.broadsoft.com';
-domainTo = '199.19.194.150';
+//wssGateway = '204.117.64.103';
+//wssPort = 8060;
+//stunServer = '74.125.139.127';
+//stunPort = 19302;
+//domainFrom = 'webrtc.broadsoft.com';
+//domainTo = '199.19.194.150';
+wssGateway = 'webrtc.exarionetworks.com';
+wssPort = 8443;
+stunServer = '204.117.64.117';
+stunPort = 3478;
+domainFrom = 'webrtc.exarionetworks.com';
+domainTo = '204.117.64.115';
 allowOutside = true;
 endCallURL = false;
 
@@ -230,19 +236,20 @@ function uriCall(destination) {
 		  } else {
 			  localStreams = rtcSession.getLocalStreams();
 			  remoteStreams = rtcSession.getRemoteStreams();
-    	}
+    	  }
 		  if ( localStreams.length > 0) {
 			  selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
 		  }
 		  if ( remoteStreams.length > 0) {
 			  remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
 		  }
+          $('#callStats').html('<div id="'+rtcSession.id+'-1" />');
 		  soundOut.pause();
-      startTimer();
+          startTimer();
 		  message(messageStarted, "success");
-      if (enableMute) {
-        $("#muteAudio").fadeIn(1000);
-      }
+          if (enableMute) {
+            $("#muteAudio").fadeIn(1000);
+          }
 	  },
 
     'ended': function(e) {
@@ -282,62 +289,53 @@ function processStats() {
     var videoPacketLoss = 0;
     var audioPacketLoss = 0
     var results = stats.result();
+    var reports = [];
     for (var i = 0; i < results.length; ++i) {
       var res = results[i];
-      if (!res.local || res.local === res) {
-        if (res.type == 'ssrc' && res.stat('googFrameHeightSent')) {
-          var videoOutBytesNow = res.stat('bytesSent');
-          var videoOutBitRate = Math.round((videoOutBytesNow - videoOutBytesPrev) * 8 / 1024);
-          videoOutBytesPrev = videoOutBytesNow;
-          var videoOutFrameRate = res.stat('googFrameRateSent');
-        }
-        else if (res.type == 'ssrc' && res.stat('googFrameHeightReceived')) {
-          var videoInBytesNow = res.stat('bytesReceived');
-          var videoInBitRate = Math.round((videoInBytesNow - videoInBytesPrev) * 8 / 1024);
-          videoInBytesPrev = videoInBytesNow;
-          var videoPacketsLost = parseInt(res.stat('packetsLost'));
-          var videoPacketsReceived = parseInt(res.stat('packetsReceived'));
-          var videoInFrameRate = res.stat('googFrameRateReceived');
-          if (videoPacketsLost > 0) {
-            var videoPacketLoss = Math.round((videoPacketsLost * 100 / (videoPacketsReceived + videoPacketsLost))*100);
-          }
-        }
-        else if (res.type == 'ssrc' && res.stat('audioInputLevel')) {
-          var audioOutBytesNow = res.stat('bytesSent');
-          var audioOutBitRate = Math.round((audioOutBytesNow - audioOutBytesPrev) * 8 / 1024);
-          audioOutBytesPrev = audioOutBytesNow;
-          var audioInputLevel = res.stat('audioInputLevel');
-        }
-        else if (res.type == 'ssrc' && res.stat('audioOutputLevel')) {
-          var audioInBytesNow = res.stat('bytesReceived');
-          var audioInBitRate = Math.round((audioInBytesNow - audioInBytesPrev) * 8 / 1024);
-          audioInBytesPrev = audioInBytesNow;
-          var audioPacketsLost = res.stat('packetsLost');
-          var audioPacketsReceived = res.stat('packetsReceived');
-          var audioJitter = res.stat('googJitterReceived');
-          var audioOutputLevel = res.stat('audioOutputLevel');
-          if (audioPacketsLost > 0) {
-            var audioPacketLoss = Math.round((audioPacketsLost * 100 / (audioPacketsReceived + audioPacketsLost))*100);
-          }
-        }
-        else if (res.type == 'ssrc' && res.stat('googRtt') && res.stat('googJitterReceived')) {
-          var videoJitter = res.stat('googJitterReceived');
-        }
+      var report = getReportById(reports, res.id);
+      if(!report) {
+        report = {};
+        report["type"] = res.type;
+        report["id"] = res.id;
       }
-      $("#callStats .statsVideo").text("Video Statistics\n\n"
-        + "Bitrate out: " + videoOutBitRate + " kb/s\n"
-        + "Bitrate in: " + videoInBitRate + " kb/s\n"
-        + "Lost: " + videoPacketsLost + " packets " + (videoPacketLoss/100) + "%\n"
-        + "Jitter: " + videoJitter + " ms\n"
-        + "Frame Rate out: " + videoOutFrameRate + " in: " + videoInFrameRate + "\n");
-      $("#callStats .statsAudio").text("Audio Statistics\n\n"
-        + "Bitrate out: " + audioOutBitRate + " kb/s\n"
-        + "Bitrate in: " + audioInBitRate + " kb/s\n"
-        + "Lost: " + audioPacketsLost + " packets " + (audioPacketLoss/100) + "%\n"
-        + "Jitter: " + audioJitter + " ms\n"
-        + "Audio Level out: " + audioOutputLevel + " in: " + audioInputLevel + "\n");
+
+      var names = res.names();
+      var values = [];
+      for(var j = 0; j < names.length; j++) {
+        var name = names[j];
+        if(!name) {
+            continue;
+        }
+        var value = res.stat(name);
+        values.push(name);
+        values.push(value);
+      }
+
+      var valueObj = {};
+      valueObj["timestamp"] = res.timestamp;
+      valueObj["values"] = values;
+
+      report["stats"] = valueObj;
+      reports.push(report);
+
+//      $("#callStats .statsVideo").text("Video Statistics\n\n"
+//        + "Bitrate out: " + videoOutBitRate + " kb/s\n"
+//        + "Bitrate in: " + videoInBitRate + " kb/s\n"
+//        + "Lost: " + videoPacketsLost + " packets " + (videoPacketLoss/100) + "%\n"
+//        + "Jitter: " + videoJitter + " ms\n"
+//        + "Frame Rate out: " + videoOutFrameRate + " in: " + videoInFrameRate + "\n");
+//      $("#callStats .statsAudio").text("Audio Statistics\n\n"
+//        + "Bitrate out: " + audioOutBitRate + " kb/s\n"
+//        + "Bitrate in: " + audioInBitRate + " kb/s\n"
+//        + "Lost: " + audioPacketsLost + " packets " + (audioPacketLoss/100) + "%\n"
+//        + "Jitter: " + audioJitter + " ms\n"
+//        + "Audio Level out: " + audioOutputLevel + " in: " + audioInputLevel + "\n");
 
     }
+    var data = {"lid":1,"pid":rtcSession.id,"reports":reports};
+      console.log("addStats : "+data);
+    addStats(data);
+
     if (videoPacketLoss < 10) {
       $("#quality1").fadeIn(10);
       $("#quality2, #quality3, #quality4").fadeOut(10);
@@ -355,6 +353,15 @@ function processStats() {
       $("#quality1, #quality2, #quality3").fadeOut(10);
     }
   });
+}
+
+function getReportById(reports, id) {
+    for(var i = 0; i < reports.length; i++) {
+        if(reports[i].id == id) {
+            return reports[i];
+        }
+    }
+    return null;
 }
 
 function guiStart() {
