@@ -9,6 +9,7 @@
 <html>
 
 <head>
+<<<<<<< HEAD
 	<title>Exario Networks WebRTC Client</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta name="Author" content="Exario Networks, Inc."/>
@@ -19,6 +20,17 @@
     <script src="js/detect.js" type="text/javascript"></script>
     <script src="js/stats.js" type="text/javascript"></script>
 	<script src="js/webrtc.js" type="text/javascript"></script>
+=======
+  <title>Exario Networks WebRTC Client</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="Author" content="Exario Networks, Inc."/>
+  <link rel="stylesheet" href="stylesheet.css" type="text/css"/>
+  <script src="js/jquery.js" type="text/javascript"></script>
+  <script src="js/jquery-ui.js" type="text/javascript"></script>
+  <script src="js/jssip.js" type="text/javascript"></script>
+  <script src="js/detect.js" type="text/javascript"></script>
+  <script src="js/webrtc.js" type="text/javascript"></script>
+>>>>>>> master
 </head>
 
 <body>
@@ -34,18 +46,18 @@
 <div id="authPopup">
   <span>Display Name</span><br>
   <input id="displayName" type=text value=""/><br>
-	<span>Username</span><br>
-	<input id="username" type=text value=""/><br>
-	<span>Password</span><br>
-	<input id="password" type="password" value=""/><br>
-	<br>
-	<div id="alert"></div>
-	<button class="button" id="authPopupButton" type="button">Sign in</button>
+  <span>Username</span><br>
+  <input id="username" type=text value=""/><br>
+  <span>Password</span><br>
+  <input id="password" type="password" value=""/><br>
+  <br>
+  <div id="alert"></div>
+  <button class="button" id="authPopupButton" type="button">Sign in</button>
 </div>
 
 <div id="callControl">
-	<span>Enter Destination URI:</span><br>
-	<input id="destination" type=text value=""/>
+  <span>Enter Destination URI:</span><br>
+  <input id="destination" type=text value=""/>
   <div id="call">
     <a href="" title="Call" class="icon-call"></a>
   </div>
@@ -53,44 +65,44 @@
 
 <div id="main">
   <div id="video">
-	  <video id="remoteVideo" autoplay="autoplay"></video>
-	  <video id="localVideo" autoplay="autoplay" muted="true"></video>
+    <video id="remoteVideo" autoplay="autoplay"></video>
+    <video id="localVideo" autoplay="autoplay" muted="true"></video>
   </div>
   <div id="videoBar"></div>
   <div id="messages"></div>
   <div id="timer"></div>
   <div id="connected">
-	  <span title="Websockets Status" class="icon-link"></span>
+  <span title="Websockets Status" class="icon-link"></span>
   </div>
   <div id="registered">
-	  <span title="Registered" class="icon-link"></span>
+  <span title="Registered" class="icon-link"></span>
   </div>
   <div id="quality1">
-	  <span title="Call Quality" class="icon-quality1"></span>
+    <span title="Call Quality" class="icon-quality1"></span>
   </div>
   <div id="quality2">
-	  <span title="Call Quality" class="icon-quality2"></span>
+    <span title="Call Quality" class="icon-quality2"></span>
   </div>
   <div id="quality3">
-	  <span title="Call Quality" class="icon-quality3"></span>
+    <span title="Call Quality" class="icon-quality3"></span>
   </div>
   <div id="quality4">
-	  <span title="Call Quality" class="icon-quality4"></span>
+    <span title="Call Quality" class="icon-quality4"></span>
   </div>
   <div id="hangup">
     <a href="" title="Hangup" class="icon-hangup"></a>
   </div>
   <div id="fullScreenExpand">
-	  <a href="" title="Expand Full Screen" class="icon-fullScreenExpand"></a>
+    <a href="" title="Expand Full Screen" class="icon-fullScreenExpand"></a>
   </div>
   <div id="fullScreenContract">
-  	<a href="" title="Contract Full Screen" class="icon-fullScreenContract"></a>
+    <a href="" title="Contract Full Screen" class="icon-fullScreenContract"></a>
   </div>
   <div id="selfViewDisable">
-  	<a href="" title="Disable Self View" class="icon-selfViewDisable"></a>
+    <a href="" title="Disable Self View" class="icon-selfViewDisable"></a>
   </div>
   <div id="selfViewEnable">
-  	<a href="" title="Enable Self View" class="icon-selfViewEnable"></a>
+    <a href="" title="Enable Self View" class="icon-selfViewEnable"></a>
   </div>
   <div id="muteAudio">
     <a href="" title="Mute Audio" class="icon-muteAudio"></a>
@@ -99,115 +111,115 @@
     <a href="" title="Unmute Audio" class="icon-unmuteAudio"></a>
   </div>
   <div id="dialpadIconShow">
-  	<a href="" title="Show Dialpad" class="icon-dialpadShow"></a>
+    <a href="" title="Show Dialpad" class="icon-dialpadShow"></a>
   </div>
   <div id="dialpadIconHide">
-	  <a href="" title="Hide Dialpad" class="icon-dialpadHide"></a>
+    <a href="" title="Hide Dialpad" class="icon-dialpadHide"></a>
   </div>
   <div id="dialpad">
-	  <div>
-		  <button>1</button>
-		  <button>2</button>
-		  <button>3</button>
-	  </div>
-	  <div>
-		  <button>4</button>
-		  <button>5</button>
-		<button>6</button>
-  	</div>
-  	<div>
-  		<button>7</button>
-  		<button>8</button>
-  		<button>9</button>
-  	</div>
-  	<div>
-  		<button>*</button>
-  		<button>0</button>
-  		<button>#</button>
-  	</div>
-  	<div id="historyToggle">
-  		<a href="" title="Toggle History" class="icon groupA" data-icon="n"></a>
-  	</div>
-  	<div id="settings">
-	  	<a href="" title="HD 720p" class="icon groupA" data-icon="x"></a>
-	  </div>
+    <div>
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+    </div>
+    <div>
+      <button>4</button>
+      <button>5</button>
+      <button>6</button>
+    </div>
+    <div>
+      <button>7</button>
+      <button>8</button>
+      <button>9</button>
+    </div>
+    <div>
+      <button>*</button>
+      <button>0</button>
+      <button>#</button>
+    </div>
+    <div id="historyToggle">
+      <a href="" title="Toggle History" class="icon groupA" data-icon="n"></a>
+    </div>
+    <div id="settings">
+      <a href="" title="HD 720p" class="icon groupA" data-icon="x"></a>
+    </div>
   </div>
 </div>
 
 <div id="callHistory">
-	<div class="rowSpace"></div>
-	<div id="row0">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>
-	<div id="row1">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>
-	<div id="row2">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>
-	<div id="row3">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>
-	<div id="row4">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>
-	<div id="row5">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>
-	<div id="row6">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>
-	<div id="row7">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>	
-	<div id="row8">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-	<div class="rowSpace"></div>	
-	<div id="row9">
-		<a href="" title="Call ID" class="historyCall"></a>
-		<a href="" title="Number" class="historyDestination"></a>
-		<span class="historyDirection"></span><br>
-		<span class="historyDate"></span><span class="historyLength"></span>
-	</div>
-		<div id="historyClear">
-			<a href="" title="Clear History" class="icon groupB" data-icon="#"></a>
-		</div>
+  <div class="rowSpace"></div>
+  <div id="row0">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>
+  <div id="row1">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>
+  <div id="row2">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>
+  <div id="row3">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>
+  <div id="row4">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>
+  <div id="row5">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>
+  <div id="row6">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>
+  <div id="row7">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>	
+  <div id="row8">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div class="rowSpace"></div>	
+  <div id="row9">
+    <a href="" title="Call ID" class="historyCall"></a>
+    <a href="" title="Number" class="historyDestination"></a>
+    <span class="historyDirection"></span><br>
+    <span class="historyDate"></span><span class="historyLength"></span>
+  </div>
+  <div id="historyClear">
+    <a href="" title="Clear History" class="icon groupB" data-icon="#"></a>
+  </div>
 </div>   
 
 <div id="callStats">
