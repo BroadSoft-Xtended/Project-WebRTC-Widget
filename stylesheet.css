@@ -5,6 +5,23 @@
  * Copyright 2013 Exario Networks
  * http://www.exarionetworks.com
  ***************************************************/
+.fixed-table {
+    display: table;
+    table-layout: fixed;
+    width:100%;
+}
+.collapse {
+    border-collapse: collapse;
+}
+.cell {
+    display: table-cell;
+}
+.row {
+    display: table-row;
+}
+.group {
+    display: table-row-group;
+}
 
 @font-face {
   font-family: 'Exario-Icon-Fonts';
@@ -817,4 +834,29 @@ body {
   display:none;
   color:white;
   z-index: 10;
+}
+
+.stats-table-container, .stats-graph-sub-container {
+    display:none;
+}
+
+.stats0-selected .kiloBitsSentPerSecond-video,
+.stats1-selected .kiloBitsSentPerSecond-audio,
+.stats2-selected .kiloBitsReceivedPerSecond-video,
+.stats3-selected .kiloBitsReceivedPerSecond-audio,
+.stats4-selected .packetsLost-video,
+.stats5-selected .packetsLostPer-video,
+.stats6-selected .packetsLost-audio,
+.stats7-selected .packetsLostPer-audio,
+.stats8-selected .googFrameRateSent-video,
+.stats9-selected .googFrameRateReceived-video,
+.stats10-selected .audioOutputLevel-audio,
+.stats11-selected .audioInputLevel-audio,
+.stats12-selected .googFrameWidthReceived-video,
+.stats13-selected .googFrameHeightReceived-video,
+.stats14-selected .googFrameWidthSent-video,
+.stats15-selected .googFrameHeightSent-video,
+.stats16-selected .googRtt-audio,
+.stats17-selected .googJitterReceived-audio {
+    display:block;
 }

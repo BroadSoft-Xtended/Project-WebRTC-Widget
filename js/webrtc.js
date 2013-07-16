@@ -244,7 +244,7 @@ function uriCall(destination) {
       if ( remoteStreams.length > 0) {
         remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
       }
-      $('#callStats').html('<div id="'+rtcSession.id+'-1" />');
+      $('.stats-container').attr('id', rtcSession.id+'-1');
       soundOut.pause();
       startTimer();
       message(messageStarted, "success");
@@ -359,6 +359,18 @@ function getReportById(reports, id) {
     for(var i = 0; i < reports.length; i++) {
         if(reports[i].id == id) {
             return reports[i];
+        }
+    }
+    return null;
+}
+
+function getStatsValue(reports, attribute) {
+    for(var i = 0; i < reports.length; i++) {
+        var values = reports[i].stats.values;
+        for(var j = 0; j < values.length; j++) {
+            if(values[j] == attribute) {
+                return values[j+1];
+            }
         }
     }
     return null;
