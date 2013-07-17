@@ -336,22 +336,6 @@ function processStats() {
     var data = {"lid":1,"pid":rtcSession.id,"reports":reports};
     addStats(data);
 
-    if (videoPacketLoss < 10) {
-      $("#quality1").fadeIn(10);
-      $("#quality2, #quality3, #quality4").fadeOut(10);
-    }
-    else if (videoPacketLoss > 10 && videoPacketLoss < 20) {
-      $("#quality2").fadeIn(10);
-      $("#quality1, #quality3, #quality4").fadeOut(10);
-    }
-    else if (videoPacketLoss > 20 && videoPacketLoss < 100) {
-      $("#quality3").fadeIn(10);
-      $("#quality1, #quality2, #quality4").fadeOut(10);
-    }
-    else if (videoPacketLoss > 100 && videoPacketLoss < 1000) {
-      $("#quality4").fadeIn(10);
-      $("#quality1, #quality2, #quality3").fadeOut(10);
-    }
   });
 }
 

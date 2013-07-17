@@ -864,7 +864,7 @@ var packetsLostPercentage = function(srcDataSeries, peerConnectionElement, repor
     var packetsLost = getLastValue(peerConnectionElement, reportType, reportId, "packetsLost");
     var packetsReceived = getLastValue(peerConnectionElement, reportType, reportId, "packetsReceived");
     if(packetsLost != null && packetsReceived != null) {
-        return Math.round((packetsLost * 100 / (packetsReceived + packetsLost))*100);
+        return Math.round((packetsLost * 100 / (packetsReceived + packetsLost))*100)/100;
     } else {
         return null;
     }
@@ -877,6 +877,20 @@ function getLastValue(peerConnectionElement, reportType, reportId, label) {
     var srcDataSeries = dataSeries[dataSeriesId];
     if(srcDataSeries) {
         return srcDataSeries.dataPoints_[srcDataSeries.dataPoints_.length-1].value;
+    }
+    return null;
+}
+
+function getValueBefore(peerConnectionElement, reportType, reportId, label, timestamp) {
+    var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
+    var srcDataSeries = dataSeries[dataSeriesId];
+    if(srcDataSeries) {
+        for(i = srcDataSeries.dataPoints_.length - 1; i >= 0; i--) {
+            if(srcDataSeries.dataPoints_[i].time < timestamp) {
+                return srcDataSeries.dataPoints_[i].value;
+            }
+        }
+        return srcDataSeries.dataPoints_[0].value;
     }
     return null;
 }
@@ -1670,7 +1684,37 @@ function addStats(data) {
         var report = data.reports[i];
         drawSingleReport(peerConnectionElement, report.type, report.id, report.stats);
         statsTable.addStatsReport(peerConnectionElement, report.type, report.id, report);
+
+        if(isVideoStats(report.stats.values)) {
+            var oneMinAgo = new Date(new Date().getTime() - 1000 * 60);
+            var videoPacketsLost = getLastValue(peerConnectionElement, report.type, report.id, "packetsLost");
+            var packetsSent = getLastValue(peerConnectionElement, report.type, report.id, "packetsReceived");
+            if(videoPacketsLost != null && packetsSent != null) {
+                var videoPacketsLostOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsLost", oneMinAgo);
+                var packetsSentOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsReceived", oneMinAgo);
+                var quality = ((videoPacketsLost - videoPacketsLostOneMinAgo) / (packetsSent - packetsSentOneMinAgo)) * 100
+                console.log("quality : "+quality+" : "+videoPacketsLost+"/"+videoPacketsLostOneMinAgo+", "+packetsSent+"/"+packetsSentOneMinAgo);
+                if (quality < 10) {
+                    $("#quality1").fadeIn(10);
+                    $("#quality2, #quality3, #quality4").fadeOut(10);
+                }
+                else if (quality > 10 && quality < 20) {
+                    $("#quality2").fadeIn(10);
+                    $("#quality1, #quality3, #quality4").fadeOut(10);
+                }
+                else if (quality > 20 && quality < 100) {
+                    $("#quality3").fadeIn(10);
+                    $("#quality1, #quality2, #quality4").fadeOut(10);
+                }
+                else if (quality > 100 && quality < 1000) {
+                    $("#quality4").fadeIn(10);
+                    $("#quality1, #quality2, #quality3").fadeOut(10);
+                }
+            }
+        }
     }
+
+
 }
 
 
