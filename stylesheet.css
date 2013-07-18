@@ -14,32 +14,32 @@
 }
 
 body {
-	background-color: #FFFFFF;
+  background-color: #FFFFFF;
 }
 
 #callControl {
-	display: none;
-	position: relative;
-	left: 0px;
+  display: none;
+  position: relative;
+  left: 0px;
   height: 75px;
-	color: #666666; 
-	font-family:arial;
-	font-size: 18px;
-	font-weight: bold;
+  color: #666666; 
+  font-family:arial;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 #callControl input {
-	background: #666666; 
-	border-bottom: 1px solid #333;
-	border-left: 1px solid #000;
-	border-right: 1px solid #333;
-	border-top: 1px solid #000;
-	color: #FFFFFF; 
-	border-radius: 3px;
-	font-family:arial;
-	font-size: 16px;
-	padding: 6px 6px 4px;
-	width: 250px;
+  background: #666666; 
+  border-bottom: 1px solid #333;
+  border-left: 1px solid #000;
+  border-right: 1px solid #333;
+  border-top: 1px solid #000;
+  color: #FFFFFF; 
+  border-radius: 3px;
+  font-family:arial;
+  font-size: 16px;
+  padding: 6px 6px 4px;
+  width: 250px;
 }
 
 #main {
@@ -49,28 +49,28 @@ body {
 }
 
 #remoteVideo {
-	display: none;
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 640px;
-	height: 480px;
-	background-color: #191414;
-	border-radius: 4px;
-	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #000000;
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 640px;
+  height: 480px;
+  background-color: #191414;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #000000;
 }
 
 #remoteVideo.hd {
-	display: none;
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 1280px;
-	height: 720px;
-	background-color: #191414;
-	border-radius: 4px;
-	border: 2px solid #DDDDDD;
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 1280px;
+  height: 720px;
+  background-color: #191414;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
 	box-shadow: 0px 0px 10px #000000;
 }
 
@@ -87,29 +87,29 @@ body {
 }
 
 #localVideo {
-	display: none;
-	position: absolute;
-	top: 355px;
-	left: 5px;
-	width: 160px;
-	height: 120px;
-	background-color: #241D1D;
+  display: none;
+  position: absolute;
+  top: 355px;
+  left: 5px;
+  width: 160px;
+  height: 120px;
+  background-color: #241D1D;
   border-radius: 4px;
-	border: 2px solid #ddd;
-	box-shadow: 0px 0px 10px #999999;
+  border: 2px solid #ddd;
+  box-shadow: 0px 0px 10px #999999;
 }
 
 #localVideo.hd {
-	display: none;
-	position: absolute;
-	top: 535px;
-	left: 5px;
-	width: 320px;
-	height: 180px;
-	background-color: #241D1D;
+  display: none;
+  position: absolute;
+  top: 535px;
+  left: 5px;
+  width: 320px;
+  height: 180px;
+  background-color: #241D1D;
   border-radius: 4px;
-	border: 2px solid #ddd;
-	box-shadow: 0px 0px 10px #999999;
+  border: 2px solid #ddd;
+  box-shadow: 0px 0px 10px #999999;
 }
 
 :-webkit-full-screen #localVideo {
@@ -126,49 +126,49 @@ body {
 
 #videoBar {
   display: none;
-	position: absolute;
-	top: 485px;
-	left: 0px;
-	width: 640px;
-	height: 40px;
+  position: absolute;
+  top: 485px;
+  left: 0px;
+  width: 640px;
+  height: 40px;
   background: black;
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#404040', endColorstr='#000000',GradientType=0 );
   background-image: -ms-linear-gradient(center top , #404040, #000000);
   background-image: linear-gradient(to bottom, #404040, #000000);
   background-image: -webkit-linear-gradient(#404040, #000000);
   background-image: -moz-linear-gradient(top, #404040, #000000);
-	border-radius: 4px;
-	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #000000;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #000000;
 }
 
 #videoBar.hd {
   display: none;
-	position: absolute;
-	top: 725px;
-	left: 0px;
-	width: 1280px;
-	height: 40px;
-	background-color: #474343;
-	border-radius: 4px;
-	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #999999;
+  position: absolute;
+  top: 725px;
+  left: 0px;
+  width: 1280px;
+  height: 40px;
+  background-color: #474343;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #999999;
 }
 
 :-webkit-full-screen #videoBar {
-	position: absolute;
+  position: absolute;
   z-index: 5;
-	width: auto;
-	height: 40px;
-	background-color: #474343;
-	border-radius: 4px;
-	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #999999;
+  width: auto;
+  height: 40px;
+  background-color: #474343;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #999999;
 }
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4 {
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -183,15 +183,15 @@ body {
   position: absolute;
   z-index: 10;
   top: 25px;
-	left: 265px;
+  left: 265px;
 }
 
 #call.hd {
-	display: none;
+  display: none;
   position: absolute;
   z-index: 10;
-	top: 25px;
-	right: 265px;
+  top: 25px;
+  right: 265px;
 }
 
 .icon-call:before {
@@ -215,11 +215,10 @@ body {
 }
 
 #hangup.hd {
-	display: none;
-	position: absolute;
+  position: absolute;
   z-index: 10;
-	top: 733px;
-	left: 1245px;
+  top: 733px;
+  left: 1245px;
 }
 
 .icon-hangup:before {
@@ -236,18 +235,18 @@ body {
 
 #fullScreenExpand {
   display: none;
-	position: absolute;
+  position: absolute;
   z-index: 10;
-	top: 493px;
-	left: 15px;
+  top: 493px;
+  left: 15px;
 }
 
 #fullScreenExpand.hd {
-	display: none;
-	position: absolute;
+  display: none;
+  position: absolute;
   z-index: 10;
-	top: 733px;
-	left: 15px;
+  top: 733px;
+  left: 15px;
 }
 
 .icon-fullScreenExpand:before {
@@ -264,10 +263,10 @@ body {
 
 #fullScreenContract {
   display: none;
-	position: absolute;
+  position: absolute;
   z-index: 10;
-	bottom: 25px;
-	left: 25px;
+  bottom: 25px;
+  left: 25px;
 }
 
 .icon-fullScreenContract:before {
@@ -283,19 +282,19 @@ body {
 /* Self View Disable Button */
 
 #selfViewDisable {
-	display: none;
-	position: absolute;
+  display: none;
+  position: absolute;
   z-index: 10;
-	top: 493px;
-	left: 55px;
+  top: 493px;
+  left: 55px;
 }
 
 #selfViewDisable.hd {
-	display: none;
-	position: absolute;
+  display: none;
+  position: absolute;
   z-index: 10;
-	top: 733px;
-	left: 55px;
+  top: 733px;
+  left: 55px;
 }
 
 .icon-selfViewDisable:before {
@@ -311,19 +310,19 @@ body {
 /* Self View Enable Button */
 
 #selfViewEnable {
-	display: none;
-	position: absolute;
+  display: none;
+  position: absolute;
   z-index: 10;
-	top: 493px;
-	left: 55px;
+  top: 493px;
+  left: 55px;
 }
 
 #selfViewEnable.hd {
-	display: none;
-	position: absolute;
+  display: none;
+  position: absolute;
   z-index: 10;
-	top: 733px;
-	right: 55px;
+  top: 733px;
+  right: 55px;
 }
 
 .icon-selfViewEnable:before {
@@ -393,13 +392,12 @@ body {
 }
 
 /* Dialpad Show Button */
-
 #dialpadIconShow {
   display: none;
-	position: absolute;
+  position: absolute;
   z-index: 10;
-	top: 493px;
-	left: 95px;
+  top: 493px;
+  left: 95px;
 }
 
 #dialpadIconShow.hd {
@@ -423,11 +421,11 @@ body {
 /* Dialpad Hide Button */
 
 #dialpadIconHide {
-	display: none;
+  display: none;
   position: absolute;
   z-index: 10;
-	top: 493px;
-	left: 95px;
+  top: 493px;
+  left: 95px;
 }
 
 #dialpadIconHide.hd {
@@ -450,7 +448,7 @@ body {
 
 /* Dialpad Hide Button */
 #quality1 {
-	display: none;
+  display: none;
   position: absolute;
   z-index: 10;
   top: 13px;
@@ -464,7 +462,7 @@ body {
 }
 
 #quality2 {
-	display: none;
+  display: none;
   position: absolute;
   z-index: 10;
   top: 13px;
@@ -478,7 +476,7 @@ body {
 }
 
 #quality3 {
-	display: none;
+  display: none;
   position: absolute;
   z-index: 10;
   top: 13px;
@@ -492,7 +490,7 @@ body {
 }
 
 #quality4 {
-	display: none;
+  display: none;
   position: absolute;
   z-index: 10;
   top: 13px;
@@ -505,307 +503,385 @@ body {
   opacity: .4;
 }
 
+#settings {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 493px;
+  left: 565px;
+}
+
+#settings.hd {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 733px;
+  left: 1205px;
+}
+
+.icon-settings:before {
+  content: "\e00c";
+  color: #FFFFFF;
+  opacity: .4;
+}
+
+.icon-settings:hover:before {
+  content: "\e00c";
+  color: #EFA233;
+}
+
 .icon-link:before {
   content: "\e00b";
 }
 
 .button:active {
-	color: #EFA233;
-	background: -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A));
-	background: linear-gradient(to bottom left, #7CDD07, #FAA51A);
+  color: #EFA233;
+  background: -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A));
+  background: linear-gradient(to bottom left, #7CDD07, #FAA51A);
 }
 
 .button:hover {
-	box-shadow: 0px 0px 10px #999;
+  box-shadow: 0px 0px 10px #999;
+}
+
+#callPopup {
+  display: none;
+  background: #333333;
+  padding: 10px; 	
+  border: 2px solid #DDDDDD;
+  float: left;
+  position: absolute;
+  top: 100; 
+  left: 100;;
+  box-shadow: 0px 0px 10px #999999;
+  border-radius: 3px;
+  font-size: 14px; 
+  line-height: 18px;
+  z-index: 99;
+}
+
+#callPopup span {
+  color: #999999; 
+  font-size: 22px; 
+}
+
+#settingsPopup {
+  display: none;
+  background: #333333;
+  padding: 10px; 	
+  border: 2px solid #DDDDDD;
+  position: absolute;
+  top: 50; 
+  left: 50;
+  width: 400;
+  box-shadow: 0px 0px 10px #999999;
+  border-radius: 3px;
+  font-size: 20px; 
+  line-height: 28px;
+  z-index: 99;
+}
+
+#settingsPopup span {
+  color: #999999; 
+  font-size: 20px; 
+}
+
+#settingsPopup [type="checkbox"] {
+  position: absolute;
+  width: 18;
+  height: 18;
+  left: 240;
+}
+
+#settingsPopup input {
+  position: absolute;
+  left: 240;
+}
+
+#settingsPopup button {
+  position: absolute;
+  left: 365;
 }
 
 #authPopup {
-	display: none;
-	background: #333333;
-	padding: 10px; 	
-	border: 2px solid #DDDDDD;
-	float: left;
-	position: fixed;
-	top: 50%; 
-	left: 50%;
-	box-shadow: 0px 0px 10px #999999;
-	border-radius: 3px;
-	font-size: 14px; 
-	line-height: 18px;
+  display: none;
+  background: #333333;
+  padding: 10px; 	
+  border: 2px solid #DDDDDD;
+  float: left;
+  position: fixed;
+  top: 50%; 
+  left: 50%;
+  box-shadow: 0px 0px 10px #999999;
+  border-radius: 3px;
+  font-size: 14px; 
+  line-height: 18px;
 }
 
 #authPopup span {
-	color: #999999; 
-	font-size: 14px; 
-	line-height: 18px;
+  color: #999999; 
+  font-size: 14px; 
+  line-height: 18px;
 }
 
 #authPopup input {
-	background: #666666; 
-	border-bottom: 1px solid #333333;
-	border-left: 1px solid #000000;
-	border-right: 1px solid #333333;
-	border-top: 1px solid #000000;
-	color: #FFFFFF; 
-	border-radius: 3px;
-	font-family: arial;
-	font-size: 16px;
-	padding: 6px 6px 4px;
-	width: 200px;
+  background: #666666; 
+  border-bottom: 1px solid #333333;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #333333;
+  border-top: 1px solid #000000;
+  color: #FFFFFF; 
+  border-radius: 3px;
+  font-family: arial;
+  font-size: 16px;
+  padding: 6px 6px 4px;
+  width: 200px;
 }
 
 #authPopup button {
-	border-color: #999999; 
-	border-width: 1px;
-	border-radius: 4px;
-	color: #333333;
-	cursor: pointer;
-	padding: 6px 6px 4px;
-	margin-top: 10px;
-	font-size: 12px; 
-	width: 214px;
+  border-color: #999999; 
+  border-width: 1px;
+  border-radius: 4px;
+  color: #333333;
+  cursor: pointer;
+  padding: 6px 6px 4px;
+  margin-top: 10px;
+  font-size: 12px; 
+  width: 214px;
 }
 
 #authPopup #alert {
-	font-size: 20px;
-	text-align: center;
-	color: #FF0000;
+  font-size: 20px;
+  text-align: center;
+  color: #FF0000;
 }
 
 #dialpad {
   display: none;
-	position: absolute;
+  position: absolute;
   z-index: 20;
-	top: 323px;
-	left: 515px;
-	letter-spacing: 5px;
+  top: 323px;
+  left: 515px;
+  letter-spacing: 5px;
 }
 
 #dialpad.hd {
-	position: absolute;
+  position: absolute;
   z-index: 20;
-	top: 563px;
-	left: 1155px;
-	letter-spacing: 5px;
+  top: 563px;
+  left: 1155px;
+  letter-spacing: 5px;
 }
 
 #dialpad button {
-	color: #333333;
-	opacity: 0.8;
-	font-family:arial;
-	font-size: 20px;
-	width: 30px;
-	border-color: #000000; 
-	border-width: 1px;
-	border-radius: 4px;
-	border-spacing: 5em;
-	font-weight: bold;
-	line-height: 30px;
-	margin: .1em;
-	border-top-style: outset;
-	cursor: pointer;
+  color: #333333;
+  opacity: 0.8;
+  font-family:arial;
+  font-size: 20px;
+  width: 30px;
+  border-color: #000000; 
+  border-width: 1px;
+  border-radius: 4px;
+  border-spacing: 5em;
+  font-weight: bold;
+  line-height: 30px;
+  margin: .1em;
+  border-top-style: outset;
+  cursor: pointer;
 }
 
 #dialpad button:active {
-	color: #EFA233;
-	background: -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A));
-	background: linear-gradient(to left bottom, #F47A20, #FAA51A);
+  color: #EFA233;
+  background: -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A));
+  background: linear-gradient(to left bottom, #F47A20, #FAA51A);
 }
 
 #dialpad button:hover {
-	box-shadow: 1px 1px 20px #999999;
+  box-shadow: 1px 1px 20px #999999;
 }
 
 #connected {
-	display: none;
-	position: absolute;
-	top: 13px;
-	left: 605px;
+  display: none;
+  position: absolute;
+  top: 13px;
+  left: 605px;
 }
 
 #connected.hd {
   display: none;
-	position: absolute;
-	top: 13px;
-	left: 1245px;
+  position: absolute;
+  top: 13px;
+  left: 1245px;
 }
 
 #registered {
   display: none;
-	position: absolute;
-	color: #60FE10;
-	top: 13px;
-	left: 570px;
+  position: absolute;
+  top: 13px;
+  left: 570px;
 }
 
 #registered.hd {
   display: none;
-	position: absolute;
-	color: #60FE10;
-	top: 13px;
-	left: 1190px;
+  position: absolute;
+  top: 13px;
+  left: 1190px;
 }
 
 #timer {
-	display: none;
-	position: absolute;
-	top: 494px;
-	left: 320px;
-	font-family: arial;
-	font-size: 20px; 
-	color: #FFFFFF;
+  display: none;
+  position: absolute;
+  top: 494px;
+  left: 320px;
+  font-family: arial;
+  font-size: 20px; 
+  color: #FFFFFF;
 }
 
 #timer.hd {
-	position: absolute;
-	top: 734px;
-	left: 640px;
-	font-family: arial;
-	font-size: 20px; 
-	color: #FFFFFF;
+  position: absolute;
+  top: 734px;
+  left: 640px;
+  font-family: arial;
+  font-size: 20px; 
+  color: #FFFFFF;
 }
 
 #messages {
-	position: absolute;
-	top: 450px;
-	left: 300px;
-	font-family:arial;
-	font-size: 20px; 
+  position: absolute;
+  top: 450px;
+  left: 300px;
+  font-family:arial;
+  font-size: 20px; 
 }
 
 #messages.hd {
-	position: absolute;
-	top: 690px;
-	left: 900px;
-	font-family:arial;
-	font-size: 20px; 
+  position: absolute;
+  top: 690px;
+  left: 900px;
+  font-family:arial;
+  font-size: 20px; 
 }
 
 .normal {
-	color: #999999;
+  color: #999999;
 }
 
 .success {
-	color: #00FF00;
+  color: #00FF00;
 }
 
 .warning {
-	color: #FFFF00;
+  color: #FFFF00;
 }
 
 .alert {
-	color: #FF0000;
+  color: #FF0000;
 }
 
 #callHistory {
   display: none;
-	position: absolute;
-	top: 100px;
-	right: 25px;
-	width: 265px;
-	height: 375px;
-	background-color: #191414;
-	border-radius: 4px;
-	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #999999;
+  position: absolute;
+  top: 100px;
+  right: 25px;
+  width: 265px;
+  height: 375px;
+  background-color: #191414;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #999999;
 }
 
 #callHistory .historyDestination {
-	position: absolute;
-	color: #0082FF;
-	left: 40px;
-	font-family:arial;
-	font-size: 18px;
-	text-decoration: none;
+  position: absolute;
+  color: #0082FF;
+  left: 40px;
+  font-family:arial;
+  font-size: 18px;
+  text-decoration: none;
 }
 
 #callHistory .historyDirection {
-	position: absolute;
-	color: #0082FF;
-	left: 200px;
-	font-family:arial;
-	font-size: 18px; 
+  position: absolute;
+  color: #0082FF;
+  left: 200px;
+  font-family:arial;
+  font-size: 18px; 
 }
 
 #callHistory .historyStatus {
-	position: absolute;
-	color: #0082FF;
-	left: 225px;
-	font-family:arial;
-	font-size: 18px; 
+  position: absolute;
+  color: #0082FF;
+  left: 225px;
+  font-family:arial;
+  font-size: 18px; 
 }
 
 #callHistory .historyDate {
-	position: absolute;
-	color: #0082FF;
-	left: 10px;
-	font-family:arial;
-	font-size: 10px; 
+  position: absolute;
+  color: #0082FF;
+  left: 10px;
+  font-family:arial;
+  font-size: 10px; 
 }
 
 #callHistory .historyLength {
-	position: absolute;
-	color: #0082FF;
-	left: 200px;
-	font-family:arial;
-	font-size: 10px; 
+  position: absolute;
+  color: #0082FF;
+  left: 200px;
+  font-family:arial;
+  font-size: 10px; 
 }
 
 #callHistory .rowSpace {
-	padding: .5em;
+  padding: .5em;
 }
 
 #historyToggle {
-	position: absolute;
-	top: 200px;
-	left: 225px;
-}
-
-#settings {
-	position: absolute;
-	top: 160px;
-	left: 225px;
+  position: absolute;
+  top: 200px;
+  left: 225px;
 }
 
 #historyClear {
-	display: none;
-	position: absolute;
-	top: 355px;
-	left: 290px;
+  display: none;
+  position: absolute;
+  top: 355px;
+  left: 290px;
 }
 
 #callStats {
   display: none;
   position: absolute;
-	top: 500px;
-	right: 25px;
-	width: 500px;
-	height: 200px;
-	background-color: #191414;
-	border-radius: 4px;
-	border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #999999;
+  top: 500px;
+  right: 25px;
+  width: 500px;
+  height: 200px;
+  background-color: #191414;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #999999;
 }
 
 #callStats .statsVideo {
-	position: absolute;
+  position: absolute;
   white-space: pre-wrap;
-	color: #0082FF;
-	left: 10px;
-	font-family:arial;
-	font-size: 18px;
-	text-decoration: none;
+  color: #0082FF;
+  left: 10px;
+  font-family:arial;
+  font-size: 18px;
+  text-decoration: none;
 }
 
 #callStats .statsAudio {
-	position: absolute;
+  position: absolute;
   white-space: pre-wrap;
-	color: #0082FF;
-	left: 250px;
+  color: #0082FF;
+  left: 250px;
   float: left;
-	font-family:arial;
-	font-size: 18px;
-	text-decoration: none;
+  font-family:arial;
+  font-size: 18px;
+  text-decoration: none;
 }
 
 .unsupported {

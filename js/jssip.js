@@ -3325,14 +3325,7 @@ RTCMediaHandler.prototype = {
     this.peerConnection.setLocalDescription(
       sessionDescription,
       function(){
-        // Disable ICE
-        if (disableICE) {
-          console.log("Configured to disable ICE!");
-          if (!sent) {
-            self.onIceCompleted();
             sent = true;
-          }
-        }
       },
       function(e) {
         console.error(LOG_PREFIX +'unable to set local description');
@@ -3390,7 +3383,7 @@ RTCMediaHandler.prototype = {
     };
 
     this.peerConnection.onicecandidate = function(e) {
-      if (e.candidate) {
+      if (e.candidate && !disableICE) {
         console.log(LOG_PREFIX +'ICE candidate received: '+ e.candidate.candidate);
       } else {
         self.onIceCompleted();

@@ -12,12 +12,13 @@
 $(document).ready(function() {
 
 // Default URL variables
-var userid = getSearchVariable("userid");
 var register = (getSearchVariable("register") == "true");
+var password = getSearchVariable("password") || $.cookie('settingPassword');
+var userid = getSearchVariable("userid") || $.cookie('settingUserid');
 var destination = getSearchVariable("destination");
-var hd = (getSearchVariable("hd") == "true"); 
+var hd = (getSearchVariable("hd") == "true") || $.cookie('settingHD');
 var audioOnly = (getSearchVariable("audioOnly") == "true");
-var displayName = getSearchVariable("name").toString().replace("%20"," ");
+var displayName = $.cookie('settingDisplayName') || getSearchVariable("name").toString().replace("%20"," ");
 var maxCallLength = getSearchVariable("maxCallLength");
 var hideCallControl = (getSearchVariable("hide") == "true");
 
@@ -35,9 +36,9 @@ var enableMessages = true;
 var enableRegistrationIcon = true;
 var enableConnectionIcon = true;
 var enableWindowDrag = true;
+var enableSettings = true;
 
 // Client Variables
-var password = false;
 var volumeClick = 1;
 var soundOut = document.createElement("audio");
 soundOut.volume = volumeClick;
@@ -45,17 +46,17 @@ var volumeDTMF = 1;
 var soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 var timerRunning = false;
-var wssGateway = 'nathan.exarionetworks.com';
+var wssGateway = 'proxy.exarionetworks.com';
 var wssPort = 8443;
 var stunServer = '204.117.64.117';
 var stunPort = 3478;
-var domainFrom = 'nathan.exarionetworks.com';
-var domainTo = '204.117.64.115';
+var domainFrom = 'exarionetworks.com';
+var domainTo = 'exarionetworks.com';
 var allowOutside = true;
 var endCallURL = false;
 disableICE = true;
-var transmitVGA = 512;
-var transmitHD = 2048;
+var transmitVGA = $.cookie('settingTransmitVGA') || 512;
+var transmitHD = $.cookie('settingTransmitHD') || 2048;
 
 // Client Messages
 var messageProgress = "Ringing";
@@ -64,6 +65,9 @@ var messageStarted = "Call Started";
 var messageEnded = "Call Ended";
 var messageCall = "Performing NAT Tests";
 var messageConnected = "Connected";
+var messageConnectionFailed = "Connection Failed!";
+var messageRegistered = "Registered";
+var messageRegistrationFailed = "Registration Failed!";
 var messageEmptyDestination = "Invalid Number";
 
 // Pull the URL variables out of URL
@@ -165,6 +169,33 @@ function authPopUp() {
   });
 }
 
+// Setup the GUI
+function guiStart() {
+  $("#remoteVideo, #videoBar, #muteAudio").fadeIn(1000)
+  if (enableCallControl && !hideCallControl) {
+    $("#callControl, #call").fadeIn(1000);
+  }
+  if (enableDialpad) {
+    $("#dialpadIconShow").fadeIn(1000);
+  }
+  if (enableSelfView) {
+    if ($.cookie('settingSelfViewDisable') == "true") {
+      $("#localVideo, #selfViewDisable").fadeOut(100);
+      $("#selfViewEnable").fadeIn(1000);
+    } 
+    else {
+      $("#selfViewEnable").fadeOut(1000);
+      $("#localVideo, #selfViewDisable").fadeIn(1000);
+    }
+  }
+  if (enableSettings) {
+    $("#settings").fadeIn(1000);
+  }
+  if (enableFullScreen) {
+    $("#fullScreenExpand").fadeIn(1000);
+  }
+}
+
 // Display status messages
 function message(text, level) {
   if(!enableMessages) {
@@ -190,6 +221,80 @@ function validateDestination (destination) {
   return(destination); 
 }
 
+// 720p constraints
+var constraints = {
+  mandatory: {
+    minWidth: 1280,
+    minHeight: 720
+  }
+}
+
+// PeerConnection constraints
+if (hd == true) {
+  var video = constraints;
+  } 
+  else if (audioOnly) {
+  var video = false;
+} 
+else {
+  var video = true;
+}
+
+// JsSIP event handlers
+var eventHandlers = {
+  'progress': function(e) {
+    message(messageProgress, "normal");
+    soundOut.setAttribute("src", "media/dtmf-ringback.ogg");
+    soundOut.play();
+  },
+
+  'failed': function(e) {
+    message(e.data.cause, "alert");
+    soundOut.pause();
+    endCall();
+  },
+
+  'started': function(e) {
+    var selfView = document.getElementById("localVideo");
+    var remoteView = document.getElementById("remoteVideo");
+    var localStreams, remoteStreams;
+    if (window.mozRTCPeerConnection) {
+      localStreams = rtcSession.rtcMediaHandler.peerConnection.localStreams;
+      remoteStreams = rtcSession.rtcMediaHandler.peerConnection.remoteStreams;
+    } else {
+      localStreams = rtcSession.getLocalStreams();
+      remoteStreams = rtcSession.getRemoteStreams();
+    }
+    if ( localStreams.length > 0) {
+      selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
+    }
+    if ( remoteStreams.length > 0) {
+      remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
+    }
+    soundOut.pause();
+    startTimer();
+    message(messageStarted, "success");
+    if (enableMute) {
+      $("#muteAudio").fadeIn(1000);
+    }
+  },
+
+  'ended': function(e) {
+    message(messageEnded, "normal");
+    endCall();
+  }
+};
+
+// Options Passed to JsSIP
+var options = {
+  mediaConstraints: {
+    audio: true,
+    video: video
+  },
+  RTCConstraints: {'optional': [],'mandatory': {}},
+  eventHandlers: eventHandlers
+};
+
 // URL call
 function uriCall(destination) {
   var destination = validateDestination(destination);
@@ -198,77 +303,6 @@ function uriCall(destination) {
   }
 
   $('#call').fadeOut(1000);
-	
-  var constraints = {
-    mandatory: {
-      minWidth: 1280,
-      minHeight: 720
-    }
-  }
-
-  if (hd == true) {
-    videoBandwidth = transmitHD;
-    var video = constraints;
-    } else if (audioOnly) {
-    var video = false;
-  } else {
-    videoBandwidth = transmitVGA;
-    var video = true;
-  }
-
-  var eventHandlers = {
-    'progress': function(e) {
-       message(messageProgress, "normal");
-       soundOut.setAttribute("src", "media/dtmf-ringback.ogg");
-       soundOut.play();
-    },
-
-    'failed': function(e) {
-      message(e.data.cause, "alert");
-      soundOut.pause();
-      endCall();
-    },
-
-    'started': function(e) {
-      var localStreams, remoteStreams;
-      if (window.mozRTCPeerConnection) {
-        localStreams = rtcSession.rtcMediaHandler.peerConnection.localStreams;
-        remoteStreams = rtcSession.rtcMediaHandler.peerConnection.remoteStreams;
-      } else {
-        localStreams = rtcSession.getLocalStreams();
-        remoteStreams = rtcSession.getRemoteStreams();
-      }
-      if ( localStreams.length > 0) {
-        selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
-      }
-      if ( remoteStreams.length > 0) {
-        remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
-      }
-      soundOut.pause();
-      startTimer();
-      message(messageStarted, "success");
-      if (enableMute) {
-        $("#muteAudio").fadeIn(1000);
-      }
-    },
-
-    'ended': function(e) {
-      message(messageEnded, "normal");
-      endCall();
-    }
-  };
-
-  var options = {
-    mediaConstraints: {
-      audio: true,
-      video: video
-    },
-    RTCConstraints: {'optional': [],'mandatory': {}},
-    eventHandlers: eventHandlers
-  };
-	
-  var selfView = document.getElementById("localVideo");
-  var remoteView = document.getElementById("remoteVideo");
 	
   $("#hangup").fadeIn(1000);
   setCookie("new", destination, ">");
@@ -364,19 +398,47 @@ function processStats() {
   });
 }
 
-function guiStart() {
-  $("#remoteVideo, #videoBar, #muteAudio").fadeIn(1000)
-  if(enableCallControl && !hideCallControl) {
-    $("#callControl, #call").fadeIn(1000);
+// Incoming call function
+function incomingCall(e) {
+  var incomingCallName = e.data.request.from.display_name;
+  var incomingCallUser = e.data.request.from.uri.user;
+  setCookie("new", destination, "<");
+  message("Incoming Call", "success");
+  $("#callPopup").fadeIn(100);
+  $(".incomingCallName").text(incomingCallName);
+  $(".incomingCallUser").text(incomingCallUser);
+  soundOut.setAttribute("src", "media/ringtone.ogg");
+  soundOut.play();
+  $('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e) {
+    e.preventDefault();
+    $("#callPopup").fadeOut(500);
+    soundOut.pause();
+    if (this.id == "acceptIncomingCall") { 
+      rtcSession.answer(options);
+    } 
+    else if (this.id == "rejectIncomingCall") {
+      rtcSession.terminate();
+    }
+  });
+}
+
+
+function endCall() {
+  $("#hangup, #muteAudio").fadeOut(100);
+  isMuted = false;
+  // Clear last image from video tags
+  $("#localVideo").removeAttr("src");
+  $("#remoteVideo").removeAttr("src");
+  // Bring up the main elements
+  if (enableCallControl == true) {
+    hideCallControl = false;
   }
-  if(enableDialpad) {
-    $("#dialpadIconShow").fadeIn(1000);
+  guiStart();
+  if (timerRunning == true) {
+    stopTimer();
   }
-  if(enableSelfView) {
-    $("#localVideo, #selfViewDisable").fadeIn(1000);
-  }
-  if(enableFullScreen) {
-    $("#fullScreenExpand").fadeIn(1000);
+  if (!endCallURL == false) {
+    window.location = endCallURL;
   }
 }
 
@@ -414,25 +476,6 @@ function showHistory(page) {
   }
 }
 
-function endCall() {
-  $("#hangup, #muteAudio").fadeOut(100);
-  isMuted = false;
-  // Clear last image from video tags
-  $("#localVideo").removeAttr("src");
-  $("#remoteVideo").removeAttr("src");
-  // Bring up the main elements
-  if (enableCallControl == true) {
-    hideCallControl = false;
-  }
-  guiStart();
-  if (timerRunning == true) {
-    stopTimer();
-  }
-  if (!endCallURL == false) {
-    window.location = endCallURL;
-  }
-}
-
 currentCallArray = new Array(4);
 // Store call stats in array, then in cookie on update
 function setCookie(type, remoteParty, direction) {
@@ -445,7 +488,8 @@ function setCookie(type, remoteParty, direction) {
     currentCallArray[1] = epoch;
     currentCallArray[2] = remoteParty;
     currentCallArray[3] = direction;
-  } else if (type=="update") {
+  } 
+  else if (type=="update") {
     // Get latest cookie
     var allCookies = document.cookie;
     var allCookiesArray = allCookies.split(';');
@@ -481,6 +525,7 @@ function onLoad(userid, password) {
   };
 
   // Add Display Name if set
+  console.log(displayName)
   if (displayName.indexOf("false") === -1) {
     config.display_name = displayName
   }
@@ -488,7 +533,8 @@ function onLoad(userid, password) {
   // Modify config object based password
   if (password == false) {
     config.register = false
-  } else {
+  } 
+  else {
     config.register = true,
     config.password = password
   }
@@ -511,49 +557,42 @@ function onLoad(userid, password) {
     message(messageConnected, "success");
   });
   sipStack.on('disconnected', function(e) {
-  if (enableConnectionIcon) {
-     $("#connected").removeClass("success");
-     $("#connected").addClass("alert").fadeIn(100);
-   }
-   endCall();
-   $("#call").fadeOut(100);
+    if (enableConnectionIcon) {
+      $("#connected").removeClass("success");
+      $("#connected").addClass("alert").fadeIn(100);
+    }
+    message(messageConnectionFailed);
+    endCall();
+    $("#call").fadeOut(100);
   });
   sipStack.on('newRTCSession', function(e) {
     rtcSession = e.data.session;
     if (e.data.session.direction == "incoming") {
-      incommingCall(e);
+      incomingCall(e);
     }
   });
 
   // Registration callbacks only if registering
   if (!password == false) {
     sipStack.on('registered', function(e) {
-      if (enableRegisterationIcon) {
+      if (enableRegistrationIcon) {
          $("#registered").removeClass("alert");
          $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
       }
+      message(messageRegistered, "success");
     });
     sipStack.on('registrationFailed', function(e) {
       if (enableRegistrationIcon) {
-        $("#registered").removeClass("success");
+        //$("#registered").removeClass("success");
         $("#registered").addClass("alert").fadeIn(100);
       }
+      message(messageRegistrationFailed, "alert");
     });
   }
   // Start a call
   if (!destination == false) {
     uriCall(destination);
   }
-}
-
-// Incoming call function
-function incommingCall(message) {
-  message("Incoming Call", "normal");
-  soundOut.setAttribute("src", "media/dtmf-ringtone.ogg");
-  soundOut.play();
-  console.log(message);
-  console.log(message.data.session.request.from.uri);
-  console.log(message.data.session);
 }
 
 mainDestination = $("#callControl input#destination");
@@ -564,9 +603,11 @@ function pressDTMF (digit) {
   }
   if (digit == "*") {
     file = "star";
-  } else if (digit == "#") {
+  } 
+  else if (digit == "#") {
     file = "pound";
-  } else {
+  } 
+  else {
     file = digit;
   }
   soundOutDTMF.setAttribute("src", "media/dtmf-" + file + ".ogg");
@@ -592,7 +633,8 @@ $('#call').bind('click', function(e) {
   var destination = mainDestination.val();
   if (destination == "") {
     message(messageEmptyDestination, "alert");
-  } else {
+  } 
+  else {
     uriCall(destination);
   }
 });
@@ -684,13 +726,31 @@ $("#settings").bind('click', function(e) {
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
-  if (hd == false) {
-    $("*").removeClass("hd");
-    hd = false;
-  } else if (hd == true) {
-    $("*").addClass("hd");
-    hd = true;
-  }   
+  if (!(displayName == "false")) {
+    $("#settingDisplayName").val(displayName);
+  }
+  $("#settingUserid").val(userid);
+  $("#settingPassword").val(password);
+  $("#settingSelfViewDisable").prop('checked', ($.cookie('settingSelfViewDisable') == "true"));
+  $("#settingHD").prop('checked', ($.cookie('settingHD') == "true"));
+  $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || transmitVGA);
+  $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || transmitHD);
+  $("#settingsPopup").fadeIn(1000);
+});
+
+$("#saveSettings").bind('click', function(e) {
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  $.cookie("settingDisplayName", ($("#settingDisplayName").val()));
+  $.cookie("settingUserid", ($("#settingUserid").val()));
+  $.cookie("settingPassword", ($("#settingPassword").val()));
+  $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')));
+  $.cookie("settingHD", ($("#settingHD").prop('checked')));
+  $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()));
+  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()));
+  $("#settingsPopup").fadeOut(100);
+  location.reload(0);
 });
 
 historyPressed = false;
@@ -701,7 +761,8 @@ $('#historyToggle').bind('click', function(e) {
   if (historyPressed == true) {
     historyPressed = false;
     $("#callHistory, #historyClear").fadeOut(100);
-  } else if (historyPressed == false) {
+  } 
+  else if (historyPressed == false) {
     historyPressed = true;
     $("#callHistory, #historyClear").fadeIn(100);
     showHistory(1);
@@ -753,7 +814,8 @@ function callStats() {
     if (showStats == false) {
       $("#callStats").fadeIn(1000);
        showStats = true;
-     } else if (showStats) {
+     } 
+     else if (showStats) {
        $("#callStats").fadeOut(100);
        showStats = false;
      }
@@ -774,7 +836,8 @@ function compatibilityCheck() {
   if (isChrome && major < 25) {
     return "Your version of Chrome must be upgraded to at least version 25<br>" +
     "Please go to: <a href='http://chrome.google.com'>http://chrome.google.com</a>";
-  } else {
+  }
+  else {
     if (isFirefox && major < 22) {
       return "Your version of Firefox must be upgraded to at least version 22y<br>" +
       "Please go to: <a href='http:www.mozilla.org'>http://www.mozilla.org</a>";
@@ -789,13 +852,15 @@ if(unsupported) {
 }
 
 // Initial function selection
-if (enableHD == true & hd == true) {
-  $('#settings').click();
+if (enableHD == true & hd == "true") {
+  videoBandwidth = transmitVGA;
+  $("*").addClass("hd");
 }
 
-if (register == true) {
+if (register == true && !password) {
   authPopUp(userid, password);
-} else {
+} 
+else {
   if (!userid) {
     randomUserid();
   }
