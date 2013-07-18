@@ -1061,6 +1061,10 @@ function addDataSeriesPoint(dataSeriesId, time, label, value) {
                 bweCompoundGraphConfig[label].color);
         }
     }
+    // Restrain packetsLost to 0 as first value might be -1
+    if(label == "packetsLost" && value < 0) {
+        value = 0;
+    }
     dataSeries[dataSeriesId].addPoint(time, value);
 }
 
@@ -1544,7 +1548,7 @@ function initialize() {
     ssrcInfoManager = new SsrcInfoManager();
     peerConnectionUpdateTable = new PeerConnectionUpdateTable();
     statsTable = new StatsTable(ssrcInfoManager);
-    $(".stats-var").click(function(){
+    $("a.stats-var").click(function(){
         var index = $(".stats-var").index($(this)[0]);
         setSelected("stats"+index, "#callStats");
     });
