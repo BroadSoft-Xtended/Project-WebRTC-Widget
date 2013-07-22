@@ -19,6 +19,7 @@
   <script src="js/jssip.js" type="text/javascript"></script>
   <script src="js/detect.js" type="text/javascript"></script>
   <script src="js/webrtc.js" type="text/javascript"></script>
+  <script src="js/stats.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -223,9 +224,41 @@
   </div>
 </div>   
 
-<div id="callStats">
-  <div class="statsVideo">Video Statistics</div>
-  <div class="statsAudio">Audio Statistics</div>
+<div id="callStats" class="">
+    <div class="fixed-table collapse">
+        <div class="row">
+            <div class="cell">Video Stats</div>
+            <div class="cell">Audio Stats</div>
+        </div>
+        <div class="row">
+            <div class="cell">Bitrate out: <a href="javascript:;" data-type="video" data-var="kiloBitsSentPerSecond" class="stats-var"></a> kb/s</div>
+            <div class="cell">Bitrate out: <a href="javascript:;" data-type="audio" data-var="kiloBitsSentPerSecond" class="stats-var"></a> kb/s</div>
+        </div>
+        <div class="row">
+            <div class="cell">Bitrate in: <a href="javascript:;" data-type="video" data-var="kiloBitsReceivedPerSecond" class="stats-var"></a> kb/s</div>
+            <div class="cell">Bitrate in: <a href="javascript:;" data-type="audio" data-var="kiloBitsReceivedPerSecond" class="stats-var"></a> kb/s</div>
+        </div>
+        <div class="row">
+            <div class="cell">Lost: <a href="javascript:;" data-type="video" data-var="packetsLost" class="stats-var"></a> packets (<a href="javascript:;" data-type="video" data-var="packetsLostPer" class="stats-var"></a> %)</div>
+            <div class="cell">Lost: <a href="javascript:;" data-type="audio" data-var="packetsLost" class="stats-var"></a> packets (<a href="javascript:;" data-type="audio" data-var="packetsLostPer" class="stats-var"></a> %)</div>
+        </div>
+        <div class="row">
+            <div class="cell">Frame rate out: <a href="javascript:;" data-type="video" data-var="googFrameRateSent" class="stats-var"></a> in: <a href="javascript:;" data-type="video" data-var="googFrameRateReceived" class="stats-var"></a></div>
+            <div class="cell">Audio Level out: <a href="javascript:;" data-type="audio" data-var="audioOutputLevel" class="stats-var"></a> in: <a href="javascript:;" data-type="audio" data-var="audioInputLevel" class="stats-var"></a></div>
+        </div>
+        <div class="row" style="height:20px;"></div>
+        <div class="row">
+            <div class="cell">Resolution</div>
+            <div class="cell">Link</div>
+        </div>
+        <div class="row">
+            <div class="cell">In: <span data-type="video" data-var="googFrameWidthReceived" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightReceived" class="stats-var"></span> Out: <span data-type="video" data-var="googFrameWidthSent" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightSent" class="stats-var"></span></div>
+            <div class="cell">Delay: <a href="javascript:;" data-type="audio" data-var="googRtt" class="stats-var"></a> Jitter: <a href="javascript:;" data-type="audio" data-var="googJitterReceived" class="stats-var"></a></div>
+        </div>
+    </div>
+    <div class="stats-container"></div>
+  <!--<div class="statsVideo">Video Statistics</div>-->
+  <!--<div class="statsAudio">Audio Statistics</div>-->
 </div>
 
 </body>
