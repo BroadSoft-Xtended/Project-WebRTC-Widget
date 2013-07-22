@@ -46,8 +46,8 @@ var volumeDTMF = 1;
 var soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 var timerRunning = false;
-var wssGateway = 'proxy.exarionetworks.com';
-var wssPort = 8443;
+var wssGateway = 'webrtc-gw.exarionetworks.com';
+var wssPort = 8060;
 var stunServer = '204.117.64.117';
 var stunPort = 3478;
 var domainFrom = 'exarionetworks.com';
@@ -57,6 +57,7 @@ var endCallURL = false;
 disableICE = true;
 var transmitVGA = $.cookie('settingTransmitVGA') || 512;
 var transmitHD = $.cookie('settingTransmitHD') || 2048;
+var expires = 365;
 
 // Client Messages
 var messageProgress = "Ringing";
@@ -69,6 +70,7 @@ var messageConnectionFailed = "Connection Failed!";
 var messageRegistered = "Registered";
 var messageRegistrationFailed = "Registration Failed!";
 var messageEmptyDestination = "Invalid Number";
+var currentCallArray = new Array(4);
 
 // Pull the URL variables out of URL
 function getSearchVariable(variable) {
@@ -96,7 +98,7 @@ function randomUserid() {
   return(userid);
 }
 
-formatedDuration = "00:00:00";
+var formatedDuration = "00:00:00";
 // Start timer
 function startTimer () {
   timerRunning = true;
@@ -124,17 +126,24 @@ function runningTimer () {
       endCall();
       return;
     }
-    var hrs = Math.floor(secs / 3600);
-    secs %= 3600;
-    var mns = Math.floor(secs / 60);
-    secs %= 60;
-    formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (secs < 10 ? "0" : "") + secs;
-    $("#timer").text(formatedDuration);
+    $("#timer").text(formatTimer(secs));
     if (enableCallStats) {
       processStats();
     }
   }
 }
+
+function formatTimer(seconds) {
+  var hrs = Math.floor(seconds / 3600);
+  seconds %= 3600;
+  var mns = Math.floor(seconds / 60);
+  seconds %= 60;
+  var formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (seconds < 10 ? "0" : "") + seconds;
+  return(formatedDuration);
+}
+
+console.log("testing: " + formatTimer(121));
+
 
 // Auth popup
 function authPopUp() {
@@ -171,7 +180,7 @@ function authPopUp() {
 
 // Setup the GUI
 function guiStart() {
-  $("#remoteVideo, #videoBar, #muteAudio").fadeIn(1000)
+  $("#remoteVideo, #videoBar").fadeIn(1000)
   if (enableCallControl && !hideCallControl) {
     $("#callControl, #call").fadeIn(1000);
   }
@@ -240,51 +249,6 @@ else {
   var video = true;
 }
 
-// JsSIP event handlers
-var eventHandlers = {
-  'progress': function(e) {
-    message(messageProgress, "normal");
-    soundOut.setAttribute("src", "media/dtmf-ringback.ogg");
-    soundOut.play();
-  },
-
-  'failed': function(e) {
-    message(e.data.cause, "alert");
-    soundOut.pause();
-    endCall();
-  },
-
-  'started': function(e) {
-    var selfView = document.getElementById("localVideo");
-    var remoteView = document.getElementById("remoteVideo");
-    var localStreams, remoteStreams;
-    if (window.mozRTCPeerConnection) {
-      localStreams = rtcSession.rtcMediaHandler.peerConnection.localStreams;
-      remoteStreams = rtcSession.rtcMediaHandler.peerConnection.remoteStreams;
-    } else {
-      localStreams = rtcSession.getLocalStreams();
-      remoteStreams = rtcSession.getRemoteStreams();
-    }
-    if ( localStreams.length > 0) {
-      selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
-    }
-    if ( remoteStreams.length > 0) {
-      remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
-    }
-    soundOut.pause();
-    startTimer();
-    message(messageStarted, "success");
-    if (enableMute) {
-      $("#muteAudio").fadeIn(1000);
-    }
-  },
-
-  'ended': function(e) {
-    message(messageEnded, "normal");
-    endCall();
-  }
-};
-
 // Options Passed to JsSIP
 var options = {
   mediaConstraints: {
@@ -292,7 +256,6 @@ var options = {
     video: video
   },
   RTCConstraints: {'optional': [],'mandatory': {}},
-  eventHandlers: eventHandlers
 };
 
 // URL call
@@ -303,13 +266,56 @@ function uriCall(destination) {
   }
 
   $('#call').fadeOut(1000);
-	
   $("#hangup").fadeIn(1000);
-  setCookie("new", destination, ">");
 	
   // Start the Call
   message(messageCall, "success");
   sipStack.call(destination, options);
+}
+
+// Incoming call function
+function incomingCall(e) {
+  var incomingCallName = e.data.request.from.display_name;
+  var incomingCallUser = e.data.request.from.uri.user;
+  var incomingCall = e.data.request.from.uri;
+  message("Incoming Call", "success");
+  $("#callPopup").fadeIn(100);
+  $(".incomingCallName").text(incomingCallName);
+  $(".incomingCallUser").text(incomingCallUser);
+  soundOut.setAttribute("src", "media/ringtone.ogg");
+  soundOut.play();
+  $('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e) {
+    e.preventDefault();
+    $("#callPopup").fadeOut(500);
+    soundOut.pause();
+    if (this.id == "acceptIncomingCall") {
+      $('#call').fadeOut(1000);
+      $("#hangup").fadeIn(1000);
+      rtcSession.answer(options);
+    } 
+    else if (this.id == "rejectIncomingCall") {
+      rtcSession.terminate();
+    }
+  });
+}
+
+function endCall() {
+  $("#hangup, #muteAudio").fadeOut(100);
+  isMuted = false;
+  // Clear last image from video tags
+  $("#localVideo").removeAttr("src");
+  $("#remoteVideo").removeAttr("src");
+  // Bring up the main elements
+  if (enableCallControl == true) {
+    hideCallControl = false;
+  }
+  guiStart();
+  if (timerRunning == true) {
+    stopTimer();
+  }
+  if (!endCallURL == false) {
+    window.location = endCallURL;
+  }
 }
 
 videoOutBytesPrev = 0;
@@ -398,63 +404,56 @@ function processStats() {
   });
 }
 
-// Incoming call function
-function incomingCall(e) {
-  var incomingCallName = e.data.request.from.display_name;
-  var incomingCallUser = e.data.request.from.uri.user;
-  setCookie("new", destination, "<");
-  message("Incoming Call", "success");
-  $("#callPopup").fadeIn(100);
-  $(".incomingCallName").text(incomingCallName);
-  $(".incomingCallUser").text(incomingCallUser);
-  soundOut.setAttribute("src", "media/ringtone.ogg");
-  soundOut.play();
-  $('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e) {
-    e.preventDefault();
-    $("#callPopup").fadeOut(500);
-    soundOut.pause();
-    if (this.id == "acceptIncomingCall") { 
-      rtcSession.answer(options);
-    } 
-    else if (this.id == "rejectIncomingCall") {
-      rtcSession.terminate();
-    }
-  });
-}
+// Store call stats in array, then in cookie on update
+function setCookie() {
+  if (!enableCallHistory) {
+    return;
+  }
+  // Get latest cookie
+  var allCookies = document.cookie;
+  var callsArray = allCookies.match(/call_(.*?)\:\d{2}\:\d{2}/g);
+  if (callsArray) {
+    var callNumber = callsArray.length + 1;
+  }
+  else {
+    callNumber = 0;
+  }
+  callNumber++;
+  
+  // cookie vars
+  var start = rtcSession.start_time;
+  var epochStart = new Date(start).getTime();
+  console.log(epochStart);
+  var end = rtcSession.end_time;
+  var length = formatTimer(Math.round(Math.abs((rtcSession.end_time - start) / 1000)));
+  var remote = rtcSession.remote_identity.uri; 
+  if (rtcSession.direction == "outgoing") {
+    var direction = "------>";
+  }
+  else {
+    var direction = "<------";
+  }
 
-
-function endCall() {
-  $("#hangup, #muteAudio").fadeOut(100);
-  isMuted = false;
-  // Clear last image from video tags
-  $("#localVideo").removeAttr("src");
-  $("#remoteVideo").removeAttr("src");
-  // Bring up the main elements
-  if (enableCallControl == true) {
-    hideCallControl = false;
-  }
-  guiStart();
-  if (timerRunning == true) {
-    stopTimer();
-  }
-  if (!endCallURL == false) {
-    window.location = endCallURL;
-  }
+  var cookieKey = ("call_" + callNumber);
+  var cookieValue = (epochStart + "|" + remote + "|" + direction + "|" + length);
+  $.cookie(cookieKey, cookieValue, { expires: expires});	
 }
 
 function showHistory(page) {	
   var allCookies = document.cookie;
-  var cookiesArray = allCookies.split(';');
+  var callsArray = allCookies.match(/call_(.*?)\:\d{2}\:\d{2}/g);
   var callsOnPage = 10;
-  var baseIndex = cookiesArray.length > callsOnPage*page ? (cookiesArray.length - callsOnPage*page):0;
-	
-  if (callsOnPage > cookiesArray.length - baseIndex) {
-    callsOnPage = cookiesArray.length - baseIndex;
+  if (callsArray) {
+
+  var baseIndex = callsArray.length > callsOnPage*page ? (callsArray.length - callsOnPage*page):0;
+
+  if (callsOnPage > callsArray.length - baseIndex) {
+    callsOnPage = callsArray.length - baseIndex;
   }
-  if (allCookies != "") {
-    for(var i = 0; i < callsOnPage && baseIndex + i < cookiesArray.length && i < callsOnPage; i ++) {
-      key = cookiesArray[(baseIndex + callsOnPage - i)-1].split('=')[0];
-      value = cookiesArray[(baseIndex + callsOnPage - i)-1].split('=')[1];
+  if (callsArray) {
+    for(var i = 0; i < callsOnPage && baseIndex + i < callsArray.length && i < callsOnPage; i ++) {
+      key = callsArray[(baseIndex + callsOnPage - i)-1].split('=')[0];
+      value = callsArray[(baseIndex + callsOnPage - i)-1].split('=')[1];
 		
       // Parse out call info
       var tempDate = new Date();
@@ -462,7 +461,9 @@ function showHistory(page) {
       var destination = callArray[1];
       var historyDirection = callArray[2];
       var historyLength = callArray[3];
-      var historyDate = tempDate.toUTCString(callArray[0]);
+      tempDate.setTime(callArray[0]);
+      var historyDate = tempDate.toLocaleString();
+      console.log(historyDate);
       var historyDestination = destination.replace(/sip:([^@]+)@.+/,"$1");
       var historyCall = key.replace(/^\D*(\d+)$/,"$1");
 
@@ -474,37 +475,6 @@ function showHistory(page) {
       $("#row" + i + " .historyLength").text(historyLength);
     }
   }
-}
-
-currentCallArray = new Array(4);
-// Store call stats in array, then in cookie on update
-function setCookie(type, remoteParty, direction) {
-  if (!enableCallHistory) {
-    return;
-  }
-  if (type=="new") {
-    timestamp = new Date();
-    var epoch = timestamp.getTime();
-    currentCallArray[1] = epoch;
-    currentCallArray[2] = remoteParty;
-    currentCallArray[3] = direction;
-  } 
-  else if (type=="update") {
-    // Get latest cookie
-    var allCookies = document.cookie;
-    var allCookiesArray = allCookies.split(';');
-    var callNumber = allCookiesArray.length;
-    if (allCookies == "") {
-      var allCookies = document.cookie;
-      callNumber = 0;
-    }
-    callNumber++;
-    var expires = 365;
-    timestamp.setDate(timestamp.getDate() + expires);
-    var cookieKey = ("call_" + callNumber + "=" + currentCallArray[1]);
-    var cookieExpires = ("expires=" + timestamp.toUTCString());
-    var cookieValue = (cookieKey + "|" + currentCallArray[2] + "|" + currentCallArray[3] + "|" + formatedDuration + "|" + cookieExpires);
-    document.cookie = cookieValue;	
   }
 }
 
@@ -518,14 +488,13 @@ function onLoad(userid, password) {
   }
   var config  = {
     'uri': sip_uri,
-    'ws_servers': 'wss://' + wssGateway + ':' + wssPort,
+    'ws_servers': 'ws://' + wssGateway + ':' + wssPort,
     'stun_servers': 'stun:' + stunServer + ':' + stunPort,
     'trace_sip': true,
     'hack_via_tcp': true,
   };
 
   // Add Display Name if set
-  console.log(displayName)
   if (displayName.indexOf("false") === -1) {
     config.display_name = displayName
   }
@@ -547,6 +516,7 @@ function onLoad(userid, password) {
 	
   // Start the GUI
   guiStart();
+  showHistory();
 	
   // sipStack callbacks 
   sipStack.on('connected', function(e) {
@@ -561,12 +531,54 @@ function onLoad(userid, password) {
       $("#connected").removeClass("success");
       $("#connected").addClass("alert").fadeIn(100);
     }
-    message(messageConnectionFailed);
+    message(messageConnectionFailed, "alert");
     endCall();
     $("#call").fadeOut(100);
   });
   sipStack.on('newRTCSession', function(e) {
     rtcSession = e.data.session;
+
+    // call event handlers
+    rtcSession.on('progress', function(e) {
+      message(messageProgress, "normal");
+      soundOut.setAttribute("src", "media/dtmf-ringback.ogg");
+      soundOut.play();
+    });
+    rtcSession.on('failed', function(e) {
+      message(e.data.cause, "alert");
+      soundOut.pause();
+      endCall();
+    });
+    rtcSession.on('started', function(e) {
+      var selfView = document.getElementById("localVideo");
+      var remoteView = document.getElementById("remoteVideo");
+      var localStreams, remoteStreams;
+      if (window.mozRTCPeerConnection) {
+        localStreams = rtcSession.rtcMediaHandler.peerConnection.localStreams;
+        remoteStreams = rtcSession.rtcMediaHandler.peerConnection.remoteStreams;
+      } else {
+        localStreams = rtcSession.getLocalStreams();
+        remoteStreams = rtcSession.getRemoteStreams();
+      }
+      if ( localStreams.length > 0) {
+        selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
+      }
+      if ( remoteStreams.length > 0) {
+        remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
+      }
+      soundOut.pause();
+      startTimer();
+      message(messageStarted, "success");
+      if (enableMute) {
+        $("#muteAudio").fadeIn(1000);
+      }
+    });
+    rtcSession.on('ended', function(e) {
+      message(messageEnded, "normal");
+      setCookie();
+      endCall();
+    });
+    // handle incoming call
     if (e.data.session.direction == "incoming") {
       incomingCall(e);
     }
@@ -644,7 +656,6 @@ $('#hangup').bind('click', function(e) {
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
   rtcSession.terminate();
-  setCookie("update", false, false);
   endCall();
   if (fullScreen == true) {
     $('#fullScreenContract').click();
@@ -742,13 +753,13 @@ $("#saveSettings").bind('click', function(e) {
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
-  $.cookie("settingDisplayName", ($("#settingDisplayName").val()));
-  $.cookie("settingUserid", ($("#settingUserid").val()));
-  $.cookie("settingPassword", ($("#settingPassword").val()));
-  $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')));
-  $.cookie("settingHD", ($("#settingHD").prop('checked')));
-  $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()));
-  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()));
+  $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: expires });
+  $.cookie("settingUserid", ($("#settingUserid").val()),  { expires: expires });
+  $.cookie("settingPassword", ($("#settingPassword").val()), { expires: expires });
+  $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: expires });
+  $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: expires });
+  $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: expires });
+  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
   $("#settingsPopup").fadeOut(100);
   location.reload(0);
 });
@@ -853,8 +864,11 @@ if(unsupported) {
 
 // Initial function selection
 if (enableHD == true & hd == "true") {
-  videoBandwidth = transmitVGA;
+  videoBandwidth = transmitHD;
   $("*").addClass("hd");
+}
+else {
+  videoBandwidth = transmitVGA;
 }
 
 if (register == true && !password) {
@@ -869,6 +883,8 @@ else {
 if (destination) {
   hideCallControl = true;
 }
+
+$.cookie.raw = true;
 
 onLoad(userid, password);
 });

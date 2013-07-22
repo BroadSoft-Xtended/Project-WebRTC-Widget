@@ -780,7 +780,6 @@ body {
 }
 
 #callHistory {
-  display: none;
   position: absolute;
   top: 100px;
   right: 25px;
@@ -795,7 +794,7 @@ body {
 #callHistory .historyDestination {
   position: absolute;
   color: #0082FF;
-  left: 40px;
+  left: 10px;
   font-family:arial;
   font-size: 18px;
   text-decoration: none;
@@ -804,15 +803,7 @@ body {
 #callHistory .historyDirection {
   position: absolute;
   color: #0082FF;
-  left: 200px;
-  font-family:arial;
-  font-size: 18px; 
-}
-
-#callHistory .historyStatus {
-  position: absolute;
-  color: #0082FF;
-  left: 225px;
+  left: 205px;
   font-family:arial;
   font-size: 18px; 
 }
@@ -820,7 +811,7 @@ body {
 #callHistory .historyDate {
   position: absolute;
   color: #0082FF;
-  left: 10px;
+  left: 20px;
   font-family:arial;
   font-size: 10px; 
 }
@@ -828,7 +819,7 @@ body {
 #callHistory .historyLength {
   position: absolute;
   color: #0082FF;
-  left: 200px;
+  left: 205px;
   font-family:arial;
   font-size: 10px; 
 }
