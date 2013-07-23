@@ -278,7 +278,7 @@ var TimelineGraphView = (function() {
     'use strict';
 
     // Default starting scale factor, in terms of milliseconds per pixel.
-    var DEFAULT_SCALE = 1000;
+    var DEFAULT_SCALE = 2000;
 
     // Maximum number of labels placed vertically along the sides of the graph.
     var MAX_VERTICAL_LABELS = 6;
