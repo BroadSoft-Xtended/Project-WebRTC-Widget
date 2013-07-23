@@ -927,3 +927,7 @@ body {
 .stats17-selected .googJitterReceived-audio {
     display:block;
 }
+
+.stats-graph-sub-container canvas {
+    width:100%;
+}
