@@ -21,6 +21,7 @@ var audioOnly = (getSearchVariable("audioOnly") == "true");
 var displayName = $.cookie('settingDisplayName') || getSearchVariable("name").toString().replace("%20"," ");
 var maxCallLength = getSearchVariable("maxCallLength");
 var hideCallControl = (getSearchVariable("hide") == "true");
+var zoom = getSearchVariable("zoom") || $.cookie('zoom') || 1; 
 
 // Enable Client Features
 var enableHD = true;
@@ -46,7 +47,7 @@ var volumeDTMF = 1;
 var soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 var timerRunning = false;
-var wssGateway = 'webrtc-gw.exarionetworks.com';
+var wssGateway = 'alex.exarionetworks.com';
 var wssPort = 8060;
 var stunServer = '204.117.64.117';
 var stunPort = 3478;
@@ -180,9 +181,12 @@ function authPopUp() {
 
 // Setup the GUI
 function guiStart() {
+  $("#zoom").css("zoom", zoom); // Set zoom for Chrome
+  $("#zoom").css("-moz-transform", "scale(" + zoom +")"); // Set zoom for Firefox
+
   $("#remoteVideo, #videoBar").fadeIn(1000)
   if (enableCallControl && !hideCallControl) {
-    $("#callControl, #call").fadeIn(1000);
+    $("#callControl, #call, #ok").fadeIn(1000);
   }
   if (enableDialpad) {
     $("#dialpadIconShow").fadeIn(1000);
@@ -511,7 +515,6 @@ function onLoad(userid, password) {
 	
   // Start the GUI
   guiStart();
-  showHistory();
 	
   // sipStack callbacks 
   sipStack.on('connected', function(e) {
@@ -604,32 +607,36 @@ function onLoad(userid, password) {
 }
 
 mainDestination = $("#callControl input#destination");
-// What we do when we get a digit
+// What we do when we get a digit during a call
 function pressDTMF (digit) {
   if (digit.length != 1) {
     return;
   }
-  if (digit == "*") {
-    file = "star";
-  } 
-  else if (digit == "#") {
-    file = "pound";
-  } 
-  else {
-    file = digit;
-  }
-  soundOutDTMF.setAttribute("src", "media/dtmf-" + file + ".ogg");
-  soundOutDTMF.play();
-  mainDestination.val(mainDestination.val() + digit);
   if (timerRunning == true) {
-    rtcSession.sendDTMF(digit, options=null);
+    if (digit == "*") {
+      file = "star";
+    } 
+    else if (digit == "#") {
+      file = "pound";
+    } 
+    else {
+      file = digit;
+    }
+    soundOutDTMF.setAttribute("src", "media/dtmf-" + file + ".ogg");
+    soundOutDTMF.play();
+    mainDestination.val(mainDestination.val() + digit);
+    if (timerRunning == true) {
+      rtcSession.sendDTMF(digit, options=null);
+    }
   }
 }
 
-// Allow the local video window to be draggable, required jQuery.UI
+// Allow some windows to be draggable, required jQuery.UI
 if (enableWindowDrag) {
   $(function() {
     $("#localVideo").draggable();
+    $("#callStats").draggable();
+    $("#callHistory").draggable();
   });
 }
 
@@ -658,7 +665,7 @@ $('#hangup').bind('click', function(e) {
   }
 });
 
-fullScreen = false;
+var fullScreen = false;
 $('#fullScreenExpand').bind('click', function(e) {
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
@@ -729,20 +736,28 @@ $('#dialpadIconHide').bind('click', function(e) {
   $("#dialpadIconShow").fadeIn(1000);
 });
 
+var settingsToggled = false;
 $("#settings").bind('click', function(e) {
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
-  if (!(displayName == "false")) {
-    $("#settingDisplayName").val(displayName);
+  if (settingsToggled == false) {
+    if (!(displayName == "false")) {
+      $("#settingDisplayName").val(displayName);
+    }
+    $("#settingUserid").val(userid);
+    $("#settingPassword").val(password);
+    $("#settingSelfViewDisable").prop('checked', ($.cookie('settingSelfViewDisable') == "true"));
+    $("#settingHD").prop('checked', ($.cookie('settingHD') == "true"));
+    $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || transmitVGA);
+    $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || transmitHD);
+    $("#settingsZoom").val($.cookie('settingZoom') || zoom);
+    $("#settingsPopup").fadeIn(1000);
   }
-  $("#settingUserid").val(userid);
-  $("#settingPassword").val(password);
-  $("#settingSelfViewDisable").prop('checked', ($.cookie('settingSelfViewDisable') == "true"));
-  $("#settingHD").prop('checked', ($.cookie('settingHD') == "true"));
-  $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || transmitVGA);
-  $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || transmitHD);
-  $("#settingsPopup").fadeIn(1000);
+  else if (settingsToggled == true) {
+    $("#settingsPopup").fadeOut(100);
+  }
+  settingsToggled = !settingsToggled;
 });
 
 $("#saveSettings").bind('click', function(e) {
@@ -756,26 +771,38 @@ $("#saveSettings").bind('click', function(e) {
   $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: expires });
   $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: expires });
   $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
+  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
+  $.cookie("settingZoom", ($("#settingZoom").val()), { expires: expires });
   $("#settingsPopup").fadeOut(100);
   location.reload(0);
 });
 
-historyPressed = false;
-$('#historyToggle').bind('click', function(e) {
-  e.preventDefault();
-  soundOut.setAttribute("src", "media/click.ogg");
-  soundOut.play();
-  if (historyPressed == true) {
-    historyPressed = false;
-    $("#callHistory, #historyClear").fadeOut(100);
-  } 
-  else if (historyPressed == false) {
-    historyPressed = true;
-    $("#callHistory, #historyClear").fadeIn(100);
-    showHistory(1);
+var statsToggled = false;
+function toggleStats () {
+  if (enableCallStats) {
+    if (statsToggled == false) {
+      $("#callStats").fadeIn(100);
+     } 
+     else if (statsToggled == true) {
+       $("#callStats").fadeOut(100);
+     }
   }
-  e.stopPropagation();
-});
+  statsToggled = !statsToggled;
+}
+
+var historyToggled = false;
+function toggleHistory () {
+  if (enableCallHistory == true) {
+    if (historyToggled == false) {
+      $("#callHistory, #historyClear").fadeIn(100);
+      showHistory(1);
+    } 
+    else if (historyToggled == true) {
+      $("#callHistory, #historyClear").fadeOut(100);
+    }
+  }
+  historyToggled = !historyToggled;
+}
 
 $("#callHistory").bind('click', function(e) {
   var clicked = (e.target.innerText)
@@ -793,7 +820,7 @@ $("#historyClear").bind('click', function(e) {
     var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
     document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
-  $('#historyToggle').click();
+  showHistory(1);
 });
 
 // Dialpad digits
@@ -801,31 +828,18 @@ $("#dialpad").bind('click', function(e) {
   pressDTMF(e.target.textContent)
 });
 
-showStats = false;
 // Digits from keyboard
 document.onkeypress=function(e){
   var e=window.event || e
-  if (timerRunning == true) {
-    if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42) {
-      var digit = String.fromCharCode(e.charCode);
-      pressDTMF(digit);
-    }
-    else if (e.charCode == 83) {
-      callStats();
-    }
+  if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42) {
+    var digit = String.fromCharCode(e.charCode);
+    pressDTMF(digit);
   }
-}
-
-function callStats() {
-  if (enableCallStats) {
-    if (showStats == false) {
-      $("#callStats").fadeIn(1000);
-       showStats = true;
-     } 
-     else if (showStats) {
-       $("#callStats").fadeOut(100);
-       showStats = false;
-     }
+  else if (e.charCode == 83) {
+    toggleStats();
+  }
+  else if (e.charCode == 72) {
+    toggleHistory();
   }
 }
 

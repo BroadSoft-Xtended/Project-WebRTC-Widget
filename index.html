@@ -44,6 +44,8 @@
   <button class="button" id="authPopupButton" type="button">Sign in</button>
 </div>
 
+<div id="zoom">
+
 <div id="callControl">
   <span>Enter Destination URI:</span><br>
   <input id="destination" type=text value=""/>
@@ -73,11 +75,15 @@
     <span>Start in HD</span>
     <input id="settingHD" type="checkbox"/></br>
     <span>Max VGA Bandwidth</span>
-    <input id="settingTransmitVGA" type="text" style="width: 50px" value=""/><br>
+    <input id="settingTransmitVGA" type="text" maxlength="4" style="width: 36px" value=""/><br>
     <span>Max HD Bandwidth</span>
-    <input id="settingTransmitHD" type="text" style="width: 50px" value=""/>
-    <button class="button" id="saveSettings" type="button">Save</button><br>
+    <input id="settingTransmitHD" type="text" maxlength="4" style="width: 36px" value=""/><br>
+    <span>Window Zoom</span>
+    <input id="settingZoom" type="text" maxlength="3" style="width: 27px" value=""/>
 
+    <div id="ok">
+      <a href="" title="Save Settings" class="icon-ok"></a>
+    </div>
   </div>
   <div id="video">
     <video id="remoteVideo" autoplay="autoplay"></video>
@@ -259,6 +265,8 @@
     <div class="stats-container"></div>
   <!--<div class="statsVideo">Video Statistics</div>-->
   <!--<div class="statsAudio">Audio Statistics</div>-->
+</div>
+
 </div>
 
 </body>

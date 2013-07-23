@@ -5,24 +5,6 @@
  * Copyright 2013 Exario Networks
  * http://www.exarionetworks.com
  ***************************************************/
-.fixed-table {
-    display: table;
-    table-layout: fixed;
-    width:100%;
-}
-.collapse {
-    border-collapse: collapse;
-}
-.cell {
-    display: table-cell;
-}
-.row {
-    display: table-row;
-}
-.group {
-    display: table-row-group;
-}
-
 @font-face {
   font-family: 'Exario-Icon-Fonts';
     src: local("☺"),
@@ -34,6 +16,9 @@ body {
   background-color: #FFFFFF;
 }
 
+#zoom {
+  transform-origin: top left;
+}
 #callControl {
   display: none;
   position: relative;
@@ -185,7 +170,7 @@ body {
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings {
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -547,8 +532,88 @@ body {
   color: #EFA233;
 }
 
+#ok {
+  position: absolute;
+  z-index: 10;
+  top: 493px;
+  left: 565px;
+}
+
+#ok.hd {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 733px;
+  left: 1205px;
+}
+
+.icon-ok:before {
+  content: "\e00d";
+  color: #FFFFFF;
+  opacity: .4;
+}
+
+.icon-ok:hover:before {
+  content: "\e00d";
+  color: #EFA233;
+}
+
 .icon-link:before {
   content: "\e00b";
+}
+
+#history {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 493px;
+  left: 565px;
+}
+
+#history.hd {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 733px;
+  left: 1205px;
+}
+
+.icon-history:before {
+  content: "\e00c";
+  color: #FFFFFF;
+  opacity: .4;
+}
+
+.icon-history:hover:before {
+  content: "\e00c";
+  color: #EFA233;
+}
+
+#trash {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 493px;
+  left: 565px;
+}
+
+#trash.hd {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 733px;
+  left: 1205px;
+}
+
+.icon-trash:before {
+  content: "\e00c";
+  color: #FFFFFF;
+  opacity: .4;
+}
+
+.icon-trash:hover:before {
+  content: "\e00c";
+  color: #EFA233;
 }
 
 .button:active {
@@ -588,9 +653,12 @@ body {
   padding: 10px; 	
   border: 2px solid #DDDDDD;
   position: absolute;
-  top: 50; 
-  left: 50;
-  width: 400;
+  top: 25; 
+  left: 25;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  width: 420;
+  height: 210;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
   font-size: 20px; 
@@ -613,11 +681,6 @@ body {
 #settingsPopup input {
   position: absolute;
   left: 240;
-}
-
-#settingsPopup button {
-  position: absolute;
-  left: 365;
 }
 
 #authPopup {
@@ -797,6 +860,7 @@ body {
 }
 
 #callHistory {
+  display: none;
   position: absolute;
   top: 100px;
   right: 25px;
@@ -927,3 +991,22 @@ body {
 .stats17-selected .googJitterReceived-audio {
     display:block;
 }
+
+.fixed-table {
+    display: table;
+    table-layout: fixed;
+    width:100%;
+}
+.collapse {
+    border-collapse: collapse;
+}
+.cell {
+    display: table-cell;
+}
+.row {
+    display: table-row;
+}
+.group {
+    display: table-row-group;
+}
+
