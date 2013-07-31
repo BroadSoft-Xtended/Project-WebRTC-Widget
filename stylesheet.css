@@ -16,9 +16,6 @@ body {
   background-color: #FFFFFF;
 }
 
-#zoom {
-  transform-origin: top left;
-}
 #callControl {
   display: none;
   position: relative;
@@ -170,7 +167,7 @@ body {
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash {
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -224,12 +221,12 @@ body {
 }
 
 .icon-hangup:before {
-  content: "\e00e";
+  content: "\e00f";
   color: #FF0000;
 }
 
 .icon-hangup:hover:before {
-  content: "\e00e";
+  content: "\e00f";
   color: #EFA233;
 }
 
@@ -252,12 +249,12 @@ body {
 }
 
 .icon-fullScreenExpand:before {
-  content: "\e001";
+  content: "\e002";
   color: #FFFFFF;
 }
 
 .icon-fullScreenExpand:hover:before {
-  content: "\e001";
+  content: "\e002";
   color: #EFA233;
 }
 
@@ -272,12 +269,12 @@ body {
 }
 
 .icon-fullScreenContract:before {
-  content: "\e002";
+  content: "\e003";
   color: #FFFFFF;
 }
 
 .icon-fullScreenContract:hover:before {
-  content: "\e002";
+  content: "\e003";
   color: #EFA233;
 }
 
@@ -300,12 +297,12 @@ body {
 }
 
 .icon-selfViewDisable:before {
-  content: "\e000";
+  content: "\e00a";
   color: #FFFFFF;
 }
 
 .icon-selfViewDisable:hover:before {
-  content: "\e000";
+  content: "\e00a";
   color: #EFA233;
 }
 
@@ -328,12 +325,12 @@ body {
 }
 
 .icon-selfViewEnable:before {
-  content: "\e009";
+  content: "\e00d";
   color: #EFA233;
 }
 
 .icon-selfViewEnable:hover:before {
-  content: "\e009";
+  content: "\e00d";
   color: #EFA233;
 }
 
@@ -356,12 +353,12 @@ body {
 }
 
 .icon-muteAudio:before {
-  content: "\e007";
+  content: "\e008";
   color: #FFFFFF;
 }
 
 .icon-muteAudio:hover:before {
-  content: "\e007";
+  content: "\e008";
   color: #EFA233;
 }
 
@@ -384,12 +381,12 @@ body {
 }
 
 .icon-unmuteAudio:before {
-  content: "\e008";
+  content: "\e009";
   color: #EFA233;
 }
 
 .icon-unmuteAudio:hover:before {
-  content: "\e008";
+  content: "\e009";
   color: #EFA233;
 }
 
@@ -411,12 +408,12 @@ body {
 }
 
 .icon-dialpadShow:before {
-  content: "\e00a";
+  content: "\e010";
   color: #FFFFFF;
 }
 
 .icon-dialpadShow:hover:before {
-  content: "\e00a";
+  content: "\e010";
   color: #EFA233;
 }
 
@@ -439,12 +436,12 @@ body {
 }
 
 .icon-dialpadHide:before {
-  content: "\e00a";
+  content: "\e010";
   color: #EFA233;
 }
 
 .icon-dialpadHide:hover:before {
-  content: "\e00a";
+  content: "\e010";
   color: #EFA233;
 }
 
@@ -458,7 +455,7 @@ body {
 }
 
 .icon-quality1:before {
-  content: "\e003";
+  content: "\e007";
   color: #00FF00;
   opacity: .4;
 }
@@ -505,6 +502,7 @@ body {
   opacity: .4;
 }
 
+/* Settings Button */
 #settings {
   display: none;
   position: absolute;
@@ -532,36 +530,18 @@ body {
   color: #EFA233;
 }
 
-#ok {
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 565px;
-}
-
-#ok.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 1205px;
-}
-
+/* Ok Button */
 .icon-ok:before {
-  content: "\e00d";
-  color: #FFFFFF;
-  opacity: .4;
+  content: "\e011";
+  color: #00FF00;
 }
 
 .icon-ok:hover:before {
-  content: "\e00d";
+  content: "\e011";
   color: #EFA233;
 }
 
-.icon-link:before {
-  content: "\e00b";
-}
-
+/* History Button */
 #history {
   display: none;
   position: absolute;
@@ -579,40 +559,46 @@ body {
 }
 
 .icon-history:before {
-  content: "\e00c";
+  content: "\e012";
   color: #FFFFFF;
   opacity: .4;
 }
 
 .icon-history:hover:before {
-  content: "\e00c";
+  content: "\e012";
   color: #EFA233;
 }
 
-#trash {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 565px;
-}
-
-#trash.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 1205px;
-}
-
+/* Trash Button */
 .icon-trash:before {
-  content: "\e00c";
-  color: #FFFFFF;
-  opacity: .4;
+  content: "\e013";
+  color: #FF0000;
 }
 
 .icon-trash:hover:before {
-  content: "\e00c";
+  content: "\e013";
+  color: #EFA233;
+}
+
+/* Left Button */
+.icon-left:before {
+  content: "\e000";
+  color: #00FF00;
+}
+
+.icon-left:hover:before {
+  content: "\e000";
+  color: #EFA233;
+}
+
+/* Right Button */
+.icon-right:before {
+  content: "\e001";
+  color: #00FF00;
+}
+
+.icon-right:hover:before {
+  content: "\e001";
   color: #EFA233;
 }
 
@@ -626,6 +612,11 @@ body {
   box-shadow: 0px 0px 10px #999;
 }
 
+.icon-link:before {
+  content: "\e00b";
+}
+
+/* Incoming Call Pupup */
 #callPopup {
   display: none;
   background: #333333;
@@ -650,14 +641,14 @@ body {
 #settingsPopup {
   display: none;
   background: #333333;
-  padding: 10px; 	
+  padding: 2px; 	
   border: 2px solid #DDDDDD;
   position: absolute;
-  top: 25; 
-  left: 25;
+  top: 5px; 
+  left: 5px;
   overflow-x: hidden;
   overflow-y: scroll;
-  width: 420;
+  width: 435;
   height: 210;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
@@ -666,6 +657,7 @@ body {
   z-index: 99;
 }
 
+/* Settings Popup */
 #settingsPopup span {
   color: #999999; 
   font-size: 20px; 
@@ -683,6 +675,12 @@ body {
   left: 240;
 }
 
+#saveSettings {
+  position: absolute;
+  left: 390;
+}
+
+/* Auth Button */
 #authPopup {
   display: none;
   background: #333333;
@@ -862,10 +860,10 @@ body {
 #callHistory {
   display: none;
   position: absolute;
-  top: 100px;
-  right: 25px;
+  top: 88px;
+  left: 378px;
   width: 265px;
-  height: 375px;
+  height: 420px;
   background-color: #191414;
   border-radius: 4px;
   border: 2px solid #DDDDDD;
@@ -909,26 +907,39 @@ body {
   padding: .5em;
 }
 
-#historyToggle {
+#historyBack {
+  display: none;
   position: absolute;
-  top: 200px;
-  left: 225px;
+  top: 385;
+  left: 5px;
+}
+
+#historyClose {
+  position: absolute;
+  top: 385;
+  left: 80px;
 }
 
 #historyClear {
+  position: absolute;
+  top: 385;
+  left: 155px;
+}
+
+#historyForward {
   display: none;
   position: absolute;
-  top: 355px;
-  left: 290px;
+  top: 385;
+  right: 5px;
 }
 
 #callStats {
   display: none;
   position: absolute;
 	top: 10px;
-	right: 25px;
-	width: 500px;
-	/*background-color: #191414;*/
+	left: 660px;
+	width: 400px;
+  padding: 2px; 	
 	border-radius: 4px;
 	border: 2px solid #DDDDDD;
 	box-shadow: 0px 0px 10px #999999;
@@ -948,7 +959,7 @@ body {
   position: absolute;
   white-space: pre-wrap;
   color: #0082FF;
-  left: 250px;
+  left: 260px;
   float: left;
   font-family:arial;
   font-size: 18px;
@@ -963,12 +974,12 @@ body {
   background-color: #191414;
   text-align: center;
   display:none;
-  color:white;
+  color: white;
   z-index: 10;
 }
 
 .stats-table-container, .stats-graph-sub-container {
-    display:none;
+    display: none;
 }
 
 .stats0-selected .kiloBitsSentPerSecond-video,
@@ -989,7 +1000,7 @@ body {
 .stats15-selected .googFrameHeightSent-video,
 .stats16-selected .googRtt-audio,
 .stats17-selected .googJitterReceived-audio {
-    display:block;
+    display: block;
 }
 
 .fixed-table {
@@ -997,16 +1008,28 @@ body {
     table-layout: fixed;
     width:100%;
 }
+
 .collapse {
     border-collapse: collapse;
 }
+
 .cell {
     display: table-cell;
 }
+
+.heading {
+    display: table-row;
+    font-weight: bold;
+}
+
 .row {
     display: table-row;
 }
+
 .group {
     display: table-row-group;
 }
 
+.stats-graph-sub-container canvas {
+    width: 100%;
+}

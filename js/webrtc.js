@@ -4,9 +4,6 @@
  *
  * Copyright 2013 Exario Networks
  * http://www.exarionetworks.com
- * 
- * JsSIP library is MIT-license code: 
- * http://www.opensource.org/licenses/mit-license.php
  ***************************************************/
 
 $(document).ready(function() {
@@ -21,7 +18,7 @@ var audioOnly = (getSearchVariable("audioOnly") == "true");
 var displayName = $.cookie('settingDisplayName') || getSearchVariable("name").toString().replace("%20"," ");
 var maxCallLength = getSearchVariable("maxCallLength");
 var hideCallControl = (getSearchVariable("hide") == "true");
-var zoom = getSearchVariable("zoom") || $.cookie('zoom') || 1; 
+var zoom = getSearchVariable("zoom") || $.cookie('settingZoom') || 1; 
 
 // Enable Client Features
 var enableHD = true;
@@ -47,7 +44,7 @@ var volumeDTMF = 1;
 var soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 var timerRunning = false;
-var wssGateway = 'alex.exarionetworks.com';
+var wssGateway = 'webrtc-gw.exarionetworks.com';
 var wssPort = 8060;
 var stunServer = '204.117.64.117';
 var stunPort = 3478;
@@ -128,7 +125,7 @@ function runningTimer () {
       return;
     }
     $("#timer").text(formatTimer(secs));
-    if (enableCallStats) {
+    if (enableCallStats && isChrome) {
       processStats();
     }
   }
@@ -142,9 +139,6 @@ function formatTimer(seconds) {
   var formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (seconds < 10 ? "0" : "") + seconds;
   return(formatedDuration);
 }
-
-console.log("testing: " + formatTimer(121));
-
 
 // Auth popup
 function authPopUp() {
@@ -181,9 +175,18 @@ function authPopUp() {
 
 // Setup the GUI
 function guiStart() {
-  $("#zoom").css("zoom", zoom); // Set zoom for Chrome
-  $("#zoom").css("-moz-transform", "scale(" + zoom +")"); // Set zoom for Firefox
-
+  // Set zoom for Chrome and Firefox
+  $("#main").css("zoom", zoom);
+  $("#main").css("-moz-transform", "scale(" + zoom +")");
+  if (($.cookie("settingWindowPosition"))) {
+  var windowPositions = $.cookie("settingWindowPosition").split('|');
+  for (var i = 0; i < windowPositions.length; ++i) {
+    var elementPosition = windowPositions[i].split('-');
+    $(elementPosition[0]).css("top", elementPosition[1]);
+    $(elementPosition[0]).css("left", elementPosition[2]);
+  }
+  }
+  // Fade in UI elements
   $("#remoteVideo, #videoBar").fadeIn(1000)
   if (enableCallControl && !hideCallControl) {
     $("#callControl, #call, #ok").fadeIn(1000);
@@ -322,11 +325,6 @@ function endCall() {
   }
 }
 
-videoOutBytesPrev = 0;
-videoInBytesPrev = 0;
-audioOutBytesPrev = 0;
-audioInBytesPrev = 0;
-
 function processStats() {
   RTCPeerConnection = rtcSession.rtcMediaHandler.peerConnection;
   RTCPeerConnection.getStats(function (stats) {
@@ -354,31 +352,15 @@ function processStats() {
         values.push(name);
         values.push(value);
       }
-
       var valueObj = {};
       valueObj["timestamp"] = res.timestamp;
       valueObj["values"] = values;
 
       report["stats"] = valueObj;
       reports.push(report);
-
-//      $("#callStats .statsVideo").text("Video Statistics\n\n"
-//        + "Bitrate out: " + videoOutBitRate + " kb/s\n"
-//        + "Bitrate in: " + videoInBitRate + " kb/s\n"
-//        + "Lost: " + videoPacketsLost + " packets " + (videoPacketLoss/100) + "%\n"
-//        + "Jitter: " + videoJitter + " ms\n"
-//        + "Frame Rate out: " + videoOutFrameRate + " in: " + videoInFrameRate + "\n");
-//      $("#callStats .statsAudio").text("Audio Statistics\n\n"
-//        + "Bitrate out: " + audioOutBitRate + " kb/s\n"
-//        + "Bitrate in: " + audioInBitRate + " kb/s\n"
-//        + "Lost: " + audioPacketsLost + " packets " + (audioPacketLoss/100) + "%\n"
-//        + "Jitter: " + audioJitter + " ms\n"
-//        + "Audio Level out: " + audioOutputLevel + " in: " + audioInputLevel + "\n");
-
     }
     var data = {"lid":1,"pid":rtcSession.id,"reports":reports};
     addStats(data);
-
   });
 }
 
@@ -403,7 +385,6 @@ function getStatsValue(reports, attribute) {
     return null;
 }
 
-// Store call stats in array, then in cookie on update
 function setCookie() {
   if (!enableCallHistory) {
     return;
@@ -422,7 +403,6 @@ function setCookie() {
   // cookie vars
   var start = rtcSession.start_time;
   var epochStart = new Date(start).getTime();
-  console.log(epochStart);
   var end = rtcSession.end_time;
   var length = formatTimer(Math.round(Math.abs((rtcSession.end_time - start) / 1000)));
   var remote = rtcSession.remote_identity.uri; 
@@ -438,42 +418,60 @@ function setCookie() {
   $.cookie(cookieKey, cookieValue, { expires: expires});	
 }
 
+var page = 1;
 function showHistory(page) {	
   var allCookies = document.cookie;
   var callsArray = allCookies.match(/call_(.*?)\:\d{2}\:\d{2}/g);
   var callsOnPage = 10;
   if (callsArray) {
-
-  var baseIndex = callsArray.length > callsOnPage*page ? (callsArray.length - callsOnPage*page):0;
-
-  if (callsOnPage > callsArray.length - baseIndex) {
-    callsOnPage = callsArray.length - baseIndex;
-  }
-  if (callsArray) {
-    for(var i = 0; i < callsOnPage && baseIndex + i < callsArray.length && i < callsOnPage; i ++) {
-      key = callsArray[(baseIndex + callsOnPage - i)-1].split('=')[0];
-      value = callsArray[(baseIndex + callsOnPage - i)-1].split('=')[1];
-		
-      // Parse out call info
-      var tempDate = new Date();
-      var callArray = value.split('|');
-      var destination = callArray[1];
-      var historyDirection = callArray[2];
-      var historyLength = callArray[3];
-      tempDate.setTime(callArray[0]);
-      var historyDate = tempDate.toLocaleString();
-      console.log(historyDate);
-      var historyDestination = destination.replace(/sip:([^@]+)@.+/,"$1");
-      var historyCall = key.replace(/^\D*(\d+)$/,"$1");
-
-      // Display Call History
-      $("#row" + i + " .historyCall").text(historyCall);
-      $("#row" + i + " .historyDestination").text(historyDestination);
-      $("#row" + i + " .historyDirection").text(historyDirection);
-      $("#row" + i + " .historyDate").text(historyDate);
-      $("#row" + i + " .historyLength").text(historyLength);
+    var baseIndex = (callsArray.length - callsOnPage*page);
+    if (baseIndex >= 1) {
+      $('#historyForward').fadeIn(100);
+    } 
+    else {
+      $('#historyForward').fadeOut(10);
     }
-  }
+    if (page > 1) {
+      $('#historyBack').fadeIn(100);
+    }
+    else {
+      $('#historyBack').fadeOut(10);
+    }
+    if (callsOnPage > callsArray.length - baseIndex) {
+      callsOnPage = callsArray.length - baseIndex;
+    }
+    for(var i = 0; i < callsOnPage && baseIndex + i < callsArray.length && i < callsOnPage; i ++) {
+      if ((baseIndex + callsOnPage - i) > 0) {
+        key = callsArray[(baseIndex + callsOnPage - i)-1].split('=')[0];
+        value = callsArray[(baseIndex + callsOnPage - i)-1].split('=')[1];
+      
+        // Parse out call info
+        var tempDate = new Date();
+        var callArray = value.split('|');
+        var destination = callArray[1];
+        var historyDirection = callArray[2];
+        var historyLength = callArray[3];
+        tempDate.setTime(callArray[0]);
+        var historyDate = tempDate.toLocaleString();
+        var historyDestination = destination.replace(/sip:([^@]+)@.+/,"$1");
+        var historyCall = key.replace(/^\D*(\d+)$/,"$1");
+
+        // Display Call History
+        $("#row" + i + " .historyCall").text(historyCall);
+        $("#row" + i + " .historyDestination").text(historyDestination);
+        $("#row" + i + " .historyDirection").text(historyDirection);
+        $("#row" + i + " .historyDate").text(historyDate);
+        $("#row" + i + " .historyLength").text(historyLength);
+      } 
+      else {
+        // Balnk any remaining lines
+        $("#row" + i + " .historyCall").text("");
+        $("#row" + i + " .historyDestination").text("");
+        $("#row" + i + " .historyDirection").text("");
+        $("#row" + i + " .historyDate").text("");
+        $("#row" + i + " .historyLength").text("");
+      }
+    }
   }
 }
 
@@ -522,6 +520,9 @@ function onLoad(userid, password) {
       $("#connected").removeClass("alert");
       $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
     }
+    if (enableCallControl && !hideCallControl) {
+      $("#call").fadeIn(1000);
+    }
     message(messageConnected, "success");
   });
   sipStack.on('disconnected', function(e) {
@@ -531,7 +532,7 @@ function onLoad(userid, password) {
     }
     message(messageConnectionFailed, "alert");
     endCall();
-    $("#call").fadeOut(100);
+    $("#call").hide();
   });
   sipStack.on('newRTCSession', function(e) {
     rtcSession = e.data.session;
@@ -564,7 +565,7 @@ function onLoad(userid, password) {
       if ( remoteStreams.length > 0) {
         remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
       }
-      $('.stats-container').attr('id', rtcSession.id+'-1')
+      $('.stats-container').attr('id', rtcSession.id+'-1');
       soundOut.pause();
       startTimer();
       message(messageStarted, "success");
@@ -751,7 +752,19 @@ $("#settings").bind('click', function(e) {
     $("#settingHD").prop('checked', ($.cookie('settingHD') == "true"));
     $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || transmitVGA);
     $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || transmitHD);
-    $("#settingsZoom").val($.cookie('settingZoom') || zoom);
+    $("#settingZoom").val($.cookie('settingZoom') || zoom);
+    if ($("#localVideo").position().top != 0 && $("#localVideo").position().left != 0) {
+      $("#settingLocalVideoTop").val($("#localVideo").position().top);
+      $("#settingLocalVideoLeft").val($("#localVideo").position().left);
+    }
+    if ($("#callHistory").position().top != 0 && $("#callHistory").position().left != 0) {
+      $("#settingCallHistoryTop").val($("#callHistory").position().top);
+      $("#settingCallHistoryLeft").val($("#callHistory").position().left);
+    }
+    if ($("#callStats").position().top != 0 && $("#callStats").position().left != 0) {
+      $("#settingCallStatsTop").val($("#callStats").position().top);
+      $("#settingCallStatsLeft").val($("#callStats").position().left);
+    } 
     $("#settingsPopup").fadeIn(1000);
   }
   else if (settingsToggled == true) {
@@ -773,8 +786,34 @@ $("#saveSettings").bind('click', function(e) {
   $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
   $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
   $.cookie("settingZoom", ($("#settingZoom").val()), { expires: expires });
+  $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +
+                                    "#callHistory" + "-" + $("#settingCallHistoryTop").val() + "-" + $("#settingCallHistoryLeft").val() + "|" +
+                                    "#callStats" + "-" + $("#settingCallStatsTop").val() + "-" + $("#settingCallStatsLeft").val())
   $("#settingsPopup").fadeOut(100);
   location.reload(0);
+});
+
+$("#historyClose").bind('click', function(e) {
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  toggleHistory();
+});
+
+$("#historyForward").bind('click', function(e) {
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  page = page +1;
+  showHistory(page);
+});
+
+$("#historyBack").bind('click', function(e) {
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  page = page -1;
+  showHistory(page);
 });
 
 var statsToggled = false;
@@ -813,12 +852,10 @@ $("#historyClear").bind('click', function(e) {
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
-  var cookies = document.cookie.split(";");
-  for (var i = 0; i < cookies.length; i++) {
-    var cookie = cookies[i];
-    var eqPos = cookie.indexOf("=");
-    var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  var allCookies = document.cookie;
+  var callsArray = allCookies.match(/call_(.*?)\:\d{2}\:\d{2}/g);
+  for (var i = 0; i < callsArray.length; i++) {
+    $.removeCookie("call_" + (i));
   }
   showHistory(1);
 });
@@ -845,8 +882,8 @@ document.onkeypress=function(e){
 
 function compatibilityCheck() {
   var ua = detect.parse(navigator.userAgent);
-  var isChrome = /chrom(e|ium)/.test(ua.browser.family.toLowerCase());
-  var isFirefox = /firefox/.test(ua.browser.family.toLowerCase());
+  isChrome = /chrom(e|ium)/.test(ua.browser.family.toLowerCase());
+  isFirefox = /firefox/.test(ua.browser.family.toLowerCase());
   
   // Only Chrome 25+ and Firefox 22+ are supported
   if (!isChrome && !isFirefox) {

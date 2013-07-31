@@ -5426,11 +5426,11 @@ UA.prototype.receiveRequest = function(request) {
 
   // Initial Request
   if(!request.to_tag) {
-    if(!this.isRegistered()) {
+    /*if(!this.isRegistered()) {
       // High user does not want to be contacted
       request.reply(410);
       return;
-    }
+    }*/
 
     switch(method) {
       case JsSIP.C.INVITE:

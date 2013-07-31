@@ -278,7 +278,7 @@ var TimelineGraphView = (function() {
     'use strict';
 
     // Default starting scale factor, in terms of milliseconds per pixel.
-    var DEFAULT_SCALE = 1000;
+    var DEFAULT_SCALE = 2000;
 
     // Maximum number of labels placed vertically along the sides of the graph.
     var MAX_VERTICAL_LABELS = 6;
@@ -656,7 +656,7 @@ var TimelineGraphView = (function() {
                 }
 
                 // Find appropriate units to use.
-                var units = ['', 'k', 'M', 'G', 'T', 'P'];
+                var units = ['', 'm', 'M', 'G', 'T', 'P'];
                 // Units to use for labels.  0 is '1', 1 is K, etc.
                 // We start with 1, and work our way up.
                 var unit = 1;
@@ -1250,7 +1250,6 @@ var StatsTable = (function(ssrcInfoManager) {
                     if(value != null) {
                         $(this).html(value);
                     } else {
-//                        console.log("no value found for label "+label + " and type "+type);
                     }
                 }
             });
@@ -1697,7 +1696,6 @@ function addStats(data) {
                 var videoPacketsLostOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsLost", oneMinAgo);
                 var packetsSentOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsReceived", oneMinAgo);
                 var quality = ((videoPacketsLost - videoPacketsLostOneMinAgo) / (packetsSent - packetsSentOneMinAgo)) * 100
-                console.log("quality : "+quality+" : "+videoPacketsLost+"/"+videoPacketsLostOneMinAgo+", "+packetsSent+"/"+packetsSentOneMinAgo);
                 if (quality < 10) {
                     $("#quality1").fadeIn(10);
                     $("#quality2, #quality3, #quality4").fadeOut(10);

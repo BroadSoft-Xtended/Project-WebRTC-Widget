@@ -44,8 +44,6 @@
   <button class="button" id="authPopupButton" type="button">Sign in</button>
 </div>
 
-<div id="zoom">
-
 <div id="callControl">
   <span>Enter Destination URI:</span><br>
   <input id="destination" type=text value=""/>
@@ -56,14 +54,15 @@
 
 <div id="main">
   <div id="callPopup">
-    <span>Incoming Call</span></br></br>
-    <span class="incomingCallName"></span></br>
-    <span class="incomingCallUser"></span></br></br>
+    <span>Incoming Call</span><br><br>
+    <span class="incomingCallName"></span><br>
+    <span class="incomingCallUser"></span><br><br>
     <button class="button" id="acceptIncomingCall" type="button">Accept</button>
     <button class="button" id="rejectIncomingCall" type="button">Reject</button>
   </div>
   <div id="settingsPopup">
-    <span style="font-size: 22px; color: #FFFFFF; line-height: 50px">Client Settings</span></br>
+    <span style="font-size: 22px; font-weight: bold; color: #FFFFFF;">Client Settings</span>
+    <div class="row" style="height: 15px;"></div>
     <span>Display Name</span>
     <input id="settingDisplayName" type="text" value=""/><br>
     <span>User ID</span>
@@ -73,15 +72,23 @@
     <span>Disable Self View</span>
     <input id="settingSelfViewDisable" type="checkbox"/><br>
     <span>Start in HD</span>
-    <input id="settingHD" type="checkbox"/></br>
+    <input id="settingHD" type="checkbox"/><br>
     <span>Max VGA Bandwidth</span>
-    <input id="settingTransmitVGA" type="text" maxlength="4" style="width: 36px" value=""/><br>
+    <input id="settingTransmitVGA" type="text" maxlength="4" style="width: 36px;" value=""/><br>
     <span>Max HD Bandwidth</span>
-    <input id="settingTransmitHD" type="text" maxlength="4" style="width: 36px" value=""/><br>
+    <input id="settingTransmitHD" type="text" maxlength="4" style="width: 36px;" value=""/><br>
     <span>Window Zoom</span>
-    <input id="settingZoom" type="text" maxlength="3" style="width: 27px" value=""/>
-
-    <div id="ok">
+    <input id="settingZoom" type="text" maxlength="4" style="width: 36px;" value=""/><br>
+    <span>Self View Window</span>
+    <input id="settingLocalVideoTop" type="text" maxlength="4" style="width: 36px;" value=""/><span style="position: absolute; left: 280">top</span>
+    <input id="settingLocalVideoLeft" type="text" maxlength="4" style="width: 36px; left: 330;" value=""/><span style="position: absolute; left: 370">left</span><br>
+    <span>Call History Window</span>
+    <input id="settingCallHistoryTop" type="text" maxlength="4" style="width: 36px;" value=""/><span style="position: absolute; left: 280">top</span>
+    <input id="settingCallHistoryLeft" type="text" maxlength="4" style="width: 36px; left: 330;" value=""/><span style="position: absolute; left: 370">left</span><br>
+    <span>Call Stats Window</span>
+    <input id="settingCallStatsTop" type="text" maxlength="4" style="width: 36px;" value=""/><span style="position: absolute; left: 280">top</span>
+    <input id="settingCallStatsLeft" type="text" maxlength="4" style="width: 36px; left: 330;" value=""/><span style="position: absolute; left: 370">left</span><br>
+    <div id="saveSettings">
       <a href="" title="Save Settings" class="icon-ok"></a>
     </div>
   </div>
@@ -225,49 +232,56 @@
     <span class="historyDirection"></span><br>
     <span class="historyDate"></span><span class="historyLength"></span>
   </div>
+  <div id="historyBack">
+    <a href="" title="Previous" class="icon-left"></a>
+  </div>
   <div id="historyClear">
-    <a href="" title="Clear History" class="icon groupB" data-icon="#"></a>
+    <a href="" title="Clear History" class="icon-trash"></a>
+  </div>
+  <div id="historyClose">
+    <a href="" title="Close" class="icon-ok"></a>
+  </div>
+  <div id="historyForward">
+    <a href="" title="Next" class="icon-right"></a>
   </div>
 </div>   
 
 <div id="callStats" class="">
-    <div class="fixed-table collapse">
-        <div class="row">
-            <div class="cell">Video Stats</div>
-            <div class="cell">Audio Stats</div>
-        </div>
-        <div class="row">
-            <div class="cell">Bitrate out: <a href="javascript:;" data-type="video" data-var="kiloBitsSentPerSecond" class="stats-var"></a> kb/s</div>
-            <div class="cell">Bitrate out: <a href="javascript:;" data-type="audio" data-var="kiloBitsSentPerSecond" class="stats-var"></a> kb/s</div>
-        </div>
-        <div class="row">
-            <div class="cell">Bitrate in: <a href="javascript:;" data-type="video" data-var="kiloBitsReceivedPerSecond" class="stats-var"></a> kb/s</div>
-            <div class="cell">Bitrate in: <a href="javascript:;" data-type="audio" data-var="kiloBitsReceivedPerSecond" class="stats-var"></a> kb/s</div>
-        </div>
-        <div class="row">
-            <div class="cell">Lost: <a href="javascript:;" data-type="video" data-var="packetsLost" class="stats-var"></a> packets (<a href="javascript:;" data-type="video" data-var="packetsLostPer" class="stats-var"></a> %)</div>
-            <div class="cell">Lost: <a href="javascript:;" data-type="audio" data-var="packetsLost" class="stats-var"></a> packets (<a href="javascript:;" data-type="audio" data-var="packetsLostPer" class="stats-var"></a> %)</div>
-        </div>
-        <div class="row">
-            <div class="cell">Frame rate out: <a href="javascript:;" data-type="video" data-var="googFrameRateSent" class="stats-var"></a> in: <a href="javascript:;" data-type="video" data-var="googFrameRateReceived" class="stats-var"></a></div>
-            <div class="cell">Audio Level out: <a href="javascript:;" data-type="audio" data-var="audioOutputLevel" class="stats-var"></a> in: <a href="javascript:;" data-type="audio" data-var="audioInputLevel" class="stats-var"></a></div>
-        </div>
-        <div class="row" style="height:20px;"></div>
-        <div class="row">
-            <div class="cell">Resolution</div>
-            <div class="cell">Link</div>
-        </div>
-        <div class="row">
-            <div class="cell">In: <span data-type="video" data-var="googFrameWidthReceived" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightReceived" class="stats-var"></span> Out: <span data-type="video" data-var="googFrameWidthSent" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightSent" class="stats-var"></span></div>
-            <div class="cell">Delay: <a href="javascript:;" data-type="audio" data-var="googRtt" class="stats-var"></a> Jitter: <a href="javascript:;" data-type="audio" data-var="googJitterReceived" class="stats-var"></a></div>
-        </div>
+  <div class="fixed-table collapse">
+    <div class="heading">
+      <div class="cell">Video Stats</div>
+      <div class="cell">Audio Stats</div>
     </div>
-    <div class="stats-container"></div>
-  <!--<div class="statsVideo">Video Statistics</div>-->
-  <!--<div class="statsAudio">Audio Statistics</div>-->
-</div>
-
+    <div class="row">
+        <div class="cell">Bitrate out: <a href="javascript:;" data-type="video" data-var="kiloBitsSentPerSecond" class="stats-var"></a> kb/s</div>
+        <div class="cell">Bitrate out: <a href="javascript:;" data-type="audio" data-var="kiloBitsSentPerSecond" class="stats-var"></a> kb/s</div>
+    </div>
+    <div class="row">
+        <div class="cell">Bitrate in: <a href="javascript:;" data-type="video" data-var="kiloBitsReceivedPerSecond" class="stats-var"></a> kb/s</div>
+        <div class="cell">Bitrate in: <a href="javascript:;" data-type="audio" data-var="kiloBitsReceivedPerSecond" class="stats-var"></a> kb/s</div>
+    </div>
+    <div class="row">
+        <div class="cell">Lost: <a href="javascript:;" data-type="video" data-var="packetsLost" class="stats-var"></a> packets (<a href="javascript:;" data-type="video" data-var="packetsLostPer" class="stats-var"></a> %)</div>
+        <div class="cell">Lost: <a href="javascript:;" data-type="audio" data-var="packetsLost" class="stats-var"></a> packets (<a href="javascript:;" data-type="audio" data-var="packetsLostPer" class="stats-var"></a> %)</div>
+    </div>
+    <div class="row">
+        <div class="cell">Frame rate out: <a href="javascript:;" data-type="video" data-var="googFrameRateSent" class="stats-var"></a> in: <a href="javascript:;" data-type="video" data-var="googFrameRateReceived" class="stats-var"></a></div>
+        <div class="cell">Audio Level out: <a href="javascript:;" data-type="audio" data-var="audioOutputLevel" class="stats-var"></a> in: <a href="javascript:;" data-type="audio" data-var="audioInputLevel" class="stats-var"></a></div>
+    </div>
+    <div class="row" style="height: 15px;"></div>
+    <div class="heading">
+        <div class="cell">Resolution</div>
+        <div class="cell">Link</div>
+    </div>
+    <div class="row">
+        <div class="cell">In: <span data-type="video" data-var="googFrameWidthReceived" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightReceived" class="stats-var"></span> Out: <span data-type="video" data-var="googFrameWidthSent" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightSent" class="stats-var"></span></div>
+        <div class="cell">Delay: <a href="javascript:;" data-type="audio" data-var="googRtt" class="stats-var"></a> Jitter: <a href="javascript:;" data-type="audio" data-var="googJitterReceived" class="stats-var"></a></div>
+    </div>
+    <div class="row" style="height: 15px;"></div>
+  </div>
+  <div class="stats-container"></div>
 </div>
 
 </body>
+
 </html>
