@@ -3451,10 +3451,10 @@ RTCMediaHandler.prototype = {
   onMessage: function(type, body, onSuccess, onFailure) {
     // Grab video SDP
     var videoSection = body.split("m=video");
-    // Add b=AS: bandwidth if it does not exist
-    if (videoSection[1].indexOf("b=AS:") === -1) {
+    // Add b=AS: bandwidth if video SDP and b=AS: does not exist
+    if (videoSection.length > 1 && videoSection[1].indexOf("b=AS:") === -1) {
       videoSection[1] = videoSection[1].replace(/(.*c=IN\s+IP4.*)/, "$&\nb=AS:" + videoBandwidth);
-    } else {
+    } else if (videoSection.length > 1) {
       // Change b=AS: in video SDP
       videoSection[1] = videoSection[1].replace(/b=AS:\d{1,4}/, "b=AS:" + videoBandwidth);
       body = videoSection.join("");

@@ -18,7 +18,7 @@ var audioOnly = (getSearchVariable("audioOnly") == "true");
 var displayName = $.cookie('settingDisplayName') || getSearchVariable("name").toString().replace("%20"," ");
 var maxCallLength = getSearchVariable("maxCallLength");
 var hideCallControl = (getSearchVariable("hide") == "true");
-var zoom = getSearchVariable("zoom") || $.cookie('settingZoom') || 1; 
+var size = getSearchVariable("size") || $.cookie('settingSize') || 1; 
 
 // Enable Client Features
 var enableHD = true;
@@ -44,8 +44,8 @@ var volumeDTMF = 1;
 var soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 var timerRunning = false;
-var wssGateway = 'webrtc-gw.exarionetworks.com';
-var wssPort = 8060;
+var wssGateway = 'proxy.exarionetworks.com';
+var wssPort = 8443;
 var stunServer = '204.117.64.117';
 var stunPort = 3478;
 var domainFrom = 'exarionetworks.com';
@@ -175,9 +175,9 @@ function authPopUp() {
 
 // Setup the GUI
 function guiStart() {
-  // Set zoom for Chrome and Firefox
-  $("#main").css("zoom", zoom);
-  $("#main").css("-moz-transform", "scale(" + zoom +")");
+  // Set size for Chrome and Firefox
+  $("#main").css("size", size);
+  $("#main").css("-moz-transform", "scale(" + size +")");
   if (($.cookie("settingWindowPosition"))) {
   var windowPositions = $.cookie("settingWindowPosition").split('|');
   for (var i = 0; i < windowPositions.length; ++i) {
@@ -485,7 +485,7 @@ function onLoad(userid, password) {
   }
   var config  = {
     'uri': sip_uri,
-    'ws_servers': 'ws://' + wssGateway + ':' + wssPort,
+    'ws_servers': 'wss://' + wssGateway + ':' + wssPort,
     'stun_servers': 'stun:' + stunServer + ':' + stunPort,
     'trace_sip': true,
     'hack_via_tcp': true,
@@ -752,7 +752,7 @@ $("#settings").bind('click', function(e) {
     $("#settingHD").prop('checked', ($.cookie('settingHD') == "true"));
     $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || transmitVGA);
     $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || transmitHD);
-    $("#settingZoom").val($.cookie('settingZoom') || zoom);
+    $("#settingSize").val($.cookie('settingSize') || size);
     if ($("#localVideo").position().top != 0 && $("#localVideo").position().left != 0) {
       $("#settingLocalVideoTop").val($("#localVideo").position().top);
       $("#settingLocalVideoLeft").val($("#localVideo").position().left);
@@ -785,7 +785,7 @@ $("#saveSettings").bind('click', function(e) {
   $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: expires });
   $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
   $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
-  $.cookie("settingZoom", ($("#settingZoom").val()), { expires: expires });
+  $.cookie("settingSize", ($("#settingSize").val()), { expires: expires });
   $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +
                                     "#callHistory" + "-" + $("#settingCallHistoryTop").val() + "-" + $("#settingCallHistoryLeft").val() + "|" +
                                     "#callStats" + "-" + $("#settingCallStatsTop").val() + "-" + $("#settingCallStatsLeft").val())
@@ -910,7 +910,7 @@ if(unsupported) {
 }
 
 // Initial function selection
-if (enableHD == true & hd == "true") {
+if (enableHD == true & hd == true) {
   videoBandwidth = transmitHD;
   $("*").addClass("hd");
 }
