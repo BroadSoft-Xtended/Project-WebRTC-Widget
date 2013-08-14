@@ -346,7 +346,7 @@ function processStats() {
       report["stats"] = valueObj;
       reports.push(report);
     }
-    var data = {"lid":1,"pid":rtcSession.id,"reports":reports};
+    var data = {"lid":1,"pid":getSessionId(),"reports":reports};
     addStats(data);
   });
 }
@@ -552,7 +552,7 @@ function onLoad(userid, password) {
       if ( remoteStreams.length > 0) {
         remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
       }
-      $('.stats-container').attr('id', rtcSession.id+'-1');
+      $('.stats-container').attr('id', getSessionId()+'-1');
       soundOut.pause();
       startTimer();
       message(messageStarted, "success");
@@ -828,6 +828,10 @@ function toggleStats () {
      }
   }
   statsToggled = !statsToggled;
+}
+
+function getSessionId () {
+    return rtcSession.id.replace(/\./g,'');
 }
 
 var historyToggled = false;
