@@ -291,19 +291,6 @@ function incomingCall(e) {
   $(".incomingCallUser").text(incomingCallUser);
   soundOut.setAttribute("src", "media/ringtone.ogg");
   soundOut.play();
-  $('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e) {
-    e.preventDefault();
-    $("#callPopup").fadeOut(500);
-    soundOut.pause();
-    if (this.id == "acceptIncomingCall") {
-      $('#call').fadeOut(1000);
-      $("#hangup").fadeIn(1000);
-      rtcSession.answer(options);
-    } 
-    else if (this.id == "rejectIncomingCall") {
-      rtcSession.terminate();
-    }
-  });
 }
 
 function endCall() {
@@ -814,6 +801,20 @@ $("#historyBack").bind('click', function(e) {
   soundOut.play();
   page = page -1;
   showHistory(page);
+});
+
+$('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e) {
+    e.preventDefault();
+    $("#callPopup").fadeOut(500);
+    soundOut.pause();
+    if (this.id == "acceptIncomingCall") {
+        $('#call').fadeOut(1000);
+        $("#hangup").fadeIn(1000);
+        rtcSession.answer(options);
+    }
+    else if (this.id == "rejectIncomingCall") {
+        rtcSession.terminate();
+    }
 });
 
 var statsToggled = false;
