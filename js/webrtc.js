@@ -44,8 +44,9 @@ var volumeDTMF = 1;
 var soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 var timerRunning = false;
-var wssGateway = 'proxy.exarionetworks.com';
-var wssPort = 8443;
+var websocketsGateway = 'webrtc.exarionetworks.com';
+var websocketsPort = 8060;
+var websocketsType = 'ws'; // ws or wss 
 var stunServer = '204.117.64.117';
 var stunPort = 3478;
 var domainFrom = 'exarionetworks.com';
@@ -121,6 +122,7 @@ function runningTimer () {
     ++seconds;
     var secs = seconds;
     if (maxCallLength && seconds >= maxCallLength) {
+      rtcSession.terminate();
       endCall();
       return;
     }
@@ -472,7 +474,7 @@ function onLoad(userid, password) {
   }
   var config  = {
     'uri': sip_uri,
-    'ws_servers': 'wss://' + wssGateway + ':' + wssPort,
+    'ws_servers': websocketsType + '://' + websocketsGateway + ':' + websocketsPort,
     'stun_servers': 'stun:' + stunServer + ':' + stunPort,
     'trace_sip': true,
     'hack_via_tcp': true,
@@ -484,7 +486,7 @@ function onLoad(userid, password) {
   }
 
   // Modify config object based password
-  if (password == false) {
+  if (password == false || password === undefined) {
     config.register = false
   } 
   else {
