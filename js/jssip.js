@@ -1107,7 +1107,7 @@ OutgoingRequest.prototype = {
     }
 
     msg += 'Supported: ' +  JsSIP.UA.C.SUPPORTED +'\r\n';
-    msg += 'User-Agent: Exario Networks WebRTC - 1.3' +'\r\n';
+    msg += 'User-Agent: Exario Networks WebRTC - 1.4' +'\r\n';
 
     if(this.body) {
       length = JsSIP.Utils.str_utf8_length(this.body);
@@ -3385,7 +3385,7 @@ RTCMediaHandler.prototype = {
     this.peerConnection.onicecandidate = function(e) {
       if (e.candidate && !disableICE) {
         console.log(LOG_PREFIX +'ICE candidate received: '+ e.candidate.candidate);
-      } else {
+      } else if (self.onIceCompleted !== undefined) {
         self.onIceCompleted();
       }
     };
@@ -3543,20 +3543,7 @@ DTMF.prototype.send = function(tone, options) {
     this.tone = tone;
   }
 
-  // Check duration
-  if (options.duration && !JsSIP.Utils.isDecimal(options.duration)) {
-    throw new TypeError('Invalid tone duration: '+ options.duration);
-  } else if (!options.duration) {
-    options.duration = C.DEFAULT_DURATION;
-  } else if (options.duration < C.MIN_DURATION) {
-    console.warn(LOG_PREFIX +'"duration" value is lower than the minimum allowed, setting it to '+ C.MIN_DURATION+ ' milliseconds');
-    options.duration = C.MIN_DURATION;
-  } else if (options.duration > C.MAX_DURATION) {
-    console.warn(LOG_PREFIX +'"duration" value is greater than the maximum allowed, setting it to '+ C.MAX_DURATION +' milliseconds');
-    options.duration = C.MAX_DURATION;
-  } else {
-    options.duration = Math.abs(options.duration);
-  }
+  // Duration is checked/corrected in RTCSession
   this.duration = options.duration;
 
   // Set event handlers
@@ -3717,6 +3704,7 @@ RTCSession = function(ua) {
   this.remote_identity = null;
   this.start_time = null;
   this.end_time = null;
+  this.tones = null;
 
   // Custom session empty object for high level use
   this.data = {};
@@ -3957,12 +3945,12 @@ RTCSession.prototype.answer = function(options) {
  * @param {Object} [options]
  */
 RTCSession.prototype.sendDTMF = function(tones, options) {
-  var timer, interToneGap,
-    possition = 0,
-    self = this,
-    ready = true;
+  var duration, interToneGap,
+    position = 0,
+    self = this;
 
   options = options || {};
+  duration = options.duration || null;
   interToneGap = options.interToneGap || null;
 
   if (tones === undefined) {
@@ -3975,11 +3963,27 @@ RTCSession.prototype.sendDTMF = function(tones, options) {
   }
 
   // Check tones
-  if (!tones || (typeof tones !== 'string' && typeof tones !== 'number') || !tones.toString().match(/^[0-9A-D#*]+$/i)) {
+  if (!tones || (typeof tones !== 'string' && typeof tones !== 'number') || !tones.toString().match(/^[0-9A-D#*,]+$/i)) {
     throw new TypeError('Invalid tones: '+ tones);
   }
 
   tones = tones.toString();
+
+  // Check duration
+  if (duration && !JsSIP.Utils.isDecimal(duration)) {
+    throw new TypeError('Invalid tone duration: '+ duration);
+  } else if (!duration) {
+    duration = DTMF.C.DEFAULT_DURATION;
+  } else if (duration < DTMF.C.MIN_DURATION) {
+    console.warn(LOG_PREFIX +'"duration" value is lower than the minimum allowed, setting it to '+ DTMF.C.MIN_DURATION+ ' milliseconds');
+    duration = DTMF.C.MIN_DURATION;
+  } else if (duration > DTMF.C.MAX_DURATION) {
+    console.warn(LOG_PREFIX +'"duration" value is greater than the maximum allowed, setting it to '+ DTMF.C.MAX_DURATION +' milliseconds');
+    duration = DTMF.C.MAX_DURATION;
+  } else {
+    duration = Math.abs(duration);
+  }
+  options.duration = duration;
 
   // Check interToneGap
   if (interToneGap && !JsSIP.Utils.isDecimal(interToneGap)) {
@@ -3993,32 +3997,43 @@ RTCSession.prototype.sendDTMF = function(tones, options) {
     interToneGap = Math.abs(interToneGap);
   }
 
-  function sendDTMF() {
-    var tone,
-      dtmf = new DTMF(self);
-
-    dtmf.on('failed', function(){ready = false;});
-
-    tone = tones[possition];
-    possition += 1;
-
-    dtmf.send(tone, options);
+  if (this.tones) {
+    // Tones are already queued, just add to the queue
+    this.tones += tones;
+    return;
   }
+
+  // New set of tones to start sending
+  this.tones = tones;
+
+  var sendDTMF = function () {
+    var tone, timeout,
+      tones = self.tones;
+
+    if (self.status === C.STATUS_TERMINATED || !tones || position >= tones.length) {
+      // Stop sending DTMF
+      self.tones = null;
+      return;
+    }
+
+    tone = tones[position];
+    position += 1;
+
+    if (tone === ',') {
+      timeout = 2000;
+    } else {
+      var dtmf = new DTMF(self);
+      dtmf.on('failed', function(){self.tones = null;});
+      dtmf.send(tone, options);
+      timeout = duration + interToneGap;
+    }
+
+    // Set timeout for the next tone
+    window.setTimeout(sendDTMF, timeout);
+  };
 
   // Send the first tone
   sendDTMF();
-
-  // Send the following tones
-  timer = window.setInterval(
-    function() {
-      if (self.status !== C.STATUS_TERMINATED && ready && tones.length > possition) {
-          sendDTMF();
-      } else {
-        window.clearInterval(timer);
-      }
-    },
-    interToneGap
-  );
 };
 
 
@@ -7681,9 +7696,10 @@ JsSIP.Grammar = (function(){
       
       function parse_escaped() {
         var result0, result1, result2;
-        var pos0;
+        var pos0, pos1;
         
         pos0 = pos;
+        pos1 = pos;
         if (input.charCodeAt(pos) === 37) {
           result0 = "%";
           pos++;
@@ -7701,14 +7717,20 @@ JsSIP.Grammar = (function(){
               result0 = [result0, result1, result2];
             } else {
               result0 = null;
-              pos = pos0;
+              pos = pos1;
             }
           } else {
             result0 = null;
-            pos = pos0;
+            pos = pos1;
           }
         } else {
           result0 = null;
+          pos = pos1;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset, escaped) {return escaped.join(''); })(pos0, result0);
+        }
+        if (result0 === null) {
           pos = pos0;
         }
         return result0;
