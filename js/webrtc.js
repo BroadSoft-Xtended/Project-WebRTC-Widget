@@ -280,10 +280,10 @@ function validateDestination (destination)
 
 // 720p constraints
 var constraints = {
-mandatory: {
-minWidth: 1280,
-      minHeight: 720
-       }
+  mandatory: {
+  minWidth: 1280,
+  minHeight: 720
+  }
 }
 
 // PeerConnection constraints
@@ -957,20 +957,20 @@ $("#historyBack").bind('click', function(e)
 
 $('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e)
 {
-    e.preventDefault();
-    $("#callPopup").fadeOut(500);
-    soundOut.pause();
-    if (this.id == "acceptIncomingCall")
-    {
-        $('#call').fadeOut(1000);
-        $("#hangup").fadeIn(1000);
-        rtcSession.answer(options);
-    }
-    else if (this.id == "rejectIncomingCall")
-    {
-        rtcSession.terminate();
-    }
-    });
+  e.preventDefault();
+  $("#callPopup").fadeOut(500);
+  soundOut.pause();
+  if (this.id == "acceptIncomingCall")
+  {
+    $('#call').fadeOut(1000);
+    $("#hangup").fadeIn(1000);
+    rtcSession.answer(options);
+  }
+  else if (this.id == "rejectIncomingCall")
+  {
+    rtcSession.terminate();
+  }
+});
 
 var statsToggled = false;
 function toggleStats ()
@@ -1028,9 +1028,9 @@ $("#historyClear").bind('click', function(e)
   for (var i = 0; i < callsArray.length; i++)
   {
     $.removeCookie("call_" + (i));
-    }
-    showHistory(1);
-    });
+  }
+  showHistory(1);
+});
 
 // Dialpad digits
 $("#dialpad").bind('click', function(e)
@@ -1039,7 +1039,7 @@ $("#dialpad").bind('click', function(e)
 });
 
 // Digits from keyboard
-document.onkeypress=function(e
+document.onkeypress=function(e)
 {
   var e=window.event || e
   if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42)
