@@ -166,36 +166,36 @@ function authPopUp()
   }
 
   $("#authPopup").keypress(function(e)
-      {
-      if (e.which == 13)
-      {
+  {
+    if (e.which == 13)
+    {
       $('#authPopupButton').click();
       }
       })
 
   $("#authPopup").fadeIn(300);
   $('#authPopupButton').click(function()
-      {
-      var userid = $("#authPopup input#username").val();
-      var password = $("#authPopup input#password").val();
-      if ($("#authPopup input#displayName").val())
-      {
-      displayName = $("#authPopup input#displayName").val();
-      }
-      register=true;
-      if (userid == "")
-      {
-      $("#alert").text("Invalid Username").fadeIn(10).fadeOut(4000);
-      return;
-      }
-      if (password == "")
-      {
-      $("#alert").text("Invalid Password").fadeIn(10).fadeOut(4000);
-      return;
-      }
-      $("#authPopup").fadeOut(300);
-      onLoad(userid, password);
-      });
+  {
+  var userid = $("#authPopup input#username").val();
+  var password = $("#authPopup input#password").val();
+  if ($("#authPopup input#displayName").val())
+  {
+    displayName = $("#authPopup input#displayName").val();
+  }
+  register=true;
+  if (userid == "")
+  {
+    $("#alert").text("Invalid Username").fadeIn(10).fadeOut(4000);
+    return;
+  }
+  if (password == "")
+  {
+    $("#alert").text("Invalid Password").fadeIn(10).fadeOut(4000);
+    return;
+  }
+  $("#authPopup").fadeOut(300);
+  onLoad(userid, password);
+  });
 }
 
 // Setup the GUI
@@ -206,20 +206,20 @@ function guiStart()
   $("#main").css("-moz-transform", "scale(" + size +")");
   if (($.cookie("settingWindowPosition")))
   {
-    var windowPositions = $.cookie("settingWindowPosition").split('|');
-    for (var i = 0; i < windowPositions.length; ++i)
-    {
-      var elementPosition = windowPositions[i].split('-');
-      $(elementPosition[0]).css("top", elementPosition[1]);
-      $(elementPosition[0]).css("left", elementPosition[2]);
-    }
+  var windowPositions = $.cookie("settingWindowPosition").split('|');
+  for (var i = 0; i < windowPositions.length; ++i)
+  {
+    var elementPosition = windowPositions[i].split('-');
+    $(elementPosition[0]).css("top", elementPosition[1]);
+    $(elementPosition[0]).css("left", elementPosition[2]);
+  }
   }
   // Fade in UI elements
   $("#remoteVideo, #videoBar").fadeIn(1000)
-    if (enableCallControl && !hideCallControl)
-    {
-      $("#callControl, #call, #ok").fadeIn(1000);
-    }
+  if (enableCallControl && !hideCallControl)
+  {
+    $("#callControl, #call, #ok").fadeIn(1000);
+  }
   if (enableDialpad)
   {
     $("#dialpadIconShow").fadeIn(1000);
@@ -301,12 +301,14 @@ else
 }
 
 // Options Passed to JsSIP
-var options = {
-mediaConstraints: {
-audio: true,
-   video: video
-              },
-RTCConstraints: {'optional': [],'mandatory': {}},
+var options =
+{
+  mediaConstraints:
+  {
+    audio: true,
+    video: video
+  },
+  RTCConstraints: {'optional': [],'mandatory': {}},
 };
 
 // URL call
@@ -375,20 +377,20 @@ function processStats()
 {
   RTCPeerConnection = rtcSession.rtcMediaHandler.peerConnection;
   RTCPeerConnection.getStats(function (stats)
-      {
-      var videoPacketLoss = 0;
-      var audioPacketLoss = 0
-      var results = stats.result();
-      var reports = [];
-      for (var i = 0; i < results.length; ++i)
-      {
+  {
+    var videoPacketLoss = 0;
+    var audioPacketLoss = 0
+    var results = stats.result();
+    var reports = [];
+    for (var i = 0; i < results.length; ++i)
+    {
       var res = results[i];
       var report = getReportById(reports, res.id);
       if(!report)
       {
-      report = {};
-      report["type"] = res.type;
-      report["id"] = res.id;
+        report = {};
+        report["type"] = res.type;
+        report["id"] = res.id;
       }
 
       var names = res.names();
@@ -404,16 +406,15 @@ function processStats()
         values.push(name);
         values.push(value);
       }
-  var valueObj = {};
-  valueObj["timestamp"] = res.timestamp;
-  valueObj["values"] = values;
-
-  report["stats"] = valueObj;
-  reports.push(report);
-      }
-  var data = {"lid":1,"pid":getSessionId(),"reports":reports};
-  addStats(data);
-      });
+      var valueObj = {};
+      valueObj["timestamp"] = res.timestamp;
+      valueObj["values"] = values;
+      report["stats"] = valueObj;
+      reports.push(report);
+    }
+    var data = {"lid":1,"pid":getSessionId(),"reports":reports};
+    addStats(data);
+  });
 }
 
 function getReportById(reports, id)
@@ -477,15 +478,14 @@ function setCookie()
   {
     var direction = "<------";
   }
-
   var cookieKey = ("call_" + callNumber);
   var cookieValue = (epochStart + "|" + remote + "|" + direction + "|" + length);
   $.cookie(cookieKey, cookieValue, { expires: expires});	
 }
 
 var page = 1;
-function showHistory(page)
-{	
+function showHistory(page) 
+{
   var allCookies = document.cookie;
   var callsArray = allCookies.match(/call_(.*?)\:\d{2}\:\d{2}/g);
   var callsOnPage = 10;
@@ -557,12 +557,13 @@ function onLoad(userid, password)
   if ((userid.indexOf("@") === -1))
   {
     var sip_uri = (userid + "@" + domainFrom);
-  } 
+  }
   else
   {
     var sip_uri = userid;
   }
-  var config  = {
+  var config  =
+  {
     'uri': sip_uri,
     'ws_servers': websocketsType + '://' + websocketsGateway + ':' + websocketsPort,
     'stun_servers': 'stun:' + stunServer + ':' + stunPort,
@@ -598,107 +599,107 @@ function onLoad(userid, password)
 
   // sipStack callbacks 
   sipStack.on('connected', function(e)
-      {
-      if (enableConnectionIcon)
-      {
+  {
+    if (enableConnectionIcon)
+    {
       $("#connected").removeClass("alert");
       $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
-      }
-      if (enableCallControl && !hideCallControl)
-      {
+    }
+    if (enableCallControl && !hideCallControl)
+    {
       $("#call").fadeIn(1000);
-      }
-      message(messageConnected, "success");
-      });
+    }
+    message(messageConnected, "success");
+  });
   sipStack.on('disconnected', function(e)
-      {
-      if (enableConnectionIcon)
-      {
+  {
+    if (enableConnectionIcon)
+    {
       $("#connected").removeClass("success");
       $("#connected").addClass("alert").fadeIn(100);
-      }
-      message(messageConnectionFailed, "alert");
-      endCall();
-      $("#call").hide();
-      });
+    }
+    message(messageConnectionFailed, "alert");
+    endCall();
+    $("#call").hide();
+  });
   sipStack.on('newRTCSession', function(e)
-      {
-      rtcSession = e.data.session;
+  {
+    rtcSession = e.data.session;
 
-      // call event handlers
-      rtcSession.on('progress', function(e)
-        {
-        message(messageProgress, "normal");
-        soundOut.setAttribute("src", "media/dtmf-ringback.ogg");
-        soundOut.play();
-        });
-      rtcSession.on('failed', function(e)
-        {
-        message(e.data.cause, "alert");
-        soundOut.pause();
-        endCall();
-        });
-      rtcSession.on('started', function(e)
-        {
-        var selfView = document.getElementById("localVideo");
-        var remoteView = document.getElementById("remoteVideo");
-        var localStreams, remoteStreams;
-        if (window.mozRTCPeerConnection)
-        {
+    // call event handlers
+    rtcSession.on('progress', function(e)
+    {
+      message(messageProgress, "normal");
+      soundOut.setAttribute("src", "media/dtmf-ringback.ogg");
+      soundOut.play();
+    });
+    rtcSession.on('failed', function(e)
+    {
+      message(e.data.cause, "alert");
+      soundOut.pause();
+      endCall();
+    });
+    rtcSession.on('started', function(e)
+    {
+      var selfView = document.getElementById("localVideo");
+      var remoteView = document.getElementById("remoteVideo");
+      var localStreams, remoteStreams;
+      if (window.mozRTCPeerConnection)
+      {
         localStreams = rtcSession.rtcMediaHandler.peerConnection.localStreams;
         remoteStreams = rtcSession.rtcMediaHandler.peerConnection.remoteStreams;
-        } 
-        else
-        {
+      }
+      else
+      {
         localStreams = rtcSession.getLocalStreams();
         remoteStreams = rtcSession.getRemoteStreams();
-        }
-        if ( localStreams.length > 0)
-        {
-        selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
-        }
-        if ( remoteStreams.length > 0)
-        {
-          remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
-        }
-        $('.stats-container').attr('id', getSessionId()+'-1');
-        soundOut.pause();
-        startTimer();
-        message(messageStarted, "success");
-        if (enableMute)
-        {
-          $("#muteAudio").fadeIn(1000);
-        }
-        });
-  rtcSession.on('ended', function(e)
+      }
+      if ( localStreams.length > 0)
       {
+        selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
+      }
+      if ( remoteStreams.length > 0)
+      {
+        remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
+      }
+      $('.stats-container').attr('id', getSessionId()+'-1');
+      soundOut.pause();
+      startTimer();
+      message(messageStarted, "success");
+      if (enableMute)
+      {
+        $("#muteAudio").fadeIn(1000);
+      }
+    });
+    rtcSession.on('ended', function(e)
+    {
       message(messageEnded, "normal");
       setCookie();
       endCall();
-      });
-  // handle incoming call
-  if (e.data.session.direction == "incoming")
-  {
-    incomingCall(e);
-  }
-      });
+    });
+    // handle incoming call
+    if (e.data.session.direction == "incoming")
+    {
+      incomingCall(e);
+    }
+  });
 
   // Registration callbacks only if registering
   if (!password == false)
   {
     sipStack.on('registered', function(e)
-        {
-        if (enableRegistrationIcon)
-        {
-        $("#registered").removeClass("alert");
-        $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
-        }
-        message(messageRegistered, "success");
-        });
+    {
+      if (enableRegistrationIcon)
+      {
+         $("#registered").removeClass("alert");
+         $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
+      }
+      message(messageRegistered, "success");
+    });
     sipStack.on('registrationFailed', function(e)
-        {
-        if (enableRegistrationIcon)
-        {
+    {
+      if (enableRegistrationIcon)
+      {
         //$("#registered").removeClass("success");
         $("#registered").addClass("alert").fadeIn(100);
         }
@@ -748,133 +749,133 @@ function pressDTMF (digit)
 if (enableWindowDrag)
 {
   $(function()
-      {
-      $("#localVideo").draggable();
-      $("#callStats").draggable();
-      $("#callHistory").draggable();
-      });
+  {
+    $("#localVideo").draggable();
+    $("#callStats").draggable();
+    $("#callHistory").draggable();
+  });
 }
 
 // Buttons
 $('#call').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();	
-    var destination = mainDestination.val();
-    if (destination == "")
-    {
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();	
+  var destination = mainDestination.val();
+  if (destination == "")
+  {
     message(messageEmptyDestination, "alert");
-    } 
-    else
-    {
+  } 
+  else
+  {
     uriCall(destination);
     }
     });
 
 $('#hangup').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    rtcSession.terminate();
-    endCall();
-    if (fullScreen == true)
-    {
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  rtcSession.terminate();
+  endCall();
+  if (fullScreen == true)
+  {
     $('#fullScreenContract').click();
     }
     });
 
 var fullScreen = false;
 $('#fullScreenExpand').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    video.webkitRequestFullScreen();
-    fullScreen = true;
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  video.webkitRequestFullScreen();
+  fullScreen = true;
+});
 
 $('#fullScreenContract').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    document.webkitCancelFullScreen();
-    fullScreen = false;
-    $("#fullScreenContract").fadeOut(100);
-    $("#fullScreenExpand").fadeIn(1000);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  document.webkitCancelFullScreen();
+  fullScreen = false;
+  $("#fullScreenContract").fadeOut(100);
+  $("#fullScreenExpand").fadeIn(1000);
+});
 
 $('#selfViewDisable').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    $("#localVideo, #selfViewDisable").fadeOut(100);
-    $("#selfViewEnable").fadeIn(1000);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  $("#localVideo, #selfViewDisable").fadeOut(100);
+  $("#selfViewEnable").fadeIn(1000);
+});
 
 $('#selfViewEnable').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    $("#selfViewEnable").fadeOut(1000);
-    $("#localVideo, #selfViewDisable").fadeIn(1000);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  $("#selfViewEnable").fadeOut(1000);
+  $("#localVideo, #selfViewDisable").fadeIn(1000);
+});
 
 $('#muteAudio').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    localMedia = rtcSession.getLocalStreams()[0];
-    localAudio = localMedia.getAudioTracks()[0];
-    localAudio.enabled = false;
-    $("#muteAudio").fadeOut(1000);
-    $("#unmuteAudio").fadeIn(1000);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  localMedia = rtcSession.getLocalStreams()[0];
+  localAudio = localMedia.getAudioTracks()[0];
+  localAudio.enabled = false;
+  $("#muteAudio").fadeOut(1000);
+  $("#unmuteAudio").fadeIn(1000);
+});
 
 $('#unmuteAudio').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    localAudio.enabled = true;
-    $("#unmuteAudio").fadeOut(1000);
-    $("#muteAudio").fadeIn(1000);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  localAudio.enabled = true;
+  $("#unmuteAudio").fadeOut(1000);
+  $("#muteAudio").fadeIn(1000);
+});
 
 $('#dialpadIconShow').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    $("#dialIconpadShow").fadeOut(1000);
-    $("#dialpad, #dialpadIconHide").fadeIn(1000);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  $("#dialIconpadShow").fadeOut(1000);
+  $("#dialpad, #dialpadIconHide").fadeIn(1000);
+});
 
 $('#dialpadIconHide').bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    $("#dialpad, #dialpadIconHide").fadeOut(1000);
-    $("#dialpadIconShow").fadeIn(1000);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  $("#dialpad, #dialpadIconHide").fadeOut(1000);
+  $("#dialpadIconShow").fadeIn(1000);
+});
 
 var settingsToggled = false;
 $("#settings").bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    if (settingsToggled == false)
-    {
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  if (settingsToggled == false)
+  {
     if (!(displayName == "false"))
     {
-    $("#settingDisplayName").val(displayName);
+      $("#settingDisplayName").val(displayName);
     }
     $("#settingUserid").val(userid);
     $("#settingPassword").val(password);
@@ -885,8 +886,8 @@ $("#settings").bind('click', function(e)
     $("#settingSize").val($.cookie('settingSize') || size);
     if ($("#localVideo").position().top != 0 && $("#localVideo").position().left != 0)
     {
-    $("#settingLocalVideoTop").val($("#localVideo").position().top);
-    $("#settingLocalVideoLeft").val($("#localVideo").position().left);
+      $("#settingLocalVideoTop").val($("#localVideo").position().top);
+      $("#settingLocalVideoLeft").val($("#localVideo").position().left);
     }
     if ($("#callHistory").position().top != 0 && $("#callHistory").position().left != 0)
     {
@@ -899,91 +900,91 @@ $("#settings").bind('click', function(e)
       $("#settingCallStatsLeft").val($("#callStats").position().left);
     } 
     $("#settingsPopup").fadeIn(1000);
-    }
-    else if (settingsToggled == true)
-    {
-      $("#settingsPopup").fadeOut(100);
-    }
-    settingsToggled = !settingsToggled;
-    });
+  }
+  else if (settingsToggled == true)
+  {
+    $("#settingsPopup").fadeOut(100);
+  }
+  settingsToggled = !settingsToggled;
+});
 
 $("#saveSettings").bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: expires });
-    $.cookie("settingUserid", ($("#settingUserid").val()),  { expires: expires });
-    $.cookie("settingPassword", ($("#settingPassword").val()), { expires: expires });
-    $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: expires });
-    $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: expires });
-    $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: expires });
-    $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
-    $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
-    $.cookie("settingSize", ($("#settingSize").val()), { expires: expires });
-    $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +
-      "#callHistory" + "-" + $("#settingCallHistoryTop").val() + "-" + $("#settingCallHistoryLeft").val() + "|" +
-      "#callStats" + "-" + $("#settingCallStatsTop").val() + "-" + $("#settingCallStatsLeft").val())
-    $("#settingsPopup").fadeOut(100);
-    location.reload(0);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: expires });
+  $.cookie("settingUserid", ($("#settingUserid").val()),  { expires: expires });
+  $.cookie("settingPassword", ($("#settingPassword").val()), { expires: expires });
+  $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: expires });
+  $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: expires });
+  $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: expires });
+  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
+  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
+  $.cookie("settingSize", ($("#settingSize").val()), { expires: expires });
+  $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +
+                                    "#callHistory" + "-" + $("#settingCallHistoryTop").val() + "-" + $("#settingCallHistoryLeft").val() + "|" +
+                                    "#callStats" + "-" + $("#settingCallStatsTop").val() + "-" + $("#settingCallStatsLeft").val())
+  $("#settingsPopup").fadeOut(100);
+  location.reload(0);
+});
 
 $("#historyClose").bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    toggleHistory();
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  toggleHistory();
+});
 
 $("#historyForward").bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    page = page +1;
-    showHistory(page);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  page = page +1;
+  showHistory(page);
+});
 
 $("#historyBack").bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    page = page -1;
-    showHistory(page);
-    });
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  page = page -1;
+  showHistory(page);
+});
 
 $('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e)
-    {
+{
     e.preventDefault();
     $("#callPopup").fadeOut(500);
     soundOut.pause();
     if (this.id == "acceptIncomingCall")
     {
-    $('#call').fadeOut(1000);
-    $("#hangup").fadeIn(1000);
-    rtcSession.answer(options);
+        $('#call').fadeOut(1000);
+        $("#hangup").fadeIn(1000);
+        rtcSession.answer(options);
     }
     else if (this.id == "rejectIncomingCall")
     {
-    rtcSession.terminate();
+        rtcSession.terminate();
     }
     });
 
 var statsToggled = false;
 function toggleStats ()
 {
-  if (enableCallStats) 
+  if (enableCallStats)
   {
     if (statsToggled == false)
     {
       $("#callStats").fadeIn(100);
-    } 
-    else if (statsToggled == true) 
-    {
-      $("#callStats").fadeOut(100);
-    }
+     } 
+     else if (statsToggled == true)
+     {
+       $("#callStats").fadeOut(100);
+     }
   }
   statsToggled = !statsToggled;
 }
@@ -996,7 +997,7 @@ function getSessionId ()
 var historyToggled = false;
 function toggleHistory ()
 {
-  if (enableCallHistory == true) 
+  if (enableCallHistory == true)
   {
     if (historyToggled == false)
     {
@@ -1012,20 +1013,20 @@ function toggleHistory ()
 }
 
 $("#callHistory").bind('click', function(e)
-    {
-    var clicked = (e.target.innerText)
-    var callID = (e.target.parentElement.firstElementChild.firstChild.nodeValue);
-    });
+{
+  var clicked = (e.target.innerText)
+  var callID = (e.target.parentElement.firstElementChild.firstChild.nodeValue);
+});
 
 $("#historyClear").bind('click', function(e)
-    {
-    e.preventDefault();
-    soundOut.setAttribute("src", "media/click.ogg");
-    soundOut.play();
-    var allCookies = document.cookie;
-    var callsArray = allCookies.match(/call_(.*?)\:\d{2}\:\d{2}/g);
-    for (var i = 0; i < callsArray.length; i++)
-    {
+{
+  e.preventDefault();
+  soundOut.setAttribute("src", "media/click.ogg");
+  soundOut.play();
+  var allCookies = document.cookie;
+  var callsArray = allCookies.match(/call_(.*?)\:\d{2}\:\d{2}/g);
+  for (var i = 0; i < callsArray.length; i++)
+  {
     $.removeCookie("call_" + (i));
     }
     showHistory(1);
@@ -1033,27 +1034,27 @@ $("#historyClear").bind('click', function(e)
 
 // Dialpad digits
 $("#dialpad").bind('click', function(e)
-    {
-    pressDTMF(e.target.textContent)
-    });
+{
+  pressDTMF(e.target.textContent)
+});
 
 // Digits from keyboard
-document.onkeypress=function(e)
+document.onkeypress=function(e
 {
   var e=window.event || e
-    if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42)
-    {
-      var digit = String.fromCharCode(e.charCode);
-      pressDTMF(digit);
-    }
-    else if (e.charCode == 83)
-    {
-      toggleStats();
-    }
-    else if (e.charCode == 72)
-    {
-      toggleHistory();
-    }
+  if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode == 35 || e.charCode == 42)
+  {
+    var digit = String.fromCharCode(e.charCode);
+    pressDTMF(digit);
+  }
+  else if (e.charCode == 83)
+  {
+    toggleStats();
+  }
+  else if (e.charCode == 72)
+  {
+    toggleHistory();
+  }
 }
 
 function compatibilityCheck()
