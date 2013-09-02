@@ -770,8 +770,8 @@ $('#call').bind('click', function(e)
   else
   {
     uriCall(destination);
-    }
-    });
+  }
+});
 
 $('#hangup').bind('click', function(e)
 {
@@ -783,8 +783,8 @@ $('#hangup').bind('click', function(e)
   if (fullScreen == true)
   {
     $('#fullScreenContract').click();
-    }
-    });
+  }
+});
 
 var fullScreen = false;
 $('#fullScreenExpand').bind('click', function(e)
@@ -884,6 +884,7 @@ $("#settings").bind('click', function(e)
     $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || transmitVGA);
     $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || transmitHD);
     $("#settingSize").val($.cookie('settingSize') || size);
+    $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') == "true") || enableAutoAnswer );
     if ($("#localVideo").position().top != 0 && $("#localVideo").position().left != 0)
     {
       $("#settingLocalVideoTop").val($("#localVideo").position().top);
@@ -922,6 +923,7 @@ $("#saveSettings").bind('click', function(e)
   $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
   $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
   $.cookie("settingSize", ($("#settingSize").val()), { expires: expires });
+  $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: expires });
   $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +
                                     "#callHistory" + "-" + $("#settingCallHistoryTop").val() + "-" + $("#settingCallHistoryLeft").val() + "|" +
                                     "#callStats" + "-" + $("#settingCallStatsTop").val() + "-" + $("#settingCallStatsLeft").val())
