@@ -638,6 +638,22 @@ body {
   font-size: 22px; 
 }
 
+.ui-widget-content.ui-dialog {
+  display: none;
+  color: #999999;
+  font-size: 22px;
+  background: #333333;
+  padding: 10px; 	
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #999999;
+  border-radius: 3px;
+  z-index: 99;
+}
+
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+
 #settingsPopup {
   display: none;
   background: #333333;

@@ -46,7 +46,7 @@ var volumeDTMF = 1;
 var soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = volumeDTMF;
 var timerRunning = false;
-var websocketsGateway = 'robotics-virt1.robotics.net';
+var websocketsGateway = 'webrtc.exarionetworks.com';
 var websocketsPort = 8060;
 var websocketsType = 'ws'; // ws or wss 
 var stunServer = '204.117.64.117';
@@ -198,6 +198,27 @@ function authPopUp()
   });
 }
 
+function errorPopup(error)
+{
+  $( "#errorPopup" ).text(error).dialog(
+    {
+      draggable: true,
+      dialogClass: "no-close",
+      buttons: 
+      [
+        {
+          text: "OK",
+          click: function() 
+          {
+            $( this ).dialog( "close" );
+          }
+        }
+      ]
+    }
+  );
+}
+
+
 // Setup the GUI
 function guiStart()
 {
@@ -325,7 +346,16 @@ function uriCall(destination)
 
   // Start the Call
   message(messageCall, "success");
-  sipStack.call(destination, options);
+  
+  try
+    {
+    console.log("trying.........");
+    sipStack.call(destination, options);
+    }
+  catch(err)
+    {
+    console.log("error: " + err);
+    }
 }
 
 // Incoming call function
@@ -635,7 +665,12 @@ function onLoad(userid, password)
     });
     rtcSession.on('failed', function(e)
     {
-      message(e.data.cause, "alert");
+      var error = e.data.cause;
+      message(error, "alert");
+      if (error = "User Denied Media Access")
+      {
+        errorPopup("WebRTC was not able to access your camera!");
+      }
       soundOut.pause();
       endCall();
     });
