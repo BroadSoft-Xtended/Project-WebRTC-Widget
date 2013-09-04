@@ -1018,7 +1018,7 @@ function drawSingleReport(
         var rawLabel = singleReport.values[i];
         var rawValue = parseInt(singleReport.values[i + 1]);
         if (isNaN(rawValue))
-            return;
+            continue;
 
         var rawDataSeriesId = dataSeriesId(peerConnectionElement, reportType, reportId, rawLabel);
 
@@ -1208,9 +1208,8 @@ var StatsTable = (function(ssrcInfoManager) {
          * @private
          */
         ensureStatsTable_: function(peerConnectionElement, report) {
-            var tableId = peerConnectionElement.id + '-table-' +
-                report.type + '-' + report.id;
-            var table = $('#'+tableId)[0];
+            var tableId = peerConnectionElement.id + '-table-' + report.type + '-' + report.id;
+            var table = $(document.getElementById(tableId))[0];
             if (!table) {
                 var container = this.ensureStatsTableContainer_(peerConnectionElement);
                 table = document.createElement('table');
