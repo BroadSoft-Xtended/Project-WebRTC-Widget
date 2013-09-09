@@ -343,19 +343,10 @@ function uriCall(destination)
 
   $('#call').fadeOut(1000);
   $("#hangup").fadeIn(1000);
+  message(messageCall, "success");
 
   // Start the Call
-  message(messageCall, "success");
-  
-  try
-    {
-    console.log("trying.........");
-    sipStack.call(destination, options);
-    }
-  catch(err)
-    {
-    console.log("error: " + err);
-    }
+  sipStack.call(destination, options);
 }
 
 // Incoming call function
@@ -667,7 +658,7 @@ function onLoad(userid, password)
     {
       var error = e.data.cause;
       message(error, "alert");
-      if (error = "User Denied Media Access")
+      if (error == "User Denied Media Access")
       {
         errorPopup("WebRTC was not able to access your camera!");
       }
@@ -744,7 +735,8 @@ function onLoad(userid, password)
   // Start a call
   if (!destination == false)
   {
-    uriCall(destination);
+    // Wait 300 ms for websockets connection then call destination in URL
+    setTimeout(function(){uriCall(destination)},300);
   }
 }
 
