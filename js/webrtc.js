@@ -21,56 +21,15 @@ var maxCallLength = getSearchVariable("maxCallLength");
 var hideCallControl = (getSearchVariable("hide") == "true");
 var size = getSearchVariable("size") || $.cookie('settingSize') || 1; 
 
-// Enable Client Features
-var enableHD = true;
-var enableCallControl = true;
-var enableCallTimer = true;
-var enableCallHistory = true;
-var enableFullScreen = true;
-var enableSelfView = true;
-var enableCallStats = true;
-var enableDialpad = true;
-var enableMute = true;
-var enableMessages = true;
-var enableRegistrationIcon = true;
-var enableConnectionIcon = true;
-var enableWindowDrag = true;
-var enableSettings = true;
-var enableAutoAnswer = false;
-
 // Client Variables
-var volumeClick = 1;
 var soundOut = document.createElement("audio");
-soundOut.volume = volumeClick;
-var volumeDTMF = 1;
+soundOut.volume = clientConfig.volumeClick;
 var soundOutDTMF = document.createElement("audio");
-soundOutDTMF.volume = volumeDTMF;
+soundOutDTMF.volume = clientConfig.volumeDTMF;
 var timerRunning = false;
-var websocketsGateway = 'webrtc.exarionetworks.com';
-var websocketsPort = 8060;
-var websocketsType = 'ws'; // ws or wss 
-var stunServer = '204.117.64.117';
-var stunPort = 3478;
-var domainFrom = 'exarionetworks.com';
-var domainTo = 'exarionetworks.com';
-var allowOutside = true;
-var endCallURL = false;
-disableICE = true;
-var transmitVGA = $.cookie('settingTransmitVGA') || 512;
-var transmitHD = $.cookie('settingTransmitHD') || 2048;
-var expires = 365;
-
-// Client Messages
-var messageProgress = "Ringing";
-var messageOutsideDomain = "Invalid Destination";
-var messageStarted = "Call Started";
-var messageEnded = "Call Ended";
-var messageCall = "Performing NAT Tests";
-var messageConnected = "Connected";
-var messageConnectionFailed = "Connection Failed!";
-var messageRegistered = "Registered";
-var messageRegistrationFailed = "Registration Failed!";
-var messageEmptyDestination = "Invalid Number";
+disableICE = clientConfig.disableICE;
+var transmitVGA = $.cookie('settingTransmitVGA') || clinetConfig.transmitVGA;
+var transmitHD = $.cookie('settingTransmitHD') || clientConfig.transmitHD;
 var currentCallArray = new Array(4);
 
 // Pull the URL variables out of URL
@@ -111,7 +70,7 @@ function startTimer ()
   timerRunning = true;
   var startTimer = runningTimer();
   callTimer = setInterval(startTimer, 1000);
-  if (enableCallTimer)
+  if (clientConfig.enableCallTimer)
   {
     $("#timer").fadeIn(100);
   }
@@ -140,7 +99,7 @@ function runningTimer ()
       return;
     }
     $("#timer").text(formatTimer(secs));
-    if (enableCallStats && isChrome)
+    if (clientConfig.enableCallStats && isChrome)
     {
       processStats();
     }
@@ -237,15 +196,15 @@ function guiStart()
   }
   // Fade in UI elements
   $("#remoteVideo, #videoBar").fadeIn(1000)
-  if (enableCallControl && !hideCallControl)
+  if (clientConfig.enableCallControl && !hideCallControl)
   {
     $("#callControl, #call, #ok").fadeIn(1000);
   }
-  if (enableDialpad)
+  if (clientConfig.enableDialpad)
   {
     $("#dialpadIconShow").fadeIn(1000);
   }
-  if (enableSelfView)
+  if (clientConfig.enableSelfView)
   {
     if ($.cookie('settingSelfViewDisable') == "true")
     {
@@ -258,11 +217,11 @@ function guiStart()
       $("#localVideo, #selfViewDisable").fadeIn(1000);
     }
   }
-  if (enableSettings)
+  if (clientConfig.enableSettings)
   {
     $("#settings").fadeIn(1000);
   }
-  if (enableFullScreen)
+  if (clientConfig.enableFullScreen)
   {
     $("#fullScreenExpand").fadeIn(1000);
   }
@@ -271,7 +230,7 @@ function guiStart()
 // Display status messages
 function message(text, level)
 {
-  if(!enableMessages)
+  if(!clientConfig.enableMessages)
   {
     return;
   }
@@ -287,14 +246,14 @@ function validateDestination (destination)
   {
     destination = ("sip:" + destination);
   }
-  if ((destination.indexOf(domainTo) === -1 ) && allowOutside == false)
+  if ((destination.indexOf(clientConfig.domainTo) === -1 ) && clientConfig.allowOutside == false)
   {
-    message(messageOutsideDomain, "alert");
+    message(clientConfig.messageOutsideDomain, "alert");
     return(false);
   }
   if ((destination.indexOf("@") === -1))
   {
-    destination = (destination + "@" + domainTo);
+    destination = (destination + "@" + clientConfig.domainTo);
   }
   return(destination); 
 }
@@ -343,7 +302,7 @@ function uriCall(destination)
 
   $('#call').fadeOut(1000);
   $("#hangup").fadeIn(1000);
-  message(messageCall, "success");
+  message(clientConfig.messageCall, "success");
 
   // Start the Call
   sipStack.call(destination, options);
@@ -356,7 +315,7 @@ function incomingCall(e)
   var incomingCallUser = e.data.request.from.uri.user;
   var incomingCall = e.data.request.from.uri;
   message("Incoming Call", "success");
-  if (enableAutoAnswer)
+  if (clientConfig.enableAutoAnswer)
   {
     $("#hangup").fadeIn(1000);
     rtcSession.answer(options);
@@ -379,7 +338,7 @@ function endCall()
   $("#localVideo").removeAttr("src");
   $("#remoteVideo").removeAttr("src");
   // Bring up the main elements
-  if (enableCallControl == true)
+  if (clientConfig.enableCallControl == true)
   {
     hideCallControl = false;
   }
@@ -388,9 +347,9 @@ function endCall()
   {
     stopTimer();
   }
-  if (!endCallURL == false)
+  if (!clientConfig.endCallURL == false)
   {
-    window.location = endCallURL;
+    window.location = clientConfig.endCallURL;
   }
 }
 
@@ -468,7 +427,7 @@ function getStatsValue(reports, attribute)
 
 function setCookie()
 {
-  if (!enableCallHistory)
+  if (!clientConfig.enableCallHistory)
   {
     return;
   }
@@ -501,7 +460,7 @@ function setCookie()
   }
   var cookieKey = ("call_" + callNumber);
   var cookieValue = (epochStart + "|" + remote + "|" + direction + "|" + length);
-  $.cookie(cookieKey, cookieValue, { expires: expires});	
+  $.cookie(cookieKey, cookieValue, { expires: clientConfig.expires});	
 }
 
 var page = 1;
@@ -577,7 +536,7 @@ function onLoad(userid, password)
   // Config settings
   if ((userid.indexOf("@") === -1))
   {
-    var sip_uri = (userid + "@" + domainFrom);
+    var sip_uri = (userid + "@" + clientConfig.domainFrom);
   }
   else
   {
@@ -586,10 +545,9 @@ function onLoad(userid, password)
   var config  =
   {
     'uri': sip_uri,
-    'ws_servers': websocketsType + '://' + websocketsGateway + ':' + websocketsPort,
-    'stun_servers': 'stun:' + stunServer + ':' + stunPort,
-    'trace_sip': true,
-    'hack_via_tcp': true,
+    'ws_servers': clientConfig.websocketsType + "://" + clientConfig.websocketsGateway + ":" + clientConfig.websocketsPort,
+    'stun_servers': 'stun:' + clientConfig.stunServer + ':' + clientConfig.stunPort,
+    'trace_sip': clientConfig.debug,
   };
 
   // Add Display Name if set
@@ -621,25 +579,25 @@ function onLoad(userid, password)
   // sipStack callbacks 
   sipStack.on('connected', function(e)
   {
-    if (enableConnectionIcon)
+    if (clientConfig.enableConnectionIcon)
     {
       $("#connected").removeClass("alert");
       $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
     }
-    if (enableCallControl && !hideCallControl)
+    if (clientConfig.enableCallControl && !hideCallControl)
     {
       $("#call").fadeIn(1000);
     }
-    message(messageConnected, "success");
+    message(clientConfig.messageConnected, "success");
   });
   sipStack.on('disconnected', function(e)
   {
-    if (enableConnectionIcon)
+    if (clientConfig.enableConnectionIcon)
     {
       $("#connected").removeClass("success");
       $("#connected").addClass("alert").fadeIn(100);
     }
-    message(messageConnectionFailed, "alert");
+    message(clientConfig.messageConnectionFailed, "alert");
     endCall();
     $("#call").hide();
   });
@@ -650,7 +608,7 @@ function onLoad(userid, password)
     // call event handlers
     rtcSession.on('progress', function(e)
     {
-      message(messageProgress, "normal");
+      message(clientConfig.messageProgress, "normal");
       soundOut.setAttribute("src", "media/dtmf-ringback.ogg");
       soundOut.play();
     });
@@ -691,15 +649,15 @@ function onLoad(userid, password)
       $('.stats-container').attr('id', getSessionId()+'-1');
       soundOut.pause();
       startTimer();
-      message(messageStarted, "success");
-      if (enableMute)
+      message(clientConfig.messageStarted, "success");
+      if (clientConfig.enableMute)
       {
         $("#muteAudio").fadeIn(1000);
       }
     });
     rtcSession.on('ended', function(e)
     {
-      message(messageEnded, "normal");
+      message(clientConfig.messageEnded, "normal");
       setCookie();
       endCall();
     });
@@ -715,21 +673,21 @@ function onLoad(userid, password)
   {
     sipStack.on('registered', function(e)
     {
-      if (enableRegistrationIcon)
+      if (clientConfig.enableRegistrationIcon)
       {
          $("#registered").removeClass("alert");
          $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
       }
-      message(messageRegistered, "success");
+      message(clientConfig.messageRegistered, "success");
     });
     sipStack.on('registrationFailed', function(e)
     {
-      if (enableRegistrationIcon)
+      if (clientConfig.enableRegistrationIcon)
       {
         //$("#registered").removeClass("success");
         $("#registered").addClass("alert").fadeIn(100);
         }
-        message(messageRegistrationFailed, "alert");
+        message(clientConfig.messageRegistrationFailed, "alert");
         });
   }
   // Start a call
@@ -773,7 +731,7 @@ function pressDTMF (digit)
 }
 
 // Allow some windows to be draggable, required jQuery.UI
-if (enableWindowDrag)
+if (clientConfig.enableWindowDrag)
 {
   $(function()
   {
@@ -792,7 +750,7 @@ $('#call').bind('click', function(e)
   var destination = mainDestination.val();
   if (destination == "")
   {
-    message(messageEmptyDestination, "alert");
+    message(clientConfig.messageEmptyDestination, "alert");
   } 
   else
   {
@@ -859,7 +817,7 @@ $('#muteAudio').bind('click', function(e)
   soundOut.play();
   localMedia = rtcSession.getLocalStreams()[0];
   localAudio = localMedia.getAudioTracks()[0];
-  localAudio.enabled = false;
+  localAudio.clientConfig.enabled = false;
   $("#muteAudio").fadeOut(1000);
   $("#unmuteAudio").fadeIn(1000);
 });
@@ -869,7 +827,7 @@ $('#unmuteAudio').bind('click', function(e)
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
-  localAudio.enabled = true;
+  localAudio.clientConfig.enabled = true;
   $("#unmuteAudio").fadeOut(1000);
   $("#muteAudio").fadeIn(1000);
 });
@@ -911,7 +869,7 @@ $("#settings").bind('click', function(e)
     $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || transmitVGA);
     $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || transmitHD);
     $("#settingSize").val($.cookie('settingSize') || size);
-    $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') == "true") || enableAutoAnswer );
+    $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') == "true") || clientConfig.enableAutoAnswer );
     if ($("#localVideo").position().top != 0 && $("#localVideo").position().left != 0)
     {
       $("#settingLocalVideoTop").val($("#localVideo").position().top);
@@ -941,16 +899,16 @@ $("#saveSettings").bind('click', function(e)
   e.preventDefault();
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
-  $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: expires });
-  $.cookie("settingUserid", ($("#settingUserid").val()),  { expires: expires });
-  $.cookie("settingPassword", ($("#settingPassword").val()), { expires: expires });
-  $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: expires });
-  $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: expires });
-  $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: expires });
-  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
-  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: expires });
-  $.cookie("settingSize", ($("#settingSize").val()), { expires: expires });
-  $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: expires });
+  $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: clientConfig.expires });
+  $.cookie("settingUserid", ($("#settingUserid").val()),  { expires: clientConfig.expires });
+  $.cookie("settingPassword", ($("#settingPassword").val()), { expires: clientConfig.expires });
+  $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: clientConfig.expires });
+  $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: clientConfig.expires });
+  $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: clientConfig.expires });
+  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: clientConfig.expires });
+  $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: clientConfig.expires });
+  $.cookie("settingSize", ($("#settingSize").val()), { expires: clientConfig.expires });
+  $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: clientConfig.expires });
   $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +
                                     "#callHistory" + "-" + $("#settingCallHistoryTop").val() + "-" + $("#settingCallHistoryLeft").val() + "|" +
                                     "#callStats" + "-" + $("#settingCallStatsTop").val() + "-" + $("#settingCallStatsLeft").val())
@@ -1004,7 +962,7 @@ $('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e)
 var statsToggled = false;
 function toggleStats ()
 {
-  if (enableCallStats)
+  if (clientConfig.enableCallStats)
   {
     if (statsToggled == false)
     {
@@ -1026,7 +984,7 @@ function getSessionId ()
 var historyToggled = false;
 function toggleHistory ()
 {
-  if (enableCallHistory == true)
+  if (clientConfig.enableCallHistory == true)
   {
     if (historyToggled == false)
     {
@@ -1111,7 +1069,7 @@ function compatibilityCheck()
       return "Your version of Firefox must be upgraded to at least version 22y<br>" +
         "Please go to: <a href='http:www.mozilla.org'>http://www.mozilla.org</a>";
     }
-    enableStats = false; 
+    clientConfig.enableStats = false; 
   } 
 }
 
@@ -1122,7 +1080,7 @@ if(unsupported)
 }
 
 // Initial function selection
-if (enableHD == true & hd == true)
+if (clientConfig.enableHD == true & hd == true)
 {
   videoBandwidth = transmitHD;
   $("*").addClass("hd");
