@@ -28,7 +28,7 @@ var soundOutDTMF = document.createElement("audio");
 soundOutDTMF.volume = clientConfig.volumeDTMF;
 var timerRunning = false;
 disableICE = clientConfig.disableICE;
-var transmitVGA = $.cookie('settingTransmitVGA') || clinetConfig.transmitVGA;
+var transmitVGA = $.cookie('settingTransmitVGA') || clientConfig.transmitVGA;
 var transmitHD = $.cookie('settingTransmitHD') || clientConfig.transmitHD;
 var currentCallArray = new Array(4);
 
