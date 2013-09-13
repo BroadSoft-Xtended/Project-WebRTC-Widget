@@ -764,7 +764,6 @@ $('#hangup').bind('click', function(e)
   soundOut.setAttribute("src", "media/click.ogg");
   soundOut.play();
   rtcSession.terminate();
-  endCall();
   if (fullScreen == true)
   {
     $('#fullScreenContract').click();
@@ -1108,6 +1107,15 @@ if (destination)
 }
 
 $.cookie.raw = true;
+
+window.onbeforeunload = function(e) {
+  if (timerRunning)
+  {
+    rtcSession.terminate();
+  }
+  endCall();
+  return null;
+}
 
 onLoad(userid, password);
 });
