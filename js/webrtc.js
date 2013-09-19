@@ -570,6 +570,8 @@ function onLoad(userid, password)
   // SIP stack
   sipStack = new JsSIP.UA(config);
 
+  updateRtcMediaHandlerOptions();
+
   // Start SIP Stack
   sipStack.start();
 
@@ -1044,6 +1046,25 @@ document.onkeypress=function(e)
   }
 }
 
+function updateRtcMediaHandlerOptions(){
+    if(typeof(sipStack) == 'undefined') {
+      return;
+    }
+
+    var options = {};
+    if (clientConfig.enableHD == true & hd == true)
+    {
+      options["videoBandwidth"] = transmitHD;
+    }
+    else
+    {
+      options["videoBandwidth"] = transmitVGA;
+    }
+    options["disableICE"] = disableICE;
+
+    sipStack.setRtcMediaHandlerOptions(options);
+}
+
 function compatibilityCheck()
 {
   var ua = detect.parse(navigator.userAgent);
@@ -1082,12 +1103,7 @@ if(unsupported)
 // Initial function selection
 if (clientConfig.enableHD == true & hd == true)
 {
-  videoBandwidth = transmitHD;
   $("*").addClass("hd");
-}
-else
-{
-  videoBandwidth = transmitVGA;
 }
 
 if (register == true && !password)
@@ -1110,4 +1126,5 @@ if (destination)
 $.cookie.raw = true;
 
 onLoad(userid, password);
+
 });

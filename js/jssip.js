@@ -675,6 +675,9 @@ Transport.prototype = {
     message = JsSIP.Parser.parseMessage(data);
 
     if(this.ua.status === JsSIP.UA.C.STATUS_USER_CLOSED && message instanceof JsSIP.IncomingRequest) {
+      if (this.ua.configuration.trace_sip === true) {
+        console.log(LOG_PREFIX +'UA status is closed - not handling message\n');
+      }
       return;
     }
 
@@ -705,7 +708,19 @@ Transport.prototype = {
             }
             break;
         }
+      } else {
+        if (this.ua.configuration.trace_sip === true) {
+          console.log(LOG_PREFIX +'Message is not request nor response\n');
+        }
       }
+    } else {
+        if (this.ua.configuration.trace_sip === true) {
+            if(message) {
+                console.log(LOG_PREFIX +'Sanity check failed\n');
+            } else {
+                console.log(LOG_PREFIX +'Not a message\n');
+            }
+        }
     }
   },
 
@@ -792,7 +807,7 @@ function getHeader(data, headerStart) {
 }
 
 function parseHeader(message, data, headerStart, headerEnd) {
-  var header, idx, parsed,
+  var header, idx, length, parsed,
     hcolonIndex = data.indexOf(':', headerStart),
     headerName = data.substring(headerStart, hcolonIndex).trim(),
     headerValue = data.substring(hcolonIndex + 1, headerEnd).trim();
@@ -837,7 +852,8 @@ function parseHeader(message, data, headerStart, headerEnd) {
         parsed = undefined;
       }
 
-      for(idx in parsed) {
+      length = parsed.length;
+      for (idx = 0; idx < length; idx++) {
         header = parsed[idx];
         message.addHeader('record-route', headerValue.substring(header.possition, header.offset));
         message.headers['Record-Route'][message.countHeader('record-route')-1].parsed = header.parsed;
@@ -859,7 +875,8 @@ function parseHeader(message, data, headerStart, headerEnd) {
         parsed = undefined;
       }
 
-      for(idx in parsed) {
+      length = parsed.length;
+      for (idx = 0; idx < length; idx++) {
         header = parsed[idx];
         message.addHeader('contact', headerValue.substring(header.possition, header.offset));
         message.headers['Contact'][message.countHeader('contact')-1].parsed = header.parsed;
@@ -959,6 +976,7 @@ Parser.parseMessage = function(data) {
     }
     // data.indexOf returned -1 due to a malformed message.
     else if(headerEnd === -1) {
+      console.warn(LOG_PREFIX +'malformed message at : '+headerStart);
       return;
     }
 
@@ -1095,19 +1113,20 @@ OutgoingRequest.prototype = {
 
     msg += this.method + ' ' + this.ruri + ' SIP/2.0\r\n';
 
-    for(header in this.headers) {
-      for(idx in this.headers[header]) {
+    for (header in this.headers) {
+      length = this.headers[header].length;
+      for (idx = 0; idx < length; idx++) {
         msg += header + ': ' + this.headers[header][idx] + '\r\n';
       }
     }
 
     length = this.extraHeaders.length;
-    for(idx=0; idx < length; idx++) {
+    for (idx = 0; idx < length; idx++) {
       msg += this.extraHeaders[idx] +'\r\n';
     }
 
     msg += 'Supported: ' +  JsSIP.UA.C.SUPPORTED +'\r\n';
-    msg += 'User-Agent: Exario Networks WebRTC - 1.4' +'\r\n';
+    msg += 'User-Agent: Exario Networks WebRTC - 1.4\r\n';
 
     if(this.body) {
       length = JsSIP.Utils.str_utf8_length(this.body);
@@ -1200,7 +1219,7 @@ IncomingMessage.prototype = {
    * @returns {Array} Array with all the headers of the specified name.
    */
   getHeaderAll: function(name) {
-    var idx,
+    var idx, length,
       header = this.headers[JsSIP.Utils.headerize(name)],
       result = [];
 
@@ -1208,7 +1227,8 @@ IncomingMessage.prototype = {
       return [];
     }
 
-    for(idx in header) {
+    length = header.length;
+    for (idx = 0; idx < length; idx++) {
       result.push(header[idx].raw);
     }
 
@@ -1361,7 +1381,7 @@ IncomingRequest.prototype.reply = function(code, reason, extraHeaders, body, onS
   response += 'CSeq: ' + this.cseq + ' ' + this.method + '\r\n';
 
   length = extraHeaders.length;
-  for(idx=0; idx < length; idx++) {
+  for (idx = 0; idx < length; idx++) {
     response += extraHeaders[idx] +'\r\n';
   }
 
@@ -3170,7 +3190,7 @@ JsSIP.Registrator = Registrator;
 (function(JsSIP) {
 
 // Load dependencies
-var RequestSender   = /**
+    var RequestSender   = /**
  * @fileoverview RequestSender
  */
 
@@ -3241,7 +3261,7 @@ RequestSender.prototype = {
 return RequestSender;
 }(JsSIP));
 
-var RTCMediaHandler = /**
+    var RTCMediaHandler = /**
  * @fileoverview RTCMediaHandler
  */
 
@@ -3252,12 +3272,13 @@ var RTCMediaHandler = /**
  */
 (function(JsSIP){
 
-var RTCMediaHandler = function(session, constraints) {
+var RTCMediaHandler = function(session, constraints, options) {
   constraints = constraints || {};
 
   this.session = session;
   this.localMedia = null;
   this.peerConnection = null;
+  this.options = options || {};
 
   this.init(constraints);
 };
@@ -3319,14 +3340,9 @@ RTCMediaHandler.prototype = {
   },
 
   setLocalDescription: function(sessionDescription, onFailure) {
-    var self = this,
-      sent = false;
-
     this.peerConnection.setLocalDescription(
       sessionDescription,
-      function(){
-            sent = true;
-      },
+      function(){},
       function(e) {
         console.error(LOG_PREFIX +'unable to set local description');
         console.error(e);
@@ -3353,17 +3369,20 @@ RTCMediaHandler.prototype = {
   * @param {Function} onSuccess Fired when there are no more ICE candidates
   */
   init: function(constraints) {
-    var idx, server, scheme, url,
+    var idx, length, server, scheme, url,
       self = this,
-      servers = [];
+      servers = [],
+      config = this.session.ua.configuration;
 
-    for (idx in this.session.ua.configuration.stun_servers) {
-      server = this.session.ua.configuration.stun_servers[idx];
+    length = config.stun_servers.length;
+    for (idx = 0; idx < length; idx++) {
+      server = config.stun_servers[idx];
       servers.push({'url': server});
     }
 
-    for (idx in this.session.ua.configuration.turn_servers) {
-      server = this.session.ua.configuration.turn_servers[idx];
+    length = config.turn_servers.length;
+    for (idx = 0; idx < length; idx++) {
+      server = config.turn_servers[idx];
       url = server.server;
       scheme = url.substr(0, url.indexOf(':'));
       servers.push({
@@ -3372,38 +3391,40 @@ RTCMediaHandler.prototype = {
       });
     }
 
-    this.peerConnection = new JsSIP.WebRTC.RTCPeerConnection({'iceServers': servers}, constraints);
+    if(typeof(JsSIP.WebRTC.RTCPeerConnection) !== 'undefined') {
+      this.peerConnection = new JsSIP.WebRTC.RTCPeerConnection({'iceServers': servers}, constraints);
 
-    this.peerConnection.onaddstream = function(e) {
-      console.log(LOG_PREFIX +'stream added: '+ e.stream.id);
-    };
+      this.peerConnection.onaddstream = function(e) {
+        console.log(LOG_PREFIX +'stream added: '+ e.stream.id);
+      };
 
-    this.peerConnection.onremovestream = function(e) {
-      console.log(LOG_PREFIX +'stream removed: '+ e.stream.id);
-    };
+      this.peerConnection.onremovestream = function(e) {
+        console.log(LOG_PREFIX +'stream removed: '+ e.stream.id);
+      };
 
-    this.peerConnection.onicecandidate = function(e) {
-      if (e.candidate && !disableICE) {
-        console.log(LOG_PREFIX +'ICE candidate received: '+ e.candidate.candidate);
-      } else if (self.onIceCompleted !== undefined) {
-        self.onIceCompleted();
-      }
-    };
+      this.peerConnection.onicecandidate = function(e) {
+        if (e.candidate && !self.options["disableICE"]) {
+          console.log(LOG_PREFIX +'ICE candidate received: '+ e.candidate.candidate);
+        } else if (self.onIceCompleted !== undefined) {
+          self.onIceCompleted();
+        }
+      };
 
-    // To be deprecated as per https://code.google.com/p/webrtc/issues/detail?id=1393
-    this.peerConnection.ongatheringchange = function(e) {
-      if (e.currentTarget.iceGatheringState === 'complete' && this.iceConnectionState !== 'closed') {
-        self.onIceCompleted();
-      }
-    };
+      // To be deprecated as per https://code.google.com/p/webrtc/issues/detail?id=1393
+      this.peerConnection.ongatheringchange = function(e) {
+        if (e.currentTarget.iceGatheringState === 'complete' && this.iceConnectionState !== 'closed') {
+          self.onIceCompleted();
+        }
+      };
 
-    this.peerConnection.onicechange = function() {
-      console.log(LOG_PREFIX +'ICE connection state changed to "'+ this.iceConnectionState +'"');
-    };
+      this.peerConnection.onicechange = function() {
+        console.log(LOG_PREFIX +'ICE connection state changed to "'+ this.iceConnectionState +'"');
+      };
 
-    this.peerConnection.onstatechange = function() {
-      console.log(LOG_PREFIX +'PeerConnection state changed to "'+ this.readyState +'"');
-    };
+      this.peerConnection.onstatechange = function() {
+        console.log(LOG_PREFIX +'PeerConnection state changed to "'+ this.readyState +'"');
+      };
+    }
   },
 
   close: function() {
@@ -3449,23 +3470,29 @@ RTCMediaHandler.prototype = {
   * @param {Function} onFailure
   */
   onMessage: function(type, body, onSuccess, onFailure) {
-    // Grab video SDP
-    var videoSection = body.split("m=video");
-    // Add b=AS: bandwidth if video SDP and b=AS: does not exist
-    if (videoSection.length > 1 && videoSection[1].indexOf("b=AS:") === -1) {
-      videoSection[1] = videoSection[1].replace(/(.*c=IN\s+IP4.*)/, "$&\nb=AS:" + videoBandwidth);
-    } else if (videoSection.length > 1) {
-      // Change b=AS: in video SDP
-      videoSection[1] = videoSection[1].replace(/b=AS:\d{1,4}/, "b=AS:" + videoBandwidth);
-      body = videoSection.join("");
-    }
-    body = videoSection[0] + "m=video" + videoSection[1];
-    console.log("Modifying SDP!!!!\n" + body);
-    this.peerConnection.setRemoteDescription(
-      new JsSIP.WebRTC.RTCSessionDescription({type: type, sdp:body}),
-      onSuccess,
-      onFailure
-    );
+      // Grab video SDP
+      var videoSection = body.split("m=video");
+      // Add b=AS: bandwidth if video SDP and b=AS: does not exist
+      if (videoSection.length > 1 && videoSection[1].indexOf("b=AS:") === -1) {
+          videoSection[1] = videoSection[1].replace(/(.*c=IN\s+IP4.*)/, "$1\r\nb=AS:" + this.options["videoBandwidth"]);
+      } else if (videoSection.length > 1) {
+          // Change b=AS: in video SDP
+          videoSection[1] = videoSection[1].replace(/b=AS:\d{1,4}/, "b=AS:" + this.options["videoBandwidth"]);
+          body = videoSection.join("");
+      }
+      body = videoSection[0] + "m=video" + videoSection[1];
+      console.log("Modifying SDP with videoBandwidth : "+this.options["videoBandwidth"]+"!!!!\n" + body);
+      if(this.peerConnection) {
+        this.peerConnection.setRemoteDescription(
+          new JsSIP.WebRTC.RTCSessionDescription({type: type, sdp:body}),
+          onSuccess,
+          onFailure
+        );
+      }
+      this.session.ua.emit('onRTCMessage', this.ua, {
+          type: type,
+          body: body
+      });
   }
 };
 
@@ -3473,7 +3500,7 @@ RTCMediaHandler.prototype = {
 return RTCMediaHandler;
 }(JsSIP));
 
-var DTMF            = /**
+    var DTMF            = /**
  * @fileoverview DTMF
  */
 
@@ -3659,1104 +3686,1106 @@ return DTMF;
 }(JsSIP));
 
 
-var RTCSession,
-  LOG_PREFIX = JsSIP.name +' | '+ 'RTC SESSION' +' | ',
-  C = {
-    // RTCSession states
-    STATUS_NULL:               0,
-    STATUS_INVITE_SENT:        1,
-    STATUS_1XX_RECEIVED:       2,
-    STATUS_INVITE_RECEIVED:    3,
-    STATUS_WAITING_FOR_ANSWER: 4,
-    STATUS_WAITING_FOR_ACK:    5,
-    STATUS_CANCELED:           6,
-    STATUS_TERMINATED:         7,
-    STATUS_CONFIRMED:          8
-  };
-
-
-RTCSession = function(ua) {
-  var events = [
-  'progress',
-  'failed',
-  'started',
-  'ended',
-  'newDTMF'
-  ];
-
-  this.ua = ua;
-  this.status = C.STATUS_NULL;
-  this.dialog = null;
-  this.earlyDialogs = [];
-  this.rtcMediaHandler = null;
-
-  // Session Timers
-  this.timers = {
-    ackTimer: null,
-    expiresTimer: null,
-    invite2xxTimer: null,
-    userNoAnswerTimer: null
-  };
-
-  // Session info
-  this.direction = null;
-  this.local_identity = null;
-  this.remote_identity = null;
-  this.start_time = null;
-  this.end_time = null;
-  this.tones = null;
-
-  // Custom session empty object for high level use
-  this.data = {};
-
-  this.initEvents(events);
-};
-RTCSession.prototype = new JsSIP.EventEmitter();
-
-
-/**
- * User API
- */
-
-/**
- * Terminate the call.
- * @param {Object} [options]
- */
-RTCSession.prototype.terminate = function(options) {
-  options = options || {};
-
-  var cancel_reason,
-    status_code = options.status_code,
-    reason_phrase = options.reason_phrase,
-    extraHeaders = options.extraHeaders || [],
-    body = options.body;
-
-  // Check Session Status
-  if (this.status === C.STATUS_TERMINATED) {
-    throw new JsSIP.Exceptions.InvalidStateError(this.status);
-  }
-
-  switch(this.status) {
-    // - UAC -
-    case C.STATUS_NULL:
-    case C.STATUS_INVITE_SENT:
-    case C.STATUS_1XX_RECEIVED:
-      console.log(LOG_PREFIX +'canceling RTCSession');
-
-      if (status_code && (status_code < 200 || status_code >= 700)) {
-        throw new TypeError('Invalid status_code: '+ status_code);
-      } else if (status_code) {
-        reason_phrase = reason_phrase || JsSIP.C.REASON_PHRASE[status_code] || '';
-        cancel_reason = 'SIP ;cause=' + status_code + ' ;text="' + reason_phrase + '"';
-      }
-
-      // Check Session Status
-      if (this.status === C.STATUS_NULL) {
-        this.isCanceled = true;
-        this.cancelReason = cancel_reason;
-      } else if (this.status === C.STATUS_INVITE_SENT) {
-        if(this.received_100) {
-          this.request.cancel(cancel_reason);
-        } else {
-          this.isCanceled = true;
-          this.cancelReason = cancel_reason;
-        }
-      } else if(this.status === C.STATUS_1XX_RECEIVED) {
-        this.request.cancel(cancel_reason);
-      }
-
-      this.failed('local', null, JsSIP.C.causes.CANCELED);
-      break;
-
-      // - UAS -
-    case C.STATUS_WAITING_FOR_ANSWER:
-      console.log(LOG_PREFIX +'rejecting RTCSession');
-
-      status_code = status_code || 480;
-
-      if (status_code < 300 || status_code >= 700) {
-        throw new TypeError('Invalid status_code: '+ status_code);
-      }
-
-      this.request.reply(status_code, reason_phrase, extraHeaders, body);
-      this.failed('local', null, JsSIP.C.causes.REJECTED);
-      break;
-    case C.STATUS_WAITING_FOR_ACK:
-    case C.STATUS_CONFIRMED:
-      console.log(LOG_PREFIX +'terminating RTCSession');
-
-      // Send Bye
-      this.sendBye(options);
-      this.ended('local', null, JsSIP.C.causes.BYE);
-      break;
-  }
-
-  this.close();
-};
-
-/**
- * Answer the call.
- * @param {Object} [options]
- */
-RTCSession.prototype.answer = function(options) {
-  options = options || {};
-
-  var
-    self = this,
-    request = this.request,
-    extraHeaders = options.extraHeaders || [],
-    mediaConstraints = options.mediaConstraints || {'audio':true, 'video':true},
-
-    // User media succeeded
-    userMediaSucceeded = function(stream) {
-      self.rtcMediaHandler.addStream(
-        stream,
-        streamAdditionSucceeded,
-        streamAdditionFailed
-      );
-    },
-
-    // User media failed
-    userMediaFailed = function() {
-      request.reply(480);
-      self.failed('local', null, JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
-    },
-
-    // rtcMediaHandler.addStream successfully added
-    streamAdditionSucceeded = function() {
-      self.rtcMediaHandler.createAnswer(
-        answerCreationSucceeded,
-        answerCreationFailed
-      );
-    },
-
-    // rtcMediaHandler.addStream failed
-    streamAdditionFailed = function() {
-      if (self.status === C.STATUS_TERMINATED) {
-        return;
-      }
-
-      self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
-    },
-
-    // rtcMediaHandler.createAnswer succeeded
-    answerCreationSucceeded = function(body) {
-      var
-        // run for reply success callback
-        replySucceeded = function() {
-          var timeout = JsSIP.Timers.T1;
-
-          self.status = C.STATUS_WAITING_FOR_ACK;
-
-          /**
-           * RFC3261 13.3.1.4
-           * Response retransmissions cannot be accomplished by transaction layer
-           *  since it is destroyed when receiving the first 2xx answer
-           */
-          self.timers.invite2xxTimer = window.setTimeout(function invite2xxRetransmission() {
-              if (self.status !== C.STATUS_WAITING_FOR_ACK) {
-                return;
-              }
-
-              request.reply(200, null, ['Contact: '+ self.contact], body);
-
-              if (timeout < JsSIP.Timers.T2) {
-                timeout = timeout * 2;
-                if (timeout > JsSIP.Timers.T2) {
-                  timeout = JsSIP.Timers.T2;
-                }
-              }
-              self.timers.invite2xxTimer = window.setTimeout(
-                invite2xxRetransmission, timeout
-              );
-            },
-            timeout
-          );
-
-          /**
-           * RFC3261 14.2
-           * If a UAS generates a 2xx response and never receives an ACK,
-           *  it SHOULD generate a BYE to terminate the dialog.
-           */
-          self.timers.ackTimer = window.setTimeout(function() {
-              if(self.status === C.STATUS_WAITING_FOR_ACK) {
-                console.log(LOG_PREFIX + 'no ACK received, terminating the call');
-                window.clearTimeout(self.timers.invite2xxTimer);
-                self.sendBye();
-                self.ended('remote', null, JsSIP.C.causes.NO_ACK);
-              }
-            },
-            JsSIP.Timers.TIMER_H
-          );
-
-          self.started('local');
-        },
-
-        // run for reply failure callback
-        replyFailed = function() {
-          self.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+    var RTCSession,
+        LOG_PREFIX = JsSIP.name +' | '+ 'RTC SESSION' +' | ',
+        C = {
+            // RTCSession states
+            STATUS_NULL:               0,
+            STATUS_INVITE_SENT:        1,
+            STATUS_1XX_RECEIVED:       2,
+            STATUS_INVITE_RECEIVED:    3,
+            STATUS_WAITING_FOR_ANSWER: 4,
+            STATUS_ANSWERED:           5,
+            STATUS_WAITING_FOR_ACK:    6,
+            STATUS_CANCELED:           7,
+            STATUS_TERMINATED:         8,
+            STATUS_CONFIRMED:          9
         };
 
-      extraHeaders.push('Contact: ' + self.contact);
 
-      request.reply(200, null, extraHeaders,
-        body,
-        replySucceeded,
-        replyFailed
-      );
-    },
+    RTCSession = function(ua) {
+        var events = [
+            'progress',
+            'failed',
+            'started',
+            'ended',
+            'newDTMF'
+        ];
 
-    // rtcMediaHandler.createAnsewr failed
-    answerCreationFailed = function() {
-      if (self.status === C.STATUS_TERMINATED) {
-        return;
-      }
+        this.ua = ua;
+        this.status = C.STATUS_NULL;
+        this.dialog = null;
+        this.earlyDialogs = {};
+        this.rtcMediaHandler = null;
 
-      self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+        // Session Timers
+        this.timers = {
+            ackTimer: null,
+            expiresTimer: null,
+            invite2xxTimer: null,
+            userNoAnswerTimer: null
+        };
+
+        // Session info
+        this.direction = null;
+        this.local_identity = null;
+        this.remote_identity = null;
+        this.start_time = null;
+        this.end_time = null;
+        this.tones = null;
+
+        // Custom session empty object for high level use
+        this.data = {};
+
+        this.initEvents(events);
+    };
+    RTCSession.prototype = new JsSIP.EventEmitter();
+
+
+    /**
+     * User API
+     */
+
+    /**
+     * Terminate the call.
+     * @param {Object} [options]
+     */
+    RTCSession.prototype.terminate = function(options) {
+        options = options || {};
+
+        var cancel_reason,
+            status_code = options.status_code,
+            reason_phrase = options.reason_phrase,
+            extraHeaders = options.extraHeaders || [],
+            body = options.body;
+
+        // Check Session Status
+        if (this.status === C.STATUS_TERMINATED) {
+            throw new JsSIP.Exceptions.InvalidStateError(this.status);
+        }
+
+        switch(this.status) {
+            // - UAC -
+            case C.STATUS_NULL:
+            case C.STATUS_INVITE_SENT:
+            case C.STATUS_1XX_RECEIVED:
+                console.log(LOG_PREFIX +'canceling RTCSession');
+
+                if (status_code && (status_code < 200 || status_code >= 700)) {
+                    throw new TypeError('Invalid status_code: '+ status_code);
+                } else if (status_code) {
+                    reason_phrase = reason_phrase || JsSIP.C.REASON_PHRASE[status_code] || '';
+                    cancel_reason = 'SIP ;cause=' + status_code + ' ;text="' + reason_phrase + '"';
+                }
+
+                // Check Session Status
+                if (this.status === C.STATUS_NULL) {
+                    this.isCanceled = true;
+                    this.cancelReason = cancel_reason;
+                } else if (this.status === C.STATUS_INVITE_SENT) {
+                    if(this.received_100) {
+                        this.request.cancel(cancel_reason);
+                    } else {
+                        this.isCanceled = true;
+                        this.cancelReason = cancel_reason;
+                    }
+                } else if(this.status === C.STATUS_1XX_RECEIVED) {
+                    this.request.cancel(cancel_reason);
+                }
+
+                this.failed('local', null, JsSIP.C.causes.CANCELED);
+                break;
+
+            // - UAS -
+            case C.STATUS_WAITING_FOR_ANSWER:
+            case C.STATUS_ANSWERED:
+                console.log(LOG_PREFIX +'rejecting RTCSession');
+
+                status_code = status_code || 480;
+
+                if (status_code < 300 || status_code >= 700) {
+                    throw new TypeError('Invalid status_code: '+ status_code);
+                }
+
+                this.request.reply(status_code, reason_phrase, extraHeaders, body);
+                this.failed('local', null, JsSIP.C.causes.REJECTED);
+                break;
+            case C.STATUS_WAITING_FOR_ACK:
+            case C.STATUS_CONFIRMED:
+                console.log(LOG_PREFIX +'terminating RTCSession');
+
+                // Send Bye
+                this.sendBye(options);
+                this.ended('local', null, JsSIP.C.causes.BYE);
+                break;
+        }
+
+        this.close();
+    };
+
+    /**
+     * Answer the call.
+     * @param {Object} [options]
+     */
+    RTCSession.prototype.answer = function(options) {
+        options = options || {};
+
+        var
+            self = this,
+            request = this.request,
+            extraHeaders = options.extraHeaders || [],
+            mediaConstraints = options.mediaConstraints || {'audio':true, 'video':true},
+
+        // User media succeeded
+            userMediaSucceeded = function(stream) {
+                self.rtcMediaHandler.addStream(
+                    stream,
+                    streamAdditionSucceeded,
+                    streamAdditionFailed
+                );
+            },
+
+        // User media failed
+            userMediaFailed = function() {
+                request.reply(480);
+                self.failed('local', null, JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
+            },
+
+        // rtcMediaHandler.addStream successfully added
+            streamAdditionSucceeded = function() {
+                self.rtcMediaHandler.createAnswer(
+                    answerCreationSucceeded,
+                    answerCreationFailed
+                );
+            },
+
+        // rtcMediaHandler.addStream failed
+            streamAdditionFailed = function() {
+                if (self.status === C.STATUS_TERMINATED) {
+                    return;
+                }
+
+                self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+            },
+
+        // rtcMediaHandler.createAnswer succeeded
+            answerCreationSucceeded = function(body) {
+                var
+                // run for reply success callback
+                    replySucceeded = function() {
+                        var timeout = JsSIP.Timers.T1;
+
+                        self.status = C.STATUS_WAITING_FOR_ACK;
+
+                        /**
+                         * RFC3261 13.3.1.4
+                         * Response retransmissions cannot be accomplished by transaction layer
+                         *  since it is destroyed when receiving the first 2xx answer
+                         */
+                        self.timers.invite2xxTimer = window.setTimeout(function invite2xxRetransmission() {
+                                if (self.status !== C.STATUS_WAITING_FOR_ACK) {
+                                    return;
+                                }
+
+                                request.reply(200, null, ['Contact: '+ self.contact], body);
+
+                                if (timeout < JsSIP.Timers.T2) {
+                                    timeout = timeout * 2;
+                                    if (timeout > JsSIP.Timers.T2) {
+                                        timeout = JsSIP.Timers.T2;
+                                    }
+                                }
+                                self.timers.invite2xxTimer = window.setTimeout(
+                                    invite2xxRetransmission, timeout
+                                );
+                            },
+                            timeout
+                        );
+
+                        /**
+                         * RFC3261 14.2
+                         * If a UAS generates a 2xx response and never receives an ACK,
+                         *  it SHOULD generate a BYE to terminate the dialog.
+                         */
+                        self.timers.ackTimer = window.setTimeout(function() {
+                                if(self.status === C.STATUS_WAITING_FOR_ACK) {
+                                    console.log(LOG_PREFIX + 'no ACK received, terminating the call');
+                                    window.clearTimeout(self.timers.invite2xxTimer);
+                                    self.sendBye();
+                                    self.ended('remote', null, JsSIP.C.causes.NO_ACK);
+                                }
+                            },
+                            JsSIP.Timers.TIMER_H
+                        );
+
+                        self.started('local');
+                    },
+
+                // run for reply failure callback
+                    replyFailed = function() {
+                        self.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+                    };
+
+                extraHeaders.push('Contact: ' + self.contact);
+
+                request.reply(200, null, extraHeaders,
+                    body,
+                    replySucceeded,
+                    replyFailed
+                );
+            },
+
+        // rtcMediaHandler.createAnsewr failed
+            answerCreationFailed = function() {
+                if (self.status === C.STATUS_TERMINATED) {
+                    return;
+                }
+
+                self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+            };
+
+
+        // Check Session Direction and Status
+        if (this.direction !== 'incoming') {
+            throw new TypeError('Invalid method "answer" for an outgoing call');
+        } else if (this.status !== C.STATUS_WAITING_FOR_ANSWER) {
+            throw new JsSIP.Exceptions.InvalidStateError(this.status);
+        }
+
+        this.status = C.STATUS_ANSWERED;
+
+        // An error on dialog creation will fire 'failed' event
+        if(!this.createDialog(request, 'UAS')) {
+            request.reply(500, 'Missing Contact header field');
+            return;
+        }
+
+        window.clearTimeout(this.timers.userNoAnswerTimer);
+
+        this.rtcMediaHandler.getUserMedia(
+            userMediaSucceeded,
+            userMediaFailed,
+            mediaConstraints
+        );
+    };
+
+    /**
+     * Send a DTMF
+     *
+     * @param {String|Number} tones
+     * @param {Object} [options]
+     */
+    RTCSession.prototype.sendDTMF = function(tones, options) {
+        var duration, interToneGap,
+            position = 0,
+            self = this;
+
+        options = options || {};
+        duration = options.duration || null;
+        interToneGap = options.interToneGap || null;
+
+        if (tones === undefined) {
+            throw new TypeError('Not enough arguments');
+        }
+
+        // Check Session Status
+        if (this.status !== C.STATUS_CONFIRMED && this.status !== C.STATUS_WAITING_FOR_ACK) {
+            throw new JsSIP.Exceptions.InvalidStateError(this.status);
+        }
+
+        // Check tones
+        if (!tones || (typeof tones !== 'string' && typeof tones !== 'number') || !tones.toString().match(/^[0-9A-D#*,]+$/i)) {
+            throw new TypeError('Invalid tones: '+ tones);
+        }
+
+        tones = tones.toString();
+
+        // Check duration
+        if (duration && !JsSIP.Utils.isDecimal(duration)) {
+            throw new TypeError('Invalid tone duration: '+ duration);
+        } else if (!duration) {
+            duration = DTMF.C.DEFAULT_DURATION;
+        } else if (duration < DTMF.C.MIN_DURATION) {
+            console.warn(LOG_PREFIX +'"duration" value is lower than the minimum allowed, setting it to '+ DTMF.C.MIN_DURATION+ ' milliseconds');
+            duration = DTMF.C.MIN_DURATION;
+        } else if (duration > DTMF.C.MAX_DURATION) {
+            console.warn(LOG_PREFIX +'"duration" value is greater than the maximum allowed, setting it to '+ DTMF.C.MAX_DURATION +' milliseconds');
+            duration = DTMF.C.MAX_DURATION;
+        } else {
+            duration = Math.abs(duration);
+        }
+        options.duration = duration;
+
+        // Check interToneGap
+        if (interToneGap && !JsSIP.Utils.isDecimal(interToneGap)) {
+            throw new TypeError('Invalid interToneGap: '+ interToneGap);
+        } else if (!interToneGap) {
+            interToneGap = DTMF.C.DEFAULT_INTER_TONE_GAP;
+        } else if (interToneGap < DTMF.C.MIN_INTER_TONE_GAP) {
+            console.warn(LOG_PREFIX +'"interToneGap" value is lower than the minimum allowed, setting it to '+ DTMF.C.MIN_INTER_TONE_GAP +' milliseconds');
+            interToneGap = DTMF.C.MIN_INTER_TONE_GAP;
+        } else {
+            interToneGap = Math.abs(interToneGap);
+        }
+
+        if (this.tones) {
+            // Tones are already queued, just add to the queue
+            this.tones += tones;
+            return;
+        }
+
+        // New set of tones to start sending
+        this.tones = tones;
+
+        var sendDTMF = function () {
+            var tone, timeout,
+                tones = self.tones;
+
+            if (self.status === C.STATUS_TERMINATED || !tones || position >= tones.length) {
+                // Stop sending DTMF
+                self.tones = null;
+                return;
+            }
+
+            tone = tones[position];
+            position += 1;
+
+            if (tone === ',') {
+                timeout = 2000;
+            } else {
+                var dtmf = new DTMF(self);
+                dtmf.on('failed', function(){self.tones = null;});
+                dtmf.send(tone, options);
+                timeout = duration + interToneGap;
+            }
+
+            // Set timeout for the next tone
+            window.setTimeout(sendDTMF, timeout);
+        };
+
+        // Send the first tone
+        sendDTMF();
     };
 
 
-  // Check Session Direction and Status
-  if (this.direction !== 'incoming') {
-    throw new TypeError('Invalid method "answer" for an outgoing call');
-  } else if (this.status !== C.STATUS_WAITING_FOR_ANSWER) {
-    throw new JsSIP.Exceptions.InvalidStateError(this.status);
-  }
-
-  // An error on dialog creation will fire 'failed' event
-  if(!this.createDialog(request, 'UAS')) {
-    request.reply(500, 'Missing Contact header field');
-    return;
-  }
-
-  window.clearTimeout(this.timers.userNoAnswerTimer);
-
-  this.rtcMediaHandler.getUserMedia(
-    userMediaSucceeded,
-    userMediaFailed,
-    mediaConstraints
-  );
-};
-
-/**
- * Send a DTMF
- *
- * @param {String|Number} tones
- * @param {Object} [options]
- */
-RTCSession.prototype.sendDTMF = function(tones, options) {
-  var duration, interToneGap,
-    position = 0,
-    self = this;
-
-  options = options || {};
-  duration = options.duration || null;
-  interToneGap = options.interToneGap || null;
-
-  if (tones === undefined) {
-    throw new TypeError('Not enough arguments');
-  }
-
-  // Check Session Status
-  if (this.status !== C.STATUS_CONFIRMED && this.status !== C.STATUS_WAITING_FOR_ACK) {
-    throw new JsSIP.Exceptions.InvalidStateError(this.status);
-  }
-
-  // Check tones
-  if (!tones || (typeof tones !== 'string' && typeof tones !== 'number') || !tones.toString().match(/^[0-9A-D#*,]+$/i)) {
-    throw new TypeError('Invalid tones: '+ tones);
-  }
-
-  tones = tones.toString();
-
-  // Check duration
-  if (duration && !JsSIP.Utils.isDecimal(duration)) {
-    throw new TypeError('Invalid tone duration: '+ duration);
-  } else if (!duration) {
-    duration = DTMF.C.DEFAULT_DURATION;
-  } else if (duration < DTMF.C.MIN_DURATION) {
-    console.warn(LOG_PREFIX +'"duration" value is lower than the minimum allowed, setting it to '+ DTMF.C.MIN_DURATION+ ' milliseconds');
-    duration = DTMF.C.MIN_DURATION;
-  } else if (duration > DTMF.C.MAX_DURATION) {
-    console.warn(LOG_PREFIX +'"duration" value is greater than the maximum allowed, setting it to '+ DTMF.C.MAX_DURATION +' milliseconds');
-    duration = DTMF.C.MAX_DURATION;
-  } else {
-    duration = Math.abs(duration);
-  }
-  options.duration = duration;
-
-  // Check interToneGap
-  if (interToneGap && !JsSIP.Utils.isDecimal(interToneGap)) {
-    throw new TypeError('Invalid interToneGap: '+ interToneGap);
-  } else if (!interToneGap) {
-    interToneGap = DTMF.C.DEFAULT_INTER_TONE_GAP;
-  } else if (interToneGap < DTMF.C.MIN_INTER_TONE_GAP) {
-    console.warn(LOG_PREFIX +'"interToneGap" value is lower than the minimum allowed, setting it to '+ DTMF.C.MIN_INTER_TONE_GAP +' milliseconds');
-    interToneGap = DTMF.C.MIN_INTER_TONE_GAP;
-  } else {
-    interToneGap = Math.abs(interToneGap);
-  }
-
-  if (this.tones) {
-    // Tones are already queued, just add to the queue
-    this.tones += tones;
-    return;
-  }
-
-  // New set of tones to start sending
-  this.tones = tones;
-
-  var sendDTMF = function () {
-    var tone, timeout,
-      tones = self.tones;
-
-    if (self.status === C.STATUS_TERMINATED || !tones || position >= tones.length) {
-      // Stop sending DTMF
-      self.tones = null;
-      return;
-    }
-
-    tone = tones[position];
-    position += 1;
-
-    if (tone === ',') {
-      timeout = 2000;
-    } else {
-      var dtmf = new DTMF(self);
-      dtmf.on('failed', function(){self.tones = null;});
-      dtmf.send(tone, options);
-      timeout = duration + interToneGap;
-    }
-
-    // Set timeout for the next tone
-    window.setTimeout(sendDTMF, timeout);
-  };
-
-  // Send the first tone
-  sendDTMF();
-};
-
-
-/**
- * RTCPeerconnection handlers
- */
-
-
-
-/**
- * Session Management
- */
+    /**
+     * RTCPeerconnection handlers
+     */
 // Modified to support Firefox 22
-RTCSession.prototype.getLocalStreams = function() {
-  if (this.rtcMediaHandler.peerConnection.localStreams) {
-    return this.rtcMediaHandler &&
-      this.rtcMediaHandler.peerConnection &&
-      this.rtcMediaHandler.peerConnection.localStreams || [];
-  }
-  else {
-    return this.rtcMediaHandler &&
-      this.rtcMediaHandler.peerConnection &&
-      this.rtcMediaHandler.peerConnection.getLocalStreams() || [];
-  }
-};
+    RTCSession.prototype.getLocalStreams = function() {
+        if (this.rtcMediaHandler.peerConnection.localStreams) {
+            return this.rtcMediaHandler &&
+                this.rtcMediaHandler.peerConnection &&
+                this.rtcMediaHandler.peerConnection.localStreams || [];
+        }
+        else {
+            return this.rtcMediaHandler &&
+                this.rtcMediaHandler.peerConnection &&
+                this.rtcMediaHandler.peerConnection.getLocalStreams() || [];
+        }
+    };
 
-RTCSession.prototype.getRemoteStreams = function() {
-  if (this.rtcMediaHandler.peerConnection.remoteStreams) {
-    return this.rtcMediaHandler &&
-      this.rtcMediaHandler.peerConnection &&
-      this.rtcMediaHandler.peerConnection.remoteStreams || [];
-  }
-  else {
-    return this.rtcMediaHandler &&
-      this.rtcMediaHandler.peerConnection &&
-      this.rtcMediaHandler.peerConnection.getRemoteStreams() || [];
-  }
-};
+    RTCSession.prototype.getRemoteStreams = function() {
+        if (this.rtcMediaHandler.peerConnection.remoteStreams) {
+            return this.rtcMediaHandler &&
+                this.rtcMediaHandler.peerConnection &&
+                this.rtcMediaHandler.peerConnection.remoteStreams || [];
+        }
+        else {
+            return this.rtcMediaHandler &&
+                this.rtcMediaHandler.peerConnection &&
+                this.rtcMediaHandler.peerConnection.getRemoteStreams() || [];
+        }
+    };
 
-/**
-* @private
-*/
-RTCSession.prototype.init_incoming = function(request) {
-  var expires,
-    self = this,
-    contentType = request.getHeader('Content-Type');
-
-  // Check body and content type
-  if(!request.body || (contentType !== 'application/sdp')) {
-    request.reply(415);
-    return;
-  }
-
-  // Session parameter initialization
-  this.status = C.STATUS_INVITE_RECEIVED;
-  this.from_tag = request.from_tag;
-  this.id = request.call_id + this.from_tag;
-  this.request = request;
-  this.contact = this.ua.contact.toString();
-
-  //Save the session into the ua sessions collection.
-  this.ua.sessions[this.id] = this;
-
-  //Get the Expires header value if exists
-  if(request.hasHeader('expires')) {
-    expires = request.getHeader('expires') * 1000;
-  }
-
-  /* Set the to_tag before
-   * replying a response code that will create a dialog.
-   */
-  request.to_tag = JsSIP.Utils.newTag();
-
-  // An error on dialog creation will fire 'failed' event
-  if(!this.createDialog(request, 'UAS', true)) {
-    request.reply(500, 'Missing Contact header field');
-    return;
-  }
-
-  //Initialize Media Session
-  this.rtcMediaHandler = new RTCMediaHandler(this,
-    {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}
-  );
-  this.rtcMediaHandler.onMessage(
-    'offer',
-    request.body,
-    /*
-     * onSuccess
-     * SDP Offer is valid. Fire UA newRTCSession
+    /**
+     * Session Management
      */
-    function() {
-      request.reply(180, null, ['Contact: ' + self.contact]);
-      self.status = C.STATUS_WAITING_FOR_ANSWER;
 
-      // Set userNoAnswerTimer
-      self.timers.userNoAnswerTimer = window.setTimeout(function() {
-          request.reply(408);
-          self.failed('local',null, JsSIP.C.causes.NO_ANSWER);
-        }, self.ua.configuration.no_answer_timeout
-      );
-
-      /* Set expiresTimer
-       * RFC3261 13.3.1
-       */
-      if (expires) {
-        self.timers.expiresTimer = window.setTimeout(function() {
-            if(self.status === C.STATUS_WAITING_FOR_ANSWER) {
-              request.reply(487);
-              self.failed('system', null, JsSIP.C.causes.EXPIRES);
-            }
-          }, expires
-        );
-      }
-
-      self.newRTCSession('remote', request);
-    },
-    /*
-     * onFailure
-     * Bad media description
+    /**
+     * @private
      */
-    function(e) {
-      console.warn(LOG_PREFIX +'invalid SDP');
-      console.warn(e);
-      request.reply(488);
-    }
-  );
-};
+    RTCSession.prototype.init_incoming = function(request) {
+        var expires,
+            self = this,
+            contentType = request.getHeader('Content-Type');
 
-/**
- * @private
- */
-RTCSession.prototype.connect = function(target, options) {
-  options = options || {};
-
-  var event, requestParams,
-    invalidTarget = false,
-    eventHandlers = options.eventHandlers || {},
-    extraHeaders = options.extraHeaders || [],
-    mediaConstraints = options.mediaConstraints || {audio: true, video: true},
-    RTCConstraints = options.RTCConstraints || {};
-
-  if (target === undefined) {
-    throw new TypeError('Not enough arguments');
-  }
-
-  // Check Session Status
-  if (this.status !== C.STATUS_NULL) {
-    throw new JsSIP.Exceptions.InvalidStateError(this.status);
-  }
-
-  // Set event handlers
-  for (event in eventHandlers) {
-    this.on(event, eventHandlers[event]);
-  }
-
-  // Check target validity
-  try {
-    target = JsSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
-  } catch(e) {
-    target = JsSIP.URI.parse(JsSIP.C.INVALID_TARGET_URI);
-    invalidTarget = true;
-  }
-
-  // Session parameter initialization
-  this.from_tag = JsSIP.Utils.newTag();
-  this.rtcMediaHandler = new RTCMediaHandler(this, RTCConstraints);
-
-  // Set anonymous property
-  this.anonymous = options.anonymous;
-
-  // OutgoingSession specific parameters
-  this.isCanceled = false;
-  this.received_100 = false;
-
-  requestParams = {from_tag: this.from_tag};
-
-  this.contact = this.ua.contact.toString({
-    anonymous: this.anonymous,
-    outbound: true
-  });
-
-  if (this.anonymous) {
-    requestParams.from_display_name = 'Anonymous';
-    requestParams.from_uri = 'sip:anonymous@anonymous.invalid';
-
-    extraHeaders.push('P-Preferred-Identity: '+ this.ua.configuration.uri.toString());
-    extraHeaders.push('Privacy: id');
-  }
-
-  extraHeaders.push('Contact: '+ this.contact);
-  extraHeaders.push('Allow: '+ JsSIP.Utils.getAllowedMethods(this.ua));
-  extraHeaders.push('Content-Type: application/sdp');
-
-  this.request = new JsSIP.OutgoingRequest(JsSIP.C.INVITE, target, this.ua, requestParams, extraHeaders);
-
-  this.id = this.request.call_id + this.from_tag;
-
-  //Save the session into the ua sessions collection.
-  this.ua.sessions[this.id] = this;
-
-  this.newRTCSession('local', this.request);
-
-  if (invalidTarget) {
-    this.failed('local', null, JsSIP.C.causes.INVALID_TARGET);
-  } else if (!JsSIP.WebRTC.isSupported) {
-    this.failed('local', null, JsSIP.C.causes.WEBRTC_NOT_SUPPORTED);
-  } else {
-    this.sendInitialRequest(mediaConstraints);
-  }
-};
-
-/**
-* @private
-*/
-RTCSession.prototype.close = function() {
-  var idx;
-
-  if(this.status === C.STATUS_TERMINATED) {
-    return;
-  }
-
-  console.log(LOG_PREFIX +'closing INVITE session ' + this.id);
-
-  // 1st Step. Terminate media.
-  if (this.rtcMediaHandler){
-    this.rtcMediaHandler.close();
-  }
-
-  // 2nd Step. Terminate signaling.
-
-  // Clear session timers
-  for(idx in this.timers) {
-    window.clearTimeout(this.timers[idx]);
-  }
-
-  // Terminate dialogs
-
-  // Terminate confirmed dialog
-  if(this.dialog) {
-    this.dialog.terminate();
-    delete this.dialog;
-  }
-
-  // Terminate early dialogs
-  for(idx in this.earlyDialogs) {
-    this.earlyDialogs[idx].terminate();
-    delete this.earlyDialogs[idx];
-  }
-
-  this.status = C.STATUS_TERMINATED;
-
-  delete this.ua.sessions[this.id];
-};
-
-/**
- * Dialog Management
- * @private
- */
-RTCSession.prototype.createDialog = function(message, type, early) {
-  var dialog, early_dialog,
-    local_tag = (type === 'UAS') ? message.to_tag : message.from_tag,
-    remote_tag = (type === 'UAS') ? message.from_tag : message.to_tag,
-    id = message.call_id + local_tag + remote_tag;
-
-    early_dialog = this.earlyDialogs[id];
-
-  // Early Dialog
-  if (early) {
-    if (early_dialog) {
-      return true;
-    } else {
-      early_dialog = new JsSIP.Dialog(this, message, type, JsSIP.Dialog.C.STATUS_EARLY);
-
-      // Dialog has been successfully created.
-      if(early_dialog.id) {
-        this.earlyDialogs[id] = early_dialog;
-        return true;
-      }
-      // Dialog not created due to an error.
-      else {
-        this.failed('remote', message, JsSIP.C.causes.INTERNAL_ERROR);
-        return false;
-      }
-    }
-  }
-
-  // Confirmed Dialog
-  else {
-    // In case the dialog is in _early_ state, update it
-    if (early_dialog) {
-      early_dialog.update(message, type);
-      this.dialog = early_dialog;
-      delete this.earlyDialogs[id];
-      return true;
-    }
-
-    // Otherwise, create a _confirmed_ dialog
-    dialog = new JsSIP.Dialog(this, message, type);
-
-    if(dialog.id) {
-      this.to_tag = message.to_tag;
-      this.dialog = dialog;
-      return true;
-    }
-    // Dialog not created due to an error
-    else {
-      this.failed('remote', message, JsSIP.C.causes.INTERNAL_ERROR);
-      return false;
-    }
-  }
-};
-
-
-/**
- * In dialog Request Reception
- * @private
- */
-RTCSession.prototype.receiveRequest = function(request) {
-  var contentType;
-
-  if(request.method === JsSIP.C.CANCEL) {
-    /* RFC3261 15 States that a UAS may have accepted an invitation while a CANCEL
-    * was in progress and that the UAC MAY continue with the session established by
-    * any 2xx response, or MAY terminate with BYE. JsSIP does continue with the
-    * established session. So the CANCEL is processed only if the session is not yet
-    * established.
-    */
-
-    /*
-    * Terminate the whole session in case the user didn't accept nor reject the
-    *request opening the session.
-    */
-    if(this.status === C.STATUS_WAITING_FOR_ANSWER) {
-      this.status = C.STATUS_CANCELED;
-      this.request.reply(487);
-      this.failed('remote', request, JsSIP.C.causes.CANCELED);
-    }
-  } else {
-    // Requests arriving here are in-dialog requests.
-    switch(request.method) {
-      case JsSIP.C.ACK:
-        if(this.status === C.STATUS_WAITING_FOR_ACK) {
-          window.clearTimeout(this.timers.ackTimer);
-          window.clearTimeout(this.timers.invite2xxTimer);
-          this.status = C.STATUS_CONFIRMED;
+        // Check body and content type
+        if(!request.body || (contentType !== 'application/sdp')) {
+            request.reply(415);
+            return;
         }
-        break;
-      case JsSIP.C.BYE:
-        if(this.status === C.STATUS_CONFIRMED) {
-          request.reply(200);
-          this.ended('remote', request, JsSIP.C.causes.BYE);
+
+        // Session parameter initialization
+        this.status = C.STATUS_INVITE_RECEIVED;
+        this.from_tag = request.from_tag;
+        this.id = request.call_id + this.from_tag;
+        this.request = request;
+        this.contact = this.ua.contact.toString();
+
+        //Save the session into the ua sessions collection.
+        this.ua.sessions[this.id] = this;
+
+        //Get the Expires header value if exists
+        if(request.hasHeader('expires')) {
+            expires = request.getHeader('expires') * 1000;
         }
-        break;
-      case JsSIP.C.INVITE:
-        if(this.status === C.STATUS_CONFIRMED) {
-          console.log(LOG_PREFIX +'re-INVITE received');
-        }
-        break;
-      case JsSIP.C.INFO:
-        if(this.status === C.STATUS_CONFIRMED || this.status === C.STATUS_WAITING_FOR_ACK) {
-          contentType = request.getHeader('content-type');
-          if (contentType && (contentType.match(/^application\/dtmf-relay/i))) {
-            new DTMF(this).init_incoming(request);
-          }
-        }
-    }
-  }
-};
 
+        /* Set the to_tag before
+         * replying a response code that will create a dialog.
+         */
+        request.to_tag = JsSIP.Utils.newTag();
 
-/**
- * Initial Request Sender
- * @private
- */
-RTCSession.prototype.sendInitialRequest = function(constraints) {
-  var
-  self = this,
- request_sender = new JsSIP.RequestSender(self, this.ua),
-
- // User media succeeded
- userMediaSucceeded = function(stream) {
-   self.rtcMediaHandler.addStream(
-     stream,
-     streamAdditionSucceeded,
-     streamAdditionFailed
-   );
- },
-
- // User media failed
- userMediaFailed = function() {
-   if (self.status === C.STATUS_TERMINATED) {
-     return;
-   }
-
-   self.failed('local', null, JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
- },
-
- // rtcMediaHandler.addStream successfully added
- streamAdditionSucceeded = function() {
-   self.rtcMediaHandler.createOffer(
-     offerCreationSucceeded,
-     offerCreationFailed
-   );
- },
-
- // rtcMediaHandler.addStream failed
- streamAdditionFailed = function() {
-   if (self.status === C.STATUS_TERMINATED) {
-     return;
-   }
-
-   self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
- },
-
- // rtcMediaHandler.createOffer succeeded
- offerCreationSucceeded = function(offer) {
-   if (self.isCanceled || self.status === C.STATUS_TERMINATED) {
-     return;
-   }
-
-   self.request.body = offer;
-   self.status = C.STATUS_INVITE_SENT;
-   request_sender.send();
- },
-
- // rtcMediaHandler.createOffer failed
- offerCreationFailed = function() {
-   if (self.status === C.STATUS_TERMINATED) {
-     return;
-   }
-
-   self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
- };
-
- this.rtcMediaHandler.getUserMedia(
-   userMediaSucceeded,
-   userMediaFailed,
-   constraints
- );
-};
-
-/**
- * Reception of Response for Initial Request
- * @private
- */
-RTCSession.prototype.receiveResponse = function(response) {
-  var cause,
-    session = this;
-
-  if(this.status !== C.STATUS_INVITE_SENT && this.status !== C.STATUS_1XX_RECEIVED) {
-    return;
-  }
-
-  // Proceed to cancellation if the user requested.
-  if(this.isCanceled) {
-    if(response.status_code >= 100 && response.status_code < 200) {
-      this.request.cancel(this.cancelReason);
-    } else if(response.status_code >= 200 && response.status_code < 299) {
-      this.acceptAndTerminate(response);
-    }
-    return;
-  }
-
-  switch(true) {
-    case /^100$/.test(response.status_code):
-      this.received_100 = true;
-      break;
-    case /^1[0-9]{2}$/.test(response.status_code):
-      // Do nothing with 1xx responses without To tag.
-      if(!response.to_tag) {
-        console.warn(LOG_PREFIX +'1xx response received without to tag');
-        break;
-      }
-
-      // Create Early Dialog if 1XX comes with contact
-      if(response.hasHeader('contact')) {
         // An error on dialog creation will fire 'failed' event
-        this.createDialog(response, 'UAC', true);
-      }
-
-      this.status = C.STATUS_1XX_RECEIVED;
-      this.progress('remote', response);
-      break;
-    case /^2[0-9]{2}$/.test(response.status_code):
-      // Do nothing if this.dialog is already confirmed
-      if (this.dialog) {
-        break;
-      }
-
-      if(!response.body) {
-        this.acceptAndTerminate(response, 400, 'Missing session description');
-        this.failed('remote', response, JsSIP.C.causes.BAD_MEDIA_DESCRIPTION);
-        break;
-      }
-
-      // An error on dialog creation will fire 'failed' event
-      if (!this.createDialog(response, 'UAC')) {
-        break;
-      }
-
-      this.rtcMediaHandler.onMessage(
-        'answer',
-        response.body,
-        /*
-         * onSuccess
-         * SDP Answer fits with Offer. Media will start
-         */
-        function() {
-          session.status = C.STATUS_CONFIRMED;
-          session.sendACK();
-          session.started('remote', response);
-        },
-        /*
-         * onFailure
-         * SDP Answer does not fit the Offer. Accept the call and Terminate.
-         */
-        function(e) {
-          console.warn(e);
-          session.acceptAndTerminate(response, 488, 'Not Acceptable Here');
-          session.failed('remote', response, JsSIP.C.causes.BAD_MEDIA_DESCRIPTION);
+        if(!this.createDialog(request, 'UAS', true)) {
+            request.reply(500, 'Missing Contact header field');
+            return;
         }
-      );
-      break;
-    default:
-      cause = JsSIP.Utils.sipErrorCause(response.status_code);
-      this.failed('remote', response, cause);
-  }
-};
+
+        //Initialize Media Session
+        this.rtcMediaHandler = new RTCMediaHandler(this,
+            {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}, this.ua.rtcMediaHandlerOptions
+        );
+        this.rtcMediaHandler.onMessage(
+            'offer',
+            request.body,
+            /*
+             * onSuccess
+             * SDP Offer is valid. Fire UA newRTCSession
+             */
+            function() {
+                request.reply(180, null, ['Contact: ' + self.contact]);
+                self.status = C.STATUS_WAITING_FOR_ANSWER;
+
+                // Set userNoAnswerTimer
+                self.timers.userNoAnswerTimer = window.setTimeout(function() {
+                        request.reply(408);
+                        self.failed('local',null, JsSIP.C.causes.NO_ANSWER);
+                    }, self.ua.configuration.no_answer_timeout
+                );
+
+                /* Set expiresTimer
+                 * RFC3261 13.3.1
+                 */
+                if (expires) {
+                    self.timers.expiresTimer = window.setTimeout(function() {
+                            if(self.status === C.STATUS_WAITING_FOR_ANSWER) {
+                                request.reply(487);
+                                self.failed('system', null, JsSIP.C.causes.EXPIRES);
+                            }
+                        }, expires
+                    );
+                }
+
+                self.newRTCSession('remote', request);
+            },
+            /*
+             * onFailure
+             * Bad media description
+             */
+            function(e) {
+                console.warn(LOG_PREFIX +'invalid SDP');
+                console.warn(e);
+                request.reply(488);
+            }
+        );
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.connect = function(target, options) {
+        options = options || {};
+
+        var event, requestParams,
+            invalidTarget = false,
+            eventHandlers = options.eventHandlers || {},
+            extraHeaders = options.extraHeaders || [],
+            mediaConstraints = options.mediaConstraints || {audio: true, video: true},
+            RTCConstraints = options.RTCConstraints || {};
+
+        if (target === undefined) {
+            throw new TypeError('Not enough arguments');
+        }
+
+        // Check Session Status
+        if (this.status !== C.STATUS_NULL) {
+            throw new JsSIP.Exceptions.InvalidStateError(this.status);
+        }
+
+        // Set event handlers
+        for (event in eventHandlers) {
+            this.on(event, eventHandlers[event]);
+        }
+
+        // Check target validity
+        try {
+            target = JsSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
+        } catch(e) {
+            target = JsSIP.URI.parse(JsSIP.C.INVALID_TARGET_URI);
+            invalidTarget = true;
+        }
+
+        // Session parameter initialization
+        this.from_tag = JsSIP.Utils.newTag();
+        this.rtcMediaHandler = new RTCMediaHandler(this, RTCConstraints, this.ua.rtcMediaHandlerOptions);
+
+        // Set anonymous property
+        this.anonymous = options.anonymous;
+
+        // OutgoingSession specific parameters
+        this.isCanceled = false;
+        this.received_100 = false;
+
+        requestParams = {from_tag: this.from_tag};
+
+        this.contact = this.ua.contact.toString({
+            anonymous: this.anonymous,
+            outbound: true
+        });
+
+        if (this.anonymous) {
+            requestParams.from_display_name = 'Anonymous';
+            requestParams.from_uri = 'sip:anonymous@anonymous.invalid';
+
+            extraHeaders.push('P-Preferred-Identity: '+ this.ua.configuration.uri.toString());
+            extraHeaders.push('Privacy: id');
+        }
+
+        extraHeaders.push('Contact: '+ this.contact);
+        extraHeaders.push('Allow: '+ JsSIP.Utils.getAllowedMethods(this.ua));
+        extraHeaders.push('Content-Type: application/sdp');
+
+        this.request = new JsSIP.OutgoingRequest(JsSIP.C.INVITE, target, this.ua, requestParams, extraHeaders);
+
+        this.id = this.request.call_id + this.from_tag;
+
+        //Save the session into the ua sessions collection.
+        this.ua.sessions[this.id] = this;
+
+        this.newRTCSession('local', this.request);
+
+        if (invalidTarget) {
+            this.failed('local', null, JsSIP.C.causes.INVALID_TARGET);
+        } else if (!JsSIP.WebRTC.isSupported) {
+            this.failed('local', null, JsSIP.C.causes.WEBRTC_NOT_SUPPORTED);
+        } else {
+            this.sendInitialRequest(mediaConstraints);
+        }
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.close = function() {
+        var idx;
+
+        if(this.status === C.STATUS_TERMINATED) {
+            return;
+        }
+
+        console.log(LOG_PREFIX +'closing INVITE session ' + this.id);
+
+        // 1st Step. Terminate media.
+        if (this.rtcMediaHandler){
+            this.rtcMediaHandler.close();
+        }
+
+        // 2nd Step. Terminate signaling.
+
+        // Clear session timers
+        for(idx in this.timers) {
+            window.clearTimeout(this.timers[idx]);
+        }
+
+        // Terminate dialogs
+
+        // Terminate confirmed dialog
+        if(this.dialog) {
+            this.dialog.terminate();
+            delete this.dialog;
+        }
+
+        // Terminate early dialogs
+        for(idx in this.earlyDialogs) {
+            this.earlyDialogs[idx].terminate();
+            delete this.earlyDialogs[idx];
+        }
+
+        this.status = C.STATUS_TERMINATED;
+
+        delete this.ua.sessions[this.id];
+    };
+
+    /**
+     * Dialog Management
+     * @private
+     */
+    RTCSession.prototype.createDialog = function(message, type, early) {
+        var dialog, early_dialog,
+            local_tag = (type === 'UAS') ? message.to_tag : message.from_tag,
+            remote_tag = (type === 'UAS') ? message.from_tag : message.to_tag,
+            id = message.call_id + local_tag + remote_tag;
+
+        early_dialog = this.earlyDialogs[id];
+
+        // Early Dialog
+        if (early) {
+            if (early_dialog) {
+                return true;
+            } else {
+                early_dialog = new JsSIP.Dialog(this, message, type, JsSIP.Dialog.C.STATUS_EARLY);
+
+                // Dialog has been successfully created.
+                if(early_dialog.id) {
+                    this.earlyDialogs[id] = early_dialog;
+                    return true;
+                }
+                // Dialog not created due to an error.
+                else {
+                    this.failed('remote', message, JsSIP.C.causes.INTERNAL_ERROR);
+                    return false;
+                }
+            }
+        }
+
+        // Confirmed Dialog
+        else {
+            // In case the dialog is in _early_ state, update it
+            if (early_dialog) {
+                early_dialog.update(message, type);
+                this.dialog = early_dialog;
+                delete this.earlyDialogs[id];
+                return true;
+            }
+
+            // Otherwise, create a _confirmed_ dialog
+            dialog = new JsSIP.Dialog(this, message, type);
+
+            if(dialog.id) {
+                this.to_tag = message.to_tag;
+                this.dialog = dialog;
+                return true;
+            }
+            // Dialog not created due to an error
+            else {
+                this.failed('remote', message, JsSIP.C.causes.INTERNAL_ERROR);
+                return false;
+            }
+        }
+    };
 
 
-/**
-* @private
-*/
-RTCSession.prototype.acceptAndTerminate = function(response, status_code, reason_phrase) {
-  // Send ACK and BYE
-  // An error on dialog creation will fire 'failed' event
-  if (this.dialog || this.createDialog(response, 'UAC')) {
-    this.sendACK();
-    this.sendBye({
-      status_code: status_code,
-      reason_phrase: reason_phrase
-    });
-  }
-};
+    /**
+     * In dialog Request Reception
+     * @private
+     */
+    RTCSession.prototype.receiveRequest = function(request) {
+        var contentType;
 
-/**
-* @private
-*/
-RTCSession.prototype.sendACK = function() {
-  var request = this.dialog.createRequest(JsSIP.C.ACK);
+        if(request.method === JsSIP.C.CANCEL) {
+            /* RFC3261 15 States that a UAS may have accepted an invitation while a CANCEL
+             * was in progress and that the UAC MAY continue with the session established by
+             * any 2xx response, or MAY terminate with BYE. JsSIP does continue with the
+             * established session. So the CANCEL is processed only if the session is not yet
+             * established.
+             */
 
-  this.sendRequest(request);
-};
-
-/**
-* @private
-*/
-RTCSession.prototype.sendBye = function(options) {
-  options = options || {};
-
-  var request, reason,
-    status_code = options.status_code,
-    reason_phrase = options.reason_phrase || JsSIP.C.REASON_PHRASE[status_code] || '',
-    extraHeaders = options.extraHeaders || [],
-    body = options.body;
-
-  if (status_code && (status_code < 200 || status_code >= 700)) {
-    throw new TypeError('Invalid status_code: '+ status_code);
-  } else if (status_code) {
-    reason = 'SIP ;cause=' + status_code + '; text="' + reason_phrase + '"';
-    extraHeaders.push('Reason: '+ reason);
-  }
-
-  request = this.dialog.createRequest(JsSIP.C.BYE, extraHeaders);
-  request.body = body;
-
-  this.sendRequest(request);
-};
-
-/**
- * @private
- */
-RTCSession.prototype.sendRequest = function(request) {
-  var request_sender = new RequestSender(this, request);
-  request_sender.send();
-};
-
-/**
- * Session Callbacks
- */
-
-/**
-* Callback to be called from UA instance when TransportError occurs
-* @private
-*/
-RTCSession.prototype.onTransportError = function() {
-  if(this.status !== C.STATUS_TERMINATED) {
-    if (this.status === C.STATUS_CONFIRMED) {
-      this.ended('system', null, JsSIP.C.causes.CONNECTION_ERROR);
-    } else {
-      this.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
-    }
-  }
-};
-
-/**
-* Callback to be called from UA instance when RequestTimeout occurs
-* @private
-*/
-RTCSession.prototype.onRequestTimeout = function() {
-  if(this.status !== C.STATUS_TERMINATED) {
-    if (this.status === C.STATUS_CONFIRMED) {
-      this.ended('system', null, JsSIP.C.causes.REQUEST_TIMEOUT);
-    } else {
-      this.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
-    }
-  }
-};
-
-/**
- * Internal Callbacks
- */
-
-/**
- * @private
- */
-RTCSession.prototype.newRTCSession = function(originator, request) {
-  var session = this,
-    event_name = 'newRTCSession';
-
-  if (originator === 'remote') {
-    session.direction = 'incoming';
-    session.local_identity = request.to;
-    session.remote_identity = request.from;
-  } else if (originator === 'local'){
-    session.direction = 'outgoing';
-    session.local_identity = request.from;
-    session.remote_identity = request.to;
-  }
-
-  session.ua.emit(event_name, session.ua, {
-    originator: originator,
-    session: session,
-    request: request
-  });
-};
-
-/**
- * @private
- */
-RTCSession.prototype.connecting = function(originator, request) {
-  var session = this,
-  event_name = 'connecting';
-
-  session.emit(event_name, session, {
-    originator: 'local',
-    request: request
-  });
-};
-
-/**
- * @private
- */
-RTCSession.prototype.progress = function(originator, response) {
-  var session = this,
-    event_name = 'progress';
-
-  session.emit(event_name, session, {
-    originator: originator,
-    response: response || null
-  });
-};
-
-/**
- * @private
- */
-RTCSession.prototype.started = function(originator, message) {
-  var session = this,
-    event_name = 'started';
-
-  session.start_time = new Date();
-
-  session.emit(event_name, session, {
-    originator: originator,
-    response: message || null
-  });
-};
-
-/**
- * @private
- */
-RTCSession.prototype.ended = function(originator, message, cause) {
-  var session = this,
-    event_name = 'ended';
-
-  session.end_time = new Date();
-
-  session.close();
-  session.emit(event_name, session, {
-    originator: originator,
-    message: message || null,
-    cause: cause
-  });
-};
-
-/**
- * @private
- */
-RTCSession.prototype.failed = function(originator, message, cause) {
-  var session = this,
-    event_name = 'failed';
-
-  session.close();
-  session.emit(event_name, session, {
-    originator: originator,
-    message: message || null,
-    cause: cause
-  });
-};
+            /*
+             * Terminate the whole session in case the user didn't accept nor reject the
+             *request opening the session.
+             */
+            if(this.status === C.STATUS_WAITING_FOR_ANSWER) {
+                this.status = C.STATUS_CANCELED;
+                this.request.reply(487);
+                this.failed('remote', request, JsSIP.C.causes.CANCELED);
+            }
+        } else {
+            // Requests arriving here are in-dialog requests.
+            switch(request.method) {
+                case JsSIP.C.ACK:
+                    if(this.status === C.STATUS_WAITING_FOR_ACK) {
+                        window.clearTimeout(this.timers.ackTimer);
+                        window.clearTimeout(this.timers.invite2xxTimer);
+                        this.status = C.STATUS_CONFIRMED;
+                    }
+                    break;
+                case JsSIP.C.BYE:
+                    if(this.status === C.STATUS_CONFIRMED) {
+                        request.reply(200);
+                        this.ended('remote', request, JsSIP.C.causes.BYE);
+                    }
+                    break;
+                case JsSIP.C.INVITE:
+                    if(this.status === C.STATUS_CONFIRMED) {
+                        console.log(LOG_PREFIX +'re-INVITE received');
+                    }
+                    break;
+                case JsSIP.C.INFO:
+                    if(this.status === C.STATUS_CONFIRMED || this.status === C.STATUS_WAITING_FOR_ACK) {
+                        contentType = request.getHeader('content-type');
+                        if (contentType && (contentType.match(/^application\/dtmf-relay/i))) {
+                            new DTMF(this).init_incoming(request);
+                        }
+                    }
+            }
+        }
+    };
 
 
-RTCSession.C = C;
-JsSIP.RTCSession = RTCSession;
+    /**
+     * Initial Request Sender
+     * @private
+     */
+    RTCSession.prototype.sendInitialRequest = function(constraints) {
+        var
+            self = this,
+            request_sender = new JsSIP.RequestSender(self, this.ua),
+
+        // User media succeeded
+            userMediaSucceeded = function(stream) {
+                self.rtcMediaHandler.addStream(
+                    stream,
+                    streamAdditionSucceeded,
+                    streamAdditionFailed
+                );
+            },
+
+        // User media failed
+            userMediaFailed = function() {
+                if (self.status === C.STATUS_TERMINATED) {
+                    return;
+                }
+
+                self.failed('local', null, JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
+            },
+
+        // rtcMediaHandler.addStream successfully added
+            streamAdditionSucceeded = function() {
+                self.rtcMediaHandler.createOffer(
+                    offerCreationSucceeded,
+                    offerCreationFailed
+                );
+            },
+
+        // rtcMediaHandler.addStream failed
+            streamAdditionFailed = function() {
+                if (self.status === C.STATUS_TERMINATED) {
+                    return;
+                }
+
+                self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+            },
+
+        // rtcMediaHandler.createOffer succeeded
+            offerCreationSucceeded = function(offer) {
+                if (self.isCanceled || self.status === C.STATUS_TERMINATED) {
+                    return;
+                }
+
+                self.request.body = offer;
+                self.status = C.STATUS_INVITE_SENT;
+                request_sender.send();
+            },
+
+        // rtcMediaHandler.createOffer failed
+            offerCreationFailed = function() {
+                if (self.status === C.STATUS_TERMINATED) {
+                    return;
+                }
+
+                self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+            };
+
+        this.rtcMediaHandler.getUserMedia(
+            userMediaSucceeded,
+            userMediaFailed,
+            constraints
+        );
+    };
+
+    /**
+     * Reception of Response for Initial Request
+     * @private
+     */
+    RTCSession.prototype.receiveResponse = function(response) {
+        var cause,
+            session = this;
+
+        if(this.status !== C.STATUS_INVITE_SENT && this.status !== C.STATUS_1XX_RECEIVED) {
+            return;
+        }
+
+        // Proceed to cancellation if the user requested.
+        if(this.isCanceled) {
+            if(response.status_code >= 100 && response.status_code < 200) {
+                this.request.cancel(this.cancelReason);
+            } else if(response.status_code >= 200 && response.status_code < 299) {
+                this.acceptAndTerminate(response);
+            }
+            return;
+        }
+
+        switch(true) {
+            case /^100$/.test(response.status_code):
+                this.received_100 = true;
+                break;
+            case /^1[0-9]{2}$/.test(response.status_code):
+                // Do nothing with 1xx responses without To tag.
+                if(!response.to_tag) {
+                    console.warn(LOG_PREFIX +'1xx response received without to tag');
+                    break;
+                }
+
+                // Create Early Dialog if 1XX comes with contact
+                if(response.hasHeader('contact')) {
+                    // An error on dialog creation will fire 'failed' event
+                    this.createDialog(response, 'UAC', true);
+                }
+
+                this.status = C.STATUS_1XX_RECEIVED;
+                this.progress('remote', response);
+                break;
+            case /^2[0-9]{2}$/.test(response.status_code):
+                // Do nothing if this.dialog is already confirmed
+                if (this.dialog) {
+                    break;
+                }
+
+                if(!response.body) {
+                    this.acceptAndTerminate(response, 400, 'Missing session description');
+                    this.failed('remote', response, JsSIP.C.causes.BAD_MEDIA_DESCRIPTION);
+                    break;
+                }
+
+                // An error on dialog creation will fire 'failed' event
+                if (!this.createDialog(response, 'UAC')) {
+                    break;
+                }
+
+                this.rtcMediaHandler.onMessage(
+                    'answer',
+                    response.body,
+                    /*
+                     * onSuccess
+                     * SDP Answer fits with Offer. Media will start
+                     */
+                    function() {
+                        session.status = C.STATUS_CONFIRMED;
+                        session.sendACK();
+                        session.started('remote', response);
+                    },
+                    /*
+                     * onFailure
+                     * SDP Answer does not fit the Offer. Accept the call and Terminate.
+                     */
+                    function(e) {
+                        console.warn(e);
+                        session.acceptAndTerminate(response, 488, 'Not Acceptable Here');
+                        session.failed('remote', response, JsSIP.C.causes.BAD_MEDIA_DESCRIPTION);
+                    }
+                );
+                break;
+            default:
+                cause = JsSIP.Utils.sipErrorCause(response.status_code);
+                this.failed('remote', response, cause);
+        }
+    };
+
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.acceptAndTerminate = function(response, status_code, reason_phrase) {
+        // Send ACK and BYE
+        // An error on dialog creation will fire 'failed' event
+        if (this.dialog || this.createDialog(response, 'UAC')) {
+            this.sendACK();
+            this.sendBye({
+                status_code: status_code,
+                reason_phrase: reason_phrase
+            });
+        }
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.sendACK = function() {
+        var request = this.dialog.createRequest(JsSIP.C.ACK);
+
+        this.sendRequest(request);
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.sendBye = function(options) {
+        options = options || {};
+
+        var request, reason,
+            status_code = options.status_code,
+            reason_phrase = options.reason_phrase || JsSIP.C.REASON_PHRASE[status_code] || '',
+            extraHeaders = options.extraHeaders || [],
+            body = options.body;
+
+        if (status_code && (status_code < 200 || status_code >= 700)) {
+            throw new TypeError('Invalid status_code: '+ status_code);
+        } else if (status_code) {
+            reason = 'SIP ;cause=' + status_code + '; text="' + reason_phrase + '"';
+            extraHeaders.push('Reason: '+ reason);
+        }
+
+        request = this.dialog.createRequest(JsSIP.C.BYE, extraHeaders);
+        request.body = body;
+
+        this.sendRequest(request);
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.sendRequest = function(request) {
+        var request_sender = new RequestSender(this, request);
+        request_sender.send();
+    };
+
+    /**
+     * Session Callbacks
+     */
+
+    /**
+     * Callback to be called from UA instance when TransportError occurs
+     * @private
+     */
+    RTCSession.prototype.onTransportError = function() {
+        if(this.status !== C.STATUS_TERMINATED) {
+            if (this.status === C.STATUS_CONFIRMED) {
+                this.ended('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+            } else {
+                this.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+            }
+        }
+    };
+
+    /**
+     * Callback to be called from UA instance when RequestTimeout occurs
+     * @private
+     */
+    RTCSession.prototype.onRequestTimeout = function() {
+        if(this.status !== C.STATUS_TERMINATED) {
+            if (this.status === C.STATUS_CONFIRMED) {
+                this.ended('system', null, JsSIP.C.causes.REQUEST_TIMEOUT);
+            } else {
+                this.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+            }
+        }
+    };
+
+    /**
+     * Internal Callbacks
+     */
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.newRTCSession = function(originator, request) {
+        var session = this,
+            event_name = 'newRTCSession';
+
+        if (originator === 'remote') {
+            session.direction = 'incoming';
+            session.local_identity = request.to;
+            session.remote_identity = request.from;
+        } else if (originator === 'local'){
+            session.direction = 'outgoing';
+            session.local_identity = request.from;
+            session.remote_identity = request.to;
+        }
+
+        session.ua.emit(event_name, session.ua, {
+            originator: originator,
+            session: session,
+            request: request
+        });
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.connecting = function(originator, request) {
+        var session = this,
+            event_name = 'connecting';
+
+        session.emit(event_name, session, {
+            originator: 'local',
+            request: request
+        });
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.progress = function(originator, response) {
+        var session = this,
+            event_name = 'progress';
+
+        session.emit(event_name, session, {
+            originator: originator,
+            response: response || null
+        });
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.started = function(originator, message) {
+        var session = this,
+            event_name = 'started';
+
+        session.start_time = new Date();
+
+        session.emit(event_name, session, {
+            originator: originator,
+            response: message || null
+        });
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.ended = function(originator, message, cause) {
+        var session = this,
+            event_name = 'ended';
+
+        session.end_time = new Date();
+
+        session.close();
+        session.emit(event_name, session, {
+            originator: originator,
+            message: message || null,
+            cause: cause
+        });
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.failed = function(originator, message, cause) {
+        var session = this,
+            event_name = 'failed';
+
+        session.close();
+        session.emit(event_name, session, {
+            originator: originator,
+            message: message || null,
+            cause: cause
+        });
+    };
+
+
+    RTCSession.C = C;
+    JsSIP.RTCSession = RTCSession;
 }(JsSIP));
 
 
@@ -5010,1122 +5039,1137 @@ JsSIP.Message = Message;
  * @class Class creating a SIP User Agent.
  */
 (function(JsSIP) {
-var UA,
-  LOG_PREFIX = JsSIP.name +' | '+ 'UA' +' | ',
-  C = {
-    // UA status codes
-    STATUS_INIT :                0,
-    STATUS_READY:                1,
-    STATUS_USER_CLOSED:          2,
-    STATUS_NOT_READY:            3,
+    var UA,
+        LOG_PREFIX = JsSIP.name +' | '+ 'UA' +' | ',
+        C = {
+            // UA status codes
+            STATUS_INIT :                0,
+            STATUS_READY:                1,
+            STATUS_USER_CLOSED:          2,
+            STATUS_NOT_READY:            3,
 
-    // UA error codes
-    CONFIGURATION_ERROR:  1,
-    NETWORK_ERROR:        2,
+            // UA error codes
+            CONFIGURATION_ERROR:  1,
+            NETWORK_ERROR:        2,
 
-    /* UA events and corresponding SIP Methods.
-     * Dynamically added to 'Allow' header field if the
-     * corresponding event handler is set.
-     */
-    EVENT_METHODS: {
-      'newRTCSession': 'INVITE',
-      'newMessage': 'MESSAGE'
-    },
+            /* UA events and corresponding SIP Methods.
+             * Dynamically added to 'Allow' header field if the
+             * corresponding event handler is set.
+             */
+            EVENT_METHODS: {
+                'newRTCSession': 'INVITE',
+                'newMessage': 'MESSAGE'
+            },
 
-    ALLOWED_METHODS: [
-      'ACK',
-      'CANCEL',
-      'BYE',
-      'OPTIONS'
-    ],
+            ALLOWED_METHODS: [
+                'ACK',
+                'CANCEL',
+                'BYE',
+                'OPTIONS'
+            ],
 
-    ACCEPTED_BODY_TYPES: [
-      'application/sdp',
-      'application/dtmf-relay'
-    ],
+            ACCEPTED_BODY_TYPES: [
+                'application/sdp',
+                'application/dtmf-relay'
+            ],
 
-    SUPPORTED: 'path, outbound, gruu',
+            SUPPORTED: 'path, outbound, gruu',
 
-    MAX_FORWARDS: 69,
-    TAG_LENGTH: 10
-  };
+            MAX_FORWARDS: 69,
+            TAG_LENGTH: 10
+        };
 
-UA = function(configuration) {
-  var events = [
-    'connected',
-    'disconnected',
-    'registered',
-    'unregistered',
-    'registrationFailed',
-    'newRTCSession',
-    'newMessage'
-  ];
+    UA = function(configuration) {
+        var events = [
+            'connected',
+            'disconnected',
+            'registered',
+            'unregistered',
+            'registrationFailed',
+            'newRTCSession',
+            'newMessage',
+            'onRTCMessage'
+        ];
 
-  // Set Accepted Body Types
-  C.ACCEPTED_BODY_TYPES = C.ACCEPTED_BODY_TYPES.toString();
+        // Set Accepted Body Types
+        C.ACCEPTED_BODY_TYPES = C.ACCEPTED_BODY_TYPES.toString();
 
-  this.cache = {
-    credentials: {}
-  };
+        this.cache = {
+            credentials: {}
+        };
 
-  this.configuration = {};
-  this.dialogs = {};
-  this.registrator = null;
+        this.configuration = {};
+        this.dialogs = {};
+        this.registrator = null;
 
-  //User actions outside any session/dialog (MESSAGE)
-  this.applicants = {};
+        //User actions outside any session/dialog (MESSAGE)
+        this.applicants = {};
 
-  this.sessions = {};
-  this.transport = null;
-  this.contact = null;
-  this.status = C.STATUS_INIT;
-  this.error = null;
-  this.transactions = {
-    nist: {},
-    nict: {},
-    ist: {},
-    ict: {}
-  };
+        this.sessions = {};
+        this.transport = null;
+        this.contact = null;
+        this.status = C.STATUS_INIT;
+        this.error = null;
+        this.transactions = {
+            nist: {},
+            nict: {},
+            ist: {},
+            ict: {}
+        };
 
-  this.transportRecoverAttempts = 0;
+        this.transportRecoverAttempts = 0;
+        this.rtcMediaHandlerOptions = null;
 
-  /**
-   * Load configuration
-   *
-   * @throws {JsSIP.Exceptions.ConfigurationError}
-   * @throws {TypeError}
-   */
+        /**
+         * Load configuration
+         *
+         * @throws {JsSIP.Exceptions.ConfigurationError}
+         * @throws {TypeError}
+         */
 
-  if(configuration === undefined) {
-    throw new TypeError('Not enough arguments');
-  }
+        if(configuration === undefined) {
+            throw new TypeError('Not enough arguments');
+        }
 
-  try {
-    this.loadConfig(configuration);
-    this.initEvents(events);
-  } catch(e) {
-    this.status = C.STATUS_NOT_READY;
-    this.error = C.CONFIGURATION_ERROR;
-    throw e;
-  }
-};
-UA.prototype = new JsSIP.EventEmitter();
+        try {
+            this.loadConfig(configuration);
+            this.initEvents(events);
+        } catch(e) {
+            this.status = C.STATUS_NOT_READY;
+            this.error = C.CONFIGURATION_ERROR;
+            throw e;
+        }
+    };
+    UA.prototype = new JsSIP.EventEmitter();
 
 //=================
 //  High Level API
 //=================
 
-/**
- * Register.
- *
- *
- */
-UA.prototype.register = function(options) {
-  this.configuration.register = true;
-  this.registrator.register(options);
-};
+    /**
+     * Register.
+     *
+     *
+     */
+    UA.prototype.register = function(options) {
+        this.configuration.register = true;
+        this.registrator.register(options);
+    };
 
-/**
- * Unregister.
- *
- * @param {Boolean} [all] unregister all user bindings.
- *
- */
-UA.prototype.unregister = function(options) {
-  this.configuration.register = false;
-  this.registrator.unregister(options);
-};
+    /**
+     * Unregister.
+     *
+     * @param {Boolean} [all] unregister all user bindings.
+     *
+     */
+    UA.prototype.unregister = function(options) {
+        this.configuration.register = false;
+        this.registrator.unregister(options);
+    };
 
-/**
- * Registration state.
- * @param {Boolean}
- */
-UA.prototype.isRegistered = function() {
-  if(this.registrator && this.registrator.registered) {
-    return true;
-  } else {
-    return false;
-  }
-};
+    /**
+     * Registration state.
+     * @param {Boolean}
+        */
+    UA.prototype.isRegistered = function() {
+        if(this.registrator && this.registrator.registered) {
+            return true;
+        } else {
+            return false;
+        }
+    };
 
-/**
- * Connection state.
- * @param {Boolean}
- */
-UA.prototype.isConnected = function() {
-  if(this.transport) {
-    return this.transport.connected;
-  } else {
-    return false;
-  }
-};
+    /**
+     * Connection state.
+     * @param {Boolean}
+        */
+    UA.prototype.isConnected = function() {
+        if(this.transport) {
+            return this.transport.connected;
+        } else {
+            return false;
+        }
+    };
 
-/**
- * Make an outgoing call.
- *
- * @param {String} target
- * @param {Object} views
- * @param {Object} [options]
- *
- * @throws {TypeError}
- *
- */
-UA.prototype.call = function(target, options) {
-  var session;
+    /**
+     * Make an outgoing call.
+     *
+     * @param {String} target
+     * @param {Object} views
+     * @param {Object} [options]
+     *
+     * @throws {TypeError}
+     *
+     */
+    UA.prototype.call = function(target, options) {
+        var session;
 
-  session = new JsSIP.RTCSession(this);
-  session.connect(target, options);
-};
+        session = new JsSIP.RTCSession(this);
+        session.connect(target, options);
+    };
 
-/**
- * Send a message.
- *
- * @param {String} target
- * @param {String} body
- * @param {Object} [options]
- *
- * @throws {TypeError}
- *
- */
-UA.prototype.sendMessage = function(target, body, options) {
-  var message;
+    /**
+     * Send a message.
+     *
+     * @param {String} target
+     * @param {String} body
+     * @param {Object} [options]
+     *
+     * @throws {TypeError}
+     *
+     */
+    UA.prototype.sendMessage = function(target, body, options) {
+        var message;
 
-  message = new JsSIP.Message(this);
-  message.send(target, body, options);
-};
+        message = new JsSIP.Message(this);
+        message.send(target, body, options);
+    };
 
-/**
- * Gracefully close.
- *
- */
-UA.prototype.stop = function() {
-  var session, applicant,
-    ua = this;
+    /**
+     * Gracefully close.
+     *
+     */
+    UA.prototype.stop = function() {
+        var session, applicant,
+            ua = this;
 
-  console.log(LOG_PREFIX +'user requested closure...');
+        console.log(LOG_PREFIX +'user requested closure...');
 
-  if(this.status === C.STATUS_USER_CLOSED) {
-    console.warn('UA already closed');
-    return;
-  }
+        if(this.status === C.STATUS_USER_CLOSED) {
+            console.warn('UA already closed');
+            return;
+        }
 
-  // Close registrator
-  if(this.registrator) {
-    console.log(LOG_PREFIX +'closing registrator');
-    this.registrator.close();
-  }
+        // Close registrator
+        if(this.registrator) {
+            console.log(LOG_PREFIX +'closing registrator');
+            this.registrator.close();
+        }
 
-  // Run  _terminate_ on every Session
-  for(session in this.sessions) {
-    console.log(LOG_PREFIX +'closing session ' + session);
-    this.sessions[session].terminate();
-  }
+        // Run  _terminate_ on every Session
+        for(session in this.sessions) {
+            console.log(LOG_PREFIX +'closing session ' + session);
+            this.sessions[session].terminate();
+        }
 
-  // Run  _close_ on every applicant
-  for(applicant in this.applicants) {
-    this.applicants[applicant].close();
-  }
+        // Run  _close_ on every applicant
+        for(applicant in this.applicants) {
+            this.applicants[applicant].close();
+        }
 
-  this.status = C.STATUS_USER_CLOSED;
-  this.shutdownGraceTimer = window.setTimeout(
-    function() { ua.transport.disconnect(); },
-    '5000'
-  );
-};
+        this.status = C.STATUS_USER_CLOSED;
+        this.shutdownGraceTimer = window.setTimeout(
+            function() { ua.transport.disconnect(); },
+            '5000'
+        );
+    };
 
-/**
- * Connect to the WS server if status = STATUS_INIT.
- * Resume UA after being closed.
- *
- */
-UA.prototype.start = function() {
-  var server;
+    /**
+     * Connect to the WS server if status = STATUS_INIT.
+     * Resume UA after being closed.
+     *
+     */
+    UA.prototype.start = function() {
+        var server;
 
-  console.log(LOG_PREFIX +'user requested startup...');
+        console.log(LOG_PREFIX +'user requested startup...');
 
-  if (this.status === C.STATUS_INIT) {
-    server = this.getNextWsServer();
-    new JsSIP.Transport(this, server);
-  } else if(this.status === C.STATUS_USER_CLOSED) {
-    console.log(LOG_PREFIX +'resuming');
-    this.status = C.STATUS_READY;
-    this.transport.connect();
-  } else if (this.status === C.STATUS_READY) {
-    console.log(LOG_PREFIX +'UA is in READY status, not resuming');
-  } else {
-    console.error('Connection is down. Auto-Recovery system is trying to connect');
-  }
-};
+        if (this.status === C.STATUS_INIT) {
+            server = this.getNextWsServer();
+            new JsSIP.Transport(this, server);
+        } else if(this.status === C.STATUS_USER_CLOSED) {
+            console.log(LOG_PREFIX +'resuming');
+            this.status = C.STATUS_READY;
+            this.transport.connect();
+        } else if (this.status === C.STATUS_READY) {
+            console.log(LOG_PREFIX +'UA is in READY status, not resuming');
+        } else {
+            console.error('Connection is down. Auto-Recovery system is trying to connect');
+        }
+    };
+
+    UA.prototype.setRtcMediaHandlerOptions = function(rtcMediaHandlerOptions) {
+        this.rtcMediaHandlerOptions = rtcMediaHandlerOptions;
+    };
 
 
 //===============================
 //  Private (For internal use)
 //===============================
 
-UA.prototype.saveCredentials = function(credentials) {
-  this.cache.credentials[credentials.realm] = this.cache.credentials[credentials.realm] || {};
-  this.cache.credentials[credentials.realm][credentials.uri] = credentials;
-};
+    UA.prototype.saveCredentials = function(credentials) {
+        this.cache.credentials[credentials.realm] = this.cache.credentials[credentials.realm] || {};
+        this.cache.credentials[credentials.realm][credentials.uri] = credentials;
+    };
 
-UA.prototype.getCredentials = function(request) {
-  var realm, credentials;
+    UA.prototype.getCredentials = function(request) {
+        var realm, credentials;
 
-  realm = request.ruri.host;
+        realm = request.ruri.host;
 
-  if (this.cache.credentials[realm] && this.cache.credentials[realm][request.ruri]) {
-    credentials = this.cache.credentials[realm][request.ruri];
-    credentials.method = request.method;
-  }
+        if (this.cache.credentials[realm] && this.cache.credentials[realm][request.ruri]) {
+            credentials = this.cache.credentials[realm][request.ruri];
+            credentials.method = request.method;
+        }
 
-  return credentials;
-};
+        return credentials;
+    };
 
 
 //==========================
 // Event Handlers
 //==========================
 
-/**
- * Transport Close event.
- * @private
- * @event
- * @param {JsSIP.Transport} transport.
- */
-UA.prototype.onTransportClosed = function(transport) {
-  // Run _onTransportError_ callback on every client transaction using _transport_
-  var type, idx,
-    client_transactions = ['nict', 'ict', 'nist', 'ist'];
+    /**
+     * Transport Close event.
+     * @private
+     * @event
+     * @param {JsSIP.Transport} transport.
+     */
+    UA.prototype.onTransportClosed = function(transport) {
+        // Run _onTransportError_ callback on every client transaction using _transport_
+        var type, idx, length,
+            client_transactions = ['nict', 'ict', 'nist', 'ist'];
 
-  transport.server.status = JsSIP.Transport.C.STATUS_DISCONNECTED;
-  console.log(LOG_PREFIX +'connection state set to '+ JsSIP.Transport.C.STATUS_DISCONNECTED);
+        transport.server.status = JsSIP.Transport.C.STATUS_DISCONNECTED;
+        console.log(LOG_PREFIX +'connection state set to '+ JsSIP.Transport.C.STATUS_DISCONNECTED);
 
-  for(type in client_transactions) {
-    for(idx in this.transactions[client_transactions[type]]) {
-      this.transactions[client_transactions[type]][idx].onTransportError();
-    }
-  }
+        length = client_transactions.length;
+        for (type = 0; type < length; type++) {
+            for(idx in this.transactions[client_transactions[type]]) {
+                this.transactions[client_transactions[type]][idx].onTransportError();
+            }
+        }
 
-  // Close sessions if GRUU is not being used
-  if (!this.contact.pub_gruu) {
-    this.closeSessionsOnTransportError();
-  }
+        // Close sessions if GRUU is not being used
+        if (!this.contact.pub_gruu) {
+            this.closeSessionsOnTransportError();
+        }
 
-};
+    };
 
-/**
- * Unrecoverable transport event.
- * Connection reattempt logic has been done and didn't success.
- * @private
- * @event
- * @param {JsSIP.Transport} transport.
- */
-UA.prototype.onTransportError = function(transport) {
-  var server;
+    /**
+     * Unrecoverable transport event.
+     * Connection reattempt logic has been done and didn't success.
+     * @private
+     * @event
+     * @param {JsSIP.Transport} transport.
+     */
+    UA.prototype.onTransportError = function(transport) {
+        var server;
 
-  console.log(LOG_PREFIX +'transport ' + transport.server.ws_uri + ' failed | connection state set to '+ JsSIP.Transport.C.STATUS_ERROR);
+        console.log(LOG_PREFIX +'transport ' + transport.server.ws_uri + ' failed | connection state set to '+ JsSIP.Transport.C.STATUS_ERROR);
 
-  // Close sessions.
-  //Mark this transport as 'down' and try the next one
-  transport.server.status = JsSIP.Transport.C.STATUS_ERROR;
+        // Close sessions.
+        //Mark this transport as 'down' and try the next one
+        transport.server.status = JsSIP.Transport.C.STATUS_ERROR;
 
-  this.emit('disconnected', this, {
-    transport: transport,
-    code: transport.lastTransportError.code,
-    reason: transport.lastTransportError.reason
-  });
+        this.emit('disconnected', this, {
+            transport: transport,
+            code: transport.lastTransportError.code,
+            reason: transport.lastTransportError.reason
+        });
 
-  server = this.getNextWsServer();
+        server = this.getNextWsServer();
 
-  if(server) {
-    new JsSIP.Transport(this, server);
-  }else {
-    this.closeSessionsOnTransportError();
-    if (!this.error || this.error !== C.NETWORK_ERROR) {
-      this.status = C.STATUS_NOT_READY;
-      this.error = C.NETWORK_ERROR;
-    }
-    // Transport Recovery process
-    this.recoverTransport();
-  }
-};
+        if(server) {
+            new JsSIP.Transport(this, server);
+        }else {
+            this.closeSessionsOnTransportError();
+            if (!this.error || this.error !== C.NETWORK_ERROR) {
+                this.status = C.STATUS_NOT_READY;
+                this.error = C.NETWORK_ERROR;
+            }
+            // Transport Recovery process
+            this.recoverTransport();
+        }
+    };
 
-/**
- * Transport connection event.
- * @private
- * @event
- * @param {JsSIP.Transport} transport.
- */
-UA.prototype.onTransportConnected = function(transport) {
-  this.transport = transport;
+    /**
+     * Transport connection event.
+     * @private
+     * @event
+     * @param {JsSIP.Transport} transport.
+     */
+    UA.prototype.onTransportConnected = function(transport) {
+        this.transport = transport;
 
-  // Reset transport recovery counter
-  this.transportRecoverAttempts = 0;
+        // Reset transport recovery counter
+        this.transportRecoverAttempts = 0;
 
-  transport.server.status = JsSIP.Transport.C.STATUS_READY;
-  console.log(LOG_PREFIX +'connection state set to '+ JsSIP.Transport.C.STATUS_READY);
+        transport.server.status = JsSIP.Transport.C.STATUS_READY;
+        console.log(LOG_PREFIX +'connection state set to '+ JsSIP.Transport.C.STATUS_READY);
 
-  if(this.status === C.STATUS_USER_CLOSED) {
-    return;
-  }
+        if(this.status === C.STATUS_USER_CLOSED) {
+            return;
+        }
 
-  this.status = C.STATUS_READY;
-  this.error = null;
-  this.emit('connected', this, {
-    transport: transport
-  });
+        this.status = C.STATUS_READY;
+        this.error = null;
+        this.emit('connected', this, {
+            transport: transport
+        });
 
-  if(this.configuration.register) {
-    if(this.registrator) {
-      this.registrator.onTransportConnected();
-    } else {
-      this.registrator = new JsSIP.Registrator(this, transport);
-      this.register();
-    }
-  } else {
-    this.registrator = new JsSIP.Registrator(this, transport);
-  }
-};
+        if(this.configuration.register) {
+            if(this.registrator) {
+                this.registrator.onTransportConnected();
+            } else {
+                this.registrator = new JsSIP.Registrator(this, transport);
+                this.register();
+            }
+        } else if (!this.registrator) {
+            this.registrator = new JsSIP.Registrator(this, transport);
+        }
+    };
 
 //=========================
 // receiveRequest
 //=========================
 
-/**
- * Request reception
- * @private
- * @param {JsSIP.IncomingRequest} request.
- */
-UA.prototype.receiveRequest = function(request) {
-  var dialog, session, message,
-    method = request.method;
-
-  // Check that Ruri points to us
-  if(request.ruri.user !== this.configuration.uri.user && request.ruri.user !== this.contact.uri.user) {
-    console.warn(LOG_PREFIX +'Request-URI does not point to us');
-    if (request.method !== JsSIP.C.ACK) {
-      request.reply_sl(404);
-    }
-    return;
-  }
-
-  // Check transaction
-  if(JsSIP.Transactions.checkTransaction(this, request)) {
-    return;
-  }
-
-  // Create the server transaction
-  if(method === JsSIP.C.INVITE) {
-    new JsSIP.Transactions.InviteServerTransaction(request, this);
-  } else if(method !== JsSIP.C.ACK) {
-    new JsSIP.Transactions.NonInviteServerTransaction(request, this);
-  }
-
-  /* RFC3261 12.2.2
-   * Requests that do not change in any way the state of a dialog may be
-   * received within a dialog (for example, an OPTIONS request).
-   * They are processed as if they had been received outside the dialog.
-   */
-  if(method === JsSIP.C.OPTIONS) {
-    request.reply(200, null, [
-      'Allow: '+ JsSIP.Utils.getAllowedMethods(this),
-      'Accept: '+ C.ACCEPTED_BODY_TYPES
-    ]);
-  } else if (method === JsSIP.C.MESSAGE) {
-    if (!this.checkEvent('newMessage') || this.listeners('newMessage').length === 0) {
-      request.reply(405, null, ['Allow: '+ JsSIP.Utils.getAllowedMethods(this)]);
-      return;
-    }
-    message = new JsSIP.Message(this);
-    message.init_incoming(request);
-  }
-
-  // Initial Request
-  if(!request.to_tag) {
-    /*if(!this.isRegistered()) {
-      // High user does not want to be contacted
-      request.reply(410);
-      return;
-    }*/
-
-    switch(method) {
-      case JsSIP.C.INVITE:
-        if(JsSIP.WebRTC.isSupported) {
-          session = new JsSIP.RTCSession(this);
-          session.init_incoming(request);
-        } else {
-          console.warn(LOG_PREFIX +'INVITE received but WebRTC is not supported');
-          request.reply(488);
-        }
-        break;
-      case JsSIP.C.BYE:
-        // Out of dialog BYE received
-        request.reply(481);
-        break;
-      case JsSIP.C.CANCEL:
-        session = this.findSession(request);
-        if(session) {
-          session.receiveRequest(request);
-        } else {
-          console.warn(LOG_PREFIX +'received CANCEL request for a non existent session');
-        }
-        break;
-      case JsSIP.C.ACK:
-        /* Absorb it.
-         * ACK request without a corresponding Invite Transaction
-         * and without To tag.
-         */
-        break;
-      default:
-        request.reply(405);
-        break;
-    }
-  }
-  // In-dialog request
-  else {
-    dialog = this.findDialog(request);
-
-    if(dialog) {
-      dialog.receiveRequest(request);
-    } else if (method === JsSIP.C.NOTIFY) {
-      session = this.findSession(request);
-      if(session) {
-        session.receiveRequest(request);
-      } else {
-        console.warn(LOG_PREFIX +'received NOTIFY request for a non existent session');
-        request.reply(481, 'Subscription does not exist');
-      }
-    }
-    /* RFC3261 12.2.2
-     * Request with to tag, but no matching dialog found.
-     * Exception: ACK for an Invite request for which a dialog has not
-     * been created.
+    /**
+     * Request reception
+     * @private
+     * @param {JsSIP.IncomingRequest} request.
      */
-    else {
-      if(method !== JsSIP.C.ACK) {
-        request.reply(481);
-      }
-    }
-  }
-};
+    UA.prototype.receiveRequest = function(request) {
+        var dialog, session, message,
+            method = request.method;
+
+      // Check that Ruri points to us
+        if(request.ruri.user !== this.configuration.uri.user && request.ruri.user !== this.contact.uri.user) {
+            console.warn(LOG_PREFIX +'Request-URI ('+request.ruri.user+') does not point to us ('+this.configuration.uri.user+')');
+            if (request.method !== JsSIP.C.ACK) {
+                request.reply_sl(404);
+            }
+            return;
+        }
+
+        // Check transaction
+        if(JsSIP.Transactions.checkTransaction(this, request)) {
+            console.warn(LOG_PREFIX +'Check Transaction failed');
+            return;
+        }
+
+        // Create the server transaction
+        if(method === JsSIP.C.INVITE) {
+            new JsSIP.Transactions.InviteServerTransaction(request, this);
+        } else if(method !== JsSIP.C.ACK) {
+            new JsSIP.Transactions.NonInviteServerTransaction(request, this);
+        }
+
+        /* RFC3261 12.2.2
+         * Requests that do not change in any way the state of a dialog may be
+         * received within a dialog (for example, an OPTIONS request).
+         * They are processed as if they had been received outside the dialog.
+         */
+        if(method === JsSIP.C.OPTIONS) {
+            request.reply(200, null, [
+                'Allow: '+ JsSIP.Utils.getAllowedMethods(this),
+                'Accept: '+ C.ACCEPTED_BODY_TYPES
+            ]);
+        } else if (method === JsSIP.C.MESSAGE) {
+            if (!this.checkEvent('newMessage') || this.listeners('newMessage').length === 0) {
+                request.reply(405, null, ['Allow: '+ JsSIP.Utils.getAllowedMethods(this)]);
+                return;
+            }
+            message = new JsSIP.Message(this);
+            message.init_incoming(request);
+        }
+
+        // Initial Request
+        if(!request.to_tag) {
+            /*if(!this.isRegistered()) {
+             // High user does not want to be contacted
+             request.reply(410);
+             return;
+             }*/
+
+            switch(method) {
+                case JsSIP.C.INVITE:
+                    if(JsSIP.WebRTC.isSupported) {
+                      console.log(LOG_PREFIX +'INVITE received');
+                        session = new JsSIP.RTCSession(this);
+                        session.init_incoming(request);
+                    } else {
+                        console.warn(LOG_PREFIX +'INVITE received but WebRTC is not supported');
+                        request.reply(488);
+                    }
+                    break;
+                case JsSIP.C.BYE:
+                    // Out of dialog BYE received
+                    request.reply(481);
+                    break;
+                case JsSIP.C.CANCEL:
+                    session = this.findSession(request);
+                    if(session) {
+                        session.receiveRequest(request);
+                    } else {
+                        console.warn(LOG_PREFIX +'received CANCEL request for a non existent session');
+                    }
+                    break;
+                case JsSIP.C.ACK:
+                    /* Absorb it.
+                     * ACK request without a corresponding Invite Transaction
+                     * and without To tag.
+                     */
+                    break;
+                default:
+                    request.reply(405);
+                    break;
+            }
+        }
+        // In-dialog request
+        else {
+            dialog = this.findDialog(request);
+
+            if(dialog) {
+                dialog.receiveRequest(request);
+            } else if (method === JsSIP.C.NOTIFY) {
+                session = this.findSession(request);
+                if(session) {
+                    session.receiveRequest(request);
+                } else {
+                    console.warn(LOG_PREFIX +'received NOTIFY request for a non existent session');
+                    request.reply(481, 'Subscription does not exist');
+                }
+            }
+            /* RFC3261 12.2.2
+             * Request with to tag, but no matching dialog found.
+             * Exception: ACK for an Invite request for which a dialog has not
+             * been created.
+             */
+            else {
+                if(method !== JsSIP.C.ACK) {
+                    request.reply(481);
+                }
+            }
+        }
+    };
 
 //=================
 // Utils
 //=================
 
-/**
- * Get the session to which the request belongs to, if any.
- * @private
- * @param {JsSIP.IncomingRequest} request.
- * @returns {JsSIP.OutgoingSession|JsSIP.IncomingSession|null}
- */
-UA.prototype.findSession = function(request) {
-  var
-    sessionIDa = request.call_id + request.from_tag,
-    sessionA = this.sessions[sessionIDa],
-    sessionIDb = request.call_id + request.to_tag,
-    sessionB = this.sessions[sessionIDb];
+    /**
+     * Get the session to which the request belongs to, if any.
+     * @private
+     * @param {JsSIP.IncomingRequest} request.
+     * @returns {JsSIP.OutgoingSession|JsSIP.IncomingSession|null}
+     */
+    UA.prototype.findSession = function(request) {
+        var
+            sessionIDa = request.call_id + request.from_tag,
+            sessionA = this.sessions[sessionIDa],
+            sessionIDb = request.call_id + request.to_tag,
+            sessionB = this.sessions[sessionIDb];
 
-  if(sessionA) {
-    return sessionA;
-  } else if(sessionB) {
-    return sessionB;
-  } else {
-    return null;
-  }
-};
-
-/**
- * Get the dialog to which the request belongs to, if any.
- * @private
- * @param {JsSIP.IncomingRequest}
- * @returns {JsSIP.Dialog|null}
- */
-UA.prototype.findDialog = function(request) {
-  var
-    id = request.call_id + request.from_tag + request.to_tag,
-    dialog = this.dialogs[id];
-
-  if(dialog) {
-    return dialog;
-  } else {
-    id = request.call_id + request.to_tag + request.from_tag;
-    dialog = this.dialogs[id];
-    if(dialog) {
-      return dialog;
-    } else {
-      return null;
-    }
-  }
-};
-
-/**
- * Retrieve the next server to which connect.
- * @private
- * @returns {Object} ws_server
- */
-UA.prototype.getNextWsServer = function() {
-  // Order servers by weight
-  var idx, ws_server,
-    candidates = [];
-
-  for (idx in this.configuration.ws_servers) {
-    ws_server = this.configuration.ws_servers[idx];
-
-    if (ws_server.status === JsSIP.Transport.C.STATUS_ERROR) {
-      continue;
-    } else if (candidates.length === 0) {
-      candidates.push(ws_server);
-    } else if (ws_server.weight > candidates[0].weight) {
-      candidates = [ws_server];
-    } else if (ws_server.weight === candidates[0].weight) {
-      candidates.push(ws_server);
-    }
-  }
-
-  idx = Math.floor((Math.random()* candidates.length));
-
-  return candidates[idx];
-};
-
-/**
- * Close all sessions on transport error.
- * @private
- */
-UA.prototype.closeSessionsOnTransportError = function() {
-  var idx;
-
-  // Run _transportError_ for every Session
-  for(idx in this.sessions) {
-    this.sessions[idx].onTransportError();
-  }
-  // Call registrator _onTransportClosed_
-  if(this.registrator){
-    this.registrator.onTransportClosed();
-  }
-};
-
-UA.prototype.recoverTransport = function(ua) {
-  var idx, k, nextRetry, count, server;
-
-  ua = ua || this;
-  count = ua.transportRecoverAttempts;
-
-  for (idx in ua.configuration.ws_servers) {
-    ua.configuration.ws_servers[idx].status = 0;
-  }
-
-  server = ua.getNextWsServer();
-
-  k = Math.floor((Math.random() * Math.pow(2,count)) +1);
-  nextRetry = k * ua.configuration.connection_recovery_min_interval;
-
-  if (nextRetry > ua.configuration.connection_recovery_max_interval) {
-    console.log(LOG_PREFIX + 'time for next connection attempt exceeds connection_recovery_max_interval, resetting counter');
-    nextRetry = ua.configuration.connection_recovery_min_interval;
-    count = 0;
-  }
-
-  console.log(LOG_PREFIX + 'next connection attempt in '+ nextRetry +' seconds');
-
-  window.setTimeout(
-    function(){
-      ua.transportRecoverAttempts = count + 1;
-      new JsSIP.Transport(ua, server);
-    }, nextRetry * 1000);
-};
-
-/**
- * Configuration load.
- * @private
- * returns {Boolean}
- */
-UA.prototype.loadConfig = function(configuration) {
-  // Settings and default values
-  var parameter, value, checked_value, hostport_params, registrar_server,
-    settings = {
-      /* Host address
-      * Value to be set in Via sent_by and host part of Contact FQDN
-      */
-      via_host: JsSIP.Utils.createRandomToken(12) + '.invalid',
-
-      // Password
-      password: null,
-
-      // Registration parameters
-      register_expires: 600,
-      register_min_expires: 120,
-      register: true,
-      registrar_server: null,
-
-      // Transport related parameters
-      ws_server_max_reconnection: 3,
-      ws_server_reconnection_timeout: 4,
-
-      connection_recovery_min_interval: 2,
-      connection_recovery_max_interval: 30,
-
-      use_preloaded_route: false,
-
-      // Session parameters
-      no_answer_timeout: 60,
-      stun_servers: ['stun:stun.l.google.com:19302'],
-      turn_servers: [],
-
-      // Logging parameters
-      trace_sip: false,
-
-      // Hacks
-      hack_via_tcp: false,
-      hack_ip_in_contact: false
+        if(sessionA) {
+            return sessionA;
+        } else if(sessionB) {
+            return sessionB;
+        } else {
+            return null;
+        }
     };
 
-  // Pre-Configuration
+    /**
+     * Get the dialog to which the request belongs to, if any.
+     * @private
+     * @param {JsSIP.IncomingRequest}
+        * @returns {JsSIP.Dialog|null}
+     */
+    UA.prototype.findDialog = function(request) {
+        var
+            id = request.call_id + request.from_tag + request.to_tag,
+            dialog = this.dialogs[id];
 
-  // Check Mandatory parameters
-  for(parameter in UA.configuration_check.mandatory) {
-    if(!configuration.hasOwnProperty(parameter)) {
-      throw new JsSIP.Exceptions.ConfigurationError(parameter);
-    } else {
-      value = configuration[parameter];
-      checked_value = UA.configuration_check.mandatory[parameter](value);
-      if (checked_value !== undefined) {
-        settings[parameter] = checked_value;
-      } else {
-        throw new JsSIP.Exceptions.ConfigurationError(parameter, value);
-      }
-    }
-  }
-
-  // Check Optional parameters
-  for(parameter in UA.configuration_check.optional) {
-    if(configuration.hasOwnProperty(parameter)) {
-      value = configuration[parameter];
-
-      // If the parameter value is null, empty string or undefined then apply its default value.
-      if(value === null || value === "" || value === undefined) { continue; }
-      // If it's a number with NaN value then also apply its default value.
-      // NOTE: JS does not allow "value === NaN", the following does the work:
-      else if(typeof(value) === 'number' && window.isNaN(value)) { continue; }
-
-      checked_value = UA.configuration_check.optional[parameter](value);
-      if (checked_value !== undefined) {
-        settings[parameter] = checked_value;
-      } else {
-        throw new JsSIP.Exceptions.ConfigurationError(parameter, value);
-      }
-    }
-  }
-
-  // Sanity Checks
-
-  // Connection recovery intervals
-  if(settings.connection_recovery_max_interval < settings.connection_recovery_min_interval) {
-    throw new JsSIP.Exceptions.ConfigurationError('connection_recovery_max_interval', settings.connection_recovery_max_interval);
-  }
-
-  // Post Configuration Process
-
-  // Allow passing 0 number as display_name.
-  if (settings.display_name === 0) {
-    settings.display_name = '0';
-  }
-
-  // Instance-id for GRUU
-  settings.instance_id = JsSIP.Utils.newUUID();
-
-  // jssip_id instance parameter. Static random tag of length 5
-  settings.jssip_id = JsSIP.Utils.createRandomToken(5);
-
-  // String containing settings.uri without scheme and user.
-  hostport_params = settings.uri.clone();
-  hostport_params.user = null;
-  settings.hostport_params = hostport_params.toString().replace(/^sip:/i, '');
-
-  /* Check whether authorization_user is explicitly defined.
-   * Take 'settings.uri.user' value if not.
-   */
-  if (!settings.authorization_user) {
-    settings.authorization_user = settings.uri.user;
-  }
-
-  /* If no 'registrar_server' is set use the 'uri' value without user portion. */
-  if (!settings.registrar_server) {
-    registrar_server = settings.uri.clone();
-    registrar_server.user = null;
-    settings.registrar_server = registrar_server;
-  }
-
-  // User no_answer_timeout
-  settings.no_answer_timeout = settings.no_answer_timeout * 1000;
-
-  // Via Host
-  if (settings.hack_ip_in_contact) {
-    settings.via_host = JsSIP.Utils.getRandomTestNetIP();
-  }
-
-  this.contact = {
-    pub_gruu: null,
-    temp_gruu: null,
-    uri: new JsSIP.URI('sip', JsSIP.Utils.createRandomToken(8), settings.via_host, null, {transport: 'ws'}),
-    toString: function(options){
-      options = options || {};
-
-      var
-        anonymous = options.anonymous || null,
-        outbound = options.outbound || null,
-        contact = '<';
-
-      if (anonymous) {
-        contact += this.temp_gruu || 'sip:anonymous@anonymous.invalid;transport=ws';
-      } else {
-        contact += this.pub_gruu || this.uri.toString();
-      }
-
-      if (outbound) {
-        contact += ';ob';
-      }
-
-      contact += '>';
-
-      return contact;
-    }
-  };
-
-  // Fill the value of the configuration_skeleton
-  console.log(LOG_PREFIX + 'configuration parameters after validation:');
-  for(parameter in settings) {
-    switch(parameter) {
-      case 'uri':
-      case 'registrar_server':
-        console.log('· ' + parameter + ': ' + settings[parameter]);
-        break;
-      case 'password':
-        console.log('· ' + parameter + ': ' + 'NOT SHOWN');
-        break;
-      default:
-        console.log('· ' + parameter + ': ' + window.JSON.stringify(settings[parameter]));
-    }
-    UA.configuration_skeleton[parameter].value = settings[parameter];
-  }
-
-  Object.defineProperties(this.configuration, UA.configuration_skeleton);
-
-  // Clean UA.configuration_skeleton
-  for(parameter in settings) {
-    UA.configuration_skeleton[parameter].value = '';
-  }
-
-  return;
-};
-
-
-/**
- * Configuration Object skeleton.
- * @private
- */
-UA.configuration_skeleton = (function() {
-  var idx,  parameter,
-    skeleton = {},
-    parameters = [
-      // Internal parameters
-      "instance_id",
-      "jssip_id",
-      "register_min_expires",
-      "ws_server_max_reconnection",
-      "ws_server_reconnection_timeout",
-      "hostport_params",
-
-      // Mandatory user configurable parameters
-      "uri",
-      "ws_servers",
-
-      // Optional user configurable parameters
-      "authorization_user",
-      "connection_recovery_max_interval",
-      "connection_recovery_min_interval",
-      "display_name",
-      "hack_via_tcp", // false.
-      "hack_ip_in_contact", //false
-      "no_answer_timeout", // 30 seconds.
-      "password",
-      "register_expires", // 600 seconds.
-      "registrar_server",
-      "stun_servers",
-      "trace_sip",
-      "turn_servers",
-      "use_preloaded_route",
-
-      // Post-configuration generated parameters
-      "via_core_value",
-      "via_host"
-    ];
-
-  for(idx in parameters) {
-    parameter = parameters[idx];
-    skeleton[parameter] = {
-      value: '',
-      writable: false,
-      configurable: false
+        if(dialog) {
+            return dialog;
+        } else {
+            id = request.call_id + request.to_tag + request.from_tag;
+            dialog = this.dialogs[id];
+            if(dialog) {
+                return dialog;
+            } else {
+                return null;
+            }
+        }
     };
-  }
 
-  skeleton['register'] = {
-    value: '',
-    writable: true,
-    configurable: false
-  };
+    /**
+     * Retrieve the next server to which connect.
+     * @private
+     * @returns {Object} ws_server
+     */
+    UA.prototype.getNextWsServer = function() {
+        // Order servers by weight
+        var idx, length, ws_server,
+            candidates = [];
 
-  return skeleton;
-}());
+        length = this.configuration.ws_servers.length;
+        for (idx = 0; idx < length; idx++) {
+            ws_server = this.configuration.ws_servers[idx];
 
-/**
- * Configuration checker.
- * @private
- * @return {Boolean}
- */
-UA.configuration_check = {
-  mandatory: {
+            if (ws_server.status === JsSIP.Transport.C.STATUS_ERROR) {
+                continue;
+            } else if (candidates.length === 0) {
+                candidates.push(ws_server);
+            } else if (ws_server.weight > candidates[0].weight) {
+                candidates = [ws_server];
+            } else if (ws_server.weight === candidates[0].weight) {
+                candidates.push(ws_server);
+            }
+        }
 
-    uri: function(uri) {
-      var parsed;
+        idx = Math.floor((Math.random()* candidates.length));
 
-      if (!/^sip:/i.test(uri)) {
-        uri = JsSIP.C.SIP + ':' + uri;
-      }
-      parsed = JsSIP.URI.parse(uri);
+        return candidates[idx];
+    };
 
-      if(!parsed) {
+    /**
+     * Close all sessions on transport error.
+     * @private
+     */
+    UA.prototype.closeSessionsOnTransportError = function() {
+        var idx;
+
+        // Run _transportError_ for every Session
+        for(idx in this.sessions) {
+            this.sessions[idx].onTransportError();
+        }
+        // Call registrator _onTransportClosed_
+        if(this.registrator){
+            this.registrator.onTransportClosed();
+        }
+    };
+
+    UA.prototype.recoverTransport = function(ua) {
+        var idx, length, k, nextRetry, count, server;
+
+        ua = ua || this;
+        count = ua.transportRecoverAttempts;
+
+        length = ua.configuration.ws_servers.length;
+        for (idx = 0; idx < length; idx++) {
+            ua.configuration.ws_servers[idx].status = 0;
+        }
+
+        server = ua.getNextWsServer();
+
+        k = Math.floor((Math.random() * Math.pow(2,count)) +1);
+        nextRetry = k * ua.configuration.connection_recovery_min_interval;
+
+        if (nextRetry > ua.configuration.connection_recovery_max_interval) {
+            console.log(LOG_PREFIX + 'time for next connection attempt exceeds connection_recovery_max_interval, resetting counter');
+            nextRetry = ua.configuration.connection_recovery_min_interval;
+            count = 0;
+        }
+
+        console.log(LOG_PREFIX + 'next connection attempt in '+ nextRetry +' seconds');
+
+        window.setTimeout(
+            function(){
+                ua.transportRecoverAttempts = count + 1;
+                new JsSIP.Transport(ua, server);
+            }, nextRetry * 1000);
+    };
+
+    /**
+     * Configuration load.
+     * @private
+     * returns {Boolean}
+     */
+    UA.prototype.loadConfig = function(configuration) {
+        // Settings and default values
+        var parameter, value, checked_value, hostport_params, registrar_server,
+            settings = {
+                /* Host address
+                 * Value to be set in Via sent_by and host part of Contact FQDN
+                 */
+                via_host: JsSIP.Utils.createRandomToken(12) + '.invalid',
+
+                // Password
+                password: null,
+
+                // Registration parameters
+                register_expires: 600,
+                register_min_expires: 120,
+                register: true,
+                registrar_server: null,
+
+                // Transport related parameters
+                ws_server_max_reconnection: 3,
+                ws_server_reconnection_timeout: 4,
+
+                connection_recovery_min_interval: 2,
+                connection_recovery_max_interval: 30,
+
+                use_preloaded_route: false,
+
+                // Session parameters
+                no_answer_timeout: 60,
+                stun_servers: ['stun:stun.l.google.com:19302'],
+                turn_servers: [],
+
+                // Logging parameters
+                trace_sip: false,
+
+                // Hacks
+                hack_via_tcp: false,
+                hack_ip_in_contact: false
+            };
+
+        // Pre-Configuration
+
+        // Check Mandatory parameters
+        for(parameter in UA.configuration_check.mandatory) {
+            if(!configuration.hasOwnProperty(parameter)) {
+                throw new JsSIP.Exceptions.ConfigurationError(parameter);
+            } else {
+                value = configuration[parameter];
+                checked_value = UA.configuration_check.mandatory[parameter](value);
+                if (checked_value !== undefined) {
+                    settings[parameter] = checked_value;
+                } else {
+                    throw new JsSIP.Exceptions.ConfigurationError(parameter, value);
+                }
+            }
+        }
+
+        // Check Optional parameters
+        for(parameter in UA.configuration_check.optional) {
+            if(configuration.hasOwnProperty(parameter)) {
+                value = configuration[parameter];
+
+                // If the parameter value is null, empty string or undefined then apply its default value.
+                if(value === null || value === "" || value === undefined) { continue; }
+                // If it's a number with NaN value then also apply its default value.
+                // NOTE: JS does not allow "value === NaN", the following does the work:
+                else if(typeof(value) === 'number' && window.isNaN(value)) { continue; }
+
+                checked_value = UA.configuration_check.optional[parameter](value);
+                if (checked_value !== undefined) {
+                    settings[parameter] = checked_value;
+                } else {
+                    throw new JsSIP.Exceptions.ConfigurationError(parameter, value);
+                }
+            }
+        }
+
+        // Sanity Checks
+
+        // Connection recovery intervals
+        if(settings.connection_recovery_max_interval < settings.connection_recovery_min_interval) {
+            throw new JsSIP.Exceptions.ConfigurationError('connection_recovery_max_interval', settings.connection_recovery_max_interval);
+        }
+
+        // Post Configuration Process
+
+        // Allow passing 0 number as display_name.
+        if (settings.display_name === 0) {
+            settings.display_name = '0';
+        }
+
+        // Instance-id for GRUU
+        settings.instance_id = JsSIP.Utils.newUUID();
+
+        // jssip_id instance parameter. Static random tag of length 5
+        settings.jssip_id = JsSIP.Utils.createRandomToken(5);
+
+        // String containing settings.uri without scheme and user.
+        hostport_params = settings.uri.clone();
+        hostport_params.user = null;
+        settings.hostport_params = hostport_params.toString().replace(/^sip:/i, '');
+
+        /* Check whether authorization_user is explicitly defined.
+         * Take 'settings.uri.user' value if not.
+         */
+        if (!settings.authorization_user) {
+            settings.authorization_user = settings.uri.user;
+        }
+
+        /* If no 'registrar_server' is set use the 'uri' value without user portion. */
+        if (!settings.registrar_server) {
+            registrar_server = settings.uri.clone();
+            registrar_server.user = null;
+            settings.registrar_server = registrar_server;
+        }
+
+        // User no_answer_timeout
+        settings.no_answer_timeout = settings.no_answer_timeout * 1000;
+
+        // Via Host
+        if (settings.hack_ip_in_contact) {
+            settings.via_host = JsSIP.Utils.getRandomTestNetIP();
+        }
+
+        this.contact = {
+            pub_gruu: null,
+            temp_gruu: null,
+            uri: new JsSIP.URI('sip', JsSIP.Utils.createRandomToken(8), settings.via_host, null, {transport: 'ws'}),
+            toString: function(options){
+                options = options || {};
+
+                var
+                    anonymous = options.anonymous || null,
+                    outbound = options.outbound || null,
+                    contact = '<';
+
+                if (anonymous) {
+                    contact += this.temp_gruu || 'sip:anonymous@anonymous.invalid;transport=ws';
+                } else {
+                    contact += this.pub_gruu || this.uri.toString();
+                }
+
+                if (outbound) {
+                    contact += ';ob';
+                }
+
+                contact += '>';
+
+                return contact;
+            }
+        };
+
+        // Fill the value of the configuration_skeleton
+        console.log(LOG_PREFIX + 'configuration parameters after validation:');
+        for(parameter in settings) {
+            switch(parameter) {
+                case 'uri':
+                case 'registrar_server':
+                    console.log('· ' + parameter + ': ' + settings[parameter]);
+                    break;
+                case 'password':
+                    console.log('· ' + parameter + ': ' + 'NOT SHOWN');
+                    break;
+                default:
+                    console.log('· ' + parameter + ': ' + window.JSON.stringify(settings[parameter]));
+            }
+            UA.configuration_skeleton[parameter].value = settings[parameter];
+        }
+
+        Object.defineProperties(this.configuration, UA.configuration_skeleton);
+
+        // Clean UA.configuration_skeleton
+        for(parameter in settings) {
+            UA.configuration_skeleton[parameter].value = '';
+        }
+
         return;
-      } else if(!parsed.user) {
-        return;
-      } else {
-        return parsed;
-      }
-    },
+    };
 
-    ws_servers: function(ws_servers) {
-      var idx, url;
 
-      /* Allow defining ws_servers parameter as:
-       *  String: "host"
-       *  Array of Strings: ["host1", "host2"]
-       *  Array of Objects: [{ws_uri:"host1", weight:1}, {ws_uri:"host2", weight:0}]
-       *  Array of Objects and Strings: [{ws_uri:"host1"}, "host2"]
-       */
-      if (typeof ws_servers === 'string') {
-        ws_servers = [{ws_uri: ws_servers}];
-      } else if (ws_servers instanceof Array) {
-        for(idx in ws_servers) {
-          if (typeof ws_servers[idx] === 'string'){
-            ws_servers[idx] = {ws_uri: ws_servers[idx]};
-          }
-        }
-      } else {
-        return;
-      }
+    /**
+     * Configuration Object skeleton.
+     * @private
+     */
+    UA.configuration_skeleton = (function() {
+        var idx,  parameter,
+            skeleton = {},
+            parameters = [
+                // Internal parameters
+                "instance_id",
+                "jssip_id",
+                "register_min_expires",
+                "ws_server_max_reconnection",
+                "ws_server_reconnection_timeout",
+                "hostport_params",
 
-      if (ws_servers.length === 0) {
-        return false;
-      }
+                // Mandatory user configurable parameters
+                "uri",
+                "ws_servers",
 
-      for (idx in ws_servers) {
-        if (!ws_servers[idx].ws_uri) {
-          console.error(LOG_PREFIX +'missing "ws_uri" attribute in ws_servers parameter');
-          return;
-        }
-        if (ws_servers[idx].weight && !Number(ws_servers[idx].weight)) {
-          console.error(LOG_PREFIX +'"weight" attribute in ws_servers parameter must be a Number');
-          return;
-        }
+                // Optional user configurable parameters
+                "authorization_user",
+                "connection_recovery_max_interval",
+                "connection_recovery_min_interval",
+                "display_name",
+                "hack_via_tcp", // false.
+                "hack_ip_in_contact", //false
+                "no_answer_timeout", // 30 seconds.
+                "password",
+                "register_expires", // 600 seconds.
+                "registrar_server",
+                "stun_servers",
+                "trace_sip",
+                "turn_servers",
+                "use_preloaded_route",
 
-        url = JsSIP.Grammar.parse(ws_servers[idx].ws_uri, 'absoluteURI');
+                // Post-configuration generated parameters
+                "via_core_value",
+                "via_host"
+            ];
 
-        if(url === -1) {
-          console.error(LOG_PREFIX +'invalid "ws_uri" attribute in ws_servers parameter: ' + ws_servers[idx].ws_uri);
-          return;
-        } else if(url.scheme !== 'wss' && url.scheme !== 'ws') {
-          console.error(LOG_PREFIX +'invalid URI scheme in ws_servers parameter: ' + url.scheme);
-          return;
-        } else {
-          ws_servers[idx].sip_uri = '<sip:' + url.host + (url.port ? ':' + url.port : '') + ';transport=ws;lr>';
-
-          if (!ws_servers[idx].weight) {
-            ws_servers[idx].weight = 0;
-          }
-
-          ws_servers[idx].status = 0;
-          ws_servers[idx].scheme = url.scheme.toUpperCase();
-        }
-      }
-      return ws_servers;
-    }
-  },
-
-  optional: {
-
-    authorization_user: function(authorization_user) {
-      if(JsSIP.Grammar.parse('"'+ authorization_user +'"', 'quoted_string') === -1) {
-        return;
-      } else {
-        return authorization_user;
-      }
-    },
-
-    connection_recovery_max_interval: function(connection_recovery_max_interval) {
-      var value;
-      if(JsSIP.Utils.isDecimal(connection_recovery_max_interval)) {
-        value = window.Number(connection_recovery_max_interval);
-        if(value > 0) {
-          return value;
-        }
-      }
-    },
-
-    connection_recovery_min_interval: function(connection_recovery_min_interval) {
-      var value;
-      if(JsSIP.Utils.isDecimal(connection_recovery_min_interval)) {
-        value = window.Number(connection_recovery_min_interval);
-        if(value > 0) {
-          return value;
-        }
-      }
-    },
-
-    display_name: function(display_name) {
-      if(JsSIP.Grammar.parse('"' + display_name + '"', 'display_name') === -1) {
-        return;
-      } else {
-        return display_name;
-      }
-    },
-
-    hack_via_tcp: function(hack_via_tcp) {
-      if (typeof hack_via_tcp === 'boolean') {
-        return hack_via_tcp;
-      }
-    },
-
-    hack_ip_in_contact: function(hack_ip_in_contact) {
-      if (typeof hack_ip_in_contact === 'boolean') {
-        return hack_ip_in_contact;
-      }
-    },
-
-    no_answer_timeout: function(no_answer_timeout) {
-      var value;
-      if (JsSIP.Utils.isDecimal(no_answer_timeout)) {
-        value = window.Number(no_answer_timeout);
-        if (value > 0) {
-          return value;
-        }
-      }
-    },
-
-    password: function(password) {
-      return String(password);
-    },
-
-    register: function(register) {
-      if (typeof register === 'boolean') {
-        return register;
-      }
-    },
-
-    register_expires: function(register_expires) {
-      var value;
-      if (JsSIP.Utils.isDecimal(register_expires)) {
-        value = window.Number(register_expires);
-        if (value > 0) {
-          return value;
-        }
-      }
-    },
-
-    registrar_server: function(registrar_server) {
-      var parsed;
-
-      if (!/^sip:/i.test(registrar_server)) {
-        registrar_server = JsSIP.C.SIP + ':' + registrar_server;
-      }
-      parsed = JsSIP.URI.parse(registrar_server);
-
-      if(!parsed) {
-        return;
-      } else if(parsed.user) {
-        return;
-      } else {
-        return parsed;
-      }
-    },
-
-    stun_servers: function(stun_servers) {
-      var idx, stun_server;
-
-      if (typeof stun_servers === 'string') {
-        stun_servers = [stun_servers];
-      } else if (!(stun_servers instanceof Array)) {
-        return;
-      }
-
-      for (idx in stun_servers) {
-        stun_server = stun_servers[idx];
-        if (!(/^stuns?:/.test(stun_server))) {
-          stun_server = 'stun:' + stun_server;
+        for(idx in parameters) {
+            parameter = parameters[idx];
+            skeleton[parameter] = {
+                value: '',
+                writable: false,
+                configurable: false
+            };
         }
 
-        if(JsSIP.Grammar.parse(stun_server, 'stun_URI') === -1) {
-          return;
-        } else {
-          stun_servers[idx] = stun_server;
+        skeleton['register'] = {
+            value: '',
+            writable: true,
+            configurable: false
+        };
+
+        return skeleton;
+    }());
+
+    /**
+     * Configuration checker.
+     * @private
+     * @return {Boolean}
+     */
+    UA.configuration_check = {
+        mandatory: {
+
+            uri: function(uri) {
+                var parsed;
+
+                if (!/^sip:/i.test(uri)) {
+                    uri = JsSIP.C.SIP + ':' + uri;
+                }
+                parsed = JsSIP.URI.parse(uri);
+
+                if(!parsed) {
+                    return;
+                } else if(!parsed.user) {
+                    return;
+                } else {
+                    return parsed;
+                }
+            },
+
+            ws_servers: function(ws_servers) {
+                var idx, length, url;
+
+                /* Allow defining ws_servers parameter as:
+                 *  String: "host"
+                 *  Array of Strings: ["host1", "host2"]
+                 *  Array of Objects: [{ws_uri:"host1", weight:1}, {ws_uri:"host2", weight:0}]
+                 *  Array of Objects and Strings: [{ws_uri:"host1"}, "host2"]
+                 */
+                if (typeof ws_servers === 'string') {
+                    ws_servers = [{ws_uri: ws_servers}];
+                } else if (ws_servers instanceof Array) {
+                    length = ws_servers.length;
+                    for (idx = 0; idx < length; idx++) {
+                        if (typeof ws_servers[idx] === 'string'){
+                            ws_servers[idx] = {ws_uri: ws_servers[idx]};
+                        }
+                    }
+                } else {
+                    return;
+                }
+
+                if (ws_servers.length === 0) {
+                    return false;
+                }
+
+                length = ws_servers.length;
+                for (idx = 0; idx < length; idx++) {
+                    if (!ws_servers[idx].ws_uri) {
+                        console.error(LOG_PREFIX +'missing "ws_uri" attribute in ws_servers parameter');
+                        return;
+                    }
+                    if (ws_servers[idx].weight && !Number(ws_servers[idx].weight)) {
+                        console.error(LOG_PREFIX +'"weight" attribute in ws_servers parameter must be a Number');
+                        return;
+                    }
+
+                    url = JsSIP.Grammar.parse(ws_servers[idx].ws_uri, 'absoluteURI');
+
+                    if(url === -1) {
+                        console.error(LOG_PREFIX +'invalid "ws_uri" attribute in ws_servers parameter: ' + ws_servers[idx].ws_uri);
+                        return;
+                    } else if(url.scheme !== 'wss' && url.scheme !== 'ws') {
+                        console.error(LOG_PREFIX +'invalid URI scheme in ws_servers parameter: ' + url.scheme);
+                        return;
+                    } else {
+                        ws_servers[idx].sip_uri = '<sip:' + url.host + (url.port ? ':' + url.port : '') + ';transport=ws;lr>';
+
+                        if (!ws_servers[idx].weight) {
+                            ws_servers[idx].weight = 0;
+                        }
+
+                        ws_servers[idx].status = 0;
+                        ws_servers[idx].scheme = url.scheme.toUpperCase();
+                    }
+                }
+                return ws_servers;
+            }
+        },
+
+        optional: {
+
+            authorization_user: function(authorization_user) {
+                if(JsSIP.Grammar.parse('"'+ authorization_user +'"', 'quoted_string') === -1) {
+                    return;
+                } else {
+                    return authorization_user;
+                }
+            },
+
+            connection_recovery_max_interval: function(connection_recovery_max_interval) {
+                var value;
+                if(JsSIP.Utils.isDecimal(connection_recovery_max_interval)) {
+                    value = window.Number(connection_recovery_max_interval);
+                    if(value > 0) {
+                        return value;
+                    }
+                }
+            },
+
+            connection_recovery_min_interval: function(connection_recovery_min_interval) {
+                var value;
+                if(JsSIP.Utils.isDecimal(connection_recovery_min_interval)) {
+                    value = window.Number(connection_recovery_min_interval);
+                    if(value > 0) {
+                        return value;
+                    }
+                }
+            },
+
+            display_name: function(display_name) {
+                if(JsSIP.Grammar.parse('"' + display_name + '"', 'display_name') === -1) {
+                    return;
+                } else {
+                    return display_name;
+                }
+            },
+
+            hack_via_tcp: function(hack_via_tcp) {
+                if (typeof hack_via_tcp === 'boolean') {
+                    return hack_via_tcp;
+                }
+            },
+
+            hack_ip_in_contact: function(hack_ip_in_contact) {
+                if (typeof hack_ip_in_contact === 'boolean') {
+                    return hack_ip_in_contact;
+                }
+            },
+
+            no_answer_timeout: function(no_answer_timeout) {
+                var value;
+                if (JsSIP.Utils.isDecimal(no_answer_timeout)) {
+                    value = window.Number(no_answer_timeout);
+                    if (value > 0) {
+                        return value;
+                    }
+                }
+            },
+
+            password: function(password) {
+                return String(password);
+            },
+
+            register: function(register) {
+                if (typeof register === 'boolean') {
+                    return register;
+                }
+            },
+
+            register_expires: function(register_expires) {
+                var value;
+                if (JsSIP.Utils.isDecimal(register_expires)) {
+                    value = window.Number(register_expires);
+                    if (value > 0) {
+                        return value;
+                    }
+                }
+            },
+
+            registrar_server: function(registrar_server) {
+                var parsed;
+
+                if (!/^sip:/i.test(registrar_server)) {
+                    registrar_server = JsSIP.C.SIP + ':' + registrar_server;
+                }
+                parsed = JsSIP.URI.parse(registrar_server);
+
+                if(!parsed) {
+                    return;
+                } else if(parsed.user) {
+                    return;
+                } else {
+                    return parsed;
+                }
+            },
+
+            stun_servers: function(stun_servers) {
+                var idx, length, stun_server;
+
+                if (typeof stun_servers === 'string') {
+                    stun_servers = [stun_servers];
+                } else if (!(stun_servers instanceof Array)) {
+                    return;
+                }
+
+                length = stun_servers.length;
+                for (idx = 0; idx < length; idx++) {
+                    stun_server = stun_servers[idx];
+                    if (!(/^stuns?:/.test(stun_server))) {
+                        stun_server = 'stun:' + stun_server;
+                    }
+
+                    if(JsSIP.Grammar.parse(stun_server, 'stun_URI') === -1) {
+                        return;
+                    } else {
+                        stun_servers[idx] = stun_server;
+                    }
+                }
+                return stun_servers;
+            },
+
+            trace_sip: function(trace_sip) {
+                if (typeof trace_sip === 'boolean') {
+                    return trace_sip;
+                }
+            },
+
+            turn_servers: function(turn_servers) {
+                var idx, length, turn_server;
+
+                if (turn_servers instanceof Array) {
+                    // Do nothing
+                } else {
+                    turn_servers = [turn_servers];
+                }
+
+                length = turn_servers.length;
+                for (idx = 0; idx < length; idx++) {
+                    turn_server = turn_servers[idx];
+                    if (!turn_server.server || !turn_server.username || !turn_server.password) {
+                        return;
+                    } else if (!(/^turns?:/.test(turn_server.server))) {
+                        turn_server.server = 'turn:' + turn_server.server;
+                    }
+
+                    if(JsSIP.Grammar.parse(turn_server.server, 'turn_URI') === -1) {
+                        return;
+                    } else if(JsSIP.Grammar.parse(turn_server.username, 'user') === -1) {
+                        return;
+                    } else if(JsSIP.Grammar.parse(turn_server.password, 'password') === -1) {
+                        return;
+                    }
+                }
+                return turn_servers;
+            },
+
+            use_preloaded_route: function(use_preloaded_route) {
+                if (typeof use_preloaded_route === 'boolean') {
+                    return use_preloaded_route;
+                }
+            }
         }
-      }
-      return stun_servers;
-    },
+    };
 
-    trace_sip: function(trace_sip) {
-      if (typeof trace_sip === 'boolean') {
-        return trace_sip;
-      }
-    },
-
-    turn_servers: function(turn_servers) {
-      var idx, turn_server;
-
-      if (turn_servers instanceof Array) {
-        // Do nothing
-      } else {
-        turn_servers = [turn_servers];
-      }
-
-      for (idx in turn_servers) {
-        turn_server = turn_servers[idx];
-        if (!turn_server.server || !turn_server.username || !turn_server.password) {
-          return;
-        } else if (!(/^turns?:/.test(turn_server.server))) {
-          turn_server.server = 'turn:' + turn_server.server;
-        }
-
-        if(JsSIP.Grammar.parse(turn_server.server, 'turn_URI') === -1) {
-          return;
-        } else if(JsSIP.Grammar.parse(turn_server.username, 'user') === -1) {
-          return;
-        } else if(JsSIP.Grammar.parse(turn_server.password, 'password') === -1) {
-          return;
-        }
-      }
-      return turn_servers;
-    },
-
-    use_preloaded_route: function(use_preloaded_route) {
-      if (typeof use_preloaded_route === 'boolean') {
-        return use_preloaded_route;
-      }
-    }
-  }
-};
-
-UA.C = C;
-JsSIP.UA = UA;
+    UA.C = C;
+    JsSIP.UA = UA;
 }(JsSIP));
 
 
@@ -6138,6 +6182,19 @@ JsSIP.UA = UA;
 var Utils;
 
 Utils= {
+
+    /**
+     * Overwrites obj1's values with obj2's and adds obj2's if non existent in obj1
+     * @param obj1
+     * @param obj2
+     * @returns obj3 a new object based on obj1 and obj2
+     */
+    merge_options: function(obj1,obj2){
+        var obj3 = {};
+        for (var attrname1 in obj1) { obj3[attrname1] = obj1[attrname1]; }
+        for (var attrname2 in obj2) { obj3[attrname2] = obj2[attrname2]; }
+        return obj3;
+    },
 
   str_utf8_length: function(string) {
     return window.unescape(encodeURIComponent(string)).length;
@@ -6281,10 +6338,11 @@ Utils= {
       'Www-Authenticate': 'WWW-Authenticate'
       },
       name = string.toLowerCase().replace(/_/g,'-').split('-'),
-      hname = '', part;
+      hname = '',
+      parts = name.length, part;
 
-    for (part in name) {
-      if (part !== '0') {
+    for (part = 0; part < parts; part++) {
+      if (part !== 0) {
         hname +='-';
       }
       hname += name[part].charAt(0).toUpperCase()+name[part].substring(1);
@@ -6663,7 +6721,7 @@ function rfc3261_8_1_3_3() {
 function rfc3261_18_1_2() {
   var via_host = ua.configuration.via_host;
   if(message.via.host !== via_host) {
-    console.warn(LOG_PREFIX +'Via host in the response does not match UA Via host value. Dropping the response');
+    console.warn(LOG_PREFIX +'Via host in the response ('+message.via.host+') does not match UA Via host value ('+via_host+'). Dropping the response');
     return false;
   }
 }
@@ -6674,7 +6732,7 @@ function rfc3261_18_3_response() {
     contentLength = message.getHeader('content-length');
 
     if(len < contentLength) {
-      console.warn(LOG_PREFIX +'Message body length is lower than the value in Content-Length header field. Dropping the response');
+      console.warn(LOG_PREFIX +'Message body length ('+len+') is lower than the value in Content-Length header field ('+contentLength+'). Dropping the response');
       return false;
     }
 }
@@ -15004,8 +15062,9 @@ JsSIP.Grammar = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset) {
-                                var idx;
-                                for (idx in data.multi_header) {
+                                var idx, length;
+                                length = data.multi_header.length;
+                                for (idx = 0; idx < length; idx++) {
                                   if (data.multi_header[idx].parsed === null) {
                                     data = null;
                                     break;
@@ -17261,8 +17320,9 @@ JsSIP.Grammar = (function(){
         }
         if (result0 !== null) {
           result0 = (function(offset) {
-                          var idx;
-                          for (idx in data.multi_header) {
+                          var idx, length;
+                          length = data.multi_header.length;
+                          for (idx = 0; idx < length; idx++) {
                             if (data.multi_header[idx].parsed === null) {
                               data = null;
                               break;
