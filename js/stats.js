@@ -1074,7 +1074,7 @@ function ensureStatsGraphTopContainer(
     peerConnectionElement, reportType, reportId) {
     var containerId = peerConnectionElement.id + '-' +
         reportType + '-' + reportId + '-graph-container';
-    var container = $('#'+containerId)[0];
+    var container = $('[id="'+containerId+'"]')[0];
     if (!container) {
         container = document.createElement('div');
         container.id = containerId;
