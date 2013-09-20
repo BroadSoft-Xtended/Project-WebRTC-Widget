@@ -24,7 +24,7 @@ var JsSIP = (function() {
       get: function(){ return '0.3.7'; }
     },
     name: {
-      get: function(){ return 'JsSIP'; }
+      get: function(){ return 'ExSIP'; }
     }
   });
 
@@ -3424,6 +3424,8 @@ RTCMediaHandler.prototype = {
       this.peerConnection.onstatechange = function() {
         console.log(LOG_PREFIX +'PeerConnection state changed to "'+ this.readyState +'"');
       };
+    } else {
+      console.warn(LOG_PREFIX +'JsSIP.WebRTC.RTCPeerConnection is undefined - peerConnection not created');
     }
   },
 
@@ -3448,18 +3450,20 @@ RTCMediaHandler.prototype = {
 
     console.log(LOG_PREFIX + 'requesting access to local media');
 
-    JsSIP.WebRTC.getUserMedia(constraints,
-      function(stream) {
-        console.log(LOG_PREFIX + 'got local media stream');
-        self.localMedia = stream;
-        onSuccess(stream);
-      },
-      function(e) {
-        console.error(LOG_PREFIX +'unable to get user media');
-        console.error(e);
-        onFailure();
-      }
-    );
+    if(typeof(JsSIP.WebRTC.getUserMedia) !== 'undefined') {
+      JsSIP.WebRTC.getUserMedia(constraints,
+        function(stream) {
+          console.log(LOG_PREFIX + 'got local media stream');
+          self.localMedia = stream;
+          onSuccess(stream);
+        },
+        function(e) {
+          console.error(LOG_PREFIX +'unable to get user media');
+          console.error(e);
+          onFailure();
+        }
+      );
+    }
   },
 
   /**
@@ -3470,18 +3474,21 @@ RTCMediaHandler.prototype = {
   * @param {Function} onFailure
   */
   onMessage: function(type, body, onSuccess, onFailure) {
-      // Grab video SDP
-      var videoSection = body.split("m=video");
-      // Add b=AS: bandwidth if video SDP and b=AS: does not exist
-      if (videoSection.length > 1 && videoSection[1].indexOf("b=AS:") === -1) {
+      if(this.options["videoBandwidth"]) {
+        // Grab video SDP
+        var videoSection = body.split("m=video");
+        // Add b=AS: bandwidth if video SDP and b=AS: does not exist
+        if (videoSection.length > 1 && videoSection[1].indexOf("b=AS:") === -1) {
           videoSection[1] = videoSection[1].replace(/(.*c=IN\s+IP4.*)/, "$1\r\nb=AS:" + this.options["videoBandwidth"]);
-      } else if (videoSection.length > 1) {
+        } else if (videoSection.length > 1) {
           // Change b=AS: in video SDP
           videoSection[1] = videoSection[1].replace(/b=AS:\d{1,4}/, "b=AS:" + this.options["videoBandwidth"]);
           body = videoSection.join("");
+        }
+        body = videoSection[0] + "m=video" + videoSection[1];
+        console.log("Modifying SDP with videoBandwidth : "+this.options["videoBandwidth"]+"!!!!\n" + body);
       }
-      body = videoSection[0] + "m=video" + videoSection[1];
-      console.log("Modifying SDP with videoBandwidth : "+this.options["videoBandwidth"]+"!!!!\n" + body);
+
       if(this.peerConnection) {
         this.peerConnection.setRemoteDescription(
           new JsSIP.WebRTC.RTCSessionDescription({type: type, sdp:body}),
@@ -4513,6 +4520,7 @@ return DTMF;
             session = this;
 
         if(this.status !== C.STATUS_INVITE_SENT && this.status !== C.STATUS_1XX_RECEIVED) {
+            console.warn(LOG_PREFIX +'status ('+this.status+') not invite sent or 1xx received');
             return;
         }
 
@@ -5487,7 +5495,7 @@ JsSIP.Message = Message;
             switch(method) {
                 case JsSIP.C.INVITE:
                     if(JsSIP.WebRTC.isSupported) {
-                      console.log(LOG_PREFIX +'INVITE received');
+                        console.log(LOG_PREFIX +'INVITE received');
                         session = new JsSIP.RTCSession(this);
                         session.init_incoming(request);
                     } else {
@@ -6198,6 +6206,20 @@ Utils= {
 
   str_utf8_length: function(string) {
     return window.unescape(encodeURIComponent(string)).length;
+  },
+
+  toString: function(object) {
+    var seen = [];
+
+    return JSON.stringify(object, function(key, val) {
+      if (typeof val === "object") {
+        if (seen.indexOf(val) >= 0) {
+          return;
+        }
+        seen.push(val);
+      }
+      return val;
+    });
   },
 
   isFunction: function(fn) {
