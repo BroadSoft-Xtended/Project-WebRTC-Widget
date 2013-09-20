@@ -280,7 +280,7 @@ else
   var video = true;
 }
 
-// Options Passed to JsSIP
+// Options Passed to ExSIP
 var options =
 {
   mediaConstraints:
@@ -568,7 +568,7 @@ function onLoad(userid, password)
   }
 
   // SIP stack
-  sipStack = new JsSIP.UA(config);
+  sipStack = new ExSIP.UA(config);
 
   updateRtcMediaHandlerOptions();
 

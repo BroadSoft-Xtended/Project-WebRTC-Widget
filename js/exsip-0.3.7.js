@@ -1,25 +1,25 @@
 /*
- * JsSIP version 0.3.7
+ * ExSIP version 0.3.7
  * Copyright (c) 2012-2013 José Luis Millán - Versatica <http://www.versatica.com>
- * Homepage: http://jssip.net
- * License: http://jssip.net/license
+ * Homepage: http://exsip.net
+ * License: http://exsip.net/license
  */
 
 
 /*global console: false*/
 
 /**
- * @name JsSIP
+ * @name ExSIP
  * @namespace
  */
 (function(window) {
 
-var JsSIP = (function() {
+var ExSIP = (function() {
   "use strict";
 
-  var JsSIP = {};
+  var ExSIP = {};
 
-  Object.defineProperties(JsSIP, {
+  Object.defineProperties(ExSIP, {
     version: {
       get: function(){ return '0.3.7'; }
     },
@@ -28,7 +28,7 @@ var JsSIP = (function() {
     }
   });
 
-  return JsSIP;
+  return ExSIP;
 }());
 
 
@@ -38,14 +38,14 @@ var JsSIP = (function() {
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating an event emitter.
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var
   EventEmitter,
   Event,
-  LOG_PREFIX = JsSIP.name +' | '+ 'EVENT EMITTER' +' | ';
+  LOG_PREFIX = ExSIP.name +' | '+ 'EVENT EMITTER' +' | ';
 
 EventEmitter = function(){};
 EventEmitter.prototype = {
@@ -197,7 +197,7 @@ EventEmitter.prototype = {
     listeners = this.events[event];
     length = listeners.length;
 
-    var e = new JsSIP.Event(event, sender, data);
+    var e = new ExSIP.Event(event, sender, data);
 
     if (e) {
       for (idx; idx<length; idx++) {
@@ -233,23 +233,23 @@ Event = function(type, sender, data) {
   this.data = data;
 };
 
-JsSIP.EventEmitter = EventEmitter;
-JsSIP.Event = Event;
-}(JsSIP));
+ExSIP.EventEmitter = EventEmitter;
+ExSIP.Event = Event;
+}(ExSIP));
 
 
 
 /**
- * @fileoverview JsSIP Constants
+ * @fileoverview ExSIP Constants
  */
 
 /**
- * JsSIP Constants.
- * @augments JsSIP
+ * ExSIP Constants.
+ * @augments ExSIP
  */
 
-JsSIP.C= {
-  USER_AGENT: JsSIP.name +' '+ JsSIP.version,
+ExSIP.C= {
+  USER_AGENT: ExSIP.name +' '+ ExSIP.version,
 
   // SIP scheme
   SIP: 'sip',
@@ -399,10 +399,10 @@ JsSIP.C= {
  */
 
 /**
- * JsSIP Exceptions.
- * @augments JsSIP
+ * ExSIP Exceptions.
+ * @augments ExSIP
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var Exceptions;
 
 Exceptions= {
@@ -440,8 +440,8 @@ Exceptions= {
   }())
 };
 
-JsSIP.Exceptions = Exceptions;
-}(JsSIP));
+ExSIP.Exceptions = Exceptions;
+}(ExSIP));
 
 
 /**
@@ -449,9 +449,9 @@ JsSIP.Exceptions = Exceptions;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var Timers,
   T1 = 500,
   T2 = 4000,
@@ -473,8 +473,8 @@ Timers = {
   PROVISIONAL_RESPONSE_INTERVAL: 60000  // See RFC 3261 Section 13.3.1.1
 };
 
-JsSIP.Timers = Timers;
-}(JsSIP));
+ExSIP.Timers = Timers;
+}(ExSIP));
 
 
 
@@ -483,14 +483,14 @@ JsSIP.Timers = Timers;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Transport
- * @param {JsSIP.UA} ua
+ * @param {ExSIP.UA} ua
  * @param {Object} server ws_server Object
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var Transport,
-  LOG_PREFIX = JsSIP.name +' | '+ 'TRANSPORT' +' | ',
+  LOG_PREFIX = ExSIP.name +' | '+ 'TRANSPORT' +' | ',
   C = {
     // Transport status codes
     STATUS_READY:        0,
@@ -517,7 +517,7 @@ Transport = function(ua, server) {
 Transport.prototype = {
   /**
    * Send a message.
-   * @param {JsSIP.OutgoingRequest|String} msg
+   * @param {ExSIP.OutgoingRequest|String} msg
    * @returns {Boolean}
    */
   send: function(msg) {
@@ -698,9 +698,9 @@ Transport.prototype = {
       }
     }
 
-    message = JsSIP.Parser.parseMessage(this.ua, data);
+    message = ExSIP.Parser.parseMessage(this.ua, data);
 
-    if(this.ua.status === JsSIP.UA.C.STATUS_USER_CLOSED && message instanceof JsSIP.IncomingRequest) {
+    if(this.ua.status === ExSIP.UA.C.STATUS_USER_CLOSED && message instanceof ExSIP.IncomingRequest) {
       if(this.ua.isDebug()) {
         console.debug(LOG_PREFIX +'UA status is closed - not handling message\n');
       }
@@ -708,23 +708,23 @@ Transport.prototype = {
     }
 
     // Do some sanity check
-    if(message && JsSIP.sanityCheck(message, this.ua, this)) {
-      if(message instanceof JsSIP.IncomingRequest) {
+    if(message && ExSIP.sanityCheck(message, this.ua, this)) {
+      if(message instanceof ExSIP.IncomingRequest) {
         message.transport = this;
         this.ua.receiveRequest(message);
-      } else if(message instanceof JsSIP.IncomingResponse) {
+      } else if(message instanceof ExSIP.IncomingResponse) {
         /* Unike stated in 18.1.2, if a response does not match
         * any transaction, it is discarded here and no passed to the core
         * in order to be discarded there.
         */
         switch(message.method) {
-          case JsSIP.C.INVITE:
+          case ExSIP.C.INVITE:
             transaction = this.ua.transactions.ict[message.via_branch];
             if(transaction) {
               transaction.receiveResponse(message);
             }
             break;
-          case JsSIP.C.ACK:
+          case ExSIP.C.ACK:
             // Just in case ;-)
             break;
           default:
@@ -786,8 +786,8 @@ Transport.prototype = {
 };
 
 Transport.C = C;
-JsSIP.Transport = Transport;
-}(JsSIP));
+ExSIP.Transport = Transport;
+}(ExSIP));
 
 
 
@@ -797,12 +797,12 @@ JsSIP.Transport = Transport;
 
 /**
  * Extract and parse every header of a SIP message.
- * @augments JsSIP
+ * @augments ExSIP
  * @namespace
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var Parser,
-  LOG_PREFIX = JsSIP.name +' | '+ 'PARSER' +' | ';
+  LOG_PREFIX = ExSIP.name +' | '+ 'PARSER' +' | ';
 
 function getHeader(data, headerStart) {
   var
@@ -878,7 +878,7 @@ function parseHeader(message, data, headerStart, headerEnd) {
       }
       break;
     case 'record-route':
-      parsed = JsSIP.Grammar.parse(headerValue, 'Record_Route');
+      parsed = ExSIP.Grammar.parse(headerValue, 'Record_Route');
 
       if (parsed === -1) {
         parsed = undefined;
@@ -901,7 +901,7 @@ function parseHeader(message, data, headerStart, headerEnd) {
       break;
     case 'contact':
     case 'm':
-      parsed = JsSIP.Grammar.parse(headerValue, 'Contact');
+      parsed = ExSIP.Grammar.parse(headerValue, 'Contact');
 
       if (parsed === -1) {
         parsed = undefined;
@@ -930,7 +930,7 @@ function parseHeader(message, data, headerStart, headerEnd) {
       if(parsed) {
         message.cseq = parsed.value;
       }
-      if(message instanceof JsSIP.IncomingResponse) {
+      if(message instanceof ExSIP.IncomingResponse) {
         message.method = parsed.method;
       }
       break;
@@ -962,7 +962,7 @@ function parseHeader(message, data, headerStart, headerEnd) {
 /** Parse SIP Message
  * @function
  * @param {String} message SIP message.
- * @returns {JsSIP.IncomingRequest|JsSIP.IncomingResponse|undefined}
+ * @returns {ExSIP.IncomingRequest|ExSIP.IncomingResponse|undefined}
  */
 Parser = {};
 Parser.parseMessage = function(ua, data) {
@@ -979,7 +979,7 @@ Parser.parseMessage = function(ua, data) {
 
   // Parse first line. Check if it is a Request or a Reply.
   firstLine = data.substring(0, headerEnd);
-  parsed = JsSIP.Grammar.parse(firstLine, 'Request_Response');
+  parsed = ExSIP.Grammar.parse(firstLine, 'Request_Response');
 
   if(parsed === -1) {
     if (ua.isDebug()) {
@@ -987,11 +987,11 @@ Parser.parseMessage = function(ua, data) {
     }
     return;
   } else if(!parsed.status_code) {
-    message = new JsSIP.IncomingRequest(ua);
+    message = new ExSIP.IncomingRequest(ua);
     message.method = parsed.method;
     message.ruri = parsed.uri;
   } else {
-    message = new JsSIP.IncomingResponse();
+    message = new ExSIP.IncomingResponse();
     message.status_code = parsed.status_code;
     message.reason_phrase = parsed.reason_phrase;
   }
@@ -1041,8 +1041,8 @@ Parser.parseMessage = function(ua, data) {
   return message;
 };
 
-JsSIP.Parser = Parser;
-}(JsSIP));
+ExSIP.Parser = Parser;
+}(ExSIP));
 
 
 
@@ -1050,20 +1050,20 @@ JsSIP.Parser = Parser;
  * @fileoverview SIP Message
  */
 
-(function(JsSIP) {
+(function(ExSIP) {
 var
   OutgoingRequest,
   IncomingMessage,
   IncomingRequest,
   IncomingResponse,
-  LOG_PREFIX = JsSIP.name +' | '+ 'SIP MESSAGE' +' | ';
+  LOG_PREFIX = ExSIP.name +' | '+ 'SIP MESSAGE' +' | ';
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class for outgoing SIP request.
  * @param {String} method request method
  * @param {String} ruri request uri
- * @param {JsSIP.UA} ua
+ * @param {ExSIP.UA} ua
  * @param {Object} params parameters that will have priority over ua.configuration parameters:
  * <br>
  *  - cseq, call_id, from_tag, from_uri, from_display_name, to_uri, to_tag, route_set
@@ -1104,13 +1104,13 @@ OutgoingRequest = function(method, ruri, ua, params, extraHeaders, body) {
   this.setHeader('via', '');
 
   // Max-Forwards
-  this.setHeader('max-forwards', JsSIP.UA.C.MAX_FORWARDS);
+  this.setHeader('max-forwards', ExSIP.UA.C.MAX_FORWARDS);
 
   // To
   to = (params.to_display_name || params.to_display_name === 0) ? '"' + params.to_display_name + '" ' : '';
   to += '<' + (params.to_uri || ruri) + '>';
   to += params.to_tag ? ';tag=' + params.to_tag : '';
-  this.to = new JsSIP.NameAddrHeader.parse(to);
+  this.to = new ExSIP.NameAddrHeader.parse(to);
   this.setHeader('to', to);
 
   // From
@@ -1122,12 +1122,12 @@ OutgoingRequest = function(method, ruri, ua, params, extraHeaders, body) {
     from = '';
   }
   from += '<' + (params.from_uri || ua.configuration.uri) + '>;tag=';
-  from += params.from_tag || JsSIP.Utils.newTag();
-  this.from = new JsSIP.NameAddrHeader.parse(from);
+  from += params.from_tag || ExSIP.Utils.newTag();
+  this.from = new ExSIP.NameAddrHeader.parse(from);
   this.setHeader('from', from);
 
   // Call-ID
-  call_id = params.call_id || (ua.configuration.jssip_id + JsSIP.Utils.createRandomToken(15));
+  call_id = params.call_id || (ua.configuration.exsip_id + ExSIP.Utils.createRandomToken(15));
   this.call_id = call_id;
   this.setHeader('call-id', call_id);
 
@@ -1144,7 +1144,7 @@ OutgoingRequest.prototype = {
    * @param {String | Array} value header value
    */
   setHeader: function(name, value) {
-    this.headers[JsSIP.Utils.headerize(name)] = (value instanceof Array) ? value : [value];
+    this.headers[ExSIP.Utils.headerize(name)] = (value instanceof Array) ? value : [value];
   },
   toString: function() {
     var msg = '', header, length, idx;
@@ -1163,11 +1163,11 @@ OutgoingRequest.prototype = {
       msg += this.extraHeaders[idx] +'\r\n';
     }
 
-    msg += 'Supported: ' +  JsSIP.UA.C.SUPPORTED +'\r\n';
+    msg += 'Supported: ' +  ExSIP.UA.C.SUPPORTED +'\r\n';
     msg += 'User-Agent: Exario Networks WebRTC - 1.4\r\n';
 
     if(this.body) {
-      length = JsSIP.Utils.str_utf8_length(this.body);
+      length = ExSIP.Utils.str_utf8_length(this.body);
       msg += 'Content-Length: ' + length + '\r\n\r\n';
       msg += this.body;
     } else {
@@ -1179,7 +1179,7 @@ OutgoingRequest.prototype = {
 };
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class for incoming SIP message.
  */
 IncomingMessage = function(){
@@ -1207,7 +1207,7 @@ IncomingMessage.prototype = {
   addHeader: function(name, value) {
     var header = { raw: value };
 
-    name = JsSIP.Utils.headerize(name);
+    name = ExSIP.Utils.headerize(name);
 
     if(this.headers[name]) {
       this.headers[name].push(header);
@@ -1222,7 +1222,7 @@ IncomingMessage.prototype = {
    * @returns {Number} Number of headers with the given name
    */
   countHeader: function(name) {
-    var header = this.headers[JsSIP.Utils.headerize(name)];
+    var header = this.headers[ExSIP.Utils.headerize(name)];
 
     if(header) {
       return header.length;
@@ -1238,7 +1238,7 @@ IncomingMessage.prototype = {
    * @returns {String|undefined} Returns the specified header, null if header doesn't exist.
    */
   getHeader: function(name, idx) {
-    var header = this.headers[JsSIP.Utils.headerize(name)];
+    var header = this.headers[ExSIP.Utils.headerize(name)];
 
     idx = idx || 0;
 
@@ -1258,7 +1258,7 @@ IncomingMessage.prototype = {
    */
   getHeaderAll: function(name) {
     var idx, length,
-      header = this.headers[JsSIP.Utils.headerize(name)],
+      header = this.headers[ExSIP.Utils.headerize(name)],
       result = [];
 
     if(!header) {
@@ -1279,7 +1279,7 @@ IncomingMessage.prototype = {
    * @returns {boolean} true if header with given name exists, false otherwise
    */
   hasHeader: function(name) {
-    return(this.headers[JsSIP.Utils.headerize(name)]) ? true : false;
+    return(this.headers[ExSIP.Utils.headerize(name)]) ? true : false;
   },
 
   /**
@@ -1291,7 +1291,7 @@ IncomingMessage.prototype = {
   parseHeader: function(name, idx) {
     var header, value, parsed;
 
-    name = JsSIP.Utils.headerize(name);
+    name = ExSIP.Utils.headerize(name);
 
     idx = idx || 0;
 
@@ -1315,7 +1315,7 @@ IncomingMessage.prototype = {
     }
 
     //substitute '-' by '_' for grammar rule matching.
-    parsed = JsSIP.Grammar.parse(value, name.replace(/-/g, '_'));
+    parsed = ExSIP.Grammar.parse(value, name.replace(/-/g, '_'));
 
     if(parsed === -1) {
       this.headers[name].splice(idx, 1); //delete from headers
@@ -1349,7 +1349,7 @@ IncomingMessage.prototype = {
   */
   setHeader: function(name, value) {
     var header = { raw: value };
-    this.headers[JsSIP.Utils.headerize(name)] = [header];
+    this.headers[ExSIP.Utils.headerize(name)] = [header];
   },
 
   toString: function() {
@@ -1395,12 +1395,12 @@ IncomingRequest.prototype.reply = function(code, reason, extraHeaders, body, onS
     throw new TypeError('Invalid reason_phrase: '+ reason);
   }
 
-  reason = reason || JsSIP.C.REASON_PHRASE[code] || '';
+  reason = reason || ExSIP.C.REASON_PHRASE[code] || '';
   extraHeaders = extraHeaders || [];
 
   response = 'SIP/2.0 ' + code + ' ' + reason + '\r\n';
 
-  if(this.method === JsSIP.C.INVITE && code > 100 && code <= 200) {
+  if(this.method === ExSIP.C.INVITE && code > 100 && code <= 200) {
     rr = this.countHeader('record-route');
 
     for(r; r < rr; r++) {
@@ -1415,7 +1415,7 @@ IncomingRequest.prototype.reply = function(code, reason, extraHeaders, body, onS
   }
 
   if(!this.to_tag && code > 100) {
-    to += ';tag=' + JsSIP.Utils.newTag();
+    to += ';tag=' + ExSIP.Utils.newTag();
   } else if(this.to_tag && !this.s('to').hasParam('tag')) {
     to += ';tag=' + this.to_tag;
   }
@@ -1431,7 +1431,7 @@ IncomingRequest.prototype.reply = function(code, reason, extraHeaders, body, onS
   }
 
   if(body) {
-    length = JsSIP.Utils.str_utf8_length(body);
+    length = ExSIP.Utils.str_utf8_length(body);
     response += 'Content-Type: application/sdp\r\n';
     response += 'Content-Length: ' + length + '\r\n\r\n';
     response += body;
@@ -1461,7 +1461,7 @@ IncomingRequest.prototype.reply_sl = function(code, reason) {
     throw new TypeError('Invalid reason_phrase: '+ reason);
   }
 
-  reason = reason || JsSIP.C.REASON_PHRASE[code] || '';
+  reason = reason || ExSIP.C.REASON_PHRASE[code] || '';
 
   response = 'SIP/2.0 ' + code + ' ' + reason + '\r\n';
 
@@ -1472,7 +1472,7 @@ IncomingRequest.prototype.reply_sl = function(code, reason) {
   to = this.getHeader('To');
 
   if(!this.to_tag && code > 100) {
-    to += ';tag=' + JsSIP.Utils.newTag();
+    to += ';tag=' + ExSIP.Utils.newTag();
   } else if(this.to_tag && !this.s('to').hasParam('tag')) {
     to += ';tag=' + this.to_tag;
   }
@@ -1498,10 +1498,10 @@ IncomingResponse = function() {
 };
 IncomingResponse.prototype = new IncomingMessage();
 
-JsSIP.OutgoingRequest = OutgoingRequest;
-JsSIP.IncomingRequest = IncomingRequest;
-JsSIP.IncomingResponse = IncomingResponse;
-}(JsSIP));
+ExSIP.OutgoingRequest = OutgoingRequest;
+ExSIP.IncomingRequest = IncomingRequest;
+ExSIP.IncomingResponse = IncomingResponse;
+}(ExSIP));
 
 
 
@@ -1510,7 +1510,7 @@ JsSIP.IncomingResponse = IncomingResponse;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating a SIP URI.
  *
  * @param {String} [scheme]
@@ -1521,7 +1521,7 @@ JsSIP.IncomingResponse = IncomingResponse;
  * @param {Object} [headers]
  *
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var URI;
 
 URI = function(scheme, user, host, port, parameters, headers) {
@@ -1533,7 +1533,7 @@ URI = function(scheme, user, host, port, parameters, headers) {
   }
 
   // Initialize parameters
-  scheme = scheme || JsSIP.C.SIP;
+  scheme = scheme || ExSIP.C.SIP;
   this.parameters = {};
   this.headers = {};
 
@@ -1609,24 +1609,24 @@ URI.prototype = {
   },
 
   setHeader: function(name, value) {
-    this.headers[JsSIP.Utils.headerize(name)] = (value instanceof Array) ? value : [value];
+    this.headers[ExSIP.Utils.headerize(name)] = (value instanceof Array) ? value : [value];
   },
 
   getHeader: function(name) {
     if(name) {
-      return this.headers[JsSIP.Utils.headerize(name)];
+      return this.headers[ExSIP.Utils.headerize(name)];
     }
   },
 
   hasHeader: function(name) {
     if(name) {
-      return (this.headers.hasOwnProperty(JsSIP.Utils.headerize(name)) && true) || false;
+      return (this.headers.hasOwnProperty(ExSIP.Utils.headerize(name)) && true) || false;
     }
   },
 
   deleteHeader: function(header) {
     var value;
-    header = JsSIP.Utils.headerize(header);
+    header = ExSIP.Utils.headerize(header);
     if(this.headers.hasOwnProperty(header)) {
       value = this.headers[header];
       delete this.headers[header];
@@ -1654,7 +1654,7 @@ URI.prototype = {
 
     uri  = this.scheme + ':';
     if (this.user) {
-      uri += JsSIP.Utils.escapeUser(this.user) + '@';
+      uri += ExSIP.Utils.escapeUser(this.user) + '@';
     }
     uri += this.host;
     if (this.port || this.port === 0) {
@@ -1687,7 +1687,7 @@ URI.prototype = {
 
       aor  = this.scheme + ':';
       if (this.user) {
-        aor += JsSIP.Utils.escapeUser(this.user) + '@';
+        aor += ExSIP.Utils.escapeUser(this.user) + '@';
       }
       aor += this.host;
       if (show_port && (this.port || this.port === 0)) {
@@ -1700,13 +1700,13 @@ URI.prototype = {
 
 
 /**
-  * Parse the given string and returns a JsSIP.URI instance or undefined if
+  * Parse the given string and returns a ExSIP.URI instance or undefined if
   * it is an invalid URI.
   * @public
   * @param {String} uri
   */
 URI.parse = function(uri) {
-  uri = JsSIP.Grammar.parse(uri,'SIP_URI');
+  uri = ExSIP.Grammar.parse(uri,'SIP_URI');
 
   if (uri !== -1) {
     return uri;
@@ -1715,32 +1715,32 @@ URI.parse = function(uri) {
   }
 };
 
-JsSIP.URI = URI;
-}(JsSIP));
+ExSIP.URI = URI;
+}(ExSIP));
 
 
 
 /**
- * @fileoverview JsSIP NameAddrHeader
+ * @fileoverview ExSIP NameAddrHeader
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating a Name Address SIP header.
  *
- * @param {JsSIP.URI} uri
+ * @param {ExSIP.URI} uri
  * @param {String} [display_name]
  * @param {Object} [parameters]
  *
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var NameAddrHeader;
 
 NameAddrHeader = function(uri, display_name, parameters) {
   var param;
 
   // Checks
-  if(!uri || !(uri instanceof JsSIP.URI)) {
+  if(!uri || !(uri instanceof ExSIP.URI)) {
     throw new TypeError('missing or invalid "uri" parameter');
   }
 
@@ -1821,13 +1821,13 @@ NameAddrHeader.prototype = {
 
 
 /**
-  * Parse the given string and returns a JsSIP.NameAddrHeader instance or undefined if
+  * Parse the given string and returns a ExSIP.NameAddrHeader instance or undefined if
   * it is an invalid NameAddrHeader.
   * @public
   * @param {String} name_addr_header
   */
 NameAddrHeader.parse = function(name_addr_header) {
-  name_addr_header = JsSIP.Grammar.parse(name_addr_header,'Name_Addr_Header');
+  name_addr_header = ExSIP.Grammar.parse(name_addr_header,'Name_Addr_Header');
 
   if (name_addr_header !== -1) {
     return name_addr_header;
@@ -1836,8 +1836,8 @@ NameAddrHeader.parse = function(name_addr_header) {
   }
 };
 
-JsSIP.NameAddrHeader = NameAddrHeader;
-}(JsSIP));
+ExSIP.NameAddrHeader = NameAddrHeader;
+}(ExSIP));
 
 
 
@@ -1847,11 +1847,11 @@ JsSIP.NameAddrHeader = NameAddrHeader;
 
 /**
  * SIP Transactions module.
- * @augments JsSIP
+ * @augments ExSIP
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var Transactions,
-  LOG_PREFIX =  JsSIP.name +' | '+ 'TRANSACTION' +' | ',
+  LOG_PREFIX =  ExSIP.name +' | '+ 'TRANSACTION' +' | ',
   C = {
     // Transaction states
     STATUS_TRYING:     1,
@@ -1894,7 +1894,7 @@ var NonInviteClientTransactionPrototype = function() {
     var tr = this;
 
     this.state = C.STATUS_TRYING;
-    this.F = window.setTimeout(function() {tr.timer_F();}, JsSIP.Timers.TIMER_F);
+    this.F = window.setTimeout(function() {tr.timer_F();}, ExSIP.Timers.TIMER_F);
 
     if(!this.transport.send(this.request)) {
       this.onTransportError();
@@ -1951,7 +1951,7 @@ var NonInviteClientTransactionPrototype = function() {
             this.request_sender.receiveResponse(response);
           }
 
-          this.K = window.setTimeout(function() {tr.timer_K();}, JsSIP.Timers.TIMER_K);
+          this.K = window.setTimeout(function() {tr.timer_K();}, ExSIP.Timers.TIMER_K);
           break;
         case C.STATUS_COMPLETED:
           break;
@@ -1973,7 +1973,7 @@ var InviteClientTransactionPrototype = function() {
     this.state = C.STATUS_CALLING;
     this.B = window.setTimeout(function() {
       tr.timer_B();
-    }, JsSIP.Timers.TIMER_B);
+    }, ExSIP.Timers.TIMER_B);
 
     if(!this.transport.send(this.request)) {
       this.onTransportError();
@@ -2044,7 +2044,7 @@ var InviteClientTransactionPrototype = function() {
     this.ack += 'CSeq: ' + this.request.headers['CSeq'].toString().split(' ')[0];
     this.ack += ' ACK\r\n\r\n';
 
-    this.D = window.setTimeout(function() {tr.timer_D();}, JsSIP.Timers.TIMER_D);
+    this.D = window.setTimeout(function() {tr.timer_D();}, ExSIP.Timers.TIMER_D);
 
     this.transport.send(this.ack);
   };
@@ -2052,7 +2052,7 @@ var InviteClientTransactionPrototype = function() {
   this.cancel_request = function(tr, reason) {
     var request = tr.request;
 
-    this.cancel = JsSIP.C.CANCEL + ' ' + request.ruri + ' SIP/2.0\r\n';
+    this.cancel = ExSIP.C.CANCEL + ' ' + request.ruri + ' SIP/2.0\r\n';
     this.cancel += 'Via: ' + request.headers['Via'].toString() + '\r\n';
 
     if(this.request.headers['Route']) {
@@ -2102,7 +2102,7 @@ var InviteClientTransactionPrototype = function() {
           this.state = C.STATUS_ACCEPTED;
           this.M = window.setTimeout(function() {
             tr.timer_M();
-          }, JsSIP.Timers.TIMER_M);
+          }, ExSIP.Timers.TIMER_M);
           this.request_sender.receiveResponse(response);
           break;
         case C.STATUS_ACCEPTED:
@@ -2203,7 +2203,7 @@ var NonInviteServerTransactionPrototype = function() {
           this.last_response = response;
           this.J = window.setTimeout(function() {
             tr.timer_J();
-          }, JsSIP.Timers.TIMER_J);
+          }, ExSIP.Timers.TIMER_J);
           if(!this.transport.send(response)) {
             this.onTransportError();
             if (onFailure) {
@@ -2302,7 +2302,7 @@ var InviteServerTransactionPrototype = function() {
       // Trigger the resendProvisionalTimer only for the first non 100 provisional response.
       if(this.resendProvisionalTimer === null) {
         this.resendProvisionalTimer = window.setInterval(function() {
-          tr.resend_provisional();}, JsSIP.Timers.PROVISIONAL_RESPONSE_INTERVAL);
+          tr.resend_provisional();}, ExSIP.Timers.PROVISIONAL_RESPONSE_INTERVAL);
       }
     } else if(status_code >= 200 && status_code <= 299) {
       switch(this.state) {
@@ -2311,7 +2311,7 @@ var InviteServerTransactionPrototype = function() {
           this.last_response = response;
           this.L = window.setTimeout(function() {
             tr.timer_L();
-          }, JsSIP.Timers.TIMER_L);
+          }, ExSIP.Timers.TIMER_L);
           if (this.resendProvisionalTimer !== null) {
             window.clearInterval(this.resendProvisionalTimer);
             this.resendProvisionalTimer = null;
@@ -2345,7 +2345,7 @@ var InviteServerTransactionPrototype = function() {
             this.state = C.STATUS_COMPLETED;
             this.H = window.setTimeout(function() {
               tr.timer_H();
-            }, JsSIP.Timers.TIMER_H);
+            }, ExSIP.Timers.TIMER_H);
             if (onSuccess) {
               onSuccess();
             }
@@ -2358,11 +2358,11 @@ var InviteServerTransactionPrototype = function() {
 InviteServerTransactionPrototype.prototype = new ServerTransaction();
 
 /**
-* @augments JsSIP.Transactions
+* @augments ExSIP.Transactions
 * @class Non Invite Client Transaction
-* @param {JsSIP.RequestSender} request_sender
-* @param {JsSIP.OutgoingRequest} request
-* @param {JsSIP.Transport} transport
+* @param {ExSIP.RequestSender} request_sender
+* @param {ExSIP.OutgoingRequest} request
+* @param {ExSIP.Transport} transport
 */
 Transactions.NonInviteClientTransaction = function(request_sender, request, transport) {
   this.init(request_sender, request, transport);
@@ -2371,11 +2371,11 @@ Transactions.NonInviteClientTransaction = function(request_sender, request, tran
 Transactions.NonInviteClientTransaction.prototype = new NonInviteClientTransactionPrototype();
 
 /**
-* @augments JsSIP.Transactions
+* @augments ExSIP.Transactions
 * @class Invite Client Transaction
-* @param {JsSIP.RequestSender} request_sender
-* @param {JsSIP.OutgoingRequest} request
-* @param {JsSIP.Transport} transport
+* @param {ExSIP.RequestSender} request_sender
+* @param {ExSIP.OutgoingRequest} request
+* @param {ExSIP.Transport} transport
 */
 Transactions.InviteClientTransaction = function(request_sender, request, transport) {
   var tr = this;
@@ -2401,10 +2401,10 @@ Transactions.AckClientTransaction.prototype = new NonInviteClientTransactionProt
 
 
 /**
-* @augments JsSIP.Transactions
+* @augments ExSIP.Transactions
 * @class Non Invite Server Transaction
-* @param {JsSIP.IncomingRequest} request
-* @param {JsSIP.UA} ua
+* @param {ExSIP.IncomingRequest} request
+* @param {ExSIP.UA} ua
 */
 Transactions.NonInviteServerTransaction = function(request, ua) {
   this.init(request, ua);
@@ -2417,10 +2417,10 @@ Transactions.NonInviteServerTransaction.prototype = new NonInviteServerTransacti
 
 
 /**
-* @augments JsSIP.Transactions
+* @augments ExSIP.Transactions
 * @class Invite Server Transaction
-* @param {JsSIP.IncomingRequest} request
-* @param {JsSIP.UA} ua
+* @param {ExSIP.IncomingRequest} request
+* @param {ExSIP.UA} ua
 */
 Transactions.InviteServerTransaction = function(request, ua) {
   this.init(request, ua);
@@ -2436,8 +2436,8 @@ Transactions.InviteServerTransaction.prototype = new InviteServerTransactionProt
 
 /**
  * @function
- * @param {JsSIP.UA} ua
- * @param {JsSIP.IncomingRequest} request
+ * @param {ExSIP.UA} ua
+ * @param {ExSIP.IncomingRequest} request
  *
  * @return {boolean}
  * INVITE:
@@ -2461,7 +2461,7 @@ Transactions.checkTransaction = function(ua, request) {
   var tr;
 
   switch(request.method) {
-    case JsSIP.C.INVITE:
+    case ExSIP.C.INVITE:
       tr = ua.transactions.ist[request.via_branch];
       if(tr) {
         switch(tr.state) {
@@ -2477,7 +2477,7 @@ Transactions.checkTransaction = function(ua, request) {
         return true;
       }
       break;
-    case JsSIP.C.ACK:
+    case ExSIP.C.ACK:
       tr = ua.transactions.ist[request.via_branch];
 
       // RFC 6026 7.1
@@ -2486,7 +2486,7 @@ Transactions.checkTransaction = function(ua, request) {
           return false;
         } else if(tr.state === C.STATUS_COMPLETED) {
           tr.state = C.STATUS_CONFIRMED;
-          tr.I = window.setTimeout(function() {tr.timer_I();}, JsSIP.Timers.TIMER_I);
+          tr.I = window.setTimeout(function() {tr.timer_I();}, ExSIP.Timers.TIMER_I);
           return true;
         }
       }
@@ -2496,7 +2496,7 @@ Transactions.checkTransaction = function(ua, request) {
         return false;
       }
       break;
-    case JsSIP.C.CANCEL:
+    case ExSIP.C.CANCEL:
       tr = ua.transactions.ist[request.via_branch];
       if(tr) {
         request.reply_sl(200);
@@ -2530,8 +2530,8 @@ Transactions.checkTransaction = function(ua, request) {
 };
 
 Transactions.C = C;
-JsSIP.Transactions = Transactions;
-}(JsSIP));
+ExSIP.Transactions = Transactions;
+}(ExSIP));
 
 
 
@@ -2540,16 +2540,16 @@ JsSIP.Transactions = Transactions;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating a SIP dialog.
- * @param {JsSIP.Session} session
- * @param {JsSIP.IncomingRequest|JsSIP.IncomingResponse} message
+ * @param {ExSIP.Session} session
+ * @param {ExSIP.IncomingRequest|ExSIP.IncomingResponse} message
  * @param {Enum} type UAC / UAS
- * @param {Enum} state JsSIP.Dialog.C.STATUS_EARLY / JsSIP.Dialog.C.STATUS_CONFIRMED
+ * @param {Enum} state ExSIP.Dialog.C.STATUS_EARLY / ExSIP.Dialog.C.STATUS_CONFIRMED
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var Dialog,
-  LOG_PREFIX = JsSIP.name +' | '+ 'DIALOG' +' | ',
+  LOG_PREFIX = ExSIP.name +' | '+ 'DIALOG' +' | ',
   C = {
     // Dialog states
     STATUS_EARLY:       1,
@@ -2565,7 +2565,7 @@ Dialog = function(session, message, type, state) {
     return false;
   }
 
-  if(message instanceof JsSIP.IncomingResponse) {
+  if(message instanceof ExSIP.IncomingResponse) {
     state = (message.status_code < 200) ? C.STATUS_EARLY : C.STATUS_CONFIRMED;
   } else {
     // Create confirmed dialog if state is not defined
@@ -2618,7 +2618,7 @@ Dialog = function(session, message, type, state) {
 
 Dialog.prototype = {
   /**
-   * @param {JsSIP.IncomingMessage} message
+   * @param {ExSIP.IncomingMessage} message
    * @param {Enum} UAC/UAS
    */
   update: function(message, type) {
@@ -2644,7 +2644,7 @@ Dialog.prototype = {
   /**
   * @param {String} method request method
   * @param {Object} extraHeaders extra headers
-  * @returns {JsSIP.OutgoingRequest}
+  * @returns {ExSIP.OutgoingRequest}
   */
 
   // RFC 3261 12.2.1.1
@@ -2654,9 +2654,9 @@ Dialog.prototype = {
 
     if(!this.local_seqnum) { this.local_seqnum = Math.floor(Math.random() * 10000); }
 
-    cseq = (method === JsSIP.C.CANCEL || method === JsSIP.C.ACK) ? this.local_seqnum : this.local_seqnum += 1;
+    cseq = (method === ExSIP.C.CANCEL || method === ExSIP.C.ACK) ? this.local_seqnum : this.local_seqnum += 1;
 
-    request = new JsSIP.OutgoingRequest(
+    request = new ExSIP.OutgoingRequest(
       method,
       this.remote_target,
       this.session.ua, {
@@ -2675,7 +2675,7 @@ Dialog.prototype = {
   },
 
   /**
-  * @param {JsSIP.IncomingRequest} request
+  * @param {ExSIP.IncomingRequest} request
   * @returns {Boolean}
   */
 
@@ -2683,9 +2683,9 @@ Dialog.prototype = {
   checkInDialogRequest: function(request) {
     if(!this.remote_seqnum) {
       this.remote_seqnum = request.cseq;
-    } else if(request.method !== JsSIP.C.INVITE && request.cseq < this.remote_seqnum) {
+    } else if(request.method !== ExSIP.C.INVITE && request.cseq < this.remote_seqnum) {
         //Do not try to reply to an ACK request.
-        if (request.method !== JsSIP.C.ACK) {
+        if (request.method !== ExSIP.C.ACK) {
           request.reply(500);
         }
         return false;
@@ -2695,7 +2695,7 @@ Dialog.prototype = {
 
     switch(request.method) {
       // RFC3261 14.2 Modifying an Existing Session -UAS BEHAVIOR-
-      case JsSIP.C.INVITE:
+      case ExSIP.C.INVITE:
         if(request.cseq < this.remote_seqnum) {
           if(this.state === C.STATUS_EARLY) {
             var retryAfter = (Math.random() * 10 | 0) + 1;
@@ -2715,7 +2715,7 @@ Dialog.prototype = {
           this.remote_target = request.parseHeader('contact').uri;
         }
         break;
-      case JsSIP.C.NOTIFY:
+      case ExSIP.C.NOTIFY:
         // RFC6655 3.2 Replace the dialog`s remote target URI
         if(request.hasHeader('contact')) {
           this.remote_target = request.parseHeader('contact').uri;
@@ -2727,7 +2727,7 @@ Dialog.prototype = {
   },
 
   /**
-  * @param {JsSIP.IncomingRequest} request
+  * @param {ExSIP.IncomingRequest} request
   */
   receiveRequest: function(request) {
     //Check in-dialog request
@@ -2740,8 +2740,8 @@ Dialog.prototype = {
 };
 
 Dialog.C = C;
-JsSIP.Dialog = Dialog;
-}(JsSIP));
+ExSIP.Dialog = Dialog;
+}(ExSIP));
 
 
 
@@ -2751,14 +2751,14 @@ JsSIP.Dialog = Dialog;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating a request sender.
  * @param {Object} applicant
- * @param {JsSIP.UA} ua
+ * @param {ExSIP.UA} ua
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var RequestSender,
-  LOG_PREFIX = JsSIP.name +' | '+ 'REQUEST SENDER' +' | ';
+  LOG_PREFIX = ExSIP.name +' | '+ 'REQUEST SENDER' +' | ';
 
 RequestSender = function(applicant, ua) {
   this.ua = ua;
@@ -2770,7 +2770,7 @@ RequestSender = function(applicant, ua) {
   this.staled = false;
 
   // If ua is in closing process or even closed just allow sending Bye and ACK
-  if (ua.status === JsSIP.UA.C.STATUS_USER_CLOSED && (this.method !== JsSIP.C.BYE || this.method !== JsSIP.C.ACK)) {
+  if (ua.status === ExSIP.UA.C.STATUS_USER_CLOSED && (this.method !== ExSIP.C.BYE || this.method !== ExSIP.C.ACK)) {
     this.onTransportError();
   }
 };
@@ -2782,13 +2782,13 @@ RequestSender.prototype = {
   send: function() {
     switch(this.method) {
       case "INVITE":
-        this.clientTransaction = new JsSIP.Transactions.InviteClientTransaction(this, this.request, this.ua.transport);
+        this.clientTransaction = new ExSIP.Transactions.InviteClientTransaction(this, this.request, this.ua.transport);
         break;
       case "ACK":
-        this.clientTransaction = new JsSIP.Transactions.AckClientTransaction(this, this.request, this.ua.transport);
+        this.clientTransaction = new ExSIP.Transactions.AckClientTransaction(this, this.request, this.ua.transport);
         break;
       default:
-        this.clientTransaction = new JsSIP.Transactions.NonInviteClientTransaction(this, this.request, this.ua.transport);
+        this.clientTransaction = new ExSIP.Transactions.NonInviteClientTransaction(this, this.request, this.ua.transport);
     }
     this.clientTransaction.send();
   },
@@ -2814,7 +2814,7 @@ RequestSender.prototype = {
   /**
   * Called from client transaction when receiving a correct response to the request.
   * Authenticate request if needed or pass the response back to the applicant.
-  * @param {JsSIP.IncomingResponse} response
+  * @param {ExSIP.IncomingResponse} response
   */
   receiveResponse: function(response) {
     var cseq, challenge, authorization_header_name,
@@ -2846,7 +2846,7 @@ RequestSender.prototype = {
 
       if (!this.challenged || (!this.staled && challenge.stale === true)) {
         if (!this.credentials) {
-          this.credentials = new JsSIP.DigestAuthentication(this.ua);
+          this.credentials = new ExSIP.DigestAuthentication(this.ua);
         }
 
         // Verify that the challenge is really valid.
@@ -2860,7 +2860,7 @@ RequestSender.prototype = {
           this.staled = true;
         }
 
-        if (response.method === JsSIP.C.REGISTER) {
+        if (response.method === ExSIP.C.REGISTER) {
           cseq = this.applicant.cseq += 1;
         } else if (this.request.dialog){
           cseq = this.request.dialog.local_seqnum += 1;
@@ -2881,8 +2881,8 @@ RequestSender.prototype = {
   }
 };
 
-JsSIP.RequestSender = RequestSender;
-}(JsSIP));
+ExSIP.RequestSender = RequestSender;
+}(ExSIP));
 
 
 
@@ -2891,7 +2891,7 @@ JsSIP.RequestSender = RequestSender;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating an In-dialog request sender.
  * @param {Object} applicant
  */
@@ -2899,7 +2899,7 @@ JsSIP.RequestSender = RequestSender;
  * @fileoverview in-Dialog Request Sender
  */
 
-(function(JsSIP) {
+(function(ExSIP) {
 var InDialogRequestSender;
 
 InDialogRequestSender = function(applicant) {
@@ -2909,7 +2909,7 @@ InDialogRequestSender = function(applicant) {
 
 InDialogRequestSender.prototype = {
   send: function() {
-    var request_sender = new JsSIP.RequestSender(this, this.applicant.session.ua);
+    var request_sender = new ExSIP.RequestSender(this, this.applicant.session.ua);
     request_sender.send();
   },
 
@@ -2926,14 +2926,14 @@ InDialogRequestSender.prototype = {
   receiveResponse: function(response) {
     // RFC3261 14.1. Terminate the dialog if a 408 or 481 is received from a re-Invite.
     if (response.status_code === 408 || response.status_code === 481) {
-      this.applicant.session.ended('remote', response, JsSIP.C.causes.DIALOG_ERROR);
+      this.applicant.session.ended('remote', response, ExSIP.C.causes.DIALOG_ERROR);
     }
     this.applicant.receiveResponse(response);
   }
 };
 
-JsSIP.InDialogRequestSender = InDialogRequestSender;
-}(JsSIP));
+ExSIP.InDialogRequestSender = InDialogRequestSender;
+}(ExSIP));
 
 
 
@@ -2942,14 +2942,14 @@ JsSIP.InDialogRequestSender = InDialogRequestSender;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating a registrator agent.
- * @param {JsSIP.UA} ua
- * @param {JsSIP.Transport} transport
+ * @param {ExSIP.UA} ua
+ * @param {ExSIP.Transport} transport
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var Registrator,
-  LOG_PREFIX = JsSIP.name +' | '+ 'REGISTRATOR' +' | ';
+  LOG_PREFIX = ExSIP.name +' | '+ 'REGISTRATOR' +' | ';
 
 Registrator = function(ua, transport) {
   var reg_id=1; //Force reg_id to 1.
@@ -2961,7 +2961,7 @@ Registrator = function(ua, transport) {
   this.expires = ua.configuration.register_expires;
 
   // Call-ID and CSeq values RFC3261 10.2
-  this.call_id = JsSIP.Utils.createRandomToken(22);
+  this.call_id = ExSIP.Utils.createRandomToken(22);
   this.cseq = 80;
 
   // this.to_uri
@@ -2995,15 +2995,15 @@ Registrator.prototype = {
     options = options || {};
     extraHeaders = options.extraHeaders || [];
     extraHeaders.push('Contact: '+ this.contact + ';expires=' + this.expires);
-    extraHeaders.push('Allow: '+ JsSIP.Utils.getAllowedMethods(this.ua));
+    extraHeaders.push('Allow: '+ ExSIP.Utils.getAllowedMethods(this.ua));
 
-    this.request = new JsSIP.OutgoingRequest(JsSIP.C.REGISTER, this.registrar, this.ua, {
+    this.request = new ExSIP.OutgoingRequest(ExSIP.C.REGISTER, this.registrar, this.ua, {
         'to_uri': this.to_uri,
         'call_id': this.call_id,
         'cseq': (this.cseq += 1)
       }, extraHeaders);
 
-    request_sender = new JsSIP.RequestSender(this, this.ua);
+    request_sender = new ExSIP.RequestSender(this, this.ua);
 
     /**
     * @private
@@ -3092,11 +3092,11 @@ Registrator.prototype = {
             if(this.ua.isDebug()) {
               console.warn(LOG_PREFIX +'423 response received for REGISTER without Min-Expires');
             }
-            this.registrationFailure(response, JsSIP.C.causes.SIP_FAILURE_CODE);
+            this.registrationFailure(response, ExSIP.C.causes.SIP_FAILURE_CODE);
           }
           break;
         default:
-          cause = JsSIP.Utils.sipErrorCause(response.status_code);
+          cause = ExSIP.Utils.sipErrorCause(response.status_code);
           this.registrationFailure(response, cause);
       }
     };
@@ -3105,14 +3105,14 @@ Registrator.prototype = {
     * @private
     */
     this.onRequestTimeout = function() {
-      this.registrationFailure(null, JsSIP.C.causes.REQUEST_TIMEOUT);
+      this.registrationFailure(null, ExSIP.C.causes.REQUEST_TIMEOUT);
     };
 
     /**
     * @private
     */
     this.onTransportError = function() {
-      this.registrationFailure(null, JsSIP.C.causes.CONNECTION_ERROR);
+      this.registrationFailure(null, ExSIP.C.causes.CONNECTION_ERROR);
     };
 
     request_sender.send();
@@ -3146,7 +3146,7 @@ Registrator.prototype = {
       extraHeaders.push('Contact: *');
       extraHeaders.push('Expires: 0');
 
-      this.request = new JsSIP.OutgoingRequest(JsSIP.C.REGISTER, this.registrar, this.ua, {
+      this.request = new ExSIP.OutgoingRequest(ExSIP.C.REGISTER, this.registrar, this.ua, {
           'to_uri': this.to_uri,
           'call_id': this.call_id,
           'cseq': (this.cseq += 1)
@@ -3154,14 +3154,14 @@ Registrator.prototype = {
     } else {
       extraHeaders.push('Contact: '+ this.contact + ';expires=0');
 
-      this.request = new JsSIP.OutgoingRequest(JsSIP.C.REGISTER, this.registrar, this.ua, {
+      this.request = new ExSIP.OutgoingRequest(ExSIP.C.REGISTER, this.registrar, this.ua, {
           'to_uri': this.to_uri,
           'call_id': this.call_id,
           'cseq': (this.cseq += 1)
         }, extraHeaders);
     }
 
-    var request_sender = new JsSIP.RequestSender(this, this.ua);
+    var request_sender = new ExSIP.RequestSender(this, this.ua);
 
     /**
     * @private
@@ -3177,7 +3177,7 @@ Registrator.prototype = {
           this.unregistered(response);
           break;
         default:
-          cause = JsSIP.Utils.sipErrorCause(response.status_code);
+          cause = ExSIP.Utils.sipErrorCause(response.status_code);
           this.unregistered(response, cause);
       }
     };
@@ -3186,14 +3186,14 @@ Registrator.prototype = {
     * @private
     */
     this.onRequestTimeout = function() {
-      this.unregistered(null, JsSIP.C.causes.REQUEST_TIMEOUT);
+      this.unregistered(null, ExSIP.C.causes.REQUEST_TIMEOUT);
     };
 
     /**
     * @private
     */
     this.onTransportError = function() {
-      this.unregistered(null, JsSIP.C.causes.CONNECTION_ERROR);
+      this.unregistered(null, ExSIP.C.causes.CONNECTION_ERROR);
     };
 
     request_sender.send();
@@ -3260,8 +3260,8 @@ Registrator.prototype = {
   }
 };
 
-JsSIP.Registrator = Registrator;
-}(JsSIP));
+ExSIP.Registrator = Registrator;
+}(ExSIP));
 
 
 /**
@@ -3269,10 +3269,10 @@ JsSIP.Registrator = Registrator;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Invite Session
  */
-(function(JsSIP) {
+(function(ExSIP) {
 
 // Load dependencies
     var RequestSender   = /**
@@ -3281,18 +3281,18 @@ JsSIP.Registrator = Registrator;
 
 /**
  * @class Session RequestSender
- * @param {JsSIP.RTCSession | RTCSession applicant} applicant
- * @param {JsSIP.OutgoingRequest} [request]
+ * @param {ExSIP.RTCSession | RTCSession applicant} applicant
+ * @param {ExSIP.OutgoingRequest} [request]
  */
-(function(JsSIP){
+(function(ExSIP){
 
 var RequestSender = function(applicant, request) {
   this.applicant = applicant;
   this.request = request || applicant.request;
-  this.session = (applicant instanceof JsSIP.RTCSession)? applicant : applicant.session;
+  this.session = (applicant instanceof ExSIP.RTCSession)? applicant : applicant.session;
   this.reattempt = false;
   this.reatemptTimer = null;
-  this.request_sender = new JsSIP.InDialogRequestSender(this);
+  this.request_sender = new ExSIP.InDialogRequestSender(this);
 };
 
 RequestSender.prototype = {
@@ -3301,12 +3301,12 @@ RequestSender.prototype = {
       self = this,
       status_code = response.status_code;
 
-    if (response.method === JsSIP.C.INVITE && status_code === 491) {
+    if (response.method === ExSIP.C.INVITE && status_code === 491) {
       if (!this.reattempt) {
         this.request.cseq.value = this.request.dialog.local_seqnum += 1;
         this.reatemptTimer = window.setTimeout(
           function() {
-            if (self.session.status !== JsSIP.RTCSession.C.STATUS_TERMINATED) {
+            if (self.session.status !== ExSIP.RTCSession.C.STATUS_TERMINATED) {
               self.reattempt = true;
               self.request_sender.send();
             }
@@ -3344,7 +3344,7 @@ RequestSender.prototype = {
 };
 
 return RequestSender;
-}(JsSIP));
+}(ExSIP));
 
     var RTCMediaHandler = /**
  * @fileoverview RTCMediaHandler
@@ -3352,10 +3352,10 @@ return RequestSender;
 
 /* RTCMediaHandler
  * @class PeerConnection helper Class.
- * @param {JsSIP.RTCSession} session
+ * @param {ExSIP.RTCSession} session
  * @param {Object} [contraints]
  */
-(function(JsSIP){
+(function(ExSIP){
 
 var RTCMediaHandler = function(session, constraints, options) {
   constraints = constraints || {};
@@ -3476,8 +3476,8 @@ RTCMediaHandler.prototype = {
       });
     }
 
-    if(typeof(JsSIP.WebRTC.RTCPeerConnection) !== 'undefined') {
-      this.peerConnection = new JsSIP.WebRTC.RTCPeerConnection({'iceServers': servers}, constraints);
+    if(typeof(ExSIP.WebRTC.RTCPeerConnection) !== 'undefined') {
+      this.peerConnection = new ExSIP.WebRTC.RTCPeerConnection({'iceServers': servers}, constraints);
 
       this.peerConnection.onaddstream = function(e) {
         if(self.session.ua.isDebug()) {
@@ -3521,7 +3521,7 @@ RTCMediaHandler.prototype = {
       };
     } else {
       if(self.session.ua.isDebug()) {
-        console.warn(LOG_PREFIX +'JsSIP.WebRTC.RTCPeerConnection is undefined - peerConnection not created');
+        console.warn(LOG_PREFIX +'ExSIP.WebRTC.RTCPeerConnection is undefined - peerConnection not created');
       }
     }
   },
@@ -3551,8 +3551,8 @@ RTCMediaHandler.prototype = {
       console.log(LOG_PREFIX + 'requesting access to local media');
     }
 
-    if(typeof(JsSIP.WebRTC.getUserMedia) !== 'undefined') {
-      JsSIP.WebRTC.getUserMedia(constraints,
+    if(typeof(ExSIP.WebRTC.getUserMedia) !== 'undefined') {
+      ExSIP.WebRTC.getUserMedia(constraints,
         function(stream) {
           if(self.session.ua.isDebug()) {
             console.log(LOG_PREFIX + 'got local media stream');
@@ -3596,7 +3596,7 @@ RTCMediaHandler.prototype = {
 
       if(this.peerConnection) {
         this.peerConnection.setRemoteDescription(
-          new JsSIP.WebRTC.RTCSessionDescription({type: type, sdp:body}),
+          new ExSIP.WebRTC.RTCSessionDescription({type: type, sdp:body}),
           onSuccess,
           onFailure
         );
@@ -3610,7 +3610,7 @@ RTCMediaHandler.prototype = {
 
 // Return since it will be assigned to a variable.
 return RTCMediaHandler;
-}(JsSIP));
+}(ExSIP));
 
     var DTMF            = /**
  * @fileoverview DTMF
@@ -3618,9 +3618,9 @@ return RTCMediaHandler;
 
 /**
  * @class DTMF
- * @param {JsSIP.RTCSession} session
+ * @param {ExSIP.RTCSession} session
  */
-(function(JsSIP) {
+(function(ExSIP) {
 
 var DTMF,
   C = {
@@ -3644,7 +3644,7 @@ DTMF = function(session) {
 
   this.initEvents(events);
 };
-DTMF.prototype = new JsSIP.EventEmitter();
+DTMF.prototype = new ExSIP.EventEmitter();
 
 DTMF.prototype.isDebug = function() {
   return this.session.ua.isDebug();
@@ -3660,8 +3660,8 @@ DTMF.prototype.send = function(tone, options) {
   this.direction = 'outgoing';
 
   // Check RTCSession Status
-  if (this.session.status !== JsSIP.RTCSession.C.STATUS_CONFIRMED && this.session.status !== JsSIP.RTCSession.C.STATUS_WAITING_FOR_ACK) {
-    throw new JsSIP.Exceptions.InvalidStateError(this.session.status);
+  if (this.session.status !== ExSIP.RTCSession.C.STATUS_CONFIRMED && this.session.status !== ExSIP.RTCSession.C.STATUS_WAITING_FOR_ACK) {
+    throw new ExSIP.Exceptions.InvalidStateError(this.session.status);
   }
 
   // Get DTMF options
@@ -3695,7 +3695,7 @@ DTMF.prototype.send = function(tone, options) {
 
   extraHeaders.push('Content-Type: application/dtmf-relay');
 
-  this.request = this.session.dialog.createRequest(JsSIP.C.INFO, extraHeaders);
+  this.request = this.session.dialog.createRequest(ExSIP.C.INFO, extraHeaders);
 
   this.request.body = "Signal= " + this.tone + "\r\n";
   this.request.body += "Duration= " + this.duration;
@@ -3730,7 +3730,7 @@ DTMF.prototype.receiveResponse = function(response) {
       break;
 
     default:
-      cause = JsSIP.Utils.sipErrorCause(response.status_code);
+      cause = ExSIP.Utils.sipErrorCause(response.status_code);
       this.emit('failed', this, {
         originator: 'remote',
         response: response,
@@ -3746,7 +3746,7 @@ DTMF.prototype.receiveResponse = function(response) {
 DTMF.prototype.onRequestTimeout = function() {
   this.emit('failed', this, {
     originator: 'system',
-    cause: JsSIP.C.causes.REQUEST_TIMEOUT
+    cause: ExSIP.C.causes.REQUEST_TIMEOUT
   });
 };
 
@@ -3756,7 +3756,7 @@ DTMF.prototype.onRequestTimeout = function() {
 DTMF.prototype.onTransportError = function() {
   this.emit('failed', this, {
     originator: 'system',
-    cause: JsSIP.C.causes.CONNECTION_ERROR
+    cause: ExSIP.C.causes.CONNECTION_ERROR
   });
 };
 
@@ -3800,11 +3800,11 @@ DTMF.prototype.init_incoming = function(request) {
 
 DTMF.C = C;
 return DTMF;
-}(JsSIP));
+}(ExSIP));
 
 
     var RTCSession,
-        LOG_PREFIX = JsSIP.name +' | '+ 'RTC SESSION' +' | ',
+        LOG_PREFIX = ExSIP.name +' | '+ 'RTC SESSION' +' | ',
         C = {
             // RTCSession states
             STATUS_NULL:               0,
@@ -3856,7 +3856,7 @@ return DTMF;
 
         this.initEvents(events);
     };
-    RTCSession.prototype = new JsSIP.EventEmitter();
+    RTCSession.prototype = new ExSIP.EventEmitter();
 
     RTCSession.prototype.isDebug = function() {
       return this.ua.isDebug();
@@ -3881,7 +3881,7 @@ return DTMF;
 
         // Check Session Status
         if (this.status === C.STATUS_TERMINATED) {
-            throw new JsSIP.Exceptions.InvalidStateError(this.status);
+            throw new ExSIP.Exceptions.InvalidStateError(this.status);
         }
 
         switch(this.status) {
@@ -3896,7 +3896,7 @@ return DTMF;
                 if (status_code && (status_code < 200 || status_code >= 700)) {
                     throw new TypeError('Invalid status_code: '+ status_code);
                 } else if (status_code) {
-                    reason_phrase = reason_phrase || JsSIP.C.REASON_PHRASE[status_code] || '';
+                    reason_phrase = reason_phrase || ExSIP.C.REASON_PHRASE[status_code] || '';
                     cancel_reason = 'SIP ;cause=' + status_code + ' ;text="' + reason_phrase + '"';
                 }
 
@@ -3915,7 +3915,7 @@ return DTMF;
                     this.request.cancel(cancel_reason);
                 }
 
-                this.failed('local', null, JsSIP.C.causes.CANCELED);
+                this.failed('local', null, ExSIP.C.causes.CANCELED);
                 break;
 
             // - UAS -
@@ -3932,7 +3932,7 @@ return DTMF;
                 }
 
                 this.request.reply(status_code, reason_phrase, extraHeaders, body);
-                this.failed('local', null, JsSIP.C.causes.REJECTED);
+                this.failed('local', null, ExSIP.C.causes.REJECTED);
                 break;
             case C.STATUS_WAITING_FOR_ACK:
             case C.STATUS_CONFIRMED:
@@ -3942,7 +3942,7 @@ return DTMF;
 
                 // Send Bye
                 this.sendBye(options);
-                this.ended('local', null, JsSIP.C.causes.BYE);
+                this.ended('local', null, ExSIP.C.causes.BYE);
                 break;
         }
 
@@ -3974,7 +3974,7 @@ return DTMF;
         // User media failed
             userMediaFailed = function() {
                 request.reply(480);
-                self.failed('local', null, JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
+                self.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
             },
 
         // rtcMediaHandler.addStream successfully added
@@ -3991,7 +3991,7 @@ return DTMF;
                     return;
                 }
 
-                self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+                self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
             },
 
         // rtcMediaHandler.createAnswer succeeded
@@ -3999,7 +3999,7 @@ return DTMF;
                 var
                 // run for reply success callback
                     replySucceeded = function() {
-                        var timeout = JsSIP.Timers.T1;
+                        var timeout = ExSIP.Timers.T1;
 
                         self.status = C.STATUS_WAITING_FOR_ACK;
 
@@ -4015,10 +4015,10 @@ return DTMF;
 
                                 request.reply(200, null, ['Contact: '+ self.contact], body);
 
-                                if (timeout < JsSIP.Timers.T2) {
+                                if (timeout < ExSIP.Timers.T2) {
                                     timeout = timeout * 2;
-                                    if (timeout > JsSIP.Timers.T2) {
-                                        timeout = JsSIP.Timers.T2;
+                                    if (timeout > ExSIP.Timers.T2) {
+                                        timeout = ExSIP.Timers.T2;
                                     }
                                 }
                                 self.timers.invite2xxTimer = window.setTimeout(
@@ -4040,10 +4040,10 @@ return DTMF;
                                     }
                                     window.clearTimeout(self.timers.invite2xxTimer);
                                     self.sendBye();
-                                    self.ended('remote', null, JsSIP.C.causes.NO_ACK);
+                                    self.ended('remote', null, ExSIP.C.causes.NO_ACK);
                                 }
                             },
-                            JsSIP.Timers.TIMER_H
+                            ExSIP.Timers.TIMER_H
                         );
 
                         self.started('local');
@@ -4051,7 +4051,7 @@ return DTMF;
 
                 // run for reply failure callback
                     replyFailed = function() {
-                        self.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+                        self.failed('system', null, ExSIP.C.causes.CONNECTION_ERROR);
                     };
 
                 extraHeaders.push('Contact: ' + self.contact);
@@ -4069,7 +4069,7 @@ return DTMF;
                     return;
                 }
 
-                self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+                self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
             };
 
 
@@ -4077,7 +4077,7 @@ return DTMF;
         if (this.direction !== 'incoming') {
             throw new TypeError('Invalid method "answer" for an outgoing call');
         } else if (this.status !== C.STATUS_WAITING_FOR_ANSWER) {
-            throw new JsSIP.Exceptions.InvalidStateError(this.status);
+            throw new ExSIP.Exceptions.InvalidStateError(this.status);
         }
 
         this.status = C.STATUS_ANSWERED;
@@ -4118,7 +4118,7 @@ return DTMF;
 
         // Check Session Status
         if (this.status !== C.STATUS_CONFIRMED && this.status !== C.STATUS_WAITING_FOR_ACK) {
-            throw new JsSIP.Exceptions.InvalidStateError(this.status);
+            throw new ExSIP.Exceptions.InvalidStateError(this.status);
         }
 
         // Check tones
@@ -4129,7 +4129,7 @@ return DTMF;
         tones = tones.toString();
 
         // Check duration
-        if (duration && !JsSIP.Utils.isDecimal(duration)) {
+        if (duration && !ExSIP.Utils.isDecimal(duration)) {
             throw new TypeError('Invalid tone duration: '+ duration);
         } else if (!duration) {
             duration = DTMF.C.DEFAULT_DURATION;
@@ -4149,7 +4149,7 @@ return DTMF;
         options.duration = duration;
 
         // Check interToneGap
-        if (interToneGap && !JsSIP.Utils.isDecimal(interToneGap)) {
+        if (interToneGap && !ExSIP.Utils.isDecimal(interToneGap)) {
             throw new TypeError('Invalid interToneGap: '+ interToneGap);
         } else if (!interToneGap) {
             interToneGap = DTMF.C.DEFAULT_INTER_TONE_GAP;
@@ -4268,7 +4268,7 @@ return DTMF;
         /* Set the to_tag before
          * replying a response code that will create a dialog.
          */
-        request.to_tag = JsSIP.Utils.newTag();
+        request.to_tag = ExSIP.Utils.newTag();
 
         // An error on dialog creation will fire 'failed' event
         if(!this.createDialog(request, 'UAS', true)) {
@@ -4294,7 +4294,7 @@ return DTMF;
                 // Set userNoAnswerTimer
                 self.timers.userNoAnswerTimer = window.setTimeout(function() {
                         request.reply(408);
-                        self.failed('local',null, JsSIP.C.causes.NO_ANSWER);
+                        self.failed('local',null, ExSIP.C.causes.NO_ANSWER);
                     }, self.ua.configuration.no_answer_timeout
                 );
 
@@ -4305,7 +4305,7 @@ return DTMF;
                     self.timers.expiresTimer = window.setTimeout(function() {
                             if(self.status === C.STATUS_WAITING_FOR_ANSWER) {
                                 request.reply(487);
-                                self.failed('system', null, JsSIP.C.causes.EXPIRES);
+                                self.failed('system', null, ExSIP.C.causes.EXPIRES);
                             }
                         }, expires
                     );
@@ -4346,7 +4346,7 @@ return DTMF;
 
         // Check Session Status
         if (this.status !== C.STATUS_NULL) {
-            throw new JsSIP.Exceptions.InvalidStateError(this.status);
+            throw new ExSIP.Exceptions.InvalidStateError(this.status);
         }
 
         // Set event handlers
@@ -4356,14 +4356,14 @@ return DTMF;
 
         // Check target validity
         try {
-            target = JsSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
+            target = ExSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
         } catch(e) {
-            target = JsSIP.URI.parse(JsSIP.C.INVALID_TARGET_URI);
+            target = ExSIP.URI.parse(ExSIP.C.INVALID_TARGET_URI);
             invalidTarget = true;
         }
 
         // Session parameter initialization
-        this.from_tag = JsSIP.Utils.newTag();
+        this.from_tag = ExSIP.Utils.newTag();
         this.rtcMediaHandler = new RTCMediaHandler(this, RTCConstraints, this.ua.rtcMediaHandlerOptions);
 
         // Set anonymous property
@@ -4389,10 +4389,10 @@ return DTMF;
         }
 
         extraHeaders.push('Contact: '+ this.contact);
-        extraHeaders.push('Allow: '+ JsSIP.Utils.getAllowedMethods(this.ua));
+        extraHeaders.push('Allow: '+ ExSIP.Utils.getAllowedMethods(this.ua));
         extraHeaders.push('Content-Type: application/sdp');
 
-        this.request = new JsSIP.OutgoingRequest(JsSIP.C.INVITE, target, this.ua, requestParams, extraHeaders);
+        this.request = new ExSIP.OutgoingRequest(ExSIP.C.INVITE, target, this.ua, requestParams, extraHeaders);
 
         this.id = this.request.call_id + this.from_tag;
 
@@ -4402,9 +4402,9 @@ return DTMF;
         this.newRTCSession('local', this.request);
 
         if (invalidTarget) {
-            this.failed('local', null, JsSIP.C.causes.INVALID_TARGET);
-        } else if (!JsSIP.WebRTC.isSupported) {
-            this.failed('local', null, JsSIP.C.causes.WEBRTC_NOT_SUPPORTED);
+            this.failed('local', null, ExSIP.C.causes.INVALID_TARGET);
+        } else if (!ExSIP.WebRTC.isSupported) {
+            this.failed('local', null, ExSIP.C.causes.WEBRTC_NOT_SUPPORTED);
         } else {
             this.sendInitialRequest(mediaConstraints);
         }
@@ -4472,7 +4472,7 @@ return DTMF;
             if (early_dialog) {
                 return true;
             } else {
-                early_dialog = new JsSIP.Dialog(this, message, type, JsSIP.Dialog.C.STATUS_EARLY);
+                early_dialog = new ExSIP.Dialog(this, message, type, ExSIP.Dialog.C.STATUS_EARLY);
 
                 // Dialog has been successfully created.
                 if(early_dialog.id) {
@@ -4481,7 +4481,7 @@ return DTMF;
                 }
                 // Dialog not created due to an error.
                 else {
-                    this.failed('remote', message, JsSIP.C.causes.INTERNAL_ERROR);
+                    this.failed('remote', message, ExSIP.C.causes.INTERNAL_ERROR);
                     return false;
                 }
             }
@@ -4498,7 +4498,7 @@ return DTMF;
             }
 
             // Otherwise, create a _confirmed_ dialog
-            dialog = new JsSIP.Dialog(this, message, type);
+            dialog = new ExSIP.Dialog(this, message, type);
 
             if(dialog.id) {
                 this.to_tag = message.to_tag;
@@ -4507,7 +4507,7 @@ return DTMF;
             }
             // Dialog not created due to an error
             else {
-                this.failed('remote', message, JsSIP.C.causes.INTERNAL_ERROR);
+                this.failed('remote', message, ExSIP.C.causes.INTERNAL_ERROR);
                 return false;
             }
         }
@@ -4521,10 +4521,10 @@ return DTMF;
     RTCSession.prototype.receiveRequest = function(request) {
         var contentType;
 
-        if(request.method === JsSIP.C.CANCEL) {
+        if(request.method === ExSIP.C.CANCEL) {
             /* RFC3261 15 States that a UAS may have accepted an invitation while a CANCEL
              * was in progress and that the UAC MAY continue with the session established by
-             * any 2xx response, or MAY terminate with BYE. JsSIP does continue with the
+             * any 2xx response, or MAY terminate with BYE. ExSIP does continue with the
              * established session. So the CANCEL is processed only if the session is not yet
              * established.
              */
@@ -4536,32 +4536,32 @@ return DTMF;
             if(this.status === C.STATUS_WAITING_FOR_ANSWER) {
                 this.status = C.STATUS_CANCELED;
                 this.request.reply(487);
-                this.failed('remote', request, JsSIP.C.causes.CANCELED);
+                this.failed('remote', request, ExSIP.C.causes.CANCELED);
             }
         } else {
             // Requests arriving here are in-dialog requests.
             switch(request.method) {
-                case JsSIP.C.ACK:
+                case ExSIP.C.ACK:
                     if(this.status === C.STATUS_WAITING_FOR_ACK) {
                         window.clearTimeout(this.timers.ackTimer);
                         window.clearTimeout(this.timers.invite2xxTimer);
                         this.status = C.STATUS_CONFIRMED;
                     }
                     break;
-                case JsSIP.C.BYE:
+                case ExSIP.C.BYE:
                     if(this.status === C.STATUS_CONFIRMED) {
                         request.reply(200);
-                        this.ended('remote', request, JsSIP.C.causes.BYE);
+                        this.ended('remote', request, ExSIP.C.causes.BYE);
                     }
                     break;
-                case JsSIP.C.INVITE:
+                case ExSIP.C.INVITE:
                     if(this.status === C.STATUS_CONFIRMED) {
                       if(this.ua.isDebug()) {
                         console.log(LOG_PREFIX +'re-INVITE received');
                       }
                     }
                     break;
-                case JsSIP.C.INFO:
+                case ExSIP.C.INFO:
                     if(this.status === C.STATUS_CONFIRMED || this.status === C.STATUS_WAITING_FOR_ACK) {
                         contentType = request.getHeader('content-type');
                         if (contentType && (contentType.match(/^application\/dtmf-relay/i))) {
@@ -4580,7 +4580,7 @@ return DTMF;
     RTCSession.prototype.sendInitialRequest = function(constraints) {
         var
             self = this,
-            request_sender = new JsSIP.RequestSender(self, this.ua),
+            request_sender = new ExSIP.RequestSender(self, this.ua),
 
         // User media succeeded
             userMediaSucceeded = function(stream) {
@@ -4597,7 +4597,7 @@ return DTMF;
                     return;
                 }
 
-                self.failed('local', null, JsSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
+                self.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
             },
 
         // rtcMediaHandler.addStream successfully added
@@ -4614,7 +4614,7 @@ return DTMF;
                     return;
                 }
 
-                self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+                self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
             },
 
         // rtcMediaHandler.createOffer succeeded
@@ -4634,7 +4634,7 @@ return DTMF;
                     return;
                 }
 
-                self.failed('local', null, JsSIP.C.causes.WEBRTC_ERROR);
+                self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
             };
 
         this.rtcMediaHandler.getUserMedia(
@@ -4699,7 +4699,7 @@ return DTMF;
 
                 if(!response.body) {
                     this.acceptAndTerminate(response, 400, 'Missing session description');
-                    this.failed('remote', response, JsSIP.C.causes.BAD_MEDIA_DESCRIPTION);
+                    this.failed('remote', response, ExSIP.C.causes.BAD_MEDIA_DESCRIPTION);
                     break;
                 }
 
@@ -4729,12 +4729,12 @@ return DTMF;
                           console.warn(e);
                         }
                         session.acceptAndTerminate(response, 488, 'Not Acceptable Here');
-                        session.failed('remote', response, JsSIP.C.causes.BAD_MEDIA_DESCRIPTION);
+                        session.failed('remote', response, ExSIP.C.causes.BAD_MEDIA_DESCRIPTION);
                     }
                 );
                 break;
             default:
-                cause = JsSIP.Utils.sipErrorCause(response.status_code);
+                cause = ExSIP.Utils.sipErrorCause(response.status_code);
                 this.failed('remote', response, cause);
         }
     };
@@ -4759,7 +4759,7 @@ return DTMF;
      * @private
      */
     RTCSession.prototype.sendACK = function() {
-        var request = this.dialog.createRequest(JsSIP.C.ACK);
+        var request = this.dialog.createRequest(ExSIP.C.ACK);
 
         this.sendRequest(request);
     };
@@ -4772,7 +4772,7 @@ return DTMF;
 
         var request, reason,
             status_code = options.status_code,
-            reason_phrase = options.reason_phrase || JsSIP.C.REASON_PHRASE[status_code] || '',
+            reason_phrase = options.reason_phrase || ExSIP.C.REASON_PHRASE[status_code] || '',
             extraHeaders = options.extraHeaders || [],
             body = options.body;
 
@@ -4783,7 +4783,7 @@ return DTMF;
             extraHeaders.push('Reason: '+ reason);
         }
 
-        request = this.dialog.createRequest(JsSIP.C.BYE, extraHeaders);
+        request = this.dialog.createRequest(ExSIP.C.BYE, extraHeaders);
         request.body = body;
 
         this.sendRequest(request);
@@ -4808,9 +4808,9 @@ return DTMF;
     RTCSession.prototype.onTransportError = function() {
         if(this.status !== C.STATUS_TERMINATED) {
             if (this.status === C.STATUS_CONFIRMED) {
-                this.ended('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+                this.ended('system', null, ExSIP.C.causes.CONNECTION_ERROR);
             } else {
-                this.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+                this.failed('system', null, ExSIP.C.causes.CONNECTION_ERROR);
             }
         }
     };
@@ -4822,9 +4822,9 @@ return DTMF;
     RTCSession.prototype.onRequestTimeout = function() {
         if(this.status !== C.STATUS_TERMINATED) {
             if (this.status === C.STATUS_CONFIRMED) {
-                this.ended('system', null, JsSIP.C.causes.REQUEST_TIMEOUT);
+                this.ended('system', null, ExSIP.C.causes.REQUEST_TIMEOUT);
             } else {
-                this.failed('system', null, JsSIP.C.causes.CONNECTION_ERROR);
+                this.failed('system', null, ExSIP.C.causes.CONNECTION_ERROR);
             }
         }
     };
@@ -4932,8 +4932,8 @@ return DTMF;
 
 
     RTCSession.C = C;
-    JsSIP.RTCSession = RTCSession;
-}(JsSIP));
+    ExSIP.RTCSession = RTCSession;
+}(ExSIP));
 
 
 
@@ -4942,11 +4942,11 @@ return DTMF;
  */
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating SIP MESSAGE request.
- * @param {JsSIP.UA} ua
+ * @param {ExSIP.UA} ua
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var Message;
 
 Message = function(ua) {
@@ -4958,7 +4958,7 @@ Message = function(ua) {
   // Custom message empty object for high level use
   this.data = {};
 };
-Message.prototype = new JsSIP.EventEmitter();
+Message.prototype = new ExSIP.EventEmitter();
 
 
 Message.prototype.isDebug = function() {
@@ -4992,9 +4992,9 @@ Message.prototype.send = function(target, body, options) {
 
   // Check target validity
   try {
-    target = JsSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
+    target = ExSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
   } catch(e) {
-    target = JsSIP.URI.parse(JsSIP.C.INVALID_TARGET_URI);
+    target = ExSIP.URI.parse(ExSIP.C.INVALID_TARGET_URI);
     invalidTarget = true;
   }
 
@@ -5008,13 +5008,13 @@ Message.prototype.send = function(target, body, options) {
 
   extraHeaders.push('Content-Type: '+ contentType);
 
-  this.request = new JsSIP.OutgoingRequest(JsSIP.C.MESSAGE, target, this.ua, null, extraHeaders);
+  this.request = new ExSIP.OutgoingRequest(ExSIP.C.MESSAGE, target, this.ua, null, extraHeaders);
 
   if(body) {
     this.request.body = body;
   }
 
-  request_sender = new JsSIP.RequestSender(this, this.ua);
+  request_sender = new ExSIP.RequestSender(this, this.ua);
 
   this.ua.emit('newMessage', this.ua, {
     originator: 'local',
@@ -5025,7 +5025,7 @@ Message.prototype.send = function(target, body, options) {
   if (invalidTarget) {
     this.emit('failed', this, {
       originator: 'local',
-      cause: JsSIP.C.causes.INVALID_TARGET
+      cause: ExSIP.C.causes.INVALID_TARGET
     });
   } else {
     request_sender.send();
@@ -5056,7 +5056,7 @@ Message.prototype.receiveResponse = function(response) {
 
     default:
       delete this.ua.applicants[this];
-      cause = JsSIP.Utils.sipErrorCause(response.status_code);
+      cause = ExSIP.Utils.sipErrorCause(response.status_code);
       this.emit('failed', this, {
         originator: 'remote',
         response: response,
@@ -5076,7 +5076,7 @@ Message.prototype.onRequestTimeout = function() {
   }
   this.emit('failed', this, {
     originator: 'system',
-    cause: JsSIP.C.causes.REQUEST_TIMEOUT
+    cause: ExSIP.C.causes.REQUEST_TIMEOUT
   });
 };
 
@@ -5089,7 +5089,7 @@ Message.prototype.onTransportError = function() {
   }
   this.emit('failed', this, {
     originator: 'system',
-    cause: JsSIP.C.causes.CONNECTION_ERROR
+    cause: ExSIP.C.causes.CONNECTION_ERROR
   });
 };
 
@@ -5122,7 +5122,7 @@ Message.prototype.init_incoming = function(request) {
 
     transaction = this.ua.transactions.nist[request.via_branch];
 
-    if (transaction && (transaction.state === JsSIP.Transactions.C.STATUS_TRYING || transaction.state === JsSIP.Transactions.C.STATUS_PROCEEDING)) {
+    if (transaction && (transaction.state === ExSIP.Transactions.C.STATUS_TRYING || transaction.state === ExSIP.Transactions.C.STATUS_PROCEEDING)) {
       request.reply(200);
     }
   } else {
@@ -5175,8 +5175,8 @@ Message.prototype.reject = function(options) {
   this.request.reply(status_code, reason_phrase, extraHeaders, body);
 };
 
-JsSIP.Message = Message;
-}(JsSIP));
+ExSIP.Message = Message;
+}(ExSIP));
 
 
 
@@ -5186,12 +5186,12 @@ JsSIP.Message = Message;
 
 
 /**
- * @augments JsSIP
+ * @augments ExSIP
  * @class Class creating a SIP User Agent.
  */
-(function(JsSIP) {
+(function(ExSIP) {
     var UA,
-        LOG_PREFIX = JsSIP.name +' | '+ 'UA' +' | ',
+        LOG_PREFIX = ExSIP.name +' | '+ 'UA' +' | ',
         C = {
             // UA status codes
             STATUS_INIT :                0,
@@ -5274,7 +5274,7 @@ JsSIP.Message = Message;
         /**
          * Load configuration
          *
-         * @throws {JsSIP.Exceptions.ConfigurationError}
+         * @throws {ExSIP.Exceptions.ConfigurationError}
          * @throws {TypeError}
          */
 
@@ -5291,7 +5291,7 @@ JsSIP.Message = Message;
             throw e;
         }
     };
-    UA.prototype = new JsSIP.EventEmitter();
+    UA.prototype = new ExSIP.EventEmitter();
 
 //=================
 //  High Level API
@@ -5358,7 +5358,7 @@ JsSIP.Message = Message;
     UA.prototype.call = function(target, options) {
         var session;
 
-        session = new JsSIP.RTCSession(this);
+        session = new ExSIP.RTCSession(this);
         session.connect(target, options);
     };
 
@@ -5375,7 +5375,7 @@ JsSIP.Message = Message;
     UA.prototype.sendMessage = function(target, body, options) {
         var message;
 
-        message = new JsSIP.Message(this);
+        message = new ExSIP.Message(this);
         message.send(target, body, options);
     };
 
@@ -5440,7 +5440,7 @@ JsSIP.Message = Message;
 
         if (this.status === C.STATUS_INIT) {
             server = this.getNextWsServer();
-            new JsSIP.Transport(this, server);
+            new ExSIP.Transport(this, server);
         } else if(this.status === C.STATUS_USER_CLOSED) {
             if(this.isDebug()) {
               console.log(LOG_PREFIX +'resuming');
@@ -5492,16 +5492,16 @@ JsSIP.Message = Message;
      * Transport Close event.
      * @private
      * @event
-     * @param {JsSIP.Transport} transport.
+     * @param {ExSIP.Transport} transport.
      */
     UA.prototype.onTransportClosed = function(transport) {
         // Run _onTransportError_ callback on every client transaction using _transport_
         var type, idx, length,
             client_transactions = ['nict', 'ict', 'nist', 'ist'];
 
-        transport.server.status = JsSIP.Transport.C.STATUS_DISCONNECTED;
+        transport.server.status = ExSIP.Transport.C.STATUS_DISCONNECTED;
         if(this.isDebug()) {
-          console.log(LOG_PREFIX +'connection state set to '+ JsSIP.Transport.C.STATUS_DISCONNECTED);
+          console.log(LOG_PREFIX +'connection state set to '+ ExSIP.Transport.C.STATUS_DISCONNECTED);
         }
 
         length = client_transactions.length;
@@ -5523,18 +5523,18 @@ JsSIP.Message = Message;
      * Connection reattempt logic has been done and didn't success.
      * @private
      * @event
-     * @param {JsSIP.Transport} transport.
+     * @param {ExSIP.Transport} transport.
      */
     UA.prototype.onTransportError = function(transport) {
         var server;
 
         if(this.isDebug()) {
-          console.log(LOG_PREFIX +'transport ' + transport.server.ws_uri + ' failed | connection state set to '+ JsSIP.Transport.C.STATUS_ERROR);
+          console.log(LOG_PREFIX +'transport ' + transport.server.ws_uri + ' failed | connection state set to '+ ExSIP.Transport.C.STATUS_ERROR);
         }
 
         // Close sessions.
         //Mark this transport as 'down' and try the next one
-        transport.server.status = JsSIP.Transport.C.STATUS_ERROR;
+        transport.server.status = ExSIP.Transport.C.STATUS_ERROR;
 
         this.emit('disconnected', this, {
             transport: transport,
@@ -5545,7 +5545,7 @@ JsSIP.Message = Message;
         server = this.getNextWsServer();
 
         if(server) {
-            new JsSIP.Transport(this, server);
+            new ExSIP.Transport(this, server);
         }else {
             this.closeSessionsOnTransportError();
             if (!this.error || this.error !== C.NETWORK_ERROR) {
@@ -5561,7 +5561,7 @@ JsSIP.Message = Message;
      * Transport connection event.
      * @private
      * @event
-     * @param {JsSIP.Transport} transport.
+     * @param {ExSIP.Transport} transport.
      */
     UA.prototype.onTransportConnected = function(transport) {
         this.transport = transport;
@@ -5569,9 +5569,9 @@ JsSIP.Message = Message;
         // Reset transport recovery counter
         this.transportRecoverAttempts = 0;
 
-        transport.server.status = JsSIP.Transport.C.STATUS_READY;
+        transport.server.status = ExSIP.Transport.C.STATUS_READY;
         if(this.isDebug()) {
-          console.log(LOG_PREFIX +'connection state set to '+ JsSIP.Transport.C.STATUS_READY);
+          console.log(LOG_PREFIX +'connection state set to '+ ExSIP.Transport.C.STATUS_READY);
         }
 
         if(this.status === C.STATUS_USER_CLOSED) {
@@ -5588,11 +5588,11 @@ JsSIP.Message = Message;
             if(this.registrator) {
                 this.registrator.onTransportConnected();
             } else {
-                this.registrator = new JsSIP.Registrator(this, transport);
+                this.registrator = new ExSIP.Registrator(this, transport);
                 this.register();
             }
         } else if (!this.registrator) {
-            this.registrator = new JsSIP.Registrator(this, transport);
+            this.registrator = new ExSIP.Registrator(this, transport);
         }
     };
 
@@ -5603,7 +5603,7 @@ JsSIP.Message = Message;
     /**
      * Request reception
      * @private
-     * @param {JsSIP.IncomingRequest} request.
+     * @param {ExSIP.IncomingRequest} request.
      */
     UA.prototype.receiveRequest = function(request) {
         var dialog, session, message,
@@ -5614,14 +5614,14 @@ JsSIP.Message = Message;
             if(this.isDebug()) {
               console.warn(LOG_PREFIX +'Request-URI ('+request.ruri.user+') does not point to us ('+this.configuration.uri.user+')');
             }
-            if (request.method !== JsSIP.C.ACK) {
+            if (request.method !== ExSIP.C.ACK) {
                 request.reply_sl(404);
             }
             return;
         }
 
         // Check transaction
-        if(JsSIP.Transactions.checkTransaction(this, request)) {
+        if(ExSIP.Transactions.checkTransaction(this, request)) {
             if(this.isDebug()) {
               console.warn(LOG_PREFIX +'Check Transaction failed');
             }
@@ -5629,10 +5629,10 @@ JsSIP.Message = Message;
         }
 
         // Create the server transaction
-        if(method === JsSIP.C.INVITE) {
-            new JsSIP.Transactions.InviteServerTransaction(request, this);
-        } else if(method !== JsSIP.C.ACK) {
-            new JsSIP.Transactions.NonInviteServerTransaction(request, this);
+        if(method === ExSIP.C.INVITE) {
+            new ExSIP.Transactions.InviteServerTransaction(request, this);
+        } else if(method !== ExSIP.C.ACK) {
+            new ExSIP.Transactions.NonInviteServerTransaction(request, this);
         }
 
         /* RFC3261 12.2.2
@@ -5640,17 +5640,17 @@ JsSIP.Message = Message;
          * received within a dialog (for example, an OPTIONS request).
          * They are processed as if they had been received outside the dialog.
          */
-        if(method === JsSIP.C.OPTIONS) {
+        if(method === ExSIP.C.OPTIONS) {
             request.reply(200, null, [
-                'Allow: '+ JsSIP.Utils.getAllowedMethods(this),
+                'Allow: '+ ExSIP.Utils.getAllowedMethods(this),
                 'Accept: '+ C.ACCEPTED_BODY_TYPES
             ]);
-        } else if (method === JsSIP.C.MESSAGE) {
+        } else if (method === ExSIP.C.MESSAGE) {
             if (!this.checkEvent('newMessage') || this.listeners('newMessage').length === 0) {
-                request.reply(405, null, ['Allow: '+ JsSIP.Utils.getAllowedMethods(this)]);
+                request.reply(405, null, ['Allow: '+ ExSIP.Utils.getAllowedMethods(this)]);
                 return;
             }
-            message = new JsSIP.Message(this);
+            message = new ExSIP.Message(this);
             message.init_incoming(request);
         }
 
@@ -5663,12 +5663,12 @@ JsSIP.Message = Message;
              }*/
 
             switch(method) {
-                case JsSIP.C.INVITE:
-                    if(JsSIP.WebRTC.isSupported) {
+                case ExSIP.C.INVITE:
+                    if(ExSIP.WebRTC.isSupported) {
                         if(this.isDebug()) {
                           console.debug(LOG_PREFIX +'INVITE received');
                         }
-                        session = new JsSIP.RTCSession(this);
+                        session = new ExSIP.RTCSession(this);
                         session.init_incoming(request);
                     } else {
                         if(this.isDebug()) {
@@ -5677,11 +5677,11 @@ JsSIP.Message = Message;
                         request.reply(488);
                     }
                     break;
-                case JsSIP.C.BYE:
+                case ExSIP.C.BYE:
                     // Out of dialog BYE received
                     request.reply(481);
                     break;
-                case JsSIP.C.CANCEL:
+                case ExSIP.C.CANCEL:
                     session = this.findSession(request);
                     if(session) {
                         session.receiveRequest(request);
@@ -5691,7 +5691,7 @@ JsSIP.Message = Message;
                         }
                     }
                     break;
-                case JsSIP.C.ACK:
+                case ExSIP.C.ACK:
                     /* Absorb it.
                      * ACK request without a corresponding Invite Transaction
                      * and without To tag.
@@ -5708,7 +5708,7 @@ JsSIP.Message = Message;
 
             if(dialog) {
                 dialog.receiveRequest(request);
-            } else if (method === JsSIP.C.NOTIFY) {
+            } else if (method === ExSIP.C.NOTIFY) {
                 session = this.findSession(request);
                 if(session) {
                     session.receiveRequest(request);
@@ -5725,7 +5725,7 @@ JsSIP.Message = Message;
              * been created.
              */
             else {
-                if(method !== JsSIP.C.ACK) {
+                if(method !== ExSIP.C.ACK) {
                     request.reply(481);
                 }
             }
@@ -5739,8 +5739,8 @@ JsSIP.Message = Message;
     /**
      * Get the session to which the request belongs to, if any.
      * @private
-     * @param {JsSIP.IncomingRequest} request.
-     * @returns {JsSIP.OutgoingSession|JsSIP.IncomingSession|null}
+     * @param {ExSIP.IncomingRequest} request.
+     * @returns {ExSIP.OutgoingSession|ExSIP.IncomingSession|null}
      */
     UA.prototype.findSession = function(request) {
         var
@@ -5761,8 +5761,8 @@ JsSIP.Message = Message;
     /**
      * Get the dialog to which the request belongs to, if any.
      * @private
-     * @param {JsSIP.IncomingRequest}
-        * @returns {JsSIP.Dialog|null}
+     * @param {ExSIP.IncomingRequest}
+        * @returns {ExSIP.Dialog|null}
      */
     UA.prototype.findDialog = function(request) {
         var
@@ -5796,7 +5796,7 @@ JsSIP.Message = Message;
         for (idx = 0; idx < length; idx++) {
             ws_server = this.configuration.ws_servers[idx];
 
-            if (ws_server.status === JsSIP.Transport.C.STATUS_ERROR) {
+            if (ws_server.status === ExSIP.Transport.C.STATUS_ERROR) {
                 continue;
             } else if (candidates.length === 0) {
                 candidates.push(ws_server);
@@ -5860,7 +5860,7 @@ JsSIP.Message = Message;
         window.setTimeout(
             function(){
                 ua.transportRecoverAttempts = count + 1;
-                new JsSIP.Transport(ua, server);
+                new ExSIP.Transport(ua, server);
             }, nextRetry * 1000);
     };
 
@@ -5876,7 +5876,7 @@ JsSIP.Message = Message;
                 /* Host address
                  * Value to be set in Via sent_by and host part of Contact FQDN
                  */
-                via_host: JsSIP.Utils.createRandomToken(12) + '.invalid',
+                via_host: ExSIP.Utils.createRandomToken(12) + '.invalid',
 
                 // Password
                 password: null,
@@ -5914,14 +5914,14 @@ JsSIP.Message = Message;
         // Check Mandatory parameters
         for(parameter in UA.configuration_check.mandatory) {
             if(!configuration.hasOwnProperty(parameter)) {
-                throw new JsSIP.Exceptions.ConfigurationError(parameter);
+                throw new ExSIP.Exceptions.ConfigurationError(parameter);
             } else {
                 value = configuration[parameter];
                 checked_value = UA.configuration_check.mandatory[parameter](value);
                 if (checked_value !== undefined) {
                     settings[parameter] = checked_value;
                 } else {
-                    throw new JsSIP.Exceptions.ConfigurationError(parameter, value);
+                    throw new ExSIP.Exceptions.ConfigurationError(parameter, value);
                 }
             }
         }
@@ -5941,7 +5941,7 @@ JsSIP.Message = Message;
                 if (checked_value !== undefined) {
                     settings[parameter] = checked_value;
                 } else {
-                    throw new JsSIP.Exceptions.ConfigurationError(parameter, value);
+                    throw new ExSIP.Exceptions.ConfigurationError(parameter, value);
                 }
             }
         }
@@ -5950,7 +5950,7 @@ JsSIP.Message = Message;
 
         // Connection recovery intervals
         if(settings.connection_recovery_max_interval < settings.connection_recovery_min_interval) {
-            throw new JsSIP.Exceptions.ConfigurationError('connection_recovery_max_interval', settings.connection_recovery_max_interval);
+            throw new ExSIP.Exceptions.ConfigurationError('connection_recovery_max_interval', settings.connection_recovery_max_interval);
         }
 
         // Post Configuration Process
@@ -5961,10 +5961,10 @@ JsSIP.Message = Message;
         }
 
         // Instance-id for GRUU
-        settings.instance_id = JsSIP.Utils.newUUID();
+        settings.instance_id = ExSIP.Utils.newUUID();
 
-        // jssip_id instance parameter. Static random tag of length 5
-        settings.jssip_id = JsSIP.Utils.createRandomToken(5);
+        // exsip_id instance parameter. Static random tag of length 5
+        settings.exsip_id = ExSIP.Utils.createRandomToken(5);
 
         // String containing settings.uri without scheme and user.
         hostport_params = settings.uri.clone();
@@ -5990,13 +5990,13 @@ JsSIP.Message = Message;
 
         // Via Host
         if (settings.hack_ip_in_contact) {
-            settings.via_host = JsSIP.Utils.getRandomTestNetIP();
+            settings.via_host = ExSIP.Utils.getRandomTestNetIP();
         }
 
         this.contact = {
             pub_gruu: null,
             temp_gruu: null,
-            uri: new JsSIP.URI('sip', JsSIP.Utils.createRandomToken(8), settings.via_host, null, {transport: 'ws'}),
+            uri: new ExSIP.URI('sip', ExSIP.Utils.createRandomToken(8), settings.via_host, null, {transport: 'ws'}),
             toString: function(options){
                 options = options || {};
 
@@ -6064,7 +6064,7 @@ JsSIP.Message = Message;
             parameters = [
                 // Internal parameters
                 "instance_id",
-                "jssip_id",
+                "exsip_id",
                 "register_min_expires",
                 "ws_server_max_reconnection",
                 "ws_server_reconnection_timeout",
@@ -6125,9 +6125,9 @@ JsSIP.Message = Message;
                 var parsed;
 
                 if (!/^sip:/i.test(uri)) {
-                    uri = JsSIP.C.SIP + ':' + uri;
+                    uri = ExSIP.C.SIP + ':' + uri;
                 }
-                parsed = JsSIP.URI.parse(uri);
+                parsed = ExSIP.URI.parse(uri);
 
                 if(!parsed) {
                     return;
@@ -6175,7 +6175,7 @@ JsSIP.Message = Message;
                         return;
                     }
 
-                    url = JsSIP.Grammar.parse(ws_servers[idx].ws_uri, 'absoluteURI');
+                    url = ExSIP.Grammar.parse(ws_servers[idx].ws_uri, 'absoluteURI');
 
                     if(url === -1) {
                         console.error(LOG_PREFIX +'invalid "ws_uri" attribute in ws_servers parameter: ' + ws_servers[idx].ws_uri);
@@ -6201,7 +6201,7 @@ JsSIP.Message = Message;
         optional: {
 
             authorization_user: function(authorization_user) {
-                if(JsSIP.Grammar.parse('"'+ authorization_user +'"', 'quoted_string') === -1) {
+                if(ExSIP.Grammar.parse('"'+ authorization_user +'"', 'quoted_string') === -1) {
                     return;
                 } else {
                     return authorization_user;
@@ -6210,7 +6210,7 @@ JsSIP.Message = Message;
 
             connection_recovery_max_interval: function(connection_recovery_max_interval) {
                 var value;
-                if(JsSIP.Utils.isDecimal(connection_recovery_max_interval)) {
+                if(ExSIP.Utils.isDecimal(connection_recovery_max_interval)) {
                     value = window.Number(connection_recovery_max_interval);
                     if(value > 0) {
                         return value;
@@ -6220,7 +6220,7 @@ JsSIP.Message = Message;
 
             connection_recovery_min_interval: function(connection_recovery_min_interval) {
                 var value;
-                if(JsSIP.Utils.isDecimal(connection_recovery_min_interval)) {
+                if(ExSIP.Utils.isDecimal(connection_recovery_min_interval)) {
                     value = window.Number(connection_recovery_min_interval);
                     if(value > 0) {
                         return value;
@@ -6229,7 +6229,7 @@ JsSIP.Message = Message;
             },
 
             display_name: function(display_name) {
-                if(JsSIP.Grammar.parse('"' + display_name + '"', 'display_name') === -1) {
+                if(ExSIP.Grammar.parse('"' + display_name + '"', 'display_name') === -1) {
                     return;
                 } else {
                     return display_name;
@@ -6250,7 +6250,7 @@ JsSIP.Message = Message;
 
             no_answer_timeout: function(no_answer_timeout) {
                 var value;
-                if (JsSIP.Utils.isDecimal(no_answer_timeout)) {
+                if (ExSIP.Utils.isDecimal(no_answer_timeout)) {
                     value = window.Number(no_answer_timeout);
                     if (value > 0) {
                         return value;
@@ -6270,7 +6270,7 @@ JsSIP.Message = Message;
 
             register_expires: function(register_expires) {
                 var value;
-                if (JsSIP.Utils.isDecimal(register_expires)) {
+                if (ExSIP.Utils.isDecimal(register_expires)) {
                     value = window.Number(register_expires);
                     if (value > 0) {
                         return value;
@@ -6282,9 +6282,9 @@ JsSIP.Message = Message;
                 var parsed;
 
                 if (!/^sip:/i.test(registrar_server)) {
-                    registrar_server = JsSIP.C.SIP + ':' + registrar_server;
+                    registrar_server = ExSIP.C.SIP + ':' + registrar_server;
                 }
-                parsed = JsSIP.URI.parse(registrar_server);
+                parsed = ExSIP.URI.parse(registrar_server);
 
                 if(!parsed) {
                     return;
@@ -6311,7 +6311,7 @@ JsSIP.Message = Message;
                         stun_server = 'stun:' + stun_server;
                     }
 
-                    if(JsSIP.Grammar.parse(stun_server, 'stun_URI') === -1) {
+                    if(ExSIP.Grammar.parse(stun_server, 'stun_URI') === -1) {
                         return;
                     } else {
                         stun_servers[idx] = stun_server;
@@ -6344,11 +6344,11 @@ JsSIP.Message = Message;
                         turn_server.server = 'turn:' + turn_server.server;
                     }
 
-                    if(JsSIP.Grammar.parse(turn_server.server, 'turn_URI') === -1) {
+                    if(ExSIP.Grammar.parse(turn_server.server, 'turn_URI') === -1) {
                         return;
-                    } else if(JsSIP.Grammar.parse(turn_server.username, 'user') === -1) {
+                    } else if(ExSIP.Grammar.parse(turn_server.username, 'user') === -1) {
                         return;
-                    } else if(JsSIP.Grammar.parse(turn_server.password, 'password') === -1) {
+                    } else if(ExSIP.Grammar.parse(turn_server.password, 'password') === -1) {
                         return;
                     }
                 }
@@ -6364,8 +6364,8 @@ JsSIP.Message = Message;
     };
 
     UA.C = C;
-    JsSIP.UA = UA;
-}(JsSIP));
+    ExSIP.UA = UA;
+}(ExSIP));
 
 
 
@@ -6373,7 +6373,7 @@ JsSIP.Message = Message;
  * @fileoverview Utils
  */
 
-(function(JsSIP) {
+(function(ExSIP) {
 var Utils;
 
 Utils= {
@@ -6436,7 +6436,7 @@ Utils= {
   },
 
   newTag: function() {
-    return JsSIP.Utils.createRandomToken(JsSIP.UA.C.TAG_LENGTH);
+    return ExSIP.Utils.createRandomToken(ExSIP.UA.C.TAG_LENGTH);
   },
 
   // http://stackoverflow.com/users/109538/broofa
@@ -6453,7 +6453,7 @@ Utils= {
     if (!host) {
       return;
     } else {
-      host = JsSIP.Grammar.parse(host,'host');
+      host = ExSIP.Grammar.parse(host,'host');
       if (host !== -1) {
         return host.host_type;
       }
@@ -6476,10 +6476,10 @@ Utils= {
 
     // If no target is given then raise an error.
     if (!target) {
-      throw new JsSIP.Exceptions.InvalidTargetError(original_target);
+      throw new ExSIP.Exceptions.InvalidTargetError(original_target);
 
-    // If a JsSIP.URI instance is given then return it.
-    } else if (target instanceof JsSIP.URI) {
+    // If a ExSIP.URI instance is given then return it.
+    } else if (target instanceof ExSIP.URI) {
       return target;
 
     // If a string is given split it by '@':
@@ -6491,7 +6491,7 @@ Utils= {
       switch(target_array.length) {
         case 1:
           if (!domain) {
-            throw new JsSIP.Exceptions.InvalidTargetError(original_target);
+            throw new ExSIP.Exceptions.InvalidTargetError(original_target);
           }
           target_user = target;
           target_domain = domain;
@@ -6514,19 +6514,19 @@ Utils= {
       }
 
       // Build the complete SIP URI.
-      target = JsSIP.C.SIP + ':' + JsSIP.Utils.escapeUser(target_user) + '@' + target_domain;
+      target = ExSIP.C.SIP + ':' + ExSIP.Utils.escapeUser(target_user) + '@' + target_domain;
 
       // Finally parse the resulting URI.
-      if (uri = JsSIP.URI.parse(target)) {
+      if (uri = ExSIP.URI.parse(target)) {
         return uri;
       } else {
-        throw new JsSIP.Exceptions.InvalidTargetError(original_target);
+        throw new ExSIP.Exceptions.InvalidTargetError(original_target);
       }
     }
 
     // Otherwise raise an error.
     else {
-      throw new JsSIP.Exceptions.InvalidTargetError(original_target);
+      throw new ExSIP.Exceptions.InvalidTargetError(original_target);
     }
   },
 
@@ -6565,13 +6565,13 @@ Utils= {
   sipErrorCause: function(status_code) {
     var cause;
 
-    for (cause in JsSIP.C.SIP_ERROR_CAUSES) {
-      if (JsSIP.C.SIP_ERROR_CAUSES[cause].indexOf(status_code) !== -1) {
-        return JsSIP.C.causes[cause];
+    for (cause in ExSIP.C.SIP_ERROR_CAUSES) {
+      if (ExSIP.C.SIP_ERROR_CAUSES[cause].indexOf(status_code) !== -1) {
+        return ExSIP.C.causes[cause];
       }
     }
 
-    return JsSIP.C.causes.SIP_FAILURE_CODE;
+    return ExSIP.C.causes.SIP_FAILURE_CODE;
   },
 
   /**
@@ -6587,11 +6587,11 @@ Utils= {
 
   getAllowedMethods: function(ua) {
     var event,
-      allowed = JsSIP.UA.C.ALLOWED_METHODS.toString();
+      allowed = ExSIP.UA.C.ALLOWED_METHODS.toString();
 
-    for (event in JsSIP.UA.C.EVENT_METHODS) {
+    for (event in ExSIP.UA.C.EVENT_METHODS) {
       if (ua.checkEvent(event) && ua.listeners(event).length > 0) {
-        allowed += ','+ JsSIP.UA.C.EVENT_METHODS[event];
+        allowed += ','+ ExSIP.UA.C.EVENT_METHODS[event];
       }
     }
 
@@ -6808,8 +6808,8 @@ Utils= {
   }
 };
 
-JsSIP.Utils = Utils;
-}(JsSIP));
+ExSIP.Utils = Utils;
+}(ExSIP));
 
 
 
@@ -6819,16 +6819,16 @@ JsSIP.Utils = Utils;
 
 /**
  * SIP message sanity check.
- * @augments JsSIP
+ * @augments ExSIP
  * @function
- * @param {JsSIP.IncomingMessage} message
- * @param {JsSIP.UA} ua
- * @param {JsSIP.Transport} transport
+ * @param {ExSIP.IncomingMessage} message
+ * @param {ExSIP.UA} ua
+ * @param {ExSIP.Transport} transport
  * @returns {Boolean}
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var sanityCheck,
- LOG_PREFIX = JsSIP.name +' | '+ 'SANITY CHECK' +' | ',
+ LOG_PREFIX = ExSIP.name +' | '+ 'SANITY CHECK' +' | ',
 
  message, ua, transport,
  requests = [],
@@ -6841,7 +6841,7 @@ var sanityCheck,
  * Requests:
  *  - _rfc3261_8_2_2_1_ Receive a Request with a non supported URI scheme
  *  - _rfc3261_16_3_4_ Receive a Request already sent by us
- *   Does not look at via sent-by but at jssip_id, which is inserted as
+ *   Does not look at via sent-by but at exsip_id, which is inserted as
  *   a prefix in all initial requests generated by the ua
  *  - _rfc3261_18_3_request_ Body Content-Length
  *  - _rfc3261_8_2_2_2_ Merged Requests
@@ -6865,7 +6865,7 @@ function rfc3261_8_2_2_1() {
 
 function rfc3261_16_3_4() {
   if(!message.to_tag) {
-    if(message.call_id.substr(0, 5) === ua.configuration.jssip_id) {
+    if(message.call_id.substr(0, 5) === ua.configuration.exsip_id) {
       reply(482);
       return false;
     }
@@ -6873,7 +6873,7 @@ function rfc3261_16_3_4() {
 }
 
 function rfc3261_18_3_request() {
-  var len = JsSIP.Utils.str_utf8_length(message.body),
+  var len = ExSIP.Utils.str_utf8_length(message.body),
   contentLength = message.getHeader('content-length');
 
   if(len < contentLength) {
@@ -6889,7 +6889,7 @@ function rfc3261_8_2_2_2() {
     cseq = message.cseq;
 
   if(!message.to_tag) {
-    if(message.method === JsSIP.C.INVITE) {
+    if(message.method === ExSIP.C.INVITE) {
       tr = ua.transactions.ist[message.via_branch];
       if(!tr) {
         return;
@@ -6941,7 +6941,7 @@ function rfc3261_18_1_2() {
 
 function rfc3261_18_3_response() {
   var
-    len = JsSIP.Utils.str_utf8_length(message.body),
+    len = ExSIP.Utils.str_utf8_length(message.body),
     contentLength = message.getHeader('content-length');
 
     if(len < contentLength) {
@@ -6971,7 +6971,7 @@ function minimumHeaders() {
 // Reply
 function reply(status_code) {
   var to,
-    response = "SIP/2.0 " + status_code + " " + JsSIP.C.REASON_PHRASE[status_code] + "\r\n",
+    response = "SIP/2.0 " + status_code + " " + ExSIP.C.REASON_PHRASE[status_code] + "\r\n",
     via_length = message.countHeader('via'),
     idx = 0;
 
@@ -6982,7 +6982,7 @@ function reply(status_code) {
   to = message.getHeader('To');
 
   if(!message.to_tag) {
-    to += ';tag=' + JsSIP.Utils.newTag();
+    to += ';tag=' + ExSIP.Utils.newTag();
   }
 
   response += "To: " + to + "\r\n";
@@ -7020,7 +7020,7 @@ sanityCheck = function(m, u, t) {
     }
   }
 
-  if(message instanceof JsSIP.IncomingRequest) {
+  if(message instanceof ExSIP.IncomingRequest) {
     len = requests.length;
     while(len--) {
       pass = requests[len](message);
@@ -7030,7 +7030,7 @@ sanityCheck = function(m, u, t) {
     }
   }
 
-  else if(message instanceof JsSIP.IncomingResponse) {
+  else if(message instanceof ExSIP.IncomingResponse) {
     len = responses.length;
     while(len--) {
       pass = responses[len](message);
@@ -7044,8 +7044,8 @@ sanityCheck = function(m, u, t) {
   return true;
 };
 
-JsSIP.sanityCheck = sanityCheck;
-}(JsSIP));
+ExSIP.sanityCheck = sanityCheck;
+}(ExSIP));
 
 
 
@@ -7056,13 +7056,13 @@ JsSIP.sanityCheck = sanityCheck;
 
 /**
  * SIP Digest Authentication.
- * @augments JsSIP.
+ * @augments ExSIP.
  * @function Digest Authentication
- * @param {JsSIP.UA} ua
+ * @param {ExSIP.UA} ua
  */
-(function(JsSIP) {
+(function(ExSIP) {
 var DigestAuthentication,
-  LOG_PREFIX = JsSIP.name +' | '+ 'DIGEST AUTHENTICATION' +' | ';
+  LOG_PREFIX = ExSIP.name +' | '+ 'DIGEST AUTHENTICATION' +' | ';
 
 DigestAuthentication = function(ua) {
   this.ua = ua;
@@ -7080,7 +7080,7 @@ DigestAuthentication = function(ua) {
 * received in a response to that request.
 * Returns true if credentials were successfully generated, false otherwise.
 * 
-* @param {JsSIP.OutgoingRequest} request
+* @param {ExSIP.OutgoingRequest} request
 * @param {Object} challenge
 */
 DigestAuthentication.prototype.authenticate = function(request, challenge) {
@@ -7138,7 +7138,7 @@ DigestAuthentication.prototype.authenticate = function(request, challenge) {
 
   this.method = request.method;
   this.uri = request.ruri;
-  this.cnonce = JsSIP.Utils.createRandomToken(12);
+  this.cnonce = ExSIP.Utils.createRandomToken(12);
   this.nc += 1;
   this.updateNcHex();
 
@@ -7163,25 +7163,25 @@ DigestAuthentication.prototype.calculateResponse = function() {
   var ha1, ha2;
 
   // HA1 = MD5(A1) = MD5(username:realm:password)
-  ha1 = JsSIP.Utils.calculateMD5(this.username + ":" + this.realm + ":" + this.password);
+  ha1 = ExSIP.Utils.calculateMD5(this.username + ":" + this.realm + ":" + this.password);
 
   if (this.qop === 'auth') {
     // HA2 = MD5(A2) = MD5(method:digestURI)
-    ha2 = JsSIP.Utils.calculateMD5(this.method + ":" + this.uri);
+    ha2 = ExSIP.Utils.calculateMD5(this.method + ":" + this.uri);
     // response = MD5(HA1:nonce:nonceCount:credentialsNonce:qop:HA2)
-    this.response = JsSIP.Utils.calculateMD5(ha1 + ":" + this.nonce + ":" + this.ncHex + ":" + this.cnonce + ":auth:" + ha2);
+    this.response = ExSIP.Utils.calculateMD5(ha1 + ":" + this.nonce + ":" + this.ncHex + ":" + this.cnonce + ":auth:" + ha2);
 
   } else if (this.qop === 'auth-int') {
     // HA2 = MD5(A2) = MD5(method:digestURI:MD5(entityBody))
-    ha2 = JsSIP.Utils.calculateMD5(this.method + ":" + this.uri + ":" + JsSIP.Utils.calculateMD5(this.body ? this.body : ""));
+    ha2 = ExSIP.Utils.calculateMD5(this.method + ":" + this.uri + ":" + ExSIP.Utils.calculateMD5(this.body ? this.body : ""));
     // response = MD5(HA1:nonce:nonceCount:credentialsNonce:qop:HA2)
-    this.response = JsSIP.Utils.calculateMD5(ha1 + ":" + this.nonce + ":" + this.ncHex + ":" + this.cnonce + ":auth-int:" + ha2);
+    this.response = ExSIP.Utils.calculateMD5(ha1 + ":" + this.nonce + ":" + this.ncHex + ":" + this.cnonce + ":auth-int:" + ha2);
 
   } else if (this.qop === null) {
     // HA2 = MD5(A2) = MD5(method:digestURI)
-    ha2 = JsSIP.Utils.calculateMD5(this.method + ":" + this.uri);
+    ha2 = ExSIP.Utils.calculateMD5(this.method + ":" + this.uri);
     // response = MD5(HA1:nonce:HA2)
-    this.response = JsSIP.Utils.calculateMD5(ha1 + ":" + this.nonce + ":" + ha2);
+    this.response = ExSIP.Utils.calculateMD5(ha1 + ":" + this.nonce + ":" + ha2);
   }
 };
 
@@ -7224,15 +7224,15 @@ DigestAuthentication.prototype.updateNcHex = function() {
   this.ncHex = '00000000'.substr(0, 8-hex.length) + hex;
 };
 
-JsSIP.DigestAuthentication = DigestAuthentication;
-}(JsSIP));
+ExSIP.DigestAuthentication = DigestAuthentication;
+}(ExSIP));
 
 
 /**
  * @fileoverview WebRTC
  */
 
-(function(JsSIP) {
+(function(ExSIP) {
 var WebRTC;
 
 WebRTC = {};
@@ -7290,16 +7290,16 @@ else {
   WebRTC.isSupported = false;
 }
 
-JsSIP.WebRTC = WebRTC;
-}(JsSIP));
+ExSIP.WebRTC = WebRTC;
+}(ExSIP));
 
 
 
-window.JsSIP = JsSIP;
+window.ExSIP = ExSIP;
 }(window));
 
 
-JsSIP.Grammar = (function(){
+ExSIP.Grammar = (function(){
   /*
    * Generated by PEG.js 0.7.0.
    *
@@ -10254,7 +10254,7 @@ JsSIP.Grammar = (function(){
         if (result0 !== null) {
           result0 = (function(offset) {
                             try {
-                                data.uri = new JsSIP.URI(data.scheme, data.user, data.host, data.port);
+                                data.uri = new ExSIP.URI(data.scheme, data.user, data.host, data.port);
                                 delete data.scheme;
                                 delete data.user;
                                 delete data.host;
@@ -10327,7 +10327,7 @@ JsSIP.Grammar = (function(){
           result0 = (function(offset) {
                             var header;
                             try {
-                                data.uri = new JsSIP.URI(data.scheme, data.user, data.host, data.port, data.uri_params, data.uri_headers);
+                                data.uri = new ExSIP.URI(data.scheme, data.user, data.host, data.port, data.uri_params, data.uri_headers);
                                 delete data.scheme;
                                 delete data.user;
                                 delete data.host;
@@ -15366,7 +15366,7 @@ JsSIP.Grammar = (function(){
                                 var header;
                                 if(!data.multi_header) data.multi_header = [];
                                 try {
-                                  header = new JsSIP.NameAddrHeader(data.uri, data.display_name, data.params);
+                                  header = new ExSIP.NameAddrHeader(data.uri, data.display_name, data.params);
                                   delete data.uri;
                                   delete data.display_name;
                                   delete data.params;
@@ -16514,7 +16514,7 @@ JsSIP.Grammar = (function(){
           result0 = (function(offset) {
                         var tag = data.tag;
                         try {
-                          data = new JsSIP.NameAddrHeader(data.uri, data.display_name, data.params);
+                          data = new ExSIP.NameAddrHeader(data.uri, data.display_name, data.params);
                           if (tag) {data.setParam('tag',tag)}
                         } catch(e) {
                           data = -1;
@@ -16694,7 +16694,7 @@ JsSIP.Grammar = (function(){
         if (result0 !== null) {
           result0 = (function(offset) {
                               try {
-                                data = new JsSIP.NameAddrHeader(data.uri, data.display_name, data.params);
+                                data = new ExSIP.NameAddrHeader(data.uri, data.display_name, data.params);
                               } catch(e) {
                                 data = -1;
                               }})(pos0);
@@ -17621,7 +17621,7 @@ JsSIP.Grammar = (function(){
                           var header;
                           if(!data.multi_header) data.multi_header = [];
                           try {
-                            header = new JsSIP.NameAddrHeader(data.uri, data.display_name, data.params);
+                            header = new ExSIP.NameAddrHeader(data.uri, data.display_name, data.params);
                             delete data.uri;
                             delete data.display_name;
                             delete data.params;
@@ -18220,7 +18220,7 @@ JsSIP.Grammar = (function(){
           result0 = (function(offset) {
                       var tag = data.tag;
                       try {
-                        data = new JsSIP.NameAddrHeader(data.uri, data.display_name, data.params);
+                        data = new ExSIP.NameAddrHeader(data.uri, data.display_name, data.params);
                         if (tag) {data.setParam('tag',tag)}
                       } catch(e) {
                         data = -1;
