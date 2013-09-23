@@ -6858,6 +6858,9 @@ var sanityCheck,
 // Sanity Check functions for requests
 function rfc3261_8_2_2_1() {
   if(message.s('to').uri.scheme !== 'sip') {
+    if(ua.isDebug()) {
+      console.warn(LOG_PREFIX +'Scheme ('+message.s('to').uri.scheme+') is not sip. Dropping the request');
+    }
     reply(416);
     return false;
   }
@@ -6866,6 +6869,9 @@ function rfc3261_8_2_2_1() {
 function rfc3261_16_3_4() {
   if(!message.to_tag) {
     if(message.call_id.substr(0, 5) === ua.configuration.exsip_id) {
+      if(ua.isDebug()) {
+        console.warn(LOG_PREFIX +'Call_id ('+message.call_id+') is same as exsip ('+ua.configuration.exsip_id+'). Dropping the request');
+      }
       reply(482);
       return false;
     }
@@ -6877,6 +6883,9 @@ function rfc3261_18_3_request() {
   contentLength = message.getHeader('content-length');
 
   if(len < contentLength) {
+    if(ua.isDebug()) {
+      console.warn(LOG_PREFIX +'Message body length ('+len+') is lower than the value in Content-Length header field ('+contentLength+'). Dropping the request');
+    }
     reply(400);
     return false;
   }

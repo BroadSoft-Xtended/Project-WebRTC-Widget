@@ -306,8 +306,8 @@ var TimelineGraphView = (function() {
     function TimelineGraphView(divId, canvasId) {
         this.scrollbar_ = {position_: 0, range_: 0};
 
-        this.graphDiv_ = $('#'+divId)[0];
-        this.canvas_ = $('#'+canvasId)[0];
+        this.graphDiv_ = $('[id="'+divId+'"]')[0];
+        this.canvas_ = $('[id="'+canvasId+'"]')[0];
 
         // Set the range and scale of the graph.  Times are in milliseconds since
         // the Unix epoch.
@@ -1106,7 +1106,7 @@ function createStatsGraphView(
         container.insertBefore(
             createBweCompoundLegend(
                 peerConnectionElement, reportType + '-' + reportId),
-            $('#'+divId)[0]);
+            $('[id="'+divId+'"]')[0]);
     }
     return new TimelineGraphView(divId, canvasId);
 }
@@ -1185,7 +1185,7 @@ var StatsTable = (function(ssrcInfoManager) {
          */
         ensureStatsTableContainer_: function(peerConnectionElement) {
             var containerId = peerConnectionElement.id + '-table-container';
-            var container = $('#'+containerId)[0];
+            var container = $('[id="'+containerId+'"]')[0];
             if (!container) {
                 container = document.createElement('div');
                 container.id = containerId;
@@ -1265,7 +1265,7 @@ var StatsTable = (function(ssrcInfoManager) {
          */
         updateStatsTableRow_: function(statsTable, rowName, value) {
             var trId = statsTable.id + '-' + rowName;
-            var trElement = $('#'+trId)[0];
+            var trElement = $('[id="'+trId+'"]')[0];
             if (!trElement) {
                 trElement = document.createElement('tr');
                 trElement.id = trId;
@@ -1387,7 +1387,7 @@ var PeerConnectionUpdateTable = (function() {
          */
         ensureUpdateContainer_: function(peerConnectionElement) {
             var tableId = peerConnectionElement.id + this.UPDATE_LOG_ID_SUFFIX_;
-            var tableElement = $('#'+tableId)[0];
+            var tableElement = $('[id="'+tableId+'"]')[0];
             if (!tableElement) {
                 var tableContainer = document.createElement('div');
                 tableContainer.className = this.UPDATE_LOG_CONTAINER_CLASS_;
@@ -1598,7 +1598,7 @@ function extractSsrcInfo(data) {
  *     of a peer connection.
  */
 function removePeerConnection(data) {
-    var element = $('#'+getPeerConnectionId(data))[0];
+    var element = $('[id="'+getPeerConnectionId(data)+'"]')[0];
     if (element)
         peerConnectionsListElem.removeChild(element);
 }
@@ -1611,7 +1611,7 @@ function removePeerConnection(data) {
  *     constraints of a peer connection.
  */
 function addPeerConnection(data) {
-    var peerConnectionElement = $('#'+getPeerConnectionId(data))[0];
+    var peerConnectionElement = $('[id="'+getPeerConnectionId(data)+'"]')[0];
     if (!peerConnectionElement) {
         peerConnectionElement = document.createElement('li');
         peerConnectionsListElem.appendChild(peerConnectionElement);
@@ -1640,7 +1640,7 @@ function addPeerConnection(data) {
  * @param {!PeerConnectionUpdateEntry} data The peer connection update data.
  */
 function updatePeerConnection(data) {
-    var peerConnectionElement = $('#'+getPeerConnectionId(data))[0];
+    var peerConnectionElement = $('[id="'+getPeerConnectionId(data)+'"]')[0];
     peerConnectionUpdateTable.addPeerConnectionUpdate(
         peerConnectionElement, data);
     extractSsrcInfo(data);
@@ -1678,7 +1678,7 @@ function updateAllPeerConnections(data) {
  *     stat, and the odd index entry is the value.
  */
 function addStats(data) {
-    var peerConnectionElement = $('#'+getPeerConnectionId(data))[0];
+    var peerConnectionElement = $('[id="'+getPeerConnectionId(data)+'"]')[0];
     if (!peerConnectionElement)
         return;
 
