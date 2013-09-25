@@ -722,6 +722,10 @@ Transport.prototype = {
             transaction = this.ua.transactions.ict[message.via_branch];
             if(transaction) {
               transaction.receiveResponse(message);
+            } else {
+              if(this.ua.isDebug()) {
+                console.warn("no ict transaction found for "+message.via_branch+" in "+ExSIP.Utils.toString(this.ua.transactions.ict));
+              }
             }
             break;
           case ExSIP.C.ACK:
@@ -2474,6 +2478,9 @@ Transactions.checkTransaction = function(ua, request) {
           case C.STATUS_ACCEPTED:
             break;
         }
+        if(ua.isDebug()) {
+          console.log(LOG_PREFIX+"checkTransaction failed for INVITE request and server transaction in state : "+tr.state);
+        }
         return true;
       }
       break;
@@ -2487,6 +2494,9 @@ Transactions.checkTransaction = function(ua, request) {
         } else if(tr.state === C.STATUS_COMPLETED) {
           tr.state = C.STATUS_CONFIRMED;
           tr.I = window.setTimeout(function() {tr.timer_I();}, ExSIP.Timers.TIMER_I);
+          if(ua.isDebug()) {
+            console.log(LOG_PREFIX+"checkTransaction failed for ACK request and server transaction in state : "+tr.state);
+          }
           return true;
         }
       }
@@ -2503,10 +2513,16 @@ Transactions.checkTransaction = function(ua, request) {
         if(tr.state === C.STATUS_PROCEEDING) {
           return false;
         } else {
+          if(ua.isDebug()) {
+            console.log(LOG_PREFIX+"checkTransaction failed for CANCEL request and server transaction in state : "+tr.state);
+          }
           return true;
         }
       } else {
         request.reply_sl(481);
+        if(ua.isDebug()) {
+          console.log(LOG_PREFIX+"checkTransaction failed for CANCEL request and no server transaction");
+        }
         return true;
       }
       break;
@@ -2522,6 +2538,9 @@ Transactions.checkTransaction = function(ua, request) {
           case C.STATUS_COMPLETED:
             tr.transport.send(tr.last_response);
             break;
+        }
+        if(ua.isDebug()) {
+          console.log(LOG_PREFIX+"checkTransaction failed for non invite server transaction in state : "+tr.state);
         }
         return true;
       }
@@ -3476,54 +3495,48 @@ RTCMediaHandler.prototype = {
       });
     }
 
-    if(typeof(ExSIP.WebRTC.RTCPeerConnection) !== 'undefined') {
-      this.peerConnection = new ExSIP.WebRTC.RTCPeerConnection({'iceServers': servers}, constraints);
+    this.peerConnection = new ExSIP.WebRTC.RTCPeerConnection({'iceServers': servers}, constraints);
 
-      this.peerConnection.onaddstream = function(e) {
-        if(self.session.ua.isDebug()) {
-          console.log(LOG_PREFIX +'stream added: '+ e.stream.id);
-        }
-      };
-
-      this.peerConnection.onremovestream = function(e) {
-        if(self.session.ua.isDebug()) {
-          console.log(LOG_PREFIX +'stream removed: '+ e.stream.id);
-        }
-      };
-
-      this.peerConnection.onicecandidate = function(e) {
-        if (e.candidate && !self.options["disableICE"]) {
-          if(self.session.ua.isDebug()) {
-            console.log(LOG_PREFIX +'ICE candidate received: '+ e.candidate.candidate);
-          }
-        } else if (self.onIceCompleted !== undefined) {
-          self.onIceCompleted();
-        }
-      };
-
-      // To be deprecated as per https://code.google.com/p/webrtc/issues/detail?id=1393
-      this.peerConnection.ongatheringchange = function(e) {
-        if (e.currentTarget.iceGatheringState === 'complete' && this.iceConnectionState !== 'closed') {
-          self.onIceCompleted();
-        }
-      };
-
-      this.peerConnection.onicechange = function() {
-        if(self.session.ua.isDebug()) {
-          console.log(LOG_PREFIX +'ICE connection state changed to "'+ this.iceConnectionState +'"');
-        }
-      };
-
-      this.peerConnection.onstatechange = function() {
-        if(self.session.ua.isDebug()) {
-          console.log(LOG_PREFIX +'PeerConnection state changed to "'+ this.readyState +'"');
-        }
-      };
-    } else {
+    this.peerConnection.onaddstream = function(e) {
       if(self.session.ua.isDebug()) {
-        console.warn(LOG_PREFIX +'ExSIP.WebRTC.RTCPeerConnection is undefined - peerConnection not created');
+        console.log(LOG_PREFIX +'stream added: '+ e.stream.id);
       }
-    }
+    };
+
+    this.peerConnection.onremovestream = function(e) {
+      if(self.session.ua.isDebug()) {
+        console.log(LOG_PREFIX +'stream removed: '+ e.stream.id);
+      }
+    };
+
+    this.peerConnection.onicecandidate = function(e) {
+      if (e.candidate && !self.options["disableICE"]) {
+        if(self.session.ua.isDebug()) {
+          console.log(LOG_PREFIX +'ICE candidate received: '+ e.candidate.candidate);
+        }
+      } else if (self.onIceCompleted !== undefined) {
+        self.onIceCompleted();
+      }
+    };
+
+    // To be deprecated as per https://code.google.com/p/webrtc/issues/detail?id=1393
+    this.peerConnection.ongatheringchange = function(e) {
+      if (e.currentTarget.iceGatheringState === 'complete' && this.iceConnectionState !== 'closed') {
+        self.onIceCompleted();
+      }
+    };
+
+    this.peerConnection.onicechange = function() {
+      if(self.session.ua.isDebug()) {
+        console.log(LOG_PREFIX +'ICE connection state changed to "'+ this.iceConnectionState +'"');
+      }
+    };
+
+    this.peerConnection.onstatechange = function() {
+      if(self.session.ua.isDebug()) {
+        console.log(LOG_PREFIX +'PeerConnection state changed to "'+ this.readyState +'"');
+      }
+    };
   },
 
   close: function() {
@@ -3551,22 +3564,20 @@ RTCMediaHandler.prototype = {
       console.log(LOG_PREFIX + 'requesting access to local media');
     }
 
-    if(typeof(ExSIP.WebRTC.getUserMedia) !== 'undefined') {
-      ExSIP.WebRTC.getUserMedia(constraints,
-        function(stream) {
-          if(self.session.ua.isDebug()) {
-            console.log(LOG_PREFIX + 'got local media stream');
-          }
-          self.localMedia = stream;
-          onSuccess(stream);
-        },
-        function(e) {
-          console.error(LOG_PREFIX +'unable to get user media');
-          console.error(e);
-          onFailure();
+    ExSIP.WebRTC.getUserMedia(constraints,
+      function(stream) {
+        if(self.session.ua.isDebug()) {
+          console.log(LOG_PREFIX + 'got local media stream');
         }
-      );
-    }
+        self.localMedia = stream;
+        onSuccess(stream);
+      },
+      function(e) {
+        console.error(LOG_PREFIX +'unable to get user media');
+        console.error(e);
+        onFailure();
+      }
+    );
   },
 
   /**
@@ -4097,7 +4108,119 @@ return DTMF;
         );
     };
 
+  /**
+   * Accepts the reInvite.
+   * @param {Object} [options]
+   */
+  RTCSession.prototype.rejectReInvite = function(options) {
+    options = options || {};
+
+    if(this.ua.isDebug()) {
+      console.log(LOG_PREFIX+"rejecting re-INVITE");
+    }
+
+    this.request.reply(488);
+  };
+
     /**
+   * Accepts the reInvite.
+   * @param {Object} [options]
+   */
+  RTCSession.prototype.acceptReInvite = function(options) {
+    options = options || {};
+
+    var self = this, extraHeaders = options.extraHeaders || [];
+
+    if(this.ua.isDebug()) {
+      console.log(LOG_PREFIX+"accepting re-INVITE");
+    }
+
+    this.rtcMediaHandler.onMessage(
+      'answer',
+      self.request.body,
+      /*
+       * onSuccess
+       * SDP Answer is valid
+       */
+      function() {
+        var replySucceeded = function() {
+          var timeout = ExSIP.Timers.T1;
+
+          self.status = C.STATUS_WAITING_FOR_ACK;
+
+          /**
+           * RFC3261 13.3.1.4
+           * Response retransmissions cannot be accomplished by transaction layer
+           *  since it is destroyed when receiving the first 2xx answer
+           */
+          self.timers.invite2xxTimer = window.setTimeout(function invite2xxRetransmission() {
+              if (self.status !== C.STATUS_WAITING_FOR_ACK) {
+                return;
+              }
+
+              self.request.reply(200, null, extraHeaders, self.rtcMediaHandler.peerConnection.localDescription.sdp);
+
+              if (timeout < ExSIP.Timers.T2) {
+                timeout = timeout * 2;
+                if (timeout > ExSIP.Timers.T2) {
+                  timeout = ExSIP.Timers.T2;
+                }
+              }
+              self.timers.invite2xxTimer = window.setTimeout(
+                invite2xxRetransmission, timeout
+              );
+            },
+            timeout
+          );
+
+          /**
+           * RFC3261 14.2
+           * If a UAS generates a 2xx response and never receives an ACK,
+           *  it SHOULD generate a BYE to terminate the dialog.
+           */
+          self.timers.ackTimer = window.setTimeout(function() {
+              if(self.status === C.STATUS_WAITING_FOR_ACK) {
+                if(self.ua.isDebug()) {
+                  console.log(LOG_PREFIX + 'no ACK received, terminating the call');
+                }
+                window.clearTimeout(self.timers.invite2xxTimer);
+                self.sendBye();
+                self.ended('remote', null, ExSIP.C.causes.NO_ACK);
+              }
+            },
+            ExSIP.Timers.TIMER_H
+          );
+
+          self.started('local');
+        },
+
+        // run for reply failure callback
+        replyFailed = function() {
+          self.failed('system', null, ExSIP.C.causes.CONNECTION_ERROR);
+        };
+
+
+        self.request.reply(200, null, extraHeaders,
+          self.rtcMediaHandler.peerConnection.localDescription.sdp,
+          replySucceeded,
+          replyFailed
+          );
+      },
+      /*
+       * onFailure
+       * Bad media description
+       */
+      function(e) {
+        if(self.ua.isDebug()) {
+          console.warn(LOG_PREFIX +'invalid SDP');
+          console.warn(e);
+        }
+        self.request.reply(488);
+      }
+    );
+  };
+
+  /**
      * Send a DTMF
      *
      * @param {String|Number} tones
@@ -4559,6 +4682,21 @@ return DTMF;
                       if(this.ua.isDebug()) {
                         console.log(LOG_PREFIX +'re-INVITE received');
                       }
+                      this.request = request;
+                      var description = new ExSIP.WebRTC.RTCSessionDescription({type: "offer", sdp: request.body});
+                      var oldDescription = this.rtcMediaHandler.peerConnection.remoteDescription;
+                      var audioAdd = description.hasActiveAudio() && !oldDescription.hasActiveAudio();
+                      var videoAdd = description.hasActiveVideo() && !oldDescription.hasActiveVideo();
+                      if(audioAdd || videoAdd) {
+                        this.ua.emit("onReInvite", this.ua, {
+                          session: this,
+                          request: request,
+                          audioAdd: audioAdd,
+                          videoAdd: videoAdd
+                        });
+                      } else {
+                        this.acceptReInvite();
+                      }
                     }
                     break;
                 case ExSIP.C.INFO:
@@ -4922,7 +5060,11 @@ return DTMF;
         var session = this,
             event_name = 'failed';
 
-        session.close();
+      if(this.isDebug()) {
+        console.log(LOG_PREFIX +'failed : '+cause);
+      }
+
+      session.close();
         session.emit(event_name, session, {
             originator: originator,
             message: message || null,
@@ -5239,7 +5381,8 @@ ExSIP.Message = Message;
             'registrationFailed',
             'newRTCSession',
             'newMessage',
-            'onRTCMessage'
+            'onRTCMessage',
+            'onReInvite'
         ];
 
         // Set Accepted Body Types
@@ -7278,6 +7421,51 @@ else if (window.mozRTCSessionDescription) {
 else if (window.RTCSessionDescription) {
   WebRTC.RTCSessionDescription = window.RTCSessionDescription;
 }
+else {
+  console.log("WebRTC.RTCSessionDescription undefined");
+  WebRTC.RTCSessionDescription = function(options){
+    options = options || {};
+    this.sdp = options["sdp"];
+    this.type = options["offer"];
+  };
+}
+
+WebRTC.RTCSessionDescription.prototype.getConnection = function(){
+  var match = this.sdp.match(/v=(?:(?!m=)[\s\S])*c=(.*)/mi);
+  return match != null ? match[match.length-1] : null;
+};
+WebRTC.RTCSessionDescription.prototype.getAudioConnection = function(){
+  var match = this.sdp.match(/m=audio(?:(?!m=video)[\s\S])*c=(.*)/mi);
+  return match != null ? match[match.length-1] : this.getConnection();
+};
+WebRTC.RTCSessionDescription.prototype.getVideoConnection = function(){
+  var match = this.sdp.match(/m=video(?:(?!m=audio)[\s\S])*c=(.*)/mi);
+  return match != null ? match[match.length-1] : this.getConnection();
+};
+WebRTC.RTCSessionDescription.prototype.hasVideo = function(){
+  return this.sdp.match(/m=video/) != null;
+};
+WebRTC.RTCSessionDescription.prototype.hasAudio = function(){
+  return this.sdp.match(/m=audio/) != null;
+};
+WebRTC.RTCSessionDescription.prototype.videoPort = function(){
+  var match = this.sdp.match(/m=video\s(\d*)\s/);
+  return  match != null ? match[match.length-1] : null;
+};
+WebRTC.RTCSessionDescription.prototype.audioPort = function(){
+  var match = this.sdp.match(/m=audio\s(\d*)\s/);
+  return  match != null ? match[match.length-1] : null;
+};
+WebRTC.RTCSessionDescription.prototype.hasActiveVideo = function(){
+  var videoPort = this.videoPort() || 0;
+  var videoConnection = this.getVideoConnection() || "";
+  return this.hasVideo() && videoPort > 0 && videoConnection.indexOf('0.0.0.0') === -1;
+};
+WebRTC.RTCSessionDescription.prototype.hasActiveAudio = function(){
+  var audioPort = this.audioPort() || 0;
+  var audioConnection = this.getAudioConnection() || "";
+  return this.hasAudio() && audioPort > 0 && audioConnection.indexOf('0.0.0.0') === -1;
+};
 
 // New syntax for getting streams in Chrome M26.
 if (WebRTC.RTCPeerConnection && WebRTC.RTCPeerConnection.prototype) {

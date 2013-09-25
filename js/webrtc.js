@@ -308,6 +308,29 @@ function uriCall(destination)
   sipStack.call(destination, options);
 }
 
+// Incoming reinvite function
+function incomingReInvite(e) {
+  var incomingCallName = e.data.request.from.display_name;
+  var incomingCallUser = e.data.request.from.uri.user;
+  var incomingCall = e.data.request.from.uri;
+  var title = e.data.audioAdd ? "Adding Audio" : "Adding Video";
+  message(title, "success");
+  $("#reInvitePopup").fadeIn(100);
+  $("#reInvitePopup .incomingCallName").text(incomingCallName);
+  $("#reInvitePopup .incomingCallUser").text(incomingCallUser);
+  $("#reInvitePopup .title").text(title);
+  $("#acceptReInviteCall").off("click");
+  $("#acceptReInviteCall").on("click", function(){
+    $('#call').fadeOut(1000);
+    e.data.session.acceptReInvite();
+  });
+  $("#rejectReInviteCall").off("click");
+  $("#rejectReInviteCall").on("click", function(){
+    $('#call').fadeOut(1000);
+    e.data.session.rejectReInvite();
+  });
+}
+
 // Incoming call function
 function incomingCall(e)
 {
@@ -323,8 +346,8 @@ function incomingCall(e)
   else
   {
     $("#callPopup").fadeIn(100);
-    $(".incomingCallName").text(incomingCallName);
-    $(".incomingCallUser").text(incomingCallUser);
+    $("#callPopup .incomingCallName").text(incomingCallName);
+    $("#callPopup .incomingCallUser").text(incomingCallUser);
     soundOut.setAttribute("src", "media/ringtone.ogg");
     soundOut.play();
   }
@@ -602,6 +625,9 @@ function onLoad(userid, password)
     message(clientConfig.messageConnectionFailed, "alert");
     endCall();
     $("#call").hide();
+  });
+  sipStack.on('onReInvite', function(e) {
+    incomingReInvite(e);
   });
   sipStack.on('newRTCSession', function(e)
   {
