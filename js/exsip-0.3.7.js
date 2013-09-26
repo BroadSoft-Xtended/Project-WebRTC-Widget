@@ -3376,13 +3376,12 @@ return RequestSender;
  */
 (function(ExSIP){
 
-var RTCMediaHandler = function(session, constraints, options) {
+var RTCMediaHandler = function(session, constraints) {
   constraints = constraints || {};
 
   this.session = session;
   this.localMedia = null;
   this.peerConnection = null;
-  this.options = options || {};
 
   this.init(constraints);
 };
@@ -3510,7 +3509,7 @@ RTCMediaHandler.prototype = {
     };
 
     this.peerConnection.onicecandidate = function(e) {
-      if (e.candidate && !self.options["disableICE"]) {
+      if (e.candidate && !self.session.ua.rtcMediaHandlerOptions["disableICE"]) {
         if(self.session.ua.isDebug()) {
           console.log(LOG_PREFIX +'ICE candidate received: '+ e.candidate.candidate);
         }
@@ -3546,8 +3545,10 @@ RTCMediaHandler.prototype = {
     if(this.peerConnection) {
       this.peerConnection.close();
 
-      if(this.localMedia) {
-        this.localMedia.stop();
+      if(!this.session.ua.reuseLocalMedia()) {
+        if(this.localMedia) {
+          this.localMedia.stop();
+        }
       }
     }
   },
@@ -3588,34 +3589,21 @@ RTCMediaHandler.prototype = {
   * @param {Function} onFailure
   */
   onMessage: function(type, body, onSuccess, onFailure) {
-      if(this.options["videoBandwidth"]) {
-        // Grab video SDP
-        var videoSection = body.split("m=video");
-        // Add b=AS: bandwidth if video SDP and b=AS: does not exist
-        if (videoSection.length > 1 && videoSection[1].indexOf("b=AS:") === -1) {
-          videoSection[1] = videoSection[1].replace(/(.*c=IN\s+IP4.*)/, "$1\r\nb=AS:" + this.options["videoBandwidth"]);
-        } else if (videoSection.length > 1) {
-          // Change b=AS: in video SDP
-          videoSection[1] = videoSection[1].replace(/b=AS:\d{1,4}/, "b=AS:" + this.options["videoBandwidth"]);
-          body = videoSection.join("");
-        }
-        body = videoSection[0] + "m=video" + videoSection[1];
-        if(this.session.ua.isDebug()) {
-          console.log("Modifying SDP with videoBandwidth : "+this.options["videoBandwidth"]+"!!!!\n" + body);
-        }
+    var description = new ExSIP.WebRTC.RTCSessionDescription({type: type, sdp:body});
+    if(this.session.ua.rtcMediaHandlerOptions["videoBandwidth"]) {
+      description.setVideoBandwidth(this.session.ua.rtcMediaHandlerOptions["videoBandwidth"]);
+      if(this.session.ua.isDebug()) {
+        console.log("Modifying SDP with videoBandwidth : "+this.session.ua.rtcMediaHandlerOptions["videoBandwidth"]+"!!!!\n" + description.sdp);
       }
+    }
 
-      if(this.peerConnection) {
-        this.peerConnection.setRemoteDescription(
-          new ExSIP.WebRTC.RTCSessionDescription({type: type, sdp:body}),
-          onSuccess,
-          onFailure
-        );
-      }
-      this.session.ua.emit('onRTCMessage', this.ua, {
-          type: type,
-          body: body
-      });
+    if(this.peerConnection) {
+      this.peerConnection.setRemoteDescription(
+        description,
+        onSuccess,
+        onFailure
+      );
+    }
   }
 };
 
@@ -4136,7 +4124,7 @@ return DTMF;
     }
 
     this.rtcMediaHandler.onMessage(
-      'answer',
+      'offer',
       self.request.body,
       /*
        * onSuccess
@@ -4401,7 +4389,7 @@ return DTMF;
 
         //Initialize Media Session
         this.rtcMediaHandler = new RTCMediaHandler(this,
-            {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}, this.ua.rtcMediaHandlerOptions
+            {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}
         );
         this.rtcMediaHandler.onMessage(
             'offer',
@@ -4454,18 +4442,35 @@ return DTMF;
      * @private
      */
     RTCSession.prototype.connect = function(target, options) {
+      var self = this;
+
+      if (target === undefined) {
+        throw new TypeError('Not enough arguments');
+      }
+
+      this.connectLocal(options, function(){
+        if(self.ua.isDebug()) {
+          console.log(LOG_PREFIX+"connect local succeeded");
+        }
+        self.sendInitialRequest(target, options);
+      }, function(){
+        if(self.ua.isDebug()) {
+          console.warn(LOG_PREFIX+"connect local failed");
+        }
+      });
+    };
+
+    /**
+     * @private
+     */
+    RTCSession.prototype.connectLocal = function(options, success, failure) {
         options = options || {};
 
-        var event, requestParams,
-            invalidTarget = false,
+        var event,
             eventHandlers = options.eventHandlers || {},
-            extraHeaders = options.extraHeaders || [],
             mediaConstraints = options.mediaConstraints || {audio: true, video: true},
-            RTCConstraints = options.RTCConstraints || {};
-
-        if (target === undefined) {
-            throw new TypeError('Not enough arguments');
-        }
+            RTCConstraints = options.RTCConstraints || {},
+            self = this;
 
         // Check Session Status
         if (this.status !== C.STATUS_NULL) {
@@ -4477,59 +4482,26 @@ return DTMF;
             this.on(event, eventHandlers[event]);
         }
 
-        // Check target validity
-        try {
-            target = ExSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
-        } catch(e) {
-            target = ExSIP.URI.parse(ExSIP.C.INVALID_TARGET_URI);
-            invalidTarget = true;
-        }
-
         // Session parameter initialization
         this.from_tag = ExSIP.Utils.newTag();
-        this.rtcMediaHandler = new RTCMediaHandler(this, RTCConstraints, this.ua.rtcMediaHandlerOptions);
+        this.rtcMediaHandler = new RTCMediaHandler(this, RTCConstraints);
 
-        // Set anonymous property
-        this.anonymous = options.anonymous;
-
-        // OutgoingSession specific parameters
-        this.isCanceled = false;
-        this.received_100 = false;
-
-        requestParams = {from_tag: this.from_tag};
-
-        this.contact = this.ua.contact.toString({
-            anonymous: this.anonymous,
-            outbound: true
-        });
-
-        if (this.anonymous) {
-            requestParams.from_display_name = 'Anonymous';
-            requestParams.from_uri = 'sip:anonymous@anonymous.invalid';
-
-            extraHeaders.push('P-Preferred-Identity: '+ this.ua.configuration.uri.toString());
-            extraHeaders.push('Privacy: id');
-        }
-
-        extraHeaders.push('Contact: '+ this.contact);
-        extraHeaders.push('Allow: '+ ExSIP.Utils.getAllowedMethods(this.ua));
-        extraHeaders.push('Content-Type: application/sdp');
-
-        this.request = new ExSIP.OutgoingRequest(ExSIP.C.INVITE, target, this.ua, requestParams, extraHeaders);
-
-        this.id = this.request.call_id + this.from_tag;
-
-        //Save the session into the ua sessions collection.
-        this.ua.sessions[this.id] = this;
-
-        this.newRTCSession('local', this.request);
-
-        if (invalidTarget) {
-            this.failed('local', null, ExSIP.C.causes.INVALID_TARGET);
-        } else if (!ExSIP.WebRTC.isSupported) {
+        if (!ExSIP.WebRTC.isSupported) {
             this.failed('local', null, ExSIP.C.causes.WEBRTC_NOT_SUPPORTED);
         } else {
-            this.sendInitialRequest(mediaConstraints);
+            this.getUserMedia(mediaConstraints, function(){
+              if(self.ua.isDebug()){
+                console.log(LOG_PREFIX+'offer succeeded');
+              }
+              self.started('local');
+              success();
+            }, function(){
+              if(self.ua.isDebug()){
+                console.log(LOG_PREFIX+'offer failed');
+              }
+              self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
+              failure();
+            });
         }
     };
 
@@ -4712,74 +4684,133 @@ return DTMF;
 
 
     /**
+     * Get User Media
+     * @private
+     */
+    RTCSession.prototype.getUserMedia = function(constraints, offerCreationSucceeded, offerCreationFailed) {
+      var
+        self = this,
+
+      // User media succeeded
+        userMediaSucceeded = function(stream) {
+          self.ua.localMedia = stream;
+          self.rtcMediaHandler.addStream(
+            stream,
+            streamAdditionSucceeded,
+            streamAdditionFailed
+          );
+        },
+
+      // User media failed
+        userMediaFailed = function() {
+          if (self.status === C.STATUS_TERMINATED) {
+            return;
+          }
+
+          self.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
+        },
+
+      // rtcMediaHandler.addStream successfully added
+        streamAdditionSucceeded = function() {
+          self.rtcMediaHandler.createOffer(
+            offerCreationSucceeded,
+            offerCreationFailed
+          );
+        },
+
+      // rtcMediaHandler.addStream failed
+        streamAdditionFailed = function() {
+          if (self.status === C.STATUS_TERMINATED) {
+            return;
+          }
+
+          self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
+        };
+
+      if(this.ua.reuseLocalMedia() && this.ua.localMedia) {
+        userMediaSucceeded(this.ua.localMedia);
+      } else {
+        this.rtcMediaHandler.getUserMedia(
+          userMediaSucceeded,
+          userMediaFailed,
+          constraints
+        );
+      }
+    };
+
+    /**
      * Initial Request Sender
      * @private
      */
-    RTCSession.prototype.sendInitialRequest = function(constraints) {
-        var
-            self = this,
-            request_sender = new ExSIP.RequestSender(self, this.ua),
+    RTCSession.prototype.sendInitialRequest = function(target, options) {
+      options = options || {};
 
-        // User media succeeded
-            userMediaSucceeded = function(stream) {
-                self.rtcMediaHandler.addStream(
-                    stream,
-                    streamAdditionSucceeded,
-                    streamAdditionFailed
-                );
-            },
+      var requestParams,
+        invalidTarget = false,
+        extraHeaders = options.extraHeaders || [];
 
-        // User media failed
-            userMediaFailed = function() {
-                if (self.status === C.STATUS_TERMINATED) {
-                    return;
-                }
+      // Check target validity
+      try {
+        target = ExSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
+      } catch(e) {
+        target = ExSIP.URI.parse(ExSIP.C.INVALID_TARGET_URI);
+        invalidTarget = true;
+      }
 
-                self.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
-            },
+      // Set anonymous property
+      this.anonymous = options.anonymous;
 
-        // rtcMediaHandler.addStream successfully added
-            streamAdditionSucceeded = function() {
-                self.rtcMediaHandler.createOffer(
-                    offerCreationSucceeded,
-                    offerCreationFailed
-                );
-            },
+      // OutgoingSession specific parameters
+      this.isCanceled = false;
+      this.received_100 = false;
 
-        // rtcMediaHandler.addStream failed
-            streamAdditionFailed = function() {
-                if (self.status === C.STATUS_TERMINATED) {
-                    return;
-                }
+      requestParams = {from_tag: this.from_tag};
 
-                self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
-            },
+      this.contact = this.ua.contact.toString({
+        anonymous: this.anonymous,
+        outbound: true
+      });
 
-        // rtcMediaHandler.createOffer succeeded
-            offerCreationSucceeded = function(offer) {
-                if (self.isCanceled || self.status === C.STATUS_TERMINATED) {
-                    return;
-                }
+      if (this.anonymous) {
+        requestParams.from_display_name = 'Anonymous';
+        requestParams.from_uri = 'sip:anonymous@anonymous.invalid';
 
-                self.request.body = offer;
-                self.status = C.STATUS_INVITE_SENT;
-                request_sender.send();
-            },
+        extraHeaders.push('P-Preferred-Identity: '+ this.ua.configuration.uri.toString());
+        extraHeaders.push('Privacy: id');
+      }
 
-        // rtcMediaHandler.createOffer failed
-            offerCreationFailed = function() {
-                if (self.status === C.STATUS_TERMINATED) {
-                    return;
-                }
+      extraHeaders.push('Contact: '+ this.contact);
+      extraHeaders.push('Allow: '+ ExSIP.Utils.getAllowedMethods(this.ua));
+      extraHeaders.push('Content-Type: application/sdp');
 
-                self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
-            };
+      this.request = new ExSIP.OutgoingRequest(ExSIP.C.INVITE, target, this.ua, requestParams, extraHeaders);
 
-        this.rtcMediaHandler.getUserMedia(
-            userMediaSucceeded,
-            userMediaFailed,
-            constraints
-        );
+      this.id = this.request.call_id + this.from_tag;
+
+      //Save the session into the ua sessions collection.
+      this.ua.sessions[this.id] = this;
+
+      this.newRTCSession('local', this.request);
+
+      if (invalidTarget) {
+        this.failed('local', null, ExSIP.C.causes.INVALID_TARGET);
+        if(this.ua.isDebug()) {
+          console.warn(LOG_PREFIX+"invalid target");
+        }
+      } else {
+        if (this.isCanceled || this.status === C.STATUS_TERMINATED) {
+          if(this.ua.isDebug()) {
+            console.warn(LOG_PREFIX+"canceled or terminated");
+          }
+          return;
+        }
+
+        this.request.body = this.rtcMediaHandler.peerConnection.localDescription.sdp;
+        this.status = C.STATUS_INVITE_SENT;
+        var request_sender = new ExSIP.RequestSender(this, this.ua);
+        request_sender.send();
+      }
+
     };
 
     /**
@@ -5381,7 +5412,6 @@ ExSIP.Message = Message;
             'registrationFailed',
             'newRTCSession',
             'newMessage',
-            'onRTCMessage',
             'onReInvite'
         ];
 
@@ -5412,7 +5442,8 @@ ExSIP.Message = Message;
         };
 
         this.transportRecoverAttempts = 0;
-        this.rtcMediaHandlerOptions = null;
+        this.rtcMediaHandlerOptions = {};
+        this.localMedia = null;
 
         /**
          * Load configuration
@@ -5499,10 +5530,25 @@ ExSIP.Message = Message;
      *
      */
     UA.prototype.call = function(target, options) {
-        var session;
+      var session;
 
-        session = new ExSIP.RTCSession(this);
-        session.connect(target, options);
+      session = new ExSIP.RTCSession(this);
+      session.connect(target, options);
+      return session;
+    };
+
+    UA.prototype.connectLocal = function(options) {
+      var session = new ExSIP.RTCSession(this), self = this;
+      session.connectLocal(options, function(){
+        if(self.isDebug()) {
+          console.log(LOG_PREFIX+"connect local succeeded");
+        }
+      }, function(){
+        if(self.isDebug()) {
+          console.warn(LOG_PREFIX+"connect local failed");
+        }
+      });
+      return session;
     };
 
     /**
@@ -5603,6 +5649,9 @@ ExSIP.Message = Message;
         this.rtcMediaHandlerOptions = rtcMediaHandlerOptions;
     };
 
+    UA.prototype.reuseLocalMedia = function() {
+        return this.rtcMediaHandlerOptions ? this.rtcMediaHandlerOptions["reuseLocalMedia"] : false;
+    };
 
 //===============================
 //  Private (For internal use)
@@ -7435,11 +7484,11 @@ WebRTC.RTCSessionDescription.prototype.getConnection = function(){
   return match != null ? match[match.length-1] : null;
 };
 WebRTC.RTCSessionDescription.prototype.getAudioConnection = function(){
-  var match = this.sdp.match(/m=audio(?:(?!m=video)[\s\S])*c=(.*)/mi);
+  var match = this.sdp.match(/m=audio(?:(?!m=)[\s\S])*c=(.*)/mi);
   return match != null ? match[match.length-1] : this.getConnection();
 };
 WebRTC.RTCSessionDescription.prototype.getVideoConnection = function(){
-  var match = this.sdp.match(/m=video(?:(?!m=audio)[\s\S])*c=(.*)/mi);
+  var match = this.sdp.match(/m=video(?:(?!m=)[\s\S])*c=(.*)/mi);
   return match != null ? match[match.length-1] : this.getConnection();
 };
 WebRTC.RTCSessionDescription.prototype.hasVideo = function(){
@@ -7465,6 +7514,25 @@ WebRTC.RTCSessionDescription.prototype.hasActiveAudio = function(){
   var audioPort = this.audioPort() || 0;
   var audioConnection = this.getAudioConnection() || "";
   return this.hasAudio() && audioPort > 0 && audioConnection.indexOf('0.0.0.0') === -1;
+};
+WebRTC.RTCSessionDescription.prototype.getVideoBandwidth = function(){
+  var match = this.sdp.match(/m=video(?:(?!m=)[\s\S])*b=.*:(.*)/mi);
+  return match != null ? match[match.length-1] : null;
+};
+WebRTC.RTCSessionDescription.prototype.setVideoBandwidth = function(videoBandwidth){
+  if(this.getVideoBandwidth()) {
+    this.sdp = this.sdp.replace(/(m=video(?:(?!m=)[\s\S])*)(b=.*)/mi, "$1b=AS:" + videoBandwidth);
+  } else {
+    this.sdp = this.sdp.replace(/(m=video.*((?!m=)[\s\S]*c=IN\s+IP4.*)?)/, "$1\r\nb=AS:" + videoBandwidth);
+  }
+};
+WebRTC.RTCSessionDescription.prototype.getVideoMode = function(){
+  var match = this.sdp.match(/m=video(?:(?!m=)[\s\S])*a=(sendrecv|sendonly|recvonly|inactive)/mi);
+  return match != null ? match[match.length-1] : null;
+};
+WebRTC.RTCSessionDescription.prototype.getAudioMode = function(){
+  var match = this.sdp.match(/m=audio(?:(?!m=)[\s\S])*a=(sendrecv|sendonly|recvonly|inactive)/mi);
+  return match != null ? match[match.length-1] : null;
 };
 
 // New syntax for getting streams in Chrome M26.

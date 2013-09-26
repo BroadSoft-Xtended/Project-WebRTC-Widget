@@ -305,7 +305,11 @@ function uriCall(destination)
   message(clientConfig.messageCall, "success");
 
   // Start the Call
-  sipStack.call(destination, options);
+  if(rtcSession) {
+    rtcSession.sendInitialRequest(destination, options);
+  } else {
+    sipStack.call(destination, options);
+  }
 }
 
 // Incoming reinvite function
@@ -355,11 +359,10 @@ function incomingCall(e)
 
 function endCall()
 {
+  updateStreams(rtcSession);
+  rtcSession = null;
   $("#hangup, #muteAudio").fadeOut(100);
   isMuted = false;
-  // Clear last image from video tags
-  $("#localVideo").removeAttr("src");
-  $("#remoteVideo").removeAttr("src");
   // Bring up the main elements
   if (clientConfig.enableCallControl == true)
   {
@@ -598,7 +601,7 @@ function onLoad(userid, password)
   // Start SIP Stack
   sipStack.start();
 
-  // Start the GUI
+    // Start the GUI
   guiStart();
 
   // sipStack callbacks 
@@ -614,6 +617,19 @@ function onLoad(userid, password)
       $("#call").fadeIn(1000);
     }
     message(clientConfig.messageConnected, "success");
+
+    // Connect to local stream
+    var session = sipStack.connectLocal(options);
+    session.once('started', function(e)
+    {
+      updateStreams(session);
+      rtcSession = session;
+      // Start a call
+      if (!destination == false)
+      {
+        uriCall(destination);
+      }
+    });
   });
   sipStack.on('disconnected', function(e)
   {
@@ -653,27 +669,7 @@ function onLoad(userid, password)
     });
     rtcSession.on('started', function(e)
     {
-      var selfView = document.getElementById("localVideo");
-      var remoteView = document.getElementById("remoteVideo");
-      var localStreams, remoteStreams;
-      if (window.mozRTCPeerConnection)
-      {
-        localStreams = rtcSession.rtcMediaHandler.peerConnection.localStreams;
-        remoteStreams = rtcSession.rtcMediaHandler.peerConnection.remoteStreams;
-      }
-      else
-      {
-        localStreams = rtcSession.getLocalStreams();
-        remoteStreams = rtcSession.getRemoteStreams();
-      }
-      if ( localStreams.length > 0)
-      {
-        selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);
-      }
-      if ( remoteStreams.length > 0)
-      {
-        remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);
-      }
+      updateStreams(rtcSession);
       $('.stats-container').attr('id', getSessionId()+'-1');
       soundOut.pause();
       startTimer();
@@ -718,11 +714,27 @@ function onLoad(userid, password)
         message(clientConfig.messageRegistrationFailed, "alert");
         });
   }
-  // Start a call
-  if (!destination == false)
+}
+
+function updateStreams(rtcSession) {
+  var selfView = document.getElementById("localVideo");
+  var remoteView = document.getElementById("remoteVideo");
+  var localStreams, remoteStreams;
+  localStreams = rtcSession ? rtcSession.getLocalStreams() : [];
+  remoteStreams = rtcSession ? rtcSession.getRemoteStreams() : [];
+  console.log("update streams with remoteStreams : "+ExSIP.Utils.toString(remoteStreams)+", and localStreams : "+ExSIP.Utils.toString(localStreams));
+  if ( localStreams.length > 0 && !localStreams[0].ended)
   {
-    // Wait 300 ms for websockets connection then call destination in URL
-    setTimeout(function(){uriCall(destination)},300);
+    selfView.src = window.URL.createObjectURL(localStreams[0]);
+  } else {
+    selfView.removeAttr("src");
+  }
+
+  if ( remoteStreams.length > 0 && !remoteStreams[0].ended)
+  {
+    remoteView.src = window.URL.createObjectURL(remoteStreams[0]);
+  } else {
+    remoteView.removeAttribute("src");
   }
 }
 
@@ -1076,7 +1088,7 @@ function updateRtcMediaHandlerOptions(){
       return;
     }
 
-    var options = {};
+    var options = {reuseLocalMedia: true};
     if (clientConfig.enableHD == true & hd == true)
     {
       options["videoBandwidth"] = transmitHD;

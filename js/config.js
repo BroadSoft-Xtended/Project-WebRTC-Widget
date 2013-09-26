@@ -30,7 +30,7 @@ allowOutside: true,
 disableICE: true,
 volumeClick: 1,
 volumeDTMF: 1,
-websocketsGateway: 'webrtc.exarionetworks.com',
+websocketsGateway: 'dominik.exarionetworks.com',
 websocketsPort: 8060,
 websocketsType: 'ws', // ws or wss 
 stunServer: '204.117.64.117',
@@ -41,7 +41,7 @@ endCallURL: false,
 transmitVGA: 512,
 transmitHD: 2048,
 expires: 365,
-debug: false,
+debug: true,
 
 // Client Messages
 messageProgress: "Ringing",
