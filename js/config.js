@@ -42,7 +42,7 @@ endCallURL: false,
 transmitVGA: 512,
 transmitHD: 2048,
 expires: 365,
-debug: true,
+debug: false,
 
 // Client Messages
 messageProgress: "Ringing",
