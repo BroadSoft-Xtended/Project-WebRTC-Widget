@@ -4448,7 +4448,7 @@ return DTMF;
         throw new TypeError('Not enough arguments');
       }
 
-      this.connectLocal(options, function(){
+      this.connectLocalMedia(options, function(){
         if(self.ua.isDebug()) {
           console.log(LOG_PREFIX+"connect local succeeded");
         }
@@ -4463,7 +4463,7 @@ return DTMF;
     /**
      * @private
      */
-    RTCSession.prototype.connectLocal = function(options, success, failure) {
+    RTCSession.prototype.connectLocalMedia = function(options, success, failure) {
         options = options || {};
 
         var event,
@@ -4728,6 +4728,7 @@ return DTMF;
         };
 
       if(this.ua.reuseLocalMedia() && this.ua.localMedia) {
+        this.rtcMediaHandler.localMedia = this.ua.localMedia;
         userMediaSucceeded(this.ua.localMedia);
       } else {
         this.rtcMediaHandler.getUserMedia(
@@ -5537,18 +5538,23 @@ ExSIP.Message = Message;
       return session;
     };
 
-    UA.prototype.connectLocal = function(options) {
-      var session = new ExSIP.RTCSession(this), self = this;
-      session.connectLocal(options, function(){
-        if(self.isDebug()) {
-          console.log(LOG_PREFIX+"connect local succeeded");
+    UA.prototype.getUserMedia = function(options, success, failure) {
+      var self = this;
+      var constraints = options.mediaConstraints || {audio: true, video: true};
+      ExSIP.WebRTC.getUserMedia(constraints,
+        function(stream) {
+          if(self.isDebug()) {
+            console.log(LOG_PREFIX + 'got local media stream');
+          }
+          self.localMedia = stream;
+          success(stream);
+        },
+        function(e) {
+          console.error(LOG_PREFIX +'unable to get user media');
+          console.error(e);
+          failure();
         }
-      }, function(){
-        if(self.isDebug()) {
-          console.warn(LOG_PREFIX+"connect local failed");
-        }
-      });
-      return session;
+      );
     };
 
     /**

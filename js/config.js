@@ -24,6 +24,7 @@ enableConnectionIcon: true,
 enableWindowDrag: true,
 enableSettings: true,
 enableAutoAnswer: false,
+enableConnectLocalMedia: true,
 
 // Client Variables
 allowOutside: true,
@@ -41,7 +42,7 @@ endCallURL: false,
 transmitVGA: 512,
 transmitHD: 2048,
 expires: 365,
-debug: false,
+debug: true,
 
 // Client Messages
 messageProgress: "Ringing",
