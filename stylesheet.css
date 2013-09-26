@@ -617,7 +617,7 @@ body {
 }
 
 /* Incoming Call Pupup */
-#callPopup {
+#callPopup, #reInvitePopup {
   display: none;
   background: #333333;
   padding: 10px; 	

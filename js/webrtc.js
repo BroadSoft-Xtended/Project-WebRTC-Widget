@@ -325,12 +325,12 @@ function incomingReInvite(e) {
   $("#reInvitePopup .title").text(title);
   $("#acceptReInviteCall").off("click");
   $("#acceptReInviteCall").on("click", function(){
-    $('#call').fadeOut(1000);
+    $('#reInvitePopup').fadeOut(1000);
     e.data.session.acceptReInvite();
   });
   $("#rejectReInviteCall").off("click");
   $("#rejectReInviteCall").on("click", function(){
-    $('#call').fadeOut(1000);
+    $('#reInvitePopup').fadeOut(1000);
     e.data.session.rejectReInvite();
   });
 }
@@ -727,7 +727,7 @@ function updateStreams(rtcSession) {
   {
     selfView.src = window.URL.createObjectURL(localStreams[0]);
   } else {
-    selfView.removeAttr("src");
+    selfView.removeAttribute("src");
   }
 
   if ( remoteStreams.length > 0 && !remoteStreams[0].ended)
