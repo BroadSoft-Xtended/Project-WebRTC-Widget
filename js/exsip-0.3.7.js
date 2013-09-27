@@ -3394,7 +3394,7 @@ RTCMediaHandler.prototype = {
       sent = false;
 
     this.onIceCompleted = function() {
-      if (!sent) {
+      if (!sent && self.peerConnection.localDescription) {
         sent = true;
         onSuccess(self.peerConnection.localDescription.sdp);
       }
@@ -3520,7 +3520,8 @@ RTCMediaHandler.prototype = {
 
     // To be deprecated as per https://code.google.com/p/webrtc/issues/detail?id=1393
     this.peerConnection.ongatheringchange = function(e) {
-      if (e.currentTarget.iceGatheringState === 'complete' && this.iceConnectionState !== 'closed') {
+      var state = (typeof e === 'string' || e instanceof String) ? e : e.currentTarget.iceGatheringState;
+      if (state === 'complete' && this.iceConnectionState !== 'closed' && self.onIceCompleted !== undefined) {
         self.onIceCompleted();
       }
     };
@@ -4318,6 +4319,7 @@ return DTMF;
      */
 // Modified to support Firefox 22
     RTCSession.prototype.getLocalStreams = function() {
+      try {
         if (this.rtcMediaHandler.peerConnection.localStreams) {
             return this.rtcMediaHandler &&
                 this.rtcMediaHandler.peerConnection &&
@@ -4328,9 +4330,13 @@ return DTMF;
                 this.rtcMediaHandler.peerConnection &&
                 this.rtcMediaHandler.peerConnection.getLocalStreams() || [];
         }
+      } catch(ex) {
+        return [];
+      }
     };
 
     RTCSession.prototype.getRemoteStreams = function() {
+      try {
         if (this.rtcMediaHandler.peerConnection.remoteStreams) {
             return this.rtcMediaHandler &&
                 this.rtcMediaHandler.peerConnection &&
@@ -4341,6 +4347,9 @@ return DTMF;
                 this.rtcMediaHandler.peerConnection &&
                 this.rtcMediaHandler.peerConnection.getRemoteStreams() || [];
         }
+      } catch(ex) {
+        return [];
+      }
     };
 
     /**

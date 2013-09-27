@@ -6,7 +6,7 @@
  * http://www.exarionetworks.com
  ***************************************************/
 
-clientConfig = {
+var clientConfig = {
 
 // Enable Client Features
 enableHD: true,
@@ -54,6 +54,6 @@ messageConnected: "Connected",
 messageConnectionFailed: "Connection Failed!",
 messageRegistered: "Registered",
 messageRegistrationFailed: "Registration Failed!",
-messageEmptyDestination: "Invalid Number",
+messageEmptyDestination: "Invalid Number"
 
 };
