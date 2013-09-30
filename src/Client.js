@@ -550,7 +550,7 @@
     enableLocalAudio: function(enabled) {
       var localMedia = this.rtcSession.getLocalStreams()[0];
       var localAudio = localMedia.getAudioTracks()[0];
-      localAudio.WebRTC.ClientConfig.enabled = enabled;
+      localAudio.enabled = enabled;
     },
 
     registerListeners: function() {
@@ -658,17 +658,17 @@
         self.sound.playClick();
         if (self.settingsToggled === false)
         {
-          if ((this.configuration.displayName !== "false"))
+          if ((self.configuration.displayName !== "false"))
           {
-            $("#settingDisplayName").val(this.configuration.displayName);
+            $("#settingDisplayName").val(self.configuration.displayName);
           }
-          $("#settingUserid").val(this.configuration.userid);
-          $("#settingPassword").val(this.configuration.password);
+          $("#settingUserid").val(self.configuration.userid);
+          $("#settingPassword").val(self.configuration.password);
           $("#settingSelfViewDisable").prop('checked', ($.cookie('settingSelfViewDisable') === "true"));
           $("#settingHD").prop('checked', ($.cookie('settingHD') === "true"));
-          $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || this.configuration.transmitVGA);
-          $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || this.configuration.transmitHD);
-          $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
+          $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || self.configuration.transmitVGA);
+          $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || self.configuration.transmitHD);
+          $("#settingSize").val($.cookie('settingSize') || self.configuration.size);
           $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || WebRTC.ClientConfig.enableAutoAnswer );
           if ($("#localVideo").position().top !== 0 && $("#localVideo").position().left !== 0)
           {
