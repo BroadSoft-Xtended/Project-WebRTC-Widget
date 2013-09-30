@@ -240,24 +240,28 @@
 
     // Incoming reinvite function
     incomingReInvite: function(e) {
-      var incomingCallName = e.data.request.from.display_name;
-      var incomingCallUser = e.data.request.from.uri.user;
-      var title = e.data.audioAdd ? "Adding Audio" : "Adding Video";
-      this.message(title, "success");
-      $("#reInvitePopup").fadeIn(100);
-      $("#reInvitePopup .incomingCallName").text(incomingCallName);
-      $("#reInvitePopup .incomingCallUser").text(incomingCallUser);
-      $("#reInvitePopup .title").text(title);
-      $("#acceptReInviteCall").off("click");
-      $("#acceptReInviteCall").on("click", function(){
-        $('#reInvitePopup').fadeOut(1000);
+      if (WebRTC.ClientConfig.enableAutoAcceptReInvite) {
         e.data.session.acceptReInvite();
-      });
-      $("#rejectReInviteCall").off("click");
-      $("#rejectReInviteCall").on("click", function(){
-        $('#reInvitePopup').fadeOut(1000);
-        e.data.session.rejectReInvite();
-      });
+      } else {
+        var incomingCallName = e.data.request.from.display_name;
+        var incomingCallUser = e.data.request.from.uri.user;
+        var title = e.data.audioAdd ? "Adding Audio" : "Adding Video";
+        this.message(title, "success");
+        $("#reInvitePopup").fadeIn(100);
+        $("#reInvitePopup .incomingCallName").text(incomingCallName);
+        $("#reInvitePopup .incomingCallUser").text(incomingCallUser);
+        $("#reInvitePopup .title").text(title);
+        $("#acceptReInviteCall").off("click");
+        $("#acceptReInviteCall").on("click", function(){
+          $('#reInvitePopup').fadeOut(1000);
+          e.data.session.acceptReInvite();
+        });
+        $("#rejectReInviteCall").off("click");
+        $("#rejectReInviteCall").on("click", function(){
+          $('#reInvitePopup').fadeOut(1000);
+          e.data.session.rejectReInvite();
+        });
+      }
     },
 
     // Incoming call function
