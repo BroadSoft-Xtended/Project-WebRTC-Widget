@@ -18,7 +18,7 @@ test('with b=AS', function() {
 });
 
 function testInviteRTCMessage(hasBandwidth) {
-  ua.transport.onMessage({data: TestExSIP.Helpers.ringingResponse(ua)});
-  ua.transport.onMessage({data: TestExSIP.Helpers.inviteResponse(ua, {hasBandwidth: hasBandwidth})});
+  ua.transport.onMessage({data: TestWebrtc.Helpers.ringingResponse(ua)});
+  ua.transport.onMessage({data: TestWebrtc.Helpers.inviteResponse(ua, {hasBandwidth: hasBandwidth})});
   strictEqual(session.rtcMediaHandler.peerConnection.remoteDescription.getVideoBandwidth(), "512")
 }

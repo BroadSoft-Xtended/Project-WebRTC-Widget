@@ -1,27 +1,514 @@
 // Copyright (c) 2013 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+(function(WebRTC) {
+  var Stats;
+//    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
+
+  Stats = function(client) {
+    this.statsToggled = false;
+    this.client = client;
+
+    this.ssrcInfoManager = null;
+    this.peerConnectionUpdateTable = null;
+    this.statsTable = null;
+
+    this.graphViews = {};
+    this.dataSeries = {};
+
+    this.bweCompoundGraphConfig = {
+      googAvailableSendBandwidth: {color: 'red'},
+      googTargetEncBitrateCorrected: {color: 'purple'},
+      googActualEncBitrate: {color: 'orange'},
+      googRetransmitBitrate: {color: 'blue'},
+      googTransmitBitrate: {color: 'green'}
+    };
+
+    var self = this;
+    // Converts the last entry of |srcDataSeries| from the total amount to the
+    // amount per second.
+    var totalToPerSecond = function(srcDataSeries) {
+      var length = srcDataSeries.dataPoints_.length;
+      if (length >= 2) {
+        var lastDataPoint = srcDataSeries.dataPoints_[length - 1];
+        var secondLastDataPoint = srcDataSeries.dataPoints_[length - 2];
+        return Math.round((lastDataPoint.value - secondLastDataPoint.value) * 1000 /
+          (lastDataPoint.time - secondLastDataPoint.time));
+      }
+
+      return 0;
+    };
+
+    // Converts the value of total bytes to bits per second.
+    var totalBytesToBitsPerSecond = function(srcDataSeries) {
+      return totalToPerSecond(srcDataSeries) * 8;
+    };
+
+    // Converts the value of total bytes to kilo bits per second.
+    var totalKiloBytesToBitsPerSecond = function(srcDataSeries) {
+      return totalBytesToBitsPerSecond(srcDataSeries) / 1000;
+    };
+
+    var packetsLostPercentage = function(srcDataSeries, peerConnectionElement, reportType, reportId) {
+      var packetsLost = self.getLastValue(peerConnectionElement, reportType, reportId, "packetsLost");
+      var packetsReceived = self.getLastValue(peerConnectionElement, reportType, reportId, "packetsReceived");
+      if(packetsLost !== null && packetsReceived !== null) {
+        return Math.round((packetsLost * 100 / (packetsReceived + packetsLost))*100)/100;
+      } else {
+        return null;
+      }
+
+    };
+
+    // Specifies which stats should be converted before drawn and how.
+    // |convertedName| is the name of the converted value, |convertFunction|
+    // is the function used to calculate the new converted value based on the
+    // original dataSeries.
+    this.dataConversionConfig = {
+      packetsSent: {
+        convertedName: 'packetsSentPerSecond',
+        convertFunction: totalToPerSecond
+      },
+      bytesSent: {
+        convertedName: 'kiloBitsSentPerSecond',
+        convertFunction: totalKiloBytesToBitsPerSecond
+      },
+      packetsReceived: {
+        convertedName: 'packetsReceivedPerSecond',
+        convertFunction: totalToPerSecond
+      },
+      bytesReceived: {
+        convertedName: 'kiloBitsReceivedPerSecond',
+        convertFunction: totalKiloBytesToBitsPerSecond
+      },
+      packetsLost: {
+        convertedName: 'packetsLostPer',
+        convertFunction: packetsLostPercentage
+      },
+      // This is due to a bug of wrong units reported for googTargetEncBitrate.
+      // TODO (jiayl): remove this when the unit bug is fixed.
+      googTargetEncBitrate: {
+        convertedName: 'googTargetEncBitrateCorrected',
+        convertFunction: function (srcDataSeries) {
+          var length = srcDataSeries.dataPoints_.length;
+          var lastDataPoint = srcDataSeries.dataPoints_[length - 1];
+          if (lastDataPoint.value < 5000) {
+            return lastDataPoint.value * 1000;
+          }
+          return lastDataPoint.value;
+        }
+      }
+    };
+
+    this.initialize();
+  };
+
+  Stats.prototype = {
+    containsLabel: function(statsData, label) {
+      for (var i = 0; i < statsData.length - 1; i = i + 2) {
+        if(statsData[i] === label) {
+          return true;
+        }
+      }
+      return false;
+    },
+
+  // Converts the value of total bytes to bits per second.
+    getLastValue: function(peerConnectionElement, reportType, reportId, label) {
+      var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
+      var srcDataSeries = this.dataSeries[dataSeriesId];
+      if(srcDataSeries) {
+        return srcDataSeries.dataPoints_[srcDataSeries.dataPoints_.length-1].value;
+      }
+      return null;
+    },
+
+    getValueBefore: function(peerConnectionElement, reportType, reportId, label, timestamp) {
+      var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
+      var srcDataSeries = this.dataSeries[dataSeriesId];
+      if(srcDataSeries) {
+        for(var i = srcDataSeries.dataPoints_.length - 1; i >= 0; i--) {
+          if(srcDataSeries.dataPoints_[i].time < timestamp) {
+            return srcDataSeries.dataPoints_[i].value;
+          }
+        }
+        return srcDataSeries.dataPoints_[0].value;
+      }
+      return null;
+    },
 
 
-var ssrcInfoManager = null;
-var peerConnectionUpdateTable = null;
-var statsTable = null;
+    dataSeriesId: function(peerConnectionElement, reportType, reportId, label) {
+      return peerConnectionElement.id + '-' + reportType + '-' + reportId + '-' + label;
+    },
+
+    graphViewId: function(peerConnectionElement, reportType, reportId, graphType) {
+      return peerConnectionElement.id + '-' + reportType + '-' + reportId + '-' + graphType;
+    },
+
+    isVideoStats: function(statsData) {
+      return this.containsLabel(statsData, "googFrameHeightSent") || this.containsLabel(statsData, "googFrameHeightReceived");
+    },
+    isAudioStats: function(statsData) {
+      return this.containsLabel(statsData, "audioInputLevel") || this.containsLabel(statsData, "audioOutputLevel");
+    },
+
+    matchesType: function(label, type, statsData) {
+      if(type === "video" && this.isVideoStats(statsData)) {
+        return true;
+      } else if(type === "audio" && this.isAudioStats(statsData)) {
+        if(label === "googJitterReceived" && !this.containsLabel(statsData, "googRtt")) {
+          return false;
+        }
+        return true;
+      }
+      return false;
+    },
+
+    getStatsDataType: function(label, statsData) {
+      if(this.isVideoStats(statsData)) {
+        return "video";
+      } else if(this.isAudioStats(statsData)){
+        if(label === "googJitterReceived" && !this.containsLabel(statsData, "googRtt")) {
+          return null;
+        }
+        return "audio";
+      }
+      return null;
+    },
+
+  // Makes sure the TimelineDataSeries with id |dataSeriesId| is created,
+  // and adds the new data point to it.
+    addDataSeriesPoint: function(dataSeriesId, time, label, value) {
+      if (!this.dataSeries[dataSeriesId]) {
+        this.dataSeries[dataSeriesId] = new TimelineDataSeries();
+        if (this.bweCompoundGraphConfig[label]) {
+          this.dataSeries[dataSeriesId].setColor(this.bweCompoundGraphConfig[label].color);
+        }
+      }
+      // Restrain packetsLost to 0 as first value might be -1
+      if(label === "packetsLost" && value < 0) {
+        value = 0;
+      }
+      this.dataSeries[dataSeriesId].addPoint(time, value);
+    },
+
+  // Ensures a div container to hold all stats graphs for one track is created as
+  // a child of |peerConnectionElement|.
+    ensureStatsGraphTopContainer: function(
+      peerConnectionElement, reportType, reportId) {
+      var containerId = peerConnectionElement.id + '-' +
+        reportType + '-' + reportId + '-graph-container';
+      var container = $('[id="'+containerId+'"]')[0];
+      if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.className = 'stats-graph-container';
+
+        peerConnectionElement.appendChild(container);
+      }
+      return container;
+    },
+
+  // Creates the legend section for the bweCompound graph.
+  // Returns the legend element.
+    createBweCompoundLegend: function(peerConnectionElement, reportName) {
+      var self = this;
+      var legend = document.createElement('div');
+      var divClickListener = function(event) {
+        var target = this.dataSeries[event.target.parentNode.dataSeriesId];
+        target.show(event.target.checked);
+        self.graphViews[event.target.parentNode.graphViewId].repaint();
+      };
+
+      for (var prop in this.bweCompoundGraphConfig) {
+        var div = document.createElement('div');
+        legend.appendChild(div);
+        div.innerHTML = '<input type=checkbox checked/>' + prop;
+        div.style.color = this.bweCompoundGraphConfig[prop].color;
+        div.dataSeriesId = peerConnectionElement.id + '-' + reportName + '-' + prop;
+        div.graphViewId =
+          peerConnectionElement.id + '-' + reportName + '-bweCompound';
+        div.firstChild.addEventListener('click', divClickListener);
+      }
+      return legend;
+    },
+
+  // Creates the container elements holding a timeline graph
+  // and the TimelineGraphView object.
+    createStatsGraphView: function(
+      peerConnectionElement, reportType, reportId, statsName, statsType) {
+      var topContainer = this.ensureStatsGraphTopContainer(peerConnectionElement,
+        reportType, reportId);
+
+      var graphViewId = peerConnectionElement.id + '-' +
+        reportType + '-' + reportId + '-' + statsName;
+      var divId = graphViewId + '-div';
+      var canvasId = graphViewId + '-canvas';
+      var container = document.createElement("div");
+      container.className = 'stats-graph-sub-container '+statsName+'-'+statsType;
+
+      topContainer.appendChild(container);
+      container.innerHTML = '<div>' + statsName + '</div>' +
+        '<div id=' + divId + '><canvas id=' + canvasId + '></canvas></div>';
+      if (statsName === 'bweCompound') {
+        container.insertBefore(
+          this.createBweCompoundLegend(peerConnectionElement, reportType + '-' + reportId),
+          $('[id="'+divId+'"]')[0]);
+      }
+      return new TimelineGraphView(divId, canvasId);
+    },
+
+
+    toggle: function()
+    {
+      if (WebRTC.ClientConfig.enableCallStats)
+      {
+        if (this.statsToggled === false)
+        {
+          $("#callStats").fadeIn(100);
+        }
+        else if (this.statsToggled === true)
+        {
+          $("#callStats").fadeOut(100);
+        }
+      }
+      this.statsToggled = !this.statsToggled;
+    },
+
+    getReportById: function(reports, id)
+    {
+      for(var i = 0; i < reports.length; i++)
+      {
+        if(reports[i].id === id)
+        {
+          return reports[i];
+        }
+      }
+      return null;
+    },
+
+    processStats: function() {
+      var self = this;
+      var peerConnection = this.client.rtcSession.rtcMediaHandler.peerConnection;
+
+      peerConnection.getStats(function (stats)
+      {
+        var results = stats.result();
+        var reports = [];
+        for (var i = 0; i < results.length; ++i)
+        {
+          var res = results[i];
+          var report = self.getReportById(reports, res.id);
+          if(!report)
+          {
+            report = {};
+            report["type"] = res.type;
+            report["id"] = res.id;
+          }
+
+          var names = res.names();
+          var values = [];
+          for(var j = 0; j < names.length; j++)
+          {
+            var name = names[j];
+            if(!name)
+            {
+              continue;
+            }
+            var value = res.stat(name);
+            values.push(name);
+            values.push(value);
+          }
+          var valueObj = {};
+          valueObj["timestamp"] = res.timestamp;
+          valueObj["values"] = values;
+          report["stats"] = valueObj;
+          reports.push(report);
+        }
+        var data = {"lid":1,"pid":self.client.getSessionId(),"reports":reports};
+        self.addStats(data);
+      });
+    },
+
+    setSelected: function(id, parentSelector, selected) {
+      if (arguments.length === 2) {
+        selected = true;
+      }
+      var className = id.replace(/\d+/g, '');
+      var classes = jQuery.grep($(parentSelector).attr('class').split(" "), function(n, i){
+        return n.indexOf(className) === -1;
+      });
+      if(selected) {
+        classes.push(id+'-selected');
+        if(id !== className) {
+          classes.push(className+'-selected');
+        }
+      }
+      var classNames = classes.join(" ");
+      $(parentSelector).attr('class', classNames);
+
+    },
+
+    initialize: function() {
+      var self = this;
+      //    peerConnectionsListElem = $('#'+'peer-connections-list');
+      this.ssrcInfoManager = new SsrcInfoManager();
+      this.peerConnectionUpdateTable = new PeerConnectionUpdateTable();
+      this.statsTable = new StatsTable(this.ssrcInfoManager, this);
+      $("a.stats-var").click(function(){
+        var index = $(".stats-var").index($(this)[0]);
+        self.setSelected("stats"+index, "#callStats");
+      });
+      //chrome.send('getAllUpdates');
+
+      // Requests stats from all peer connections every second.
+      //    window.setInterval(function() {
+      //        if (peerConnectionsListElem.getElementsByTagName('li').length > 0)
+      //            chrome.send('getAllStats');
+      //    }, 1000);
+    },
+
+
+    /**
+     * A helper function for getting a peer connection element id.
+     *
+     * @param {!Object.<string, number>} data The object containing the pid and lid
+     *     of the peer connection.
+     * @return {string} The peer connection element id.
+     */
+    getPeerConnectionId: function(data) {
+      return data.pid + '-' + data.lid;
+    },
+
+
+    /**
+     * Browser message handlers.
+     */
+
+    /**
+     * Handles the report of stats.
+     *
+     * @param {!Object} data The object containing pid, lid, and reports, where
+     *     reports is an array of stats reports. Each report contains id, type,
+     *     and stats, where stats is the object containing timestamp and values,
+     *     which is an array of strings, whose even index entry is the name of the
+     *     stat, and the odd index entry is the value.
+     */
+    addStats: function(data) {
+      var peerConnectionElement = $('[id="'+this.getPeerConnectionId(data)+'"]')[0];
+      if (!peerConnectionElement) {
+        return;
+      }
+
+      for (var i = 0; i < data.reports.length; ++i) {
+        var report = data.reports[i];
+        this.drawSingleReport(peerConnectionElement, report.type, report.id, report.stats);
+        this.statsTable.addStatsReport(peerConnectionElement, report.type, report.id, report);
+
+        if(this.isVideoStats(report.stats.values)) {
+          var oneMinAgo = new Date(new Date().getTime() - 1000 * 60);
+          var videoPacketsLost = this.getLastValue(peerConnectionElement, report.type, report.id, "packetsLost");
+          var packetsSent = this.getLastValue(peerConnectionElement, report.type, report.id, "packetsReceived");
+          if(videoPacketsLost !== null && packetsSent !== null) {
+            var videoPacketsLostOneMinAgo = this.getValueBefore(peerConnectionElement, report.type, report.id, "packetsLost", oneMinAgo);
+            var packetsSentOneMinAgo = this.getValueBefore(peerConnectionElement, report.type, report.id, "packetsReceived", oneMinAgo);
+            var quality = ((videoPacketsLost - videoPacketsLostOneMinAgo) / (packetsSent - packetsSentOneMinAgo)) * 100;
+            if (quality < 10) {
+              $("#quality1").fadeIn(10);
+              $("#quality2, #quality3, #quality4").fadeOut(10);
+            }
+            else if (quality > 10 && quality < 20) {
+              $("#quality2").fadeIn(10);
+              $("#quality1, #quality3, #quality4").fadeOut(10);
+            }
+            else if (quality > 20 && quality < 100) {
+              $("#quality3").fadeIn(10);
+              $("#quality1, #quality2, #quality4").fadeOut(10);
+            }
+            else if (quality > 100 && quality < 1000) {
+              $("#quality4").fadeIn(10);
+              $("#quality1, #quality2, #quality3").fadeOut(10);
+            }
+          }
+        }
+      }
+    },
+
+    updateGraph: function(peerConnectionElement, reportType, reportId, singleReport, label) {
+      var graphType = this.bweCompoundGraphConfig[label] ? 'bweCompound' : label;
+      var graphId = this.graphViewId(peerConnectionElement, reportType, reportId, graphType);
+
+      if (!this.graphViews[graphId]) {
+        var statsType = this.getStatsDataType(label, singleReport.values);
+        this.graphViews[graphId] = this.createStatsGraphView(peerConnectionElement,
+          reportType, reportId,
+          graphType, statsType);
+        var date = new Date(singleReport.timestamp);
+        this.graphViews[graphId].setDateRange(date, date);
+      }
+      // Adds the new dataSeries to the graphView. We have to do it here to cover
+      // both the simple and compound graph cases.
+      var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
+      if (!this.graphViews[graphId].hasDataSeries(this.dataSeries[dataSeriesId])) {
+        this.graphViews[graphId].addDataSeries(this.dataSeries[dataSeriesId]);
+      }
+      this.graphViews[graphId].updateEndDate();
+
+    },
+
+  // Adds the stats report |singleReport| to the timeline graph for the given
+  // |peerConnectionElement| and |reportName|.
+    drawSingleReport: function(
+      peerConnectionElement, reportType, reportId, singleReport) {
+      if (!singleReport || !singleReport.values) {
+        return;
+      }
+
+      for (var i = 0; i < singleReport.values.length - 1; i = i + 2) {
+        var rawLabel = singleReport.values[i];
+        var rawValue = parseInt(singleReport.values[i + 1], 10);
+        if (isNaN(rawValue)) {
+          continue;
+        }
+
+        var rawDataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, rawLabel);
+
+        var finalDataSeriesId = rawDataSeriesId;
+        var finalLabel = rawLabel;
+        var finalValue = rawValue;
+        // We need to convert the value if dataConversionConfig[rawLabel] exists.
+        if (this.dataConversionConfig[rawLabel]) {
+          // Updates the original dataSeries before the conversion.
+          this.addDataSeriesPoint(rawDataSeriesId, singleReport.timestamp,
+            rawLabel, rawValue);
+
+          // Convert to another value to draw on graph, using the original
+          // dataSeries as input.
+          finalValue = this.dataConversionConfig[rawLabel].convertFunction(
+            this.dataSeries[rawDataSeriesId], peerConnectionElement, reportType, reportId);
+          finalLabel = this.dataConversionConfig[rawLabel].convertedName;
+          finalDataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, finalLabel);
+        }
+
+        // Updates the final dataSeries to draw.
+        this.addDataSeriesPoint(
+          finalDataSeriesId, singleReport.timestamp, finalLabel, finalValue);
+
+        // Updates the graph.
+        this.updateGraph(peerConnectionElement, reportType, reportId, singleReport, rawLabel);
+        if(finalLabel !== rawLabel) {
+          this.updateGraph(peerConnectionElement, reportType, reportId, singleReport, finalLabel);
+        }
+      }
+    }
+};
+
 
 // Copyright (c) 2013 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-var graphViews = {};
-var dataSeries = {};
-
 // Specifies which stats should be drawn on the 'bweCompound' graph and how.
-var bweCompoundGraphConfig = {
-  googAvailableSendBandwidth: {color: 'red'},
-  googTargetEncBitrateCorrected: {color: 'purple'},
-  googActualEncBitrate: {color: 'orange'},
-  googRetransmitBitrate: {color: 'blue'},
-  googTransmitBitrate: {color: 'green'}
-};
-
 /**
  * A TimelineDataSeries collects an ordered series of (time, value) pairs,
  * and converts them to graph points.  It also keeps track of its color and
@@ -696,162 +1183,6 @@ var TimelineGraphView = (function() {
 })();
 
 
-function containsLabel(statsData, label) {
-  for (var i = 0; i < statsData.length - 1; i = i + 2) {
-    if(statsData[i] === label) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// Converts the value of total bytes to bits per second.
-function getLastValue(peerConnectionElement, reportType, reportId, label) {
-  var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
-  var srcDataSeries = dataSeries[dataSeriesId];
-  if(srcDataSeries) {
-    return srcDataSeries.dataPoints_[srcDataSeries.dataPoints_.length-1].value;
-  }
-  return null;
-}
-
-function getValueBefore(peerConnectionElement, reportType, reportId, label, timestamp) {
-  var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
-  var srcDataSeries = dataSeries[dataSeriesId];
-  if(srcDataSeries) {
-    for(var i = srcDataSeries.dataPoints_.length - 1; i >= 0; i--) {
-      if(srcDataSeries.dataPoints_[i].time < timestamp) {
-        return srcDataSeries.dataPoints_[i].value;
-      }
-    }
-    return srcDataSeries.dataPoints_[0].value;
-  }
-  return null;
-}
-
-
-function dataSeriesId(peerConnectionElement, reportType, reportId, label) {
-  return peerConnectionElement.id + '-' + reportType + '-' + reportId + '-' + label;
-}
-
-function graphViewId(peerConnectionElement, reportType, reportId, graphType) {
-  return peerConnectionElement.id + '-' + reportType + '-' + reportId + '-' + graphType;
-}
-
-function isVideoStats(statsData) {
-  return containsLabel(statsData, "googFrameHeightSent") || containsLabel(statsData, "googFrameHeightReceived");
-}
-function isAudioStats(statsData) {
-  return containsLabel(statsData, "audioInputLevel") || containsLabel(statsData, "audioOutputLevel");
-}
-
-function matchesType(label, type, statsData) {
-  if(type === "video" && isVideoStats(statsData)) {
-    return true;
-  } else if(type === "audio" && isAudioStats(statsData)) {
-    if(label === "googJitterReceived" && !containsLabel(statsData, "googRtt")) {
-      return false;
-    }
-    return true;
-  }
-  return false;
-}
-
-function getStatsDataType(label, statsData) {
-  if(isVideoStats(statsData)) {
-    return "video";
-  } else if(isAudioStats(statsData)){
-    if(label === "googJitterReceived" && !containsLabel(statsData, "googRtt")) {
-      return null;
-    }
-    return "audio";
-  }
-  return null;
-}
-
-// Makes sure the TimelineDataSeries with id |dataSeriesId| is created,
-// and adds the new data point to it.
-function addDataSeriesPoint(dataSeriesId, time, label, value) {
-  if (!dataSeries[dataSeriesId]) {
-    dataSeries[dataSeriesId] = new TimelineDataSeries();
-    if (bweCompoundGraphConfig[label]) {
-      dataSeries[dataSeriesId].setColor(
-        bweCompoundGraphConfig[label].color);
-    }
-  }
-  // Restrain packetsLost to 0 as first value might be -1
-  if(label === "packetsLost" && value < 0) {
-    value = 0;
-  }
-  dataSeries[dataSeriesId].addPoint(time, value);
-}
-
-// Ensures a div container to hold all stats graphs for one track is created as
-// a child of |peerConnectionElement|.
-function ensureStatsGraphTopContainer(
-  peerConnectionElement, reportType, reportId) {
-  var containerId = peerConnectionElement.id + '-' +
-    reportType + '-' + reportId + '-graph-container';
-  var container = $('[id="'+containerId+'"]')[0];
-  if (!container) {
-    container = document.createElement('div');
-    container.id = containerId;
-    container.className = 'stats-graph-container';
-
-    peerConnectionElement.appendChild(container);
-  }
-  return container;
-}
-
-// Creates the legend section for the bweCompound graph.
-// Returns the legend element.
-function createBweCompoundLegend(peerConnectionElement, reportName) {
-  var legend = document.createElement('div');
-  var divClickListener = function(event) {
-    var target = dataSeries[event.target.parentNode.dataSeriesId];
-    target.show(event.target.checked);
-    graphViews[event.target.parentNode.graphViewId].repaint();
-  };
-
-  for (var prop in bweCompoundGraphConfig) {
-    var div = document.createElement('div');
-    legend.appendChild(div);
-    div.innerHTML = '<input type=checkbox checked/>' + prop;
-    div.style.color = bweCompoundGraphConfig[prop].color;
-    div.dataSeriesId = peerConnectionElement.id + '-' + reportName + '-' + prop;
-    div.graphViewId =
-      peerConnectionElement.id + '-' + reportName + '-bweCompound';
-    div.firstChild.addEventListener('click', divClickListener);
-  }
-  return legend;
-}
-
-// Creates the container elements holding a timeline graph
-// and the TimelineGraphView object.
-function createStatsGraphView(
-  peerConnectionElement, reportType, reportId, statsName, statsType) {
-  var topContainer = ensureStatsGraphTopContainer(peerConnectionElement,
-    reportType, reportId);
-
-  var graphViewId = peerConnectionElement.id + '-' +
-    reportType + '-' + reportId + '-' + statsName;
-  var divId = graphViewId + '-div';
-  var canvasId = graphViewId + '-canvas';
-  var container = document.createElement("div");
-  container.className = 'stats-graph-sub-container '+statsName+'-'+statsType;
-
-  topContainer.appendChild(container);
-  container.innerHTML = '<div>' + statsName + '</div>' +
-    '<div id=' + divId + '><canvas id=' + canvasId + '></canvas></div>';
-  if (statsName === 'bweCompound') {
-    container.insertBefore(
-      createBweCompoundLegend(
-        peerConnectionElement, reportType + '-' + reportId),
-      $('[id="'+divId+'"]')[0]);
-  }
-  return new TimelineGraphView(divId, canvasId);
-}
-
 /**
  * SsrcInfoManager stores the ssrc stream info extracted from SDP.
  */
@@ -1008,149 +1339,6 @@ var SsrcInfoManager = (function() {
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Converts the last entry of |srcDataSeries| from the total amount to the
-// amount per second.
-var totalToPerSecond = function(srcDataSeries) {
-    var length = srcDataSeries.dataPoints_.length;
-    if (length >= 2) {
-        var lastDataPoint = srcDataSeries.dataPoints_[length - 1];
-        var secondLastDataPoint = srcDataSeries.dataPoints_[length - 2];
-        return Math.round((lastDataPoint.value - secondLastDataPoint.value) * 1000 /
-            (lastDataPoint.time - secondLastDataPoint.time));
-    }
-
-    return 0;
-};
-
-// Converts the value of total bytes to bits per second.
-var totalBytesToBitsPerSecond = function(srcDataSeries) {
-    return totalToPerSecond(srcDataSeries) * 8;
-};
-
-// Converts the value of total bytes to kilo bits per second.
-var totalKiloBytesToBitsPerSecond = function(srcDataSeries) {
-    return totalBytesToBitsPerSecond(srcDataSeries) / 1000;
-};
-
-var packetsLostPercentage = function(srcDataSeries, peerConnectionElement, reportType, reportId) {
-    var packetsLost = getLastValue(peerConnectionElement, reportType, reportId, "packetsLost");
-    var packetsReceived = getLastValue(peerConnectionElement, reportType, reportId, "packetsReceived");
-    if(packetsLost !== null && packetsReceived !== null) {
-        return Math.round((packetsLost * 100 / (packetsReceived + packetsLost))*100)/100;
-    } else {
-        return null;
-    }
-
-};
-
-// Specifies which stats should be converted before drawn and how.
-// |convertedName| is the name of the converted value, |convertFunction|
-// is the function used to calculate the new converted value based on the
-// original dataSeries.
-var dataConversionConfig = {
-    packetsSent: {
-        convertedName: 'packetsSentPerSecond',
-        convertFunction: totalToPerSecond
-    },
-    bytesSent: {
-        convertedName: 'kiloBitsSentPerSecond',
-        convertFunction: totalKiloBytesToBitsPerSecond
-    },
-    packetsReceived: {
-        convertedName: 'packetsReceivedPerSecond',
-        convertFunction: totalToPerSecond
-    },
-    bytesReceived: {
-        convertedName: 'kiloBitsReceivedPerSecond',
-        convertFunction: totalKiloBytesToBitsPerSecond
-    },
-    packetsLost: {
-        convertedName: 'packetsLostPer',
-        convertFunction: packetsLostPercentage
-    },
-    // This is due to a bug of wrong units reported for googTargetEncBitrate.
-    // TODO (jiayl): remove this when the unit bug is fixed.
-    googTargetEncBitrate: {
-        convertedName: 'googTargetEncBitrateCorrected',
-        convertFunction: function (srcDataSeries) {
-            var length = srcDataSeries.dataPoints_.length;
-            var lastDataPoint = srcDataSeries.dataPoints_[length - 1];
-            if (lastDataPoint.value < 5000) {
-                return lastDataPoint.value * 1000;
-            }
-            return lastDataPoint.value;
-        }
-    }
-};
-
-function updateGraph(peerConnectionElement, reportType, reportId, singleReport, label) {
-    var graphType = bweCompoundGraphConfig[label] ? 'bweCompound' : label;
-    var graphId = graphViewId(peerConnectionElement, reportType, reportId, graphType);
-
-    if (!graphViews[graphId]) {
-        var statsType = getStatsDataType(label, singleReport.values);
-        graphViews[graphId] = createStatsGraphView(peerConnectionElement,
-            reportType, reportId,
-            graphType, statsType);
-        var date = new Date(singleReport.timestamp);
-        graphViews[graphId].setDateRange(date, date);
-    }
-    // Adds the new dataSeries to the graphView. We have to do it here to cover
-    // both the simple and compound graph cases.
-    var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
-    if (!graphViews[graphId].hasDataSeries(dataSeries[dataSeriesId])) {
-        graphViews[graphId].addDataSeries(dataSeries[dataSeriesId]);
-    }
-    graphViews[graphId].updateEndDate();
-
-}
-
-// Adds the stats report |singleReport| to the timeline graph for the given
-// |peerConnectionElement| and |reportName|.
-function drawSingleReport(
-    peerConnectionElement, reportType, reportId, singleReport) {
-    if (!singleReport || !singleReport.values) {
-        return;
-    }
-
-    for (var i = 0; i < singleReport.values.length - 1; i = i + 2) {
-        var rawLabel = singleReport.values[i];
-        var rawValue = parseInt(singleReport.values[i + 1], 10);
-        if (isNaN(rawValue)) {
-            continue;
-        }
-
-        var rawDataSeriesId = dataSeriesId(peerConnectionElement, reportType, reportId, rawLabel);
-
-        var finalDataSeriesId = rawDataSeriesId;
-        var finalLabel = rawLabel;
-        var finalValue = rawValue;
-        // We need to convert the value if dataConversionConfig[rawLabel] exists.
-        if (dataConversionConfig[rawLabel]) {
-            // Updates the original dataSeries before the conversion.
-            addDataSeriesPoint(rawDataSeriesId, singleReport.timestamp,
-                rawLabel, rawValue);
-
-            // Convert to another value to draw on graph, using the original
-            // dataSeries as input.
-            finalValue = dataConversionConfig[rawLabel].convertFunction(
-                dataSeries[rawDataSeriesId], peerConnectionElement, reportType, reportId);
-            finalLabel = dataConversionConfig[rawLabel].convertedName;
-            finalDataSeriesId = dataSeriesId(peerConnectionElement, reportType, reportId, finalLabel);
-        }
-
-        // Updates the final dataSeries to draw.
-        addDataSeriesPoint(
-            finalDataSeriesId, singleReport.timestamp, finalLabel, finalValue);
-
-        // Updates the graph.
-        updateGraph(peerConnectionElement, reportType, reportId, singleReport, rawLabel);
-        if(finalLabel !== rawLabel) {
-            updateGraph(peerConnectionElement, reportType, reportId, singleReport, finalLabel);
-        }
-    }
-}
-
 // Copyright (c) 2013 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
@@ -1167,12 +1355,13 @@ var StatsTable = (function(ssrcInfoManager) {
      * @param {SsrcInfoManager} ssrcInfoManager The source of the ssrc info.
      * @constructor
      */
-    function StatsTable(ssrcInfoManager) {
+    function StatsTable(ssrcInfoManager, stats) {
         /**
          * @type {SsrcInfoManager}
          * @private
          */
-        this.ssrcInfoManager_ = ssrcInfoManager;
+      this.ssrcInfoManager_ = ssrcInfoManager;
+      this.stats = stats;
     }
 
     StatsTable.prototype = {
@@ -1258,17 +1447,18 @@ var StatsTable = (function(ssrcInfoManager) {
          * @private
          */
         addStatsToTable_: function(peerConnectionElement, reportType, reportId, statsTable, time, statsData) {
-            $(".stats-var").each(function(){
-                var label = $(this).data('var');
-                var type = $(this).data('type');
-                if(matchesType(label, type, statsData)) {
-                    var value = getLastValue(peerConnectionElement, reportType, reportId, label);
-                    if(value !== null) {
-                        $(this).html(value);
-                    } else {
-                    }
-                }
-            });
+          var self = this;
+          $(".stats-var").each(function(){
+              var label = $(this).data('var');
+              var type = $(this).data('type');
+              if(self.stats.matchesType(label, type, statsData)) {
+                  var value = self.stats.getLastValue(peerConnectionElement, reportType, reportId, label);
+                  if(value !== null) {
+                      $(this).html(value);
+                  } else {
+                  }
+              }
+          });
         },
 
         /**
@@ -1397,109 +1587,5 @@ var PeerConnectionUpdateTable = (function() {
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
-function setSelected(id, parentSelector, selected) {
-    if (arguments.length === 2) {
-        selected = true;
-    }
-    var className = id.replace(/\d+/g, '');
-    var classes = jQuery.grep($(parentSelector).attr('class').split(" "), function(n, i){
-        return n.indexOf(className) === -1;
-    });
-    if(selected) {
-        classes.push(id+'-selected');
-        if(id !== className) {
-            classes.push(className+'-selected');
-        }
-    }
-    var classNames = classes.join(" ");
-    $(parentSelector).attr('class', classNames);
-
-}
-
-function initialize() {
-//    peerConnectionsListElem = $('#'+'peer-connections-list');
-    ssrcInfoManager = new SsrcInfoManager();
-    peerConnectionUpdateTable = new PeerConnectionUpdateTable();
-    statsTable = new StatsTable(ssrcInfoManager);
-    $("a.stats-var").click(function(){
-        var index = $(".stats-var").index($(this)[0]);
-        setSelected("stats"+index, "#callStats");
-    });
-    //chrome.send('getAllUpdates');
-
-    // Requests stats from all peer connections every second.
-//    window.setInterval(function() {
-//        if (peerConnectionsListElem.getElementsByTagName('li').length > 0)
-//            chrome.send('getAllStats');
-//    }, 1000);
-}
-document.addEventListener('DOMContentLoaded', initialize);
-
-
-/**
- * A helper function for getting a peer connection element id.
- *
- * @param {!Object.<string, number>} data The object containing the pid and lid
- *     of the peer connection.
- * @return {string} The peer connection element id.
- */
-function getPeerConnectionId(data) {
-    return data.pid + '-' + data.lid;
-}
-
-
-/**
- * Browser message handlers.
- */
-
-/**
- * Handles the report of stats.
- *
- * @param {!Object} data The object containing pid, lid, and reports, where
- *     reports is an array of stats reports. Each report contains id, type,
- *     and stats, where stats is the object containing timestamp and values,
- *     which is an array of strings, whose even index entry is the name of the
- *     stat, and the odd index entry is the value.
- */
-function addStats(data) {
-    var peerConnectionElement = $('[id="'+getPeerConnectionId(data)+'"]')[0];
-    if (!peerConnectionElement) {
-        return;
-    }
-
-    for (var i = 0; i < data.reports.length; ++i) {
-        var report = data.reports[i];
-        drawSingleReport(peerConnectionElement, report.type, report.id, report.stats);
-        statsTable.addStatsReport(peerConnectionElement, report.type, report.id, report);
-
-        if(isVideoStats(report.stats.values)) {
-            var oneMinAgo = new Date(new Date().getTime() - 1000 * 60);
-            var videoPacketsLost = getLastValue(peerConnectionElement, report.type, report.id, "packetsLost");
-            var packetsSent = getLastValue(peerConnectionElement, report.type, report.id, "packetsReceived");
-            if(videoPacketsLost !== null && packetsSent !== null) {
-                var videoPacketsLostOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsLost", oneMinAgo);
-                var packetsSentOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsReceived", oneMinAgo);
-                var quality = ((videoPacketsLost - videoPacketsLostOneMinAgo) / (packetsSent - packetsSentOneMinAgo)) * 100;
-                if (quality < 10) {
-                    $("#quality1").fadeIn(10);
-                    $("#quality2, #quality3, #quality4").fadeOut(10);
-                }
-                else if (quality > 10 && quality < 20) {
-                    $("#quality2").fadeIn(10);
-                    $("#quality1, #quality3, #quality4").fadeOut(10);
-                }
-                else if (quality > 20 && quality < 100) {
-                    $("#quality3").fadeIn(10);
-                    $("#quality1, #quality2, #quality4").fadeOut(10);
-                }
-                else if (quality > 100 && quality < 1000) {
-                    $("#quality4").fadeIn(10);
-                    $("#quality1, #quality2, #quality3").fadeOut(10);
-                }
-            }
-        }
-    }
-
-
-}
+  WebRTC.Stats = Stats;
+}(WebRTC));

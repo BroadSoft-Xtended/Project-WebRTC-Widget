@@ -3,9 +3,17 @@
 module.exports = function(grunt) {
 
   var srcFiles = [
-    'src/config.js',
-    'src/stats.js',
-    'src/webrtc.js'
+    'src/WebRTC.js',
+    'src/ClientConfig.js.example',
+    'src/ClientConfig.js',
+    'src/Configuration.js',
+    'src/History.js',
+    'src/Timer.js',
+    'src/Stats.js',
+    'src/Utils.js',
+    'src/Sound.js',
+    'src/Video.js',
+    'src/Client.js'
   ];
 
   // Project configuration.
@@ -19,7 +27,9 @@ module.exports = function(grunt) {
  * Homepage: http://webrtc.net\n\
  * License: http://webrtc.net/license\n\
  */\n\n\n',
-      footer: ''
+      footer: '\
+\n\n\nwindow.WebRTC = WebRTC;\n\
+}(window));\n\n'
     },
     concat: {
       dist: {
