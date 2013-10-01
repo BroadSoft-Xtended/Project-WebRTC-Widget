@@ -145,7 +145,7 @@
     // Setup the GUI
     guiStart: function() {
       // Set size for Chrome and Firefox
-      $("#main").css("size", this.configuration.size);
+      $("#main").css("zoom", this.configuration.size);
       $("#main").css("-moz-transform", "scale(" + this.configuration.size +")");
       if (($.cookie("settingWindowPosition")))
       {
