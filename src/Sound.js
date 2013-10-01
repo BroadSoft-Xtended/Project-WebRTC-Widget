@@ -8,9 +8,9 @@
 
   Sound = function() {
     this.soundOut = document.createElement("audio");
-    this.soundOut.volume = WebRTC.ClientConfig.volumeClick;
+    this.soundOut.volume = ClientConfig.volumeClick;
     this.soundOutDTMF = document.createElement("audio");
-    this.soundOutDTMF.volume = WebRTC.ClientConfig.volumeDTMF;
+    this.soundOutDTMF.volume = ClientConfig.volumeDTMF;
   };
 
   Sound.prototype = {

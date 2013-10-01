@@ -23,7 +23,7 @@
       this.configuration.timerRunning = true;
       var timer = this.runningTimer();
       this.callTimer = setInterval(timer, 1000);
-      if (WebRTC.ClientConfig.enableCallTimer)
+      if (ClientConfig.enableCallTimer)
       {
         $("#timer").fadeIn(100);
       }
@@ -51,7 +51,7 @@
           return;
         }
         $("#timer").text(self.format(secs));
-        if (WebRTC.ClientConfig.enableCallStats && WebRTC.Utils.isChrome())
+        if (ClientConfig.enableCallStats && WebRTC.Utils.isChrome())
         {
           self.stats.processStats();
         }

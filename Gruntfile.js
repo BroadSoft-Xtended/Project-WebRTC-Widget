@@ -4,8 +4,6 @@ module.exports = function(grunt) {
 
   var srcFiles = [
     'src/WebRTC.js',
-    'src/ClientConfig.js.example',
-    'src/ClientConfig.js',
     'src/Configuration.js',
     'src/History.js',
     'src/Timer.js',
@@ -106,7 +104,8 @@ module.exports = function(grunt) {
           "jQuery": true,
           "RTCPeerConnection": true,
           "ExSIP": true,
-          "detect": true
+          "detect": true,
+          "ClientConfig": true
         }
       },
       globals: {}

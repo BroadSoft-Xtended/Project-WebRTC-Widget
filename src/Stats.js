@@ -262,7 +262,7 @@
 
     toggle: function()
     {
-      if (WebRTC.ClientConfig.enableCallStats)
+      if (ClientConfig.enableCallStats)
       {
         if (this.statsToggled === false)
         {

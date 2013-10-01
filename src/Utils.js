@@ -60,7 +60,7 @@ Utils= {
         return "Your version of Firefox must be upgraded to at least version 22y<br>" +
           "Please go to: <a href='http://www.mozilla.org'>http://www.mozilla.org</a>";
       }
-      WebRTC.ClientConfig.enableStats = false;
+      ClientConfig.enableStats = false;
     }
   },
 

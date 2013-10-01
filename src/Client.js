@@ -36,7 +36,7 @@
       }
 
       // Allow some windows to be draggable, required jQuery.UI
-      if (WebRTC.ClientConfig.enableWindowDrag)
+      if (ClientConfig.enableWindowDrag)
       {
         $(function()
         {
@@ -47,7 +47,7 @@
       }
 
       // Initial function selection
-      if (WebRTC.ClientConfig.enableHD === true && this.configuration.hd === true)
+      if (ClientConfig.enableHD === true && this.configuration.hd === true)
       {
         $("*").addClass("hd");
       }
@@ -159,15 +159,15 @@
       }
       // Fade in UI elements
       $("#remoteVideo, #videoBar").fadeIn(1000);
-      if (WebRTC.ClientConfig.enableCallControl && !this.configuration.hideCallControl)
+      if (ClientConfig.enableCallControl && !this.configuration.hideCallControl)
       {
         $("#callControl, #call, #ok").fadeIn(1000);
       }
-      if (WebRTC.ClientConfig.enableDialpad)
+      if (ClientConfig.enableDialpad)
       {
         $("#dialpadIconShow").fadeIn(1000);
       }
-      if (WebRTC.ClientConfig.enableSelfView)
+      if (ClientConfig.enableSelfView)
       {
         if ($.cookie('settingSelfViewDisable') === "true")
         {
@@ -180,11 +180,11 @@
           $("#localVideo, #selfViewDisable").fadeIn(1000);
         }
       }
-      if (WebRTC.ClientConfig.enableSettings)
+      if (ClientConfig.enableSettings)
       {
         $("#settings").fadeIn(1000);
       }
-      if (WebRTC.ClientConfig.enableFullScreen)
+      if (ClientConfig.enableFullScreen)
       {
         $("#fullScreenExpand").fadeIn(1000);
       }
@@ -193,7 +193,7 @@
     // Display status messages
     message: function(text, level)
     {
-      if(!WebRTC.ClientConfig.enableMessages)
+      if(!ClientConfig.enableMessages)
       {
         return;
       }
@@ -209,14 +209,14 @@
       {
         destination = ("sip:" + destination);
       }
-      if ((destination.indexOf(WebRTC.ClientConfig.domainTo) === -1 ) && WebRTC.ClientConfig.allowOutside === false)
+      if ((destination.indexOf(ClientConfig.domainTo) === -1 ) && ClientConfig.allowOutside === false)
       {
-        this.message(WebRTC.ClientConfig.messageOutsideDomain, "alert");
+        this.message(ClientConfig.messageOutsideDomain, "alert");
         return(false);
       }
       if ((destination.indexOf("@") === -1))
       {
-        destination = (destination + "@" + WebRTC.ClientConfig.domainTo);
+        destination = (destination + "@" + ClientConfig.domainTo);
       }
       return(destination);
     },
@@ -232,7 +232,7 @@
 
       $('#call').fadeOut(1000);
       $("#hangup").fadeIn(1000);
-      this.message(WebRTC.ClientConfig.messageCall, "success");
+      this.message(ClientConfig.messageCall, "success");
 
       // Start the Call
       this.sipStack.call(destination, this.configuration.getExSIPOptions());
@@ -240,7 +240,7 @@
 
     // Incoming reinvite function
     incomingReInvite: function(e) {
-      if (WebRTC.ClientConfig.enableAutoAcceptReInvite) {
+      if (ClientConfig.enableAutoAcceptReInvite) {
         e.data.session.acceptReInvite();
       } else {
         var incomingCallName = e.data.request.from.display_name;
@@ -270,7 +270,7 @@
       var incomingCallName = e.data.request.from.display_name;
       var incomingCallUser = e.data.request.from.uri.user;
       this.message("Incoming Call", "success");
-      if (WebRTC.ClientConfig.enableAutoAnswer)
+      if (ClientConfig.enableAutoAnswer)
       {
         $("#hangup").fadeIn(1000);
         this.rtcSession.answer(this.configuration.getExSIPOptions());
@@ -289,7 +289,7 @@
   //  rtcSession = null;
       $("#hangup, #muteAudio").fadeOut(100);
       // Bring up the main elements
-      if (WebRTC.ClientConfig.enableCallControl === true)
+      if (ClientConfig.enableCallControl === true)
       {
         this.configuration.hideCallControl = false;
       }
@@ -300,9 +300,9 @@
       {
         this.timer.stop();
       }
-      if (WebRTC.ClientConfig.endCallURL !== false)
+      if (ClientConfig.endCallURL !== false)
       {
-        window.location = WebRTC.ClientConfig.endCallURL;
+        window.location = ClientConfig.endCallURL;
       }
     },
 
@@ -312,7 +312,7 @@
 
     setCookie: function()
     {
-      if (!WebRTC.ClientConfig.enableCallHistory)
+      if (!ClientConfig.enableCallHistory)
       {
         return;
       }
@@ -346,7 +346,7 @@
       }
       var cookieKey = ("call_" + callNumber);
       var cookieValue = (epochStart + "|" + remote + "|" + direction + "|" + length);
-      $.cookie(cookieKey, cookieValue, { expires: WebRTC.ClientConfig.expires});
+      $.cookie(cookieKey, cookieValue, { expires: ClientConfig.expires});
     },
 
     // Initial startup
@@ -357,7 +357,7 @@
       // Config settings
       if ((userid.indexOf("@") === -1))
       {
-        sip_uri = (userid + "@" + WebRTC.ClientConfig.domainFrom);
+        sip_uri = (userid + "@" + ClientConfig.domainFrom);
       }
       else
       {
@@ -366,9 +366,9 @@
       var config  =
       {
         'uri': sip_uri,
-        'ws_servers': WebRTC.ClientConfig.websocketsType + "://" + WebRTC.ClientConfig.websocketsGateway + ":" + WebRTC.ClientConfig.websocketsPort,
-        'stun_servers': 'stun:' + WebRTC.ClientConfig.stunServer + ':' + WebRTC.ClientConfig.stunPort,
-        'trace_sip': WebRTC.ClientConfig.debug
+        'ws_servers': ClientConfig.websocketsType + "://" + ClientConfig.websocketsGateway + ":" + ClientConfig.websocketsPort,
+        'stun_servers': 'stun:' + ClientConfig.stunServer + ':' + ClientConfig.stunPort,
+        'trace_sip': ClientConfig.debug
       };
 
       // Add Display Name if set
@@ -402,18 +402,18 @@
       // sipStack callbacks
       this.sipStack.on('connected', function(e)
       {
-        if (WebRTC.ClientConfig.enableConnectionIcon)
+        if (ClientConfig.enableConnectionIcon)
         {
           $("#connected").removeClass("alert");
           $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
         }
-        if (WebRTC.ClientConfig.enableCallControl && !self.configuration.hideCallControl)
+        if (ClientConfig.enableCallControl && !self.configuration.hideCallControl)
         {
           $("#call").fadeIn(1000);
         }
-        self.message(WebRTC.ClientConfig.messageConnected, "success");
+        self.message(ClientConfig.messageConnected, "success");
 
-        if(WebRTC.ClientConfig.enableConnectLocalMedia) {
+        if(ClientConfig.enableConnectLocalMedia) {
           // Connect to local stream
           self.sipStack.getUserMedia(self.configuration.getExSIPOptions(), function(localStream){
             self.video.updateStreams([localStream], []);
@@ -427,12 +427,12 @@
       });
       this.sipStack.on('disconnected', function(e)
       {
-        if (WebRTC.ClientConfig.enableConnectionIcon)
+        if (ClientConfig.enableConnectionIcon)
         {
           $("#connected").removeClass("success");
           $("#connected").addClass("alert").fadeIn(100);
         }
-        self.message(WebRTC.ClientConfig.messageConnectionFailed, "alert");
+        self.message(ClientConfig.messageConnectionFailed, "alert");
         self.endCall();
         $("#call").hide();
       });
@@ -446,7 +446,7 @@
         // call event handlers
         self.rtcSession.on('progress', function(e)
         {
-          self.message(WebRTC.ClientConfig.messageProgress, "normal");
+          self.message(ClientConfig.messageProgress, "normal");
           self.sound.playDtmfRingback();
         });
         self.rtcSession.on('failed', function(e)
@@ -466,15 +466,15 @@
           $('.stats-container').attr('id', self.getSessionId()+'-1');
           self.sound.pause();
           self.timer.start();
-          self.message(WebRTC.ClientConfig.messageStarted, "success");
-          if (WebRTC.ClientConfig.enableMute)
+          self.message(ClientConfig.messageStarted, "success");
+          if (ClientConfig.enableMute)
           {
             $("#muteAudio").fadeIn(1000);
           }
         });
         self.rtcSession.on('ended', function(e)
         {
-          self.message(WebRTC.ClientConfig.messageEnded, "normal");
+          self.message(ClientConfig.messageEnded, "normal");
           self.setCookie();
           self.endCall();
         });
@@ -484,7 +484,7 @@
           self.incomingCall(e);
         }
       });
-      if(!WebRTC.ClientConfig.enableConnectLocalMedia) {
+      if(!ClientConfig.enableConnectLocalMedia) {
         if (self.configuration.destination !== false) {
           // Wait 300 ms for websockets connection then call destination in URL
           setTimeout(function(){self.uriCall(self.configuration.destination);},300);
@@ -496,21 +496,21 @@
       {
         this.sipStack.on('registered', function(e)
         {
-          if (WebRTC.ClientConfig.enableRegistrationIcon)
+          if (ClientConfig.enableRegistrationIcon)
           {
             $("#registered").removeClass("alert");
             $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
           }
-          self.message(WebRTC.ClientConfig.messageRegistered, "success");
+          self.message(ClientConfig.messageRegistered, "success");
         });
         this.sipStack.on('registrationFailed', function(e)
         {
-          if (WebRTC.ClientConfig.enableRegistrationIcon)
+          if (ClientConfig.enableRegistrationIcon)
           {
             //$("#registered").removeClass("success");
             $("#registered").addClass("alert").fadeIn(100);
           }
-          self.message(WebRTC.ClientConfig.messageRegistrationFailed, "alert");
+          self.message(ClientConfig.messageRegistrationFailed, "alert");
         });
       }
     },
@@ -565,7 +565,7 @@
         var destination = mainDestination.val();
         if (destination === "")
         {
-          self.message(WebRTC.ClientConfig.messageEmptyDestination, "alert");
+          self.message(ClientConfig.messageEmptyDestination, "alert");
         }
         else
         {
@@ -669,7 +669,7 @@
           $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || self.configuration.transmitVGA);
           $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || self.configuration.transmitHD);
           $("#settingSize").val($.cookie('settingSize') || self.configuration.size);
-          $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || WebRTC.ClientConfig.enableAutoAnswer );
+          $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || ClientConfig.enableAutoAnswer );
           if ($("#localVideo").position().top !== 0 && $("#localVideo").position().left !== 0)
           {
             $("#settingLocalVideoTop").val($("#localVideo").position().top);

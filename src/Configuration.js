@@ -21,9 +21,9 @@
 
     // Client Variables
     this.timerRunning = false;
-    this.disableICE = WebRTC.ClientConfig.disableICE;
-    this.transmitVGA = $.cookie('settingTransmitVGA') || WebRTC.ClientConfig.transmitVGA;
-    this.transmitHD = $.cookie('settingTransmitHD') || WebRTC.ClientConfig.transmitHD;
+    this.disableICE = ClientConfig.disableICE;
+    this.transmitVGA = $.cookie('settingTransmitVGA') || ClientConfig.transmitVGA;
+    this.transmitHD = $.cookie('settingTransmitHD') || ClientConfig.transmitHD;
   };
 
   Configuration.prototype.getExSIPOptions = function(){
@@ -65,8 +65,8 @@
   };
 
   Configuration.prototype.getRtcMediaHandlerOptions = function(){
-    var options = {reuseLocalMedia: WebRTC.ClientConfig.enableConnectLocalMedia};
-    if (WebRTC.ClientConfig.enableHD === true & this.hd === true)
+    var options = {reuseLocalMedia: ClientConfig.enableConnectLocalMedia};
+    if (ClientConfig.enableHD === true & this.hd === true)
     {
       options["videoBandwidth"] = this.transmitHD;
     }
@@ -79,16 +79,16 @@
   };
 
   Configuration.prototype.persist = function(){
-    $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingUserid", ($("#settingUserid").val()),  { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingPassword", ($("#settingPassword").val()), { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingSize", ($("#settingSize").val()), { expires: WebRTC.ClientConfig.expires });
-    $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: WebRTC.ClientConfig.expires });
+    $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: ClientConfig.expires });
+    $.cookie("settingUserid", ($("#settingUserid").val()),  { expires: ClientConfig.expires });
+    $.cookie("settingPassword", ($("#settingPassword").val()), { expires: ClientConfig.expires });
+    $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: ClientConfig.expires });
+    $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: ClientConfig.expires });
+    $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: ClientConfig.expires });
+    $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
+    $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
+    $.cookie("settingSize", ($("#settingSize").val()), { expires: ClientConfig.expires });
+    $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: ClientConfig.expires });
     $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +
       "#callHistory" + "-" + $("#settingCallHistoryTop").val() + "-" + $("#settingCallHistoryLeft").val() + "|" +
       "#callStats" + "-" + $("#settingCallStatsTop").val() + "-" + $("#settingCallStatsLeft").val());

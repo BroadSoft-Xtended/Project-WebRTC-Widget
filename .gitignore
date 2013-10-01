@@ -2,4 +2,5 @@
 /node_modules
 /dist
 /src/config.js
-/src/ClientConfig.js
+/js/client-config.js
+index-dev.html

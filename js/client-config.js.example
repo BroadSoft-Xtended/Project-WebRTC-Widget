@@ -1,10 +1,3 @@
-/**
- * @fileoverview Utils
- */
-
-(function(WebRTC) {
-var ClientConfig;
-
 ClientConfig = {
     // Enable Client Features
     enableHD: true,
@@ -22,7 +15,7 @@ ClientConfig = {
     enableWindowDrag: true,
     enableSettings: true,
     enableAutoAnswer: false,
-    enableAutoAcceptReInvite: false,
+    enableAutoAcceptReInvite: true,
     enableConnectLocalMedia: true,
 
     // Client Variables
@@ -38,8 +31,8 @@ ClientConfig = {
     domainFrom: 'exarionetworks.com',
     domainTo: 'exarionetworks.com',
     endCallURL: false,
-    transmitVGA: 512,
-    transmitHD: 2048,
+    transmitVGA: 256,
+    transmitHD: 512,
     expires: 365,
     debug: false,
 
@@ -55,6 +48,3 @@ ClientConfig = {
     messageRegistrationFailed: "Registration Failed!",
     messageEmptyDestination: "Invalid Number"
 };
-
-WebRTC.ClientConfig = ClientConfig;
-}(WebRTC));

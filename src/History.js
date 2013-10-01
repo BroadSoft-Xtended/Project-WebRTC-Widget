@@ -120,7 +120,7 @@
    },
 
    toggle: function() {
-      if (WebRTC.ClientConfig.enableCallHistory === true)
+      if (ClientConfig.enableCallHistory === true)
       {
         if (this.historyToggled === false)
         {
