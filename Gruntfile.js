@@ -120,6 +120,33 @@ module.exports = function(grunt) {
         banner: '<%= meta.banner %>'
       }
     },
+    copy: {
+      clientConfig: {
+        options: {
+          processContent: function (content, srcpath) {
+            if(grunt.file.exists('js/client-config.js')) {
+              return false;
+            }
+            return grunt.template.process(content);
+          }
+        },
+        src: 'js/client-config.js.example',
+        dest: 'js/client-config.js'
+      },
+      indexDev: {
+        options: {
+          processContent: function (content, srcpath) {
+            var pkg = grunt.config.get('pkg');
+            var minLibName = pkg.name +'-'+ pkg.version +'.min.js';
+            var devLibName = pkg.name + '-devel.js';
+            grunt.log.writeln('Replacing ' + minLibName +' with '+devLibName);
+            return content.replace(minLibName, devLibName);
+          }
+        },
+        src: 'index.html',
+        dest: 'index-dev.html'
+      }
+    },
     qunit: {
       connectLocal: ['test/run-TestConnectLocal.html']
     }
@@ -131,6 +158,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-include-replace');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-qunit');
 
 
@@ -138,7 +166,7 @@ module.exports = function(grunt) {
   // Task for building webrtc-devel.js (uncompressed), webrtc-X.Y.Z.js (uncompressed)
   // and webrtc-X.Y.Z.min.js (minified).
   // Both webrtc-devel.js and webrtc-X.Y.Z.js are the same file with different name.
-  grunt.registerTask('build', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel', 'concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist', 'uglify:dist']);
+  grunt.registerTask('build', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel', 'concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist', 'uglify:dist', 'copy:clientConfig', 'copy:indexDev']);
 
   // Task for building webrtc-devel.js (uncompressed).
   grunt.registerTask('devel', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel']);
