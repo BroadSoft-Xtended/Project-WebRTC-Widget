@@ -16,6 +16,10 @@
   Timer.prototype = {
     start: function()
     {
+      if(this.configuration.timerRunning) {
+        return;
+      }
+
       this.configuration.timerRunning = true;
       var timer = this.runningTimer();
       this.callTimer = setInterval(timer, 1000);

@@ -3394,12 +3394,20 @@ RTCMediaHandler.prototype = {
       sent = false;
 
     this.onIceCompleted = function() {
+      if(self.session.ua.isDebug()){
+        console.log(LOG_PREFIX +'createOffer : onIceCompleted with sent : '+ sent);
+      }
       if (!sent && self.peerConnection.localDescription) {
         sent = true;
         onSuccess(self.peerConnection.localDescription.sdp);
       }
     };
 
+    this.resetOfferIce = function() {
+      sent = false;
+    };
+
+    var mediaConstraints = {'mandatory': {'OfferToReceiveAudio':true, 'OfferToReceiveVideo':true}};
     this.peerConnection.createOffer(
       function(sessionDescription){
         self.setLocalDescription(
@@ -3411,8 +3419,7 @@ RTCMediaHandler.prototype = {
         console.error(LOG_PREFIX +'unable to create offer');
         console.error(e);
         onFailure();
-      }
-    );
+      }, mediaConstraints);
   },
 
   createAnswer: function(onSuccess, onFailure) {
@@ -3421,10 +3428,17 @@ RTCMediaHandler.prototype = {
       sent = false;
 
     this.onIceCompleted = function() {
+      if(self.session.ua.isDebug()){
+        console.log(LOG_PREFIX +'createAnswer : onIceCompleted with sent : '+ sent);
+      }
       if (!sent) {
         sent = true;
         onSuccess(self.peerConnection.localDescription.sdp);
       }
+    };
+
+    this.resetAnswerIce = function() {
+      sent = false;
     };
 
     this.peerConnection.createAnswer(
@@ -3514,6 +3528,9 @@ RTCMediaHandler.prototype = {
           console.log(LOG_PREFIX +'ICE candidate received: '+ e.candidate.candidate);
         }
       } else if (self.onIceCompleted !== undefined) {
+        if(e.candidate) {
+          self.peerConnection.addIceCandidate(new ExSIP.WebRTC.RTCIceCandidate(e.candidate));
+        }
         self.onIceCompleted();
       }
     };
@@ -4124,6 +4141,7 @@ return DTMF;
       console.log(LOG_PREFIX+"accepting re-INVITE");
     }
 
+    self.rtcMediaHandler.resetOfferIce();
     this.rtcMediaHandler.onMessage(
       'offer',
       self.request.body,
@@ -4170,11 +4188,11 @@ return DTMF;
           self.timers.ackTimer = window.setTimeout(function() {
               if(self.status === C.STATUS_WAITING_FOR_ACK) {
                 if(self.ua.isDebug()) {
-                  console.log(LOG_PREFIX + 'no ACK received, terminating the call');
+                  console.log(LOG_PREFIX + 'no ACK received');
                 }
-                window.clearTimeout(self.timers.invite2xxTimer);
-                self.sendBye();
-                self.ended('remote', null, ExSIP.C.causes.NO_ACK);
+//                window.clearTimeout(self.timers.invite2xxTimer);
+//                self.sendBye();
+//                self.ended('remote', null, ExSIP.C.causes.NO_ACK);
               }
             },
             ExSIP.Timers.TIMER_H
@@ -5548,6 +5566,10 @@ ExSIP.Message = Message;
     };
 
     UA.prototype.getUserMedia = function(options, success, failure) {
+      if(this.localMedia) {
+        return this.localMedia;
+      }
+
       var self = this;
       var constraints = options.mediaConstraints || {audio: true, video: true};
       ExSIP.WebRTC.getUserMedia(constraints,
@@ -7473,6 +7495,15 @@ else if (window.mozRTCPeerConnection) {
 }
 else if (window.RTCPeerConnection) {
   WebRTC.RTCPeerConnection = window.RTCPeerConnection;
+}
+
+// RTCIceCandidate
+if (window.RTCIceCandidate) {
+  WebRTC.RTCIceCandidate = window.RTCIceCandidate;
+}
+else {
+  console.log("WebRTC.RTCIceCandidate undefined");
+  WebRTC.RTCIceCandidate = function(){};
 }
 
 // RTCSessionDescription

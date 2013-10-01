@@ -11,7 +11,8 @@
 
   Video.prototype = {
     updateSessionStreams: function(rtcSession) {
-      this.updateStreams(rtcSession.getLocalStreams(), rtcSession.getRemoteStreams());
+      this.updateStreams(rtcSession ? rtcSession.getLocalStreams() : null,
+        rtcSession ? rtcSession.getRemoteStreams() : null);
     },
 
     updateStreams: function(localStreams, remoteStreams) {
@@ -23,7 +24,7 @@
     },
 
     setVideoStream: function(video, streams) {
-      var hasStream = streams.length > 0 && !streams[0].ended;
+      var hasStream = streams && streams.length > 0 && !streams[0].ended;
       if (video.mozSrcObject !== undefined) {
         if(hasStream) {
           video.mozSrcObject = streams[0];
