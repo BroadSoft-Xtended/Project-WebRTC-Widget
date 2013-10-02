@@ -67,7 +67,7 @@
       $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || this.configuration.transmitVGA);
       $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || this.configuration.transmitHD);
       $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
-      $("#settingColor").val($.cookie('settingColor') || this.configuration.color);
+      $("#settingColor").val($.cookie('settingColor') || this.configuration.color || $('body').css('backgroundColor'));
       $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || ClientConfig.enableAutoAnswer );
       if ($("#localVideo").position().top !== 0 && $("#localVideo").position().left !== 0)
       {

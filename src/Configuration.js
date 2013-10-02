@@ -19,7 +19,7 @@
     this.maxCallLength = WebRTC.Utils.getSearchVariable("maxCallLength");
     this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
-    this.color = WebRTC.Utils.colorNameToHex(WebRTC.Utils.getSearchVariable("color")) || $.cookie('settingColor') || '#ffffff';
+    this.color = WebRTC.Utils.colorNameToHex(WebRTC.Utils.getSearchVariable("color")) || $.cookie('settingColor');
 
     // Client Variables
     this.timerRunning = false;
