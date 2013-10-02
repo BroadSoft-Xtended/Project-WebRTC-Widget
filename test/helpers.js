@@ -70,12 +70,13 @@ TestWebrtc.Helpers = {
         setRemoteDescription: function(description, success, failure){console.log("-- RTCPeerConnection.setRemoteDescription() : "+ExSIP.Utils.toString(description));this.remoteDescription = description; success();},
         addStream: function(){console.log("-- RTCPeerConnection.addStream()")},
         createOffer: function(success){console.log("-- RTCPeerConnection.createOffer()"); success(new ExSIP.WebRTC.RTCSessionDescription());},
+        createAnswer: function(success){console.log("-- RTCPeerConnection.createAnswer()"); success(new ExSIP.WebRTC.RTCSessionDescription());},
         setLocalDescription: function(description){console.log("-- RTCPeerConnection.setLocalDescription() : "+ExSIP.Utils.toString(description));this.localDescription = description;}
       }
     };
     ExSIP.WebRTC.getUserMedia = function(constraints, success, failure){
-        console.log('-- getUserMedia ');
-        success();
+      console.log('-- getUserMedia ');
+      success();
     };
     ExSIP.WebRTC.isSupported = true;
   },

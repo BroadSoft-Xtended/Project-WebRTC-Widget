@@ -12,6 +12,7 @@
   Client = function() {
     this.configuration = new WebRTC.Configuration();
     this.sound = new WebRTC.Sound();
+    this.settings = new WebRTC.Settings(this.configuration, this.sound);
     this.stats = new WebRTC.Stats(this);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.video = new WebRTC.Video();
@@ -19,7 +20,6 @@
     this.sipStack = null;
     this.rtcSession = null;
     this.fullScreen = false;
-    this.settingsToggled = false;
 
     this.registerListeners();
 
@@ -650,57 +650,6 @@
         self.sound.playClick();
         $("#dialpad, #dialpadIconHide").fadeOut(1000);
         $("#dialpadIconShow").fadeIn(1000);
-      });
-
-      $("#settings").bind('click', function(e)
-      {
-        e.preventDefault();
-        self.sound.playClick();
-        if (self.settingsToggled === false)
-        {
-          if ((self.configuration.displayName !== "false"))
-          {
-            $("#settingDisplayName").val(self.configuration.displayName);
-          }
-          $("#settingUserid").val(self.configuration.userid);
-          $("#settingPassword").val(self.configuration.password);
-          $("#settingSelfViewDisable").prop('checked', ($.cookie('settingSelfViewDisable') === "true"));
-          $("#settingHD").prop('checked', ($.cookie('settingHD') === "true"));
-          $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || self.configuration.transmitVGA);
-          $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || self.configuration.transmitHD);
-          $("#settingSize").val($.cookie('settingSize') || self.configuration.size);
-          $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || ClientConfig.enableAutoAnswer );
-          if ($("#localVideo").position().top !== 0 && $("#localVideo").position().left !== 0)
-          {
-            $("#settingLocalVideoTop").val($("#localVideo").position().top);
-            $("#settingLocalVideoLeft").val($("#localVideo").position().left);
-          }
-          if ($("#callHistory").position().top !== 0 && $("#callHistory").position().left !== 0)
-          {
-            $("#settingCallHistoryTop").val($("#callHistory").position().top);
-            $("#settingCallHistoryLeft").val($("#callHistory").position().left);
-          }
-          if ($("#callStats").position().top !== 0 && $("#callStats").position().left !== 0)
-          {
-            $("#settingCallStatsTop").val($("#callStats").position().top);
-            $("#settingCallStatsLeft").val($("#callStats").position().left);
-          }
-          $("#settingsPopup").fadeIn(1000);
-        }
-        else if (self.settingsToggled === true)
-        {
-          $("#settingsPopup").fadeOut(100);
-        }
-        self.settingsToggled = !self.settingsToggled;
-      });
-
-      $("#saveSettings").bind('click', function(e)
-      {
-        e.preventDefault();
-        self.sound.playClick();
-        self.configuration.persist();
-        $("#settingsPopup").fadeOut(100);
-        location.reload(0);
       });
 
       $("#historyClose").bind('click', function(e)

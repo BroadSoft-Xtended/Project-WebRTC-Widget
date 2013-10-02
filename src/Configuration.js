@@ -3,10 +3,11 @@
  */
 
 (function(WebRTC) {
-  var Configuration;
-//    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
+  var Configuration,
+    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
   Configuration = function() {
+    console.log(LOG_PREFIX+'window.location.search : '+window.location.search);
     // Default URL variables
     this.register = (WebRTC.Utils.getSearchVariable("register") === "true");
     this.password = WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');
@@ -18,6 +19,7 @@
     this.maxCallLength = WebRTC.Utils.getSearchVariable("maxCallLength");
     this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
+    this.color = WebRTC.Utils.colorNameToHex(WebRTC.Utils.getSearchVariable("color")) || $.cookie('settingColor') || '#ffffff';
 
     // Client Variables
     this.timerRunning = false;
@@ -87,6 +89,7 @@
     $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: ClientConfig.expires });
     $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
     $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
+    $.cookie("settingColor", ($("#settingColor")[0].value), { expires: ClientConfig.expires });
     $.cookie("settingSize", ($("#settingSize").val()), { expires: ClientConfig.expires });
     $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: ClientConfig.expires });
     $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +

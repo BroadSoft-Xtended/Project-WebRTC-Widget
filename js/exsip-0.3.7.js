@@ -3487,7 +3487,6 @@ RTCMediaHandler.prototype = {
       }
     };
 
-    var mediaConstraints = {'mandatory': {'OfferToReceiveAudio':true, 'OfferToReceiveVideo':true}};
     this.peerConnection.createOffer(
       function(sessionDescription){
         self.setLocalDescription(
@@ -3499,7 +3498,7 @@ RTCMediaHandler.prototype = {
         logger.error('unable to create offer');
         logger.error(e);
         onFailure();
-      }, mediaConstraints);
+      } );
   },
 
   createAnswer: function(onSuccess, onFailure) {
@@ -3596,6 +3595,30 @@ RTCMediaHandler.prototype = {
       }
     };
 
+    this.peerConnection.oniceconnectionstatechange = function(e) {
+      if(self.session.ua.isDebug()) {
+        logger.log('oniceconnectionstatechange: '+ ExSIP.Utils.toString(e));
+      }
+    };
+
+    this.peerConnection.onnegotiationneeded = function(e) {
+      if(self.session.ua.isDebug()) {
+        logger.log('onnegotiationneeded:: '+ ExSIP.Utils.toString(e));
+      }
+    };
+
+    this.peerConnection.onsignalingstatechange = function(e) {
+      if(self.session.ua.isDebug()) {
+        logger.log('onsignalingstatechange:: '+ ExSIP.Utils.toString(e));
+      }
+    };
+
+    this.peerConnection.ondatachannel = function(e) {
+      if(self.session.ua.isDebug()) {
+        logger.log('ondatachannel:: '+ ExSIP.Utils.toString(e));
+      }
+    };
+
     this.setOnIceCandidateCallback();
 
     // To be deprecated as per https://code.google.com/p/webrtc/issues/detail?id=1393
@@ -3633,7 +3656,7 @@ RTCMediaHandler.prototype = {
         if(self.session.ua.isDebug()){
           logger.log('onIceCompleted with sent : '+ sent+" and candidate : "+ExSIP.Utils.toString(e.candidate));
         }
-        if(!sent) {
+        if(!sent && e.srcElement.iceGatheringState === 'complete') {
           self.onIceCompleted();
           sent = true;
         }
@@ -4282,10 +4305,24 @@ return DTMF;
       self.request.reply(488);
     };
 
-    this.rtcMediaHandler.onMessage(
-      'offer',
-      self.request.body,
-      onMessageSuccess, onMessageFailure
+    var streamAdditionSuccess = function() {
+      self.rtcMediaHandler.onMessage(
+        'offer',
+        self.request.body,
+        onMessageSuccess, onMessageFailure
+      );
+    };
+
+    var streamAdditionFailed = function() {
+      if (self.status === C.STATUS_TERMINATED) {
+        return;
+      }
+
+      self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
+    };
+
+    this.rtcMediaHandler.addStream(this.rtcMediaHandler.localMedia,
+      streamAdditionSuccess, streamAdditionFailed
     );
   };
 

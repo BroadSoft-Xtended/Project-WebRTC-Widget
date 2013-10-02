@@ -5,6 +5,7 @@ module.exports = function(grunt) {
   var srcFiles = [
     'src/WebRTC.js',
     'src/Configuration.js',
+    'src/Settings.js',
     'src/History.js',
     'src/Timer.js',
     'src/Stats.js',
@@ -105,7 +106,8 @@ module.exports = function(grunt) {
           "RTCPeerConnection": true,
           "ExSIP": true,
           "detect": true,
-          "ClientConfig": true
+          "ClientConfig": true,
+          "spectrum": true
         }
       },
       globals: {}
@@ -148,7 +150,7 @@ module.exports = function(grunt) {
       }
     },
     qunit: {
-      connectLocal: ['test/run-TestConnectLocal.html']
+      connectLocal: ['test/run-TestClient.html']
     }
   });
 
