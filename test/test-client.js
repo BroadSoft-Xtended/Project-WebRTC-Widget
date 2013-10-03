@@ -1,4 +1,4 @@
-module( "client", {
+module( "Settings", {
   setup: function() {
   }, teardown: function() {
   }
@@ -12,5 +12,17 @@ test('with color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "red" : false;}
   client = new WebRTC.Client();
   strictEqual(client.configuration.color, '#ff0000');
+});
+
+module( "Timer", {
+  setup: function() {
+    TestWebrtc.Helpers.mockWebRTC();
+  }, teardown: function() {
+  }
+});
+test('format', function() {
+  client = new WebRTC.Client();
+  client.sipStack.emit('connected');
+  strictEqual($("#timer").text(), '');
 });
 

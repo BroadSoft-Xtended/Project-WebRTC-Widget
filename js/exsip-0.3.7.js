@@ -3528,7 +3528,7 @@ RTCMediaHandler.prototype = {
 
   setLocalDescription: function(sessionDescription, onFailure) {
     if(this.session.ua.isDebug()){
-      logger.log('peerConnection.setLocalDescription : '+sessionDescription.sdp);
+      logger.log('peerConnection.setLocalDescription : '+ExSIP.Utils.toString(sessionDescription));
     }
     this.peerConnection.setLocalDescription(
       sessionDescription,
@@ -3552,6 +3552,28 @@ RTCMediaHandler.prototype = {
     }
 
     onSuccess();
+  },
+
+  clearStreams: function() {
+    if(!this.localMedia) {
+      return;
+    }
+    if(this.removeStream(this.localMedia)) {
+      this.localMedia = null;
+    }
+    return;
+  },
+
+  removeStream: function(stream) {
+    try {
+      this.peerConnection.removeStream(stream);
+    } catch(e) {
+      logger.error('error removing stream');
+      logger.error(e);
+      return false;
+    }
+
+    return true;
   },
 
   /**
@@ -3650,15 +3672,16 @@ RTCMediaHandler.prototype = {
           logger.log('ICE candidate received: '+ e.candidate.candidate);
         }
       } else if (self.onIceCompleted !== undefined) {
-        if(e.candidate) {
-          self.peerConnection.addIceCandidate(new ExSIP.WebRTC.RTCIceCandidate(e.candidate));
-        }
+//        if(e.candidate) {
+//          self.peerConnection.addIceCandidate(new ExSIP.WebRTC.RTCIceCandidate(e.candidate));
+//        }
         if(self.session.ua.isDebug()){
           logger.log('onIceCompleted with sent : '+ sent+" and candidate : "+ExSIP.Utils.toString(e.candidate));
         }
-        if(!sent && e.srcElement.iceGatheringState === 'complete') {
-          self.onIceCompleted();
+//        if(!sent && e.srcElement.iceGatheringState === 'complete') {
+        if(!sent) {
           sent = true;
+          self.onIceCompleted();
         }
       }
     };

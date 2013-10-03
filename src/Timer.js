@@ -39,12 +39,11 @@
 // Display the timer on the screen
     runningTimer: function()
     {
-      var seconds = -1, self = this;
+      var startTime = new Date().getTime(), self = this;
       return function ()
       {
-        ++seconds;
-        var secs = seconds;
-        if (self.configuration.maxCallLength && seconds >= self.configuration.maxCallLength)
+        var secs = Math.round((new Date().getTime() - startTime) / 1000);
+        if (self.configuration.maxCallLength && secs >= self.configuration.maxCallLength)
         {
           self.client.rtcSession.terminate();
           self.client.endCall();
