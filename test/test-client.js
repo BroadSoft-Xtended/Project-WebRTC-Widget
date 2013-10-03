@@ -13,6 +13,11 @@ test('with color url param', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.color, '#ff0000');
 });
+test('with color url param as hex', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "d0d0d0" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.color, '#d0d0d0');
+});
 
 module( "Timer", {
   setup: function() {

@@ -111,7 +111,11 @@ Utils= {
       return colors[color.toLowerCase()];
     }
 
-    return false;
+    return this.isHexColor(color) ? (color.indexOf("#") !== -1 ? color : "#"+color) : false;
+  },
+
+  isHexColor: function(color) {
+    return (/(^#?[0-9A-F]{6}$)|(^#?[0-9A-F]{3}$)/i.test(color));
   }
 
 };
