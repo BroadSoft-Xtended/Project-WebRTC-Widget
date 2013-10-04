@@ -10,9 +10,11 @@
     LOG_PREFIX = WebRTC.name +' | '+ 'Client' +' | ';
 
   Client = function() {
+    this.localVideo = $("#localVideo");
+
     this.configuration = new WebRTC.Configuration();
     this.sound = new WebRTC.Sound();
-    this.settings = new WebRTC.Settings(this.configuration, this.sound);
+    this.settings = new WebRTC.Settings(this, this.configuration, this.sound);
     this.stats = new WebRTC.Stats(this);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.video = new WebRTC.Video();
@@ -20,6 +22,7 @@
     this.sipStack = null;
     this.rtcSession = null;
     this.fullScreen = false;
+
 
     this.registerListeners();
 
@@ -40,7 +43,7 @@
       {
         $(function()
         {
-          $("#localVideo").draggable({
+          self.localVideo.draggable({
             snap: "#remoteVideo",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });

@@ -9,9 +9,10 @@
   var Settings,
     LOG_PREFIX = WebRTC.name +' | '+ 'Settings' +' | ';
 
-  Settings = function(configuration, sound) {
+  Settings = function(client, configuration, sound) {
     this.configuration = configuration;
     this.sound = sound;
+    this.client = client;
     this.toggled = false;
     this.userid = $("#settingUserid");
     this.localVideoTop = $("#settingLocalVideoTop");
@@ -75,10 +76,10 @@
       this.updateViewPositions();
     },
     updateViewPositions: function(){
-      if ($("#localVideo").position().top !== 0 && $("#localVideo").position().left !== 0)
+      if (this.client.localVideo.position().top !== 0 && this.client.localVideo.position().left !== 0)
       {
-        this.localVideoTop.val($("#localVideo").position().top);
-        this.localVideoLeft.val($("#localVideo").position().left);
+        this.localVideoTop.val(this.client.localVideo.position().top);
+        this.localVideoLeft.val(this.client.localVideo.position().left);
       }
       if ($("#callHistory").position().top !== 0 && $("#callHistory").position().left !== 0)
       {

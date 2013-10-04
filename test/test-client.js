@@ -33,7 +33,7 @@ test('persist with userid set', function() {
 });
 test('updates localVideo top and left setting after drag', function() {
   client = new WebRTC.Client();
-  $("#localVideo").simulate( "drag", {dx: 50, dy: 100 });
+  client.localVideo.simulate( "drag", {dx: 50, dy: 100 });
   strictEqual(client.settings.localVideoLeft.val(), "55");
   strictEqual(client.settings.localVideoTop.val(), "484");
 });
