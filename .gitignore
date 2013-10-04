@@ -3,4 +3,5 @@
 /dist
 /src/config.js
 /js/client-config.js
+/js/webrtc.js
 index-dev.html
