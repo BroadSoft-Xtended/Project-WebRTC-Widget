@@ -31,6 +31,16 @@ test('format', function() {
   strictEqual($("#timer").text(), '');
 });
 
+//module( "Client", {
+//  setup: function() {
+//  }, teardown: function() {
+//  }
+//});
+//test('call with hide param', function() {
+//  WebRTC.Utils.getSearchVariable = function(name){ return name === "hide" ? "true" : false;}
+//  client = new WebRTC.Client();
+//});
+
 module( "Configuration", {
   setup: function() {
   }, teardown: function() {
@@ -56,6 +66,13 @@ test('persist', function() {
   client = new WebRTC.Client();
   client.configuration.persist();
   strictEqual($.cookie("settingUserid"), "");
+  strictEqual($.cookie("settingPassword"), "");
+});
+test('persist with userid set', function() {
+  client = new WebRTC.Client();
+  $("#settingUserid").val('someuserid');
+  client.configuration.persist();
+  strictEqual($.cookie("settingUserid"), "someuserid");
   strictEqual($.cookie("settingPassword"), "");
 });
 
