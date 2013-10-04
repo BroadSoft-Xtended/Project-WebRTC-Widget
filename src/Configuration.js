@@ -118,23 +118,6 @@
       }
       options["disableICE"] = this.disableICE;
       return options;
-    },
-
-    persist: function(){
-      $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: ClientConfig.expires });
-      $.cookie("settingUserid", ($("#settingUserid").val()),  { expires: ClientConfig.expires });
-      $.cookie("settingPassword", ($("#settingPassword").val()), { expires: ClientConfig.expires });
-      $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: ClientConfig.expires });
-      $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: ClientConfig.expires });
-      $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: ClientConfig.expires });
-      $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
-      $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
-      $.cookie("settingColor", ($("#settingColor").val()), { expires: ClientConfig.expires });
-      $.cookie("settingSize", ($("#settingSize").val()), { expires: ClientConfig.expires });
-      $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: ClientConfig.expires });
-      $.cookie("settingWindowPosition", "#localVideo" + "-" + $("#settingLocalVideoTop").val() + "-" + $("#settingLocalVideoLeft").val() + "|" +
-        "#callHistory" + "-" + $("#settingCallHistoryTop").val() + "-" + $("#settingCallHistoryLeft").val() + "|" +
-        "#callStats" + "-" + $("#settingCallStatsTop").val() + "-" + $("#settingCallStatsLeft").val());
     }
   };
   WebRTC.Configuration = Configuration;

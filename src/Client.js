@@ -40,9 +40,16 @@
       {
         $(function()
         {
-          $("#localVideo").draggable();
-          $("#callStats").draggable();
-          $("#callHistory").draggable();
+          $("#localVideo").draggable({
+            snap: "#video",
+            stop: function( event, ui ) {self.settings.updateViewPositions();}
+          });
+          $("#callStats").draggable({
+            stop: function( event, ui ) {self.settings.updateViewPositions();}
+          });
+          $("#callHistory").draggable({
+            stop: function( event, ui ) {self.settings.updateViewPositions();}
+          });
         });
       }
 

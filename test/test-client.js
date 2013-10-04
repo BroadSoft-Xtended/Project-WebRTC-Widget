@@ -18,6 +18,25 @@ test('with color url param as hex', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.color, '#d0d0d0');
 });
+test('persist', function() {
+  client = new WebRTC.Client();
+  client.settings.persist();
+  strictEqual($.cookie("settingUserid"), "");
+  strictEqual($.cookie("settingPassword"), "");
+});
+test('persist with userid set', function() {
+  client = new WebRTC.Client();
+  $("#settingUserid").val('someuserid');
+  client.settings.persist();
+  strictEqual($.cookie("settingUserid"), "someuserid");
+  strictEqual($.cookie("settingPassword"), "");
+});
+test('updates localVideo top and left setting after drag', function() {
+  client = new WebRTC.Client();
+  $("#localVideo").simulate( "drag", {dx: 10, dy: 10 });
+  strictEqual(client.settings.localVideoLeft.val(), "15");
+  strictEqual(client.settings.localVideoTop.val(), "405");
+});
 
 module( "Timer", {
   setup: function() {
@@ -57,22 +76,9 @@ test('register', function() {
 test('register after persist', function() {
   client = new WebRTC.Client();
   strictEqual(client.sipStack.configuration.register, false);
-  client.configuration.persist();
+  client.settings.persist();
 
   client = new WebRTC.Client();
   strictEqual(client.sipStack.configuration.register, false);
-});
-test('persist', function() {
-  client = new WebRTC.Client();
-  client.configuration.persist();
-  strictEqual($.cookie("settingUserid"), "");
-  strictEqual($.cookie("settingPassword"), "");
-});
-test('persist with userid set', function() {
-  client = new WebRTC.Client();
-  $("#settingUserid").val('someuserid');
-  client.configuration.persist();
-  strictEqual($.cookie("settingUserid"), "someuserid");
-  strictEqual($.cookie("settingPassword"), "");
 });
 
