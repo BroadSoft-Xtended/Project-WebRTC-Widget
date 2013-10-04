@@ -31,3 +31,31 @@ test('format', function() {
   strictEqual($("#timer").text(), '');
 });
 
+module( "Configuration", {
+  setup: function() {
+  }, teardown: function() {
+  }
+});
+test('userid', function() {
+  client = new WebRTC.Client();
+  ok("chooses random userid", client.configuration.userid !== undefined);
+});
+test('register', function() {
+  client = new WebRTC.Client();
+  strictEqual(client.sipStack.configuration.register, false);
+});
+test('register after persist', function() {
+  client = new WebRTC.Client();
+  strictEqual(client.sipStack.configuration.register, false);
+  client.configuration.persist();
+
+  client = new WebRTC.Client();
+  strictEqual(client.sipStack.configuration.register, false);
+});
+test('persist', function() {
+  client = new WebRTC.Client();
+  client.configuration.persist();
+  strictEqual($.cookie("settingUserid"), "");
+  strictEqual($.cookie("settingPassword"), "");
+});
+

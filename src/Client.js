@@ -353,43 +353,9 @@
     onLoad: function(userid, password) {
       var self = this;
       console.log(LOG_PREFIX +"onLoad");
-      var sip_uri = null;
-      // Config settings
-      if ((userid.indexOf("@") === -1))
-      {
-        sip_uri = (userid + "@" + ClientConfig.domainFrom);
-      }
-      else
-      {
-        sip_uri = userid;
-      }
-      var config  =
-      {
-        'uri': sip_uri,
-        'ws_servers': ClientConfig.websocketsType + "://" + ClientConfig.websocketsGateway + ":" + ClientConfig.websocketsPort,
-        'stun_servers': 'stun:' + ClientConfig.stunServer + ':' + ClientConfig.stunPort,
-        'trace_sip': ClientConfig.debug
-      };
-
-      // Add Display Name if set
-      if (this.configuration.displayName.indexOf("false") === -1)
-      {
-        config.display_name = this.configuration.displayName;
-      }
-
-      // Modify config object based password
-      if (password === false || password === undefined)
-      {
-        config.register = false;
-      }
-      else
-      {
-        config.register = true,
-          config.password = password;
-      }
 
       // SIP stack
-      this.sipStack = new ExSIP.UA(config);
+      this.sipStack = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));
 
       this.updateRtcMediaHandlerOptions();
 
