@@ -10,13 +10,15 @@
     LOG_PREFIX = WebRTC.name +' | '+ 'Settings' +' | ';
 
   Settings = function(client, configuration, sound) {
+    this.localVideoTop = $("#settingLocalVideoTop");
+    this.localVideoLeft = $("#settingLocalVideoLeft");
+    this.userid = $("#settingUserid");
+    this.save = $("#saveSettings");
+
     this.configuration = configuration;
     this.sound = sound;
     this.client = client;
     this.toggled = false;
-    this.userid = $("#settingUserid");
-    this.localVideoTop = $("#settingLocalVideoTop");
-    this.localVideoLeft = $("#settingLocalVideoLeft");
 
     this.registerListeners();
     this.initUi();
@@ -45,11 +47,11 @@
       $("#settingColor").bind('change', function(e){
         self.updatePageColor();
       });
-      $("#saveSettings").bind('click', function(e)
+      this.save.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
-        self.configuration.persist();
+        self.persist();
         $("#settingsPopup").fadeOut(100);
         location.reload(0);
       });

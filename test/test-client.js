@@ -1,5 +1,6 @@
 module( "Settings", {
   setup: function() {
+    TestWebrtc.Helpers.mockSound();
   }, teardown: function() {
   }
 });
@@ -20,14 +21,14 @@ test('with color url param as hex', function() {
 });
 test('persist', function() {
   client = new WebRTC.Client();
-  client.settings.persist();
+  client.settings.save.trigger("click");
   strictEqual($.cookie("settingUserid"), "");
   strictEqual($.cookie("settingPassword"), "");
 });
 test('persist with userid set', function() {
   client = new WebRTC.Client();
-  $("#settingUserid").val('someuserid');
-  client.settings.persist();
+  client.settings.userid.val('someuserid');
+  client.settings.save.trigger("click");
   strictEqual($.cookie("settingUserid"), "someuserid");
   strictEqual($.cookie("settingPassword"), "");
 });

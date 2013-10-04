@@ -60,6 +60,10 @@ TestWebrtc.Helpers = {
     session.rtcMediaHandler.peerConnection.onicecandidate({e:null});
   },
 
+  mockSound: function(){
+    WebRTC.Sound.prototype.playClick = function(){console.log('playClick');}
+  },
+
   mockWebRTC: function(){
     ExSIP.WebRTC.RTCPeerConnection = function(){
       console.log('-- RTCPeerConnection.new()');
