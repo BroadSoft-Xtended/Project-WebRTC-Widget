@@ -12,6 +12,8 @@
   Settings = function(client, configuration, sound) {
     this.localVideoTop = $("#settingLocalVideoTop");
     this.localVideoLeft = $("#settingLocalVideoLeft");
+    this.resolutionWidth = $("#settingResolutionWidth");
+    this.resolutionHeight = $("#settingResolutionHeight");
     this.userid = $("#settingUserid");
     this.save = $("#saveSettings");
 
@@ -74,6 +76,8 @@
       $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || this.configuration.transmitHD);
       $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
       $("#settingColor").val($.cookie('settingColor') || this.configuration.color || $('body').css('backgroundColor'));
+      this.resolutionWidth.val($.cookie('settingResolutionWidth'));
+      this.resolutionHeight.val($.cookie('settingResolutionHeight'));
       $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || ClientConfig.enableAutoAnswer );
       this.updateViewPositions();
     },
@@ -104,6 +108,8 @@
       $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
       $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
       $.cookie("settingColor", ($("#settingColor").val()), { expires: ClientConfig.expires });
+      $.cookie("settingResolutionWidth", (this.resolutionWidth.val()), { expires: ClientConfig.expires });
+      $.cookie("settingResolutionHeight", (this.resolutionHeight.val()), { expires: ClientConfig.expires });
       $.cookie("settingSize", ($("#settingSize").val()), { expires: ClientConfig.expires });
       $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: ClientConfig.expires });
       $.cookie("settingWindowPosition", "#localVideo" + "-" + this.localVideoTop.val() + "-" + this.localVideoLeft.val() + "|" +

@@ -23,6 +23,7 @@
     this.rtcSession = null;
     this.fullScreen = false;
 
+    this.configuration.setSettings(this.settings);
 
     this.registerListeners();
 

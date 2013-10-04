@@ -5689,6 +5689,9 @@ ExSIP.Message = Message;
     UA.prototype.call = function(target, options) {
       var session;
 
+      if(this.isDebug()) {
+        logger.log('options : '+ExSIP.Utils.toString(options));
+      }
       session = new ExSIP.RTCSession(this);
       session.connect(target, options);
       return session;
@@ -5699,6 +5702,9 @@ ExSIP.Message = Message;
         return this.localMedia;
       }
 
+      if(this.isDebug()) {
+        logger.log('options : '+ExSIP.Utils.toString(options));
+      }
       var self = this;
       var constraints = options.mediaConstraints || {audio: true, video: true};
       ExSIP.WebRTC.getUserMedia(constraints,

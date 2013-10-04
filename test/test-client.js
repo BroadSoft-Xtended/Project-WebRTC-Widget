@@ -82,4 +82,39 @@ test('register after persist', function() {
   client = new WebRTC.Client();
   strictEqual(client.sipStack.configuration.register, false);
 });
+test('getExSIPOptions', function() {
+  client = new WebRTC.Client();
+  strictEqual(client.settings.audioOnly, undefined);
+
+  var options = {
+    mediaConstraints: { audio: true, video: true},
+    RTCConstraints: {'optional': [],'mandatory': {}}
+  };
+  deepEqual(client.configuration.getExSIPOptions(), options);
+});
+test('getExSIPOptions with resolution', function() {
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.audioOnly, false);
+  strictEqual(client.configuration.hd, "false");
+  client.settings.resolutionWidth.val('123');
+  client.settings.resolutionHeight.val('234');
+  var options = {
+    mediaConstraints: { audio: true, video: { mandatory: { minWidth: 123, minHeight: 234 }}},
+    RTCConstraints: {'optional': [],'mandatory': {}}
+  };
+  deepEqual(client.configuration.getExSIPOptions(), options);
+});
+test('getExSIPOptions with hd=true', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "true" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.audioOnly, false);
+  strictEqual(client.configuration.hd, true);
+  client.settings.resolutionWidth.val('123');
+  client.settings.resolutionHeight.val('234');
+  var options = {
+    mediaConstraints: { audio: true, video: { mandatory: { minWidth: 1280, minHeight: 720 }}},
+    RTCConstraints: {'optional': [],'mandatory': {}}
+  };
+  deepEqual(client.configuration.getExSIPOptions(), options);
+});
 

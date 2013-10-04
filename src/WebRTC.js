@@ -43,5 +43,11 @@ var WebRTC = (function() {
     }
   };
 
+  (function($){
+    $.isBlank = function(obj){
+      return(!obj || $.trim(obj) === "");
+    };
+  })(jQuery);
+
   return WebRTC;
 }());

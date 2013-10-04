@@ -30,41 +30,41 @@
 
   Configuration.prototype = {
     getExSIPOptions: function(){
-      // 720p constraints
-      var constraints = {
-        mandatory: {
-          minWidth: 1280,
-          minHeight: 720
-        }
-      };
-
-      // PeerConnection constraints
-      var hasVideo = false;
-      if (this.hd === true)
-      {
-        hasVideo = constraints;
-      }
-      else if (this.audioOnly)
-      {
-        hasVideo = false;
-      }
-      else
-      {
-        hasVideo = true;
-      }
-
       // Options Passed to ExSIP
       var options =
       {
         mediaConstraints:
         {
           audio: true,
-          video: hasVideo
+          video: this.getVideoConstraints()
         },
         RTCConstraints: {'optional': [],'mandatory': {}}
       };
 
       return options;
+    },
+
+    getVideoConstraints: function(){
+      if (this.audioOnly) {
+        return false;
+      } else {
+        var constraints = this.getResolutionConstraints();
+        return  constraints ? constraints : true;
+      }
+    },
+
+    getResolutionConstraints: function(){
+      if(this.hd === true) {
+        return { mandatory: { minWidth: 1280, minHeight: 720 }};
+      } else {
+        var width = this.settings.resolutionWidth.val();
+        var height = this.settings.resolutionHeight.val();
+        if(!$.isBlank(width) && !$.isBlank(height)) {
+          return { mandatory: { minWidth: parseInt(width, 10), minHeight: parseInt(height, 10) }};
+        } else {
+          return false;
+        }
+      }
     },
 
     getExSIPConfig: function(userid, password){
@@ -118,6 +118,10 @@
       }
       options["disableICE"] = this.disableICE;
       return options;
+    },
+
+    setSettings: function(settings){
+      this.settings = settings;
     }
   };
   WebRTC.Configuration = Configuration;
