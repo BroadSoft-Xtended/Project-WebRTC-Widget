@@ -953,6 +953,7 @@ body {
   display: none;
   position: absolute;
 	top: 10px;
+  color: #666666;
 	left: 660px;
 	width: 400px;
   padding: 2px; 	

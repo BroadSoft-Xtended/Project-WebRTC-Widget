@@ -60,7 +60,7 @@
         var width = this.settings.resolutionWidth.val();
         var height = this.settings.resolutionHeight.val();
         if(!$.isBlank(width) && !$.isBlank(height)) {
-          return { mandatory: { minWidth: parseInt(width, 10), minHeight: parseInt(height, 10) }};
+          return { mandatory: { maxWidth: parseInt(width, 10), maxHeight: parseInt(height, 10) }};
         } else {
           return false;
         }
