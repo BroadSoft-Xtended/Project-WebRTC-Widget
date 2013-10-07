@@ -39,6 +39,34 @@ test('updates localVideo top and left setting after drag', function() {
   strictEqual(client.settings.localVideoLeft.val(), "55");
   strictEqual(client.settings.localVideoTop.val(), "484");
 });
+test('setResolution with standard resolution', function() {
+  client = new WebRTC.Client();
+  client.settings.setResolution('320x240');
+  deepEqual(client.settings.resolutionType.val(), "standard");
+  deepEqual(client.settings.resolutionWidescreen.css("display"), "none");
+  deepEqual(client.settings.resolutionStandard.css("display"), "inline-block");
+});
+test('setResolution with widescreen resolution', function() {
+  client = new WebRTC.Client();
+  client.settings.setResolution('320x180');
+  deepEqual(client.settings.resolutionType.val(), "widescreen");
+  deepEqual(client.settings.resolutionWidescreen.css("display"), "inline-block");
+  deepEqual(client.settings.resolutionStandard.css("display"), "none");
+});
+test('setResolution with no resolution', function() {
+  client = new WebRTC.Client();
+  client.settings.setResolution(undefined);
+  deepEqual(client.settings.resolutionType.val(), "");
+  deepEqual(client.settings.resolutionWidescreen.css("display"), "none");
+  deepEqual(client.settings.resolutionStandard.css("display"), "none");
+});
+test('change resolution type', function() {
+  client = new WebRTC.Client();
+  client.settings.resolutionType.val('standard');
+  client.settings.resolutionType.trigger('change');
+  deepEqual(client.settings.resolutionWidescreen.css("display"), "none");
+  deepEqual(client.settings.resolutionStandard.css("display"), "inline-block");
+});
 
 module( "Timer", {
   setup: function() {
@@ -98,10 +126,9 @@ test('getExSIPOptions with resolution', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.audioOnly, false);
   strictEqual(client.configuration.hd, "false");
-  client.settings.resolutionWidth.val('123');
-  client.settings.resolutionHeight.val('234');
+  client.settings.setResolution('320x240');
   var options = {
-    mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 123, maxHeight: 234 }}},
+    mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 320, maxHeight: 240 }}},
     RTCConstraints: {'optional': [],'mandatory': {}}
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
@@ -111,8 +138,7 @@ test('getExSIPOptions with hd=true', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.audioOnly, false);
   strictEqual(client.configuration.hd, true);
-  client.settings.resolutionWidth.val('123');
-  client.settings.resolutionHeight.val('234');
+  client.settings.setResolution('960x720');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 1280, minHeight: 720 }}},
     RTCConstraints: {'optional': [],'mandatory': {}}

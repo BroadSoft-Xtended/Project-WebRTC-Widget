@@ -12,10 +12,11 @@
   Settings = function(client, configuration, sound) {
     this.localVideoTop = $("#settingLocalVideoTop");
     this.localVideoLeft = $("#settingLocalVideoLeft");
-    this.resolutionWidth = $("#settingResolutionWidth");
-    this.resolutionHeight = $("#settingResolutionHeight");
     this.userid = $("#settingUserid");
     this.save = $("#saveSettings");
+    this.resolutionType = $('#resolutionTypeSelect');
+    this.resolutionWidescreen = $('#resolutionWidescreenSelect');
+    this.resolutionStandard = $('#resolutionStandardSelect');
 
     this.configuration = configuration;
     this.sound = sound;
@@ -31,6 +32,9 @@
     registerListeners: function() {
       var self = this;
 
+      $('#resolutionTypeSelect').bind('change', function(e){
+        self.updateResolutionSelectVisibility();
+      });
       $("#settings").bind('click', function(e)
       {
         e.preventDefault();
@@ -76,8 +80,7 @@
       $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || this.configuration.transmitHD);
       $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
       $("#settingColor").val($.cookie('settingColor') || this.configuration.color || $('body').css('backgroundColor'));
-      this.resolutionWidth.val($.cookie('settingResolutionWidth'));
-      this.resolutionHeight.val($.cookie('settingResolutionHeight'));
+      this.setResolution($.cookie('settingResolution'));
       $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || ClientConfig.enableAutoAnswer );
       this.updateViewPositions();
     },
@@ -98,6 +101,39 @@
         $("#settingCallStatsLeft").val($("#callStats").position().left);
       }
     },
+    updateResolutionSelectVisibility: function(){
+      var resolutionType = this.resolutionType.val();
+      this.resolutionWidescreen.hide();
+      this.resolutionStandard.hide();
+      if(resolutionType === 'standard') {
+        this.resolutionStandard.show();
+      } else if(resolutionType === 'widescreen') {
+        this.resolutionWidescreen.show();
+      }
+    },
+
+    setResolution: function(resolution){
+      var resolutionSelect = $("option[value='"+resolution+"']").parent();
+      resolutionSelect.val(resolution);
+      if(resolutionSelect.attr('id') === this.resolutionStandard.attr('id')) {
+        this.resolutionType.val('standard');
+      } else if(resolutionSelect.attr('id') === this.resolutionWidescreen.attr('id')) {
+        this.resolutionType.val('widescreen');
+      } else {
+        this.resolutionType.val('');
+      }
+      this.updateResolutionSelectVisibility();
+    },
+    getResolution: function(){
+      var resolutionType = this.resolutionType.val();
+      if(resolutionType === 'standard') {
+        return this.resolutionStandard.val();
+      } else if(resolutionType === 'widescreen') {
+        return this.resolutionWidescreen.val();
+      } else {
+        return false;
+      }
+    },
     persist: function(){
       $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: ClientConfig.expires });
       $.cookie("settingUserid", (this.userid.val()),  { expires: ClientConfig.expires });
@@ -108,8 +144,7 @@
       $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
       $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
       $.cookie("settingColor", ($("#settingColor").val()), { expires: ClientConfig.expires });
-      $.cookie("settingResolutionWidth", (this.resolutionWidth.val()), { expires: ClientConfig.expires });
-      $.cookie("settingResolutionHeight", (this.resolutionHeight.val()), { expires: ClientConfig.expires });
+      $.cookie("settingResolution", (this.getResolution()), { expires: ClientConfig.expires });
       $.cookie("settingSize", ($("#settingSize").val()), { expires: ClientConfig.expires });
       $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: ClientConfig.expires });
       $.cookie("settingWindowPosition", "#localVideo" + "-" + this.localVideoTop.val() + "-" + this.localVideoLeft.val() + "|" +

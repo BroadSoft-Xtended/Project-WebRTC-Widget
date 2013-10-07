@@ -686,7 +686,7 @@ body {
   left: 240;
 }
 
-#settingsPopup input {
+#settingsPopup input, #settingsPopup .right {
   position: absolute;
   left: 240;
 }
@@ -1049,4 +1049,8 @@ body {
 
 .stats-graph-sub-container canvas {
     width: 100%;
+}
+
+#resolutionStandardSelect, #resolutionWidescreenSelect{
+    display:none;
 }

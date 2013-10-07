@@ -4237,8 +4237,6 @@ return DTMF;
       logger.log("accepting re-INVITE");
     }
 
-    self.rtcMediaHandler.setOnIceCandidateCallback();
-
     var replySucceeded = function() {
       var timeout = ExSIP.Timers.T1;
 
@@ -4344,9 +4342,14 @@ return DTMF;
       self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
     };
 
-    this.rtcMediaHandler.addStream(this.rtcMediaHandler.localMedia,
-      streamAdditionSuccess, streamAdditionFailed
+    var localMedia = this.rtcMediaHandler.localMedia;
+    this.rtcMediaHandler.close();
+
+    //Initialize Media Session
+    this.rtcMediaHandler = new RTCMediaHandler(this,
+      {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}
     );
+    this.rtcMediaHandler.addStream(localMedia, streamAdditionSuccess, streamAdditionFailed);
   };
 
   /**

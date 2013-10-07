@@ -107,8 +107,23 @@
     <span>Page Color</span>
     <input id="settingColor" type="color" style="width: 36px;"/><br>
     <span>Resolution</span>
-    <input id="settingResolutionWidth" type="text" maxlength="4" style="width: 36px;" value=""/><span style="position: absolute; left: 280">width</span>
-    <input id="settingResolutionHeight" type="text" maxlength="4" style="width: 36px; left: 330;" value=""/><span style="position: absolute; left: 370">height</span><br>
+      <span class="right">
+          <select id="resolutionTypeSelect">
+              <option value="">default</option>
+              <option value="standard">standard</option>
+              <option value="widescreen">widescreen</option>
+          </select>
+          <select id="resolutionStandardSelect">
+              <option value="960x720">960 x 720</option>
+              <option value="640x480">640 x 480</option>
+              <option value="320x240">320 x 240</option>
+          </select>
+          <select id="resolutionWidescreenSelect">
+              <option value="1280x720">1280 x 720</option>
+              <option value="640x360">640 x 360</option>
+              <option value="320x180">320 x 180</option>
+          </select>
+      </span>
     <div id="saveSettings">
     <a href="" title="Save Settings" class="icon-ok"></a>
     </div>

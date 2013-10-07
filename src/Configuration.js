@@ -57,10 +57,10 @@
       if(this.hd === true) {
         return { mandatory: { minWidth: 1280, minHeight: 720 }};
       } else {
-        var width = this.settings.resolutionWidth.val();
-        var height = this.settings.resolutionHeight.val();
-        if(!$.isBlank(width) && !$.isBlank(height)) {
-          return { mandatory: { maxWidth: parseInt(width, 10), maxHeight: parseInt(height, 10) }};
+        var resolution = this.settings.getResolution();
+        if(!$.isBlank(resolution)) {
+          var resolutions = resolution.split('x');
+          return { mandatory: { maxWidth: parseInt(resolutions[0], 10), maxHeight: parseInt(resolutions[1], 10) }};
         } else {
           return false;
         }
