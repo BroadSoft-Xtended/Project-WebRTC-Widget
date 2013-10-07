@@ -99,7 +99,7 @@ test('getExSIPOptions with resolution', function() {
   client.settings.resolutionWidth.val('123');
   client.settings.resolutionHeight.val('234');
   var options = {
-    mediaConstraints: { audio: true, video: { mandatory: { minWidth: 123, minHeight: 234 }}},
+    mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 123, maxHeight: 234 }}},
     RTCConstraints: {'optional': [],'mandatory': {}}
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
