@@ -1,6 +1,7 @@
 module( "Settings", {
   setup: function() {
     TestWebrtc.Helpers.mockSound();
+    TestWebrtc.Helpers.mockLocation();
   }, teardown: function() {
   }
 });
@@ -51,7 +52,7 @@ test('format', function() {
   strictEqual($("#timer").text(), '');
 });
 
-//module( "Client", {
+  //module( "Client", {
 //  setup: function() {
 //  }, teardown: function() {
 //  }
@@ -63,6 +64,8 @@ test('format', function() {
 
 module( "Configuration", {
   setup: function() {
+    TestWebrtc.Helpers.mockSound();
+    TestWebrtc.Helpers.mockLocation();
   }, teardown: function() {
   }
 });
@@ -77,8 +80,7 @@ test('register', function() {
 test('register after persist', function() {
   client = new WebRTC.Client();
   strictEqual(client.sipStack.configuration.register, false);
-  client.settings.persist();
-
+  client.settings.save.trigger("click");
   client = new WebRTC.Client();
   strictEqual(client.sipStack.configuration.register, false);
 });

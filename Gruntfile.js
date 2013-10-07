@@ -143,6 +143,15 @@ module.exports = function(grunt) {
     },
     qunit: {
       connectLocal: ['test/run-TestClient.html']
+    },
+    watch: {
+      develop: {
+        files: ['test/*.js', 'test/*.html', 'src/*.js'],
+        tasks: ['qunit'],
+        options: {
+          spawn: false
+        }
+      }
     }
   });
 
@@ -154,7 +163,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-qunit');
-
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
 
   // Task for building webrtc-devel.js (uncompressed), webrtc-X.Y.Z.js (uncompressed)

@@ -64,6 +64,10 @@ TestWebrtc.Helpers = {
     WebRTC.Sound.prototype.playClick = function(){console.log('playClick');}
   },
 
+  mockLocation: function(){
+    window.location.reload = function(){console.log('reloaded');}
+  },
+
   mockWebRTC: function(){
     ExSIP.WebRTC.RTCPeerConnection = function(){
       console.log('-- RTCPeerConnection.new()');
