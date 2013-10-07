@@ -147,7 +147,7 @@ module.exports = function(grunt) {
     watch: {
       develop: {
         files: ['test/*.js', 'test/*.html', 'src/*.js'],
-        tasks: ['qunit'],
+        tasks: ['build','qunit'],
         options: {
           spawn: false
         }
