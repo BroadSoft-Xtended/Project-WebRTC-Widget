@@ -908,7 +908,7 @@ function matchesType(label, type, statsData) {
     if(type == "video" && isVideoStats(statsData)) {
         return true;
     } else if(type == "audio" && isAudioStats(statsData)) {
-        if(label == "googJitterReceived" && !containsLabel(statsData, "googRtt")) {
+        if(label == "googJitterReceived" && !containsLabel(statsData, "audioOutputLevel")) {
             return false;
         }
         return true;
@@ -927,7 +927,7 @@ function getStatsDataType(label, statsData) {
     if(isVideoStats(statsData)) {
         return "video";
     } else if(isAudioStats(statsData)){
-        if(label == "googJitterReceived" && !containsLabel(statsData, "googRtt")) {
+        if(label == "googJitterReceived" && !containsLabel(statsData, "audioOutputLevel")) {
             return null;
         }
         return "audio";
@@ -1659,6 +1659,7 @@ function addStats(data) {
     if (!peerConnectionElement)
         return;
 
+//    console.log("addStats : "+ExSIP.Utils.toString(data));
     for (var i = 0; i < data.reports.length; ++i) {
         var report = data.reports[i];
         drawSingleReport(peerConnectionElement, report.type, report.id, report.stats);
