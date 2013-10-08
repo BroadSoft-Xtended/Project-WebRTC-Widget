@@ -57,7 +57,7 @@
       if(this.hd === true) {
         return { mandatory: { minWidth: 1280, minHeight: 720 }};
       } else {
-        var resolution = this.settings.getResolution();
+        var resolution = this.settings.getResolutionEncoding();
         if(!$.isBlank(resolution)) {
           var resolutions = resolution.split('x');
           return { mandatory: { maxWidth: parseInt(resolutions[0], 10), maxHeight: parseInt(resolutions[1], 10) }};
@@ -132,8 +132,8 @@
       return this.isHD() || this.settings.resolutionType.val() === WebRTC.C.WIDESCREEN;
     },
 
-    getResolution: function() {
-      return this.isHD() ? WebRTC.C.R_1280x720 : this.settings.getResolution();
+    getResolutionDisplay: function() {
+      return this.isHD() ? WebRTC.C.R_1280x720 : this.settings.getResolutionDisplay();
     }
   };
   WebRTC.Configuration = Configuration;

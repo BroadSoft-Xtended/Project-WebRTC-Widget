@@ -34,8 +34,10 @@
   Client.prototype = {
     initUi: function() {
       WebRTC.Utils.addSelectOptions(WebRTC.C.RESOLUTION_TYPES, "#resolutionTypeSelect");
-      WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, "#resolutionStandardSelect");
-      WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, "#resolutionWidescreenSelect");
+      WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, "#resolutionDisplayStandardSelect");
+      WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, "#resolutionDisplayWidescreenSelect");
+      WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, "#resolutionEncodingStandardSelect");
+      WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, "#resolutionEncodingWidescreenSelect");
     },
 
     init: function() {
@@ -668,11 +670,11 @@
         self.updateResolutionClass();
       });
 
-      this.settings.resolutionWidescreen.bind('change', function(e)
+      this.settings.resolutionDisplayWidescreen.bind('change', function(e)
       {
         self.updateResolutionClass();
       });
-      this.settings.resolutionStandard.bind('change', function(e)
+      this.settings.resolutionDisplayStandard.bind('change', function(e)
       {
         self.updateResolutionClass();
       });
@@ -708,7 +710,7 @@
 
     updateResolutionClass: function(){
       var mainClass = "";
-      mainClass += "r"+this.configuration.getResolution();
+      mainClass += "r"+this.configuration.getResolutionDisplay();
       $("#main").attr("class", mainClass);
     }
   };

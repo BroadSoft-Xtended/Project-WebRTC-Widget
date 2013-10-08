@@ -36,10 +36,17 @@ test('persist with userid set', function() {
 test('persist with resolution set', function() {
   client = new WebRTC.Client();
   client.settings.resolutionType.val(WebRTC.C.STANDARD);
-  client.settings.resolutionStandard.val(WebRTC.C.R_960x720);
+  client.settings.resolutionDisplayStandard.val(WebRTC.C.R_960x720);
+  client.settings.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
   client.settings.save.trigger("click");
-  strictEqual($.cookie("settingResolution"), WebRTC.C.R_960x720);
-  $.cookie("settingResolution", "");
+  strictEqual($.cookie("settingResolutionDisplay"), WebRTC.C.R_960x720);
+  strictEqual($.cookie("settingResolutionEncoding"), WebRTC.C.R_320x240);
+  client = new WebRTC.Client();
+  strictEqual(client.settings.resolutionType.val(), WebRTC.C.STANDARD);
+  strictEqual(client.settings.resolutionDisplayStandard.val(), WebRTC.C.R_960x720);
+  strictEqual(client.settings.resolutionEncodingStandard.val(), WebRTC.C.R_320x240);
+  $.cookie("settingResolutionDisplay", "");
+  $.cookie("settingResolutionEncoding", "");
 });
 test('updates localVideo top and left setting after drag', function() {
   client = new WebRTC.Client();
@@ -49,31 +56,32 @@ test('updates localVideo top and left setting after drag', function() {
 });
 test('setResolution with standard resolution', function() {
   client = new WebRTC.Client();
-  client.settings.setResolution('320x240');
+  client.settings.setResolutionDisplay(WebRTC.C.R_320x240);
+  client.settings.setResolutionEncoding(WebRTC.C.R_320x240);
   deepEqual(client.settings.resolutionType.val(), WebRTC.C.STANDARD);
-  deepEqual(client.settings.resolutionWidescreen.css("display"), "none");
-  deepEqual(client.settings.resolutionStandard.css("display"), "inline-block");
+  deepEqual(client.settings.resolutionDisplayWidescreen.css("display"), "none");
+  deepEqual(client.settings.resolutionEncodingWidescreen.css("display"), "none");
+  deepEqual(client.settings.resolutionDisplayStandard.css("display"), "inline-block");
+  deepEqual(client.settings.resolutionEncodingStandard.css("display"), "inline-block");
 });
 test('setResolution with widescreen resolution', function() {
   client = new WebRTC.Client();
-  client.settings.setResolution('320x180');
+  client.settings.setResolutionDisplay(WebRTC.C.R_320x180);
+  client.settings.setResolutionEncoding(WebRTC.C.R_320x180);
   deepEqual(client.settings.resolutionType.val(), WebRTC.C.WIDESCREEN);
-  deepEqual(client.settings.resolutionWidescreen.css("display"), "inline-block");
-  deepEqual(client.settings.resolutionStandard.css("display"), "none");
-});
-test('setResolution with no resolution', function() {
-  client = new WebRTC.Client();
-  client.settings.setResolution(undefined);
-  deepEqual(client.settings.resolutionType.val(), "");
-  deepEqual(client.settings.resolutionWidescreen.css("display"), "none");
-  deepEqual(client.settings.resolutionStandard.css("display"), "none");
+  deepEqual(client.settings.resolutionDisplayWidescreen.css("display"), "inline-block");
+  deepEqual(client.settings.resolutionEncodingWidescreen.css("display"), "inline-block");
+  deepEqual(client.settings.resolutionDisplayStandard.css("display"), "none");
+  deepEqual(client.settings.resolutionEncodingStandard.css("display"), "none");
 });
 test('change resolution type', function() {
   client = new WebRTC.Client();
   client.settings.resolutionType.val('standard');
   client.settings.resolutionType.trigger('change');
-  deepEqual(client.settings.resolutionWidescreen.css("display"), "none");
-  deepEqual(client.settings.resolutionStandard.css("display"), "inline-block");
+  deepEqual(client.settings.resolutionDisplayWidescreen.css("display"), "none");
+  deepEqual(client.settings.resolutionEncodingWidescreen.css("display"), "none");
+  deepEqual(client.settings.resolutionDisplayStandard.css("display"), "inline-block");
+  deepEqual(client.settings.resolutionEncodingStandard.css("display"), "inline-block");
 });
 
 module( "Timer", {
@@ -100,7 +108,8 @@ test('resolution class for hd=true', function() {
 });
 test('resolution class for resolution setting', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "false" : false;}
-  $.cookie("settingResolution", WebRTC.C.R_960x720);
+  $.cookie("settingResolutionDisplay", WebRTC.C.R_960x720);
+  $.cookie("settingResolutionEncoding", WebRTC.C.R_320x240);
   client = new WebRTC.Client();
   strictEqual($('#main').attr('class'), "r"+WebRTC.C.R_960x720);
 });
@@ -110,7 +119,8 @@ module( "Configuration", {
     TestWebrtc.Helpers.mockSound();
     TestWebrtc.Helpers.mockLocation();
     WebRTC.Utils.getSearchVariable = function(name){ return false;}
-    $.cookie("settingResolution", "");
+    $.cookie("settingResolutionDisplay", "");
+    $.cookie("settingResolutionEncoding", "");
   }, teardown: function() {
   }
 });
@@ -134,7 +144,7 @@ test('getExSIPOptions', function() {
   strictEqual(client.settings.audioOnly, undefined);
 
   var options = {
-    mediaConstraints: { audio: true, video: true},
+    mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 640, maxHeight: 480 }}},
     RTCConstraints: {'optional': [],'mandatory': {}}
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
@@ -143,7 +153,7 @@ test('getExSIPOptions with resolution', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.audioOnly, false);
   strictEqual(client.configuration.hd, "false");
-  client.settings.setResolution('320x240');
+  client.settings.setResolutionEncoding('320x240');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 320, maxHeight: 240 }}},
     RTCConstraints: {'optional': [],'mandatory': {}}
@@ -155,7 +165,7 @@ test('getExSIPOptions with hd=true', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.audioOnly, false);
   strictEqual(client.configuration.hd, true);
-  client.settings.setResolution('960x720');
+  client.settings.setResolutionEncoding('960x720');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 1280, minHeight: 720 }}},
     RTCConstraints: {'optional': [],'mandatory': {}}

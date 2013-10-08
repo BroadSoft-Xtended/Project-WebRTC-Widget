@@ -526,22 +526,13 @@ body {
 }
 
 #settingsPopup [type="checkbox"] {
-  position: absolute;
   width: 18;
   height: 18;
-  left: 240;
 }
 
-#settingsPopup input, #settingsPopup .right {
-  position: absolute;
-  left: 240;
+#settingsPopup .short {
+    width: 36px;
 }
-
-#saveSettings {
-  position: absolute;
-  left: 390;
-}
-
 /* Auth Button */
 #authPopup {
   display: none;
@@ -863,6 +854,6 @@ body {
     width: 100%;
 }
 
-#resolutionStandardSelect, #resolutionWidescreenSelect{
+.resolutionSubType{
     display:none;
 }

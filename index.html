@@ -74,46 +74,83 @@
     <button class="button" id="acceptReInviteCall" type="button">Accept</button>
     <button class="button" id="rejectReInviteCall" type="button">Reject</button>
   </div>
-  <div id="settingsPopup">
-    <span style="font-size: 22px; font-weight: bold; color: #FFFFFF;">Client Settings</span>
+  <div id="settingsPopup" class="table collapse fixed">
+    <span class="row" style="font-size: 22px; font-weight: bold; color: #FFFFFF;">Client Settings</span>
     <div class="row" style="height: 15px;"></div>
-    <span>Display Name</span>
-    <input id="settingDisplayName" type="text" value=""/><br>
-    <span>User ID</span>
-    <input id="settingUserid" type="text" value=""/><br>
-    <span>Password</span>
-    <input id="settingPassword" type="password" value=""/><br>
-    <span>Disable Self View</span>
-    <input id="settingSelfViewDisable" type="checkbox"/><br>
-    <span>Start in HD</span>
-    <input id="settingHD" type="checkbox"/><br>
-    <span>Max VGA Bandwidth</span>
-    <input id="settingTransmitVGA" type="text" maxlength="4" style="width: 36px;" value=""/><br>
-    <span>Max HD Bandwidth</span>
-    <input id="settingTransmitHD" type="text" maxlength="4" style="width: 36px;" value=""/><br>
-    <span>Window Zoom</span>
-    <input id="settingZoom" type="text" maxlength="4" style="width: 36px;" value=""/><br>
-    <span>Auto Answer</span>
-    <input id="settingAutoAnswer" type="checkbox"/><br>
-    <span>Self View Window</span>
-    <input id="settingLocalVideoTop" type="text" maxlength="4" style="width: 36px;" value=""/><span style="position: absolute; left: 280">top</span>
-    <input id="settingLocalVideoLeft" type="text" maxlength="4" style="width: 36px; left: 330;" value=""/><span style="position: absolute; left: 370">left</span><br>
-    <span>Call History Window</span>
-    <input id="settingCallHistoryTop" type="text" maxlength="4" style="width: 36px;" value=""/><span style="position: absolute; left: 280">top</span>
-    <input id="settingCallHistoryLeft" type="text" maxlength="4" style="width: 36px; left: 330;" value=""/><span style="position: absolute; left: 370">left</span><br>
-    <span>Call Stats Window</span>
-    <input id="settingCallStatsTop" type="text" maxlength="4" style="width: 36px;" value=""/><span style="position: absolute; left: 280">top</span>
-    <input id="settingCallStatsLeft" type="text" maxlength="4" style="width: 36px; left: 330;" value=""/><span style="position: absolute; left: 370">left</span><br>
-    <span>Page Color</span>
-    <input id="settingColor" type="color" style="width: 36px;"/><br>
-    <span>Resolution</span>
-      <span class="right">
-          <select id="resolutionTypeSelect"></select>
-          <select id="resolutionStandardSelect"></select>
-          <select id="resolutionWidescreenSelect"></select>
+    <div class="row">
+        <span class="cell" style="width:250px">Display Name</span>
+        <input class="cell" id="settingDisplayName" type="text" value=""/>
+    </div>
+    <div class="row">
+        <span class="cell">User ID</span>
+        <input class="cell" id="settingUserid" type="text" value=""/>
+    </div>
+    <div class="row">
+        <span class="cell">Password</span>
+        <input class="cell" id="settingPassword" type="password" value=""/>
+    </div>
+    <div class="row">
+        <span class="cell">Disable Self View</span>
+        <input class="cell" id="settingSelfViewDisable" type="checkbox"/>
+    </div>
+    <div class="row">
+        <span class="cell">Start in HD</span>
+        <input class="cell" id="settingHD" type="checkbox"/><br>
+    </div>
+    <div class="row">
+        <span class="cell">Max VGA Bandwidth</span>
+        <input class="cell short" id="settingTransmitVGA" type="text" maxlength="4" value=""/>
+    </div>
+    <div class="row">
+        <span class="cell">Max HD Bandwidth</span>
+        <input class="cell short" id="settingTransmitHD" type="text" maxlength="4" value=""/>
+    </div>
+    <div class="row">
+        <span class="cell">Window Zoom</span>
+        <input class="cell short" id="settingZoom" type="text" maxlength="4" value=""/>
+    </div>
+    <div class="row">
+        <span class="cell">Auto Answer</span>
+        <input class="cell" id="settingAutoAnswer" type="checkbox"/>
+    </div>
+    <div class="row">
+        <span class="cell">Self View Window</span>
+        <span class="cell">
+            <input id="settingLocalVideoTop" class="short" type="text" maxlength="4" value=""/><span> top </span>
+            <input id="settingLocalVideoLeft" class="short" type="text" maxlength="4" value=""/><span> left </span>
+        </span>
+    </div>
+    <div class="row">
+        <span class="cell">Call History Window</span>
+        <span class="cell">
+            <input id="settingCallHistoryTop" class="short" type="text" maxlength="4" value=""/><span> top </span>
+            <input id="settingCallHistoryLeft" class="short" type="text" maxlength="4" value=""/><span> left </span>
+        </span>
+    </div>
+    <div class="row">
+        <span class="cell">Call Stats Window</span>
+        <span class="cell">
+            <input id="settingCallStatsTop" class="short" type="text" maxlength="4" value=""/><span> top </span>
+            <input id="settingCallStatsLeft" class="short" type="text" maxlength="4" value=""/><span> left </span>
+        </span>
+    </div>
+    <div class="row">
+        <span class="cell">Page Color</span>
+        <input class="cell" id="settingColor" type="color" /><br>
+    </div>
+    <div class="row">
+      <span class="cell">Resolution</span>
+      <span class="cell">
+          <select id="resolutionTypeSelect"></select> type<br>
+          <select id="resolutionDisplayStandardSelect" class="resolutionSubType"></select>
+          <select id="resolutionDisplayWidescreenSelect" class="resolutionSubType"></select> display<br>
+          <select id="resolutionEncodingStandardSelect" class="resolutionSubType"></select>
+          <select id="resolutionEncodingWidescreenSelect" class="resolutionSubType"></select> encoding<br>
       </span>
-    <div id="saveSettings">
-    <a href="" title="Save Settings" class="icon-ok"></a>
+    </div>
+    <div class="row">
+        <span class="cell"></span>
+        <a id="saveSettings" href="" title="Save Settings" class="cell icon-ok" style="text-align: right;"></a>
     </div>
   </div>
   <div id="video">

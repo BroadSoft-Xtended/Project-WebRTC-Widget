@@ -15,8 +15,10 @@
     this.userid = $("#settingUserid");
     this.save = $("#saveSettings");
     this.resolutionType = $('#resolutionTypeSelect');
-    this.resolutionWidescreen = $('#resolutionWidescreenSelect');
-    this.resolutionStandard = $('#resolutionStandardSelect');
+    this.resolutionDisplayWidescreen = $('#resolutionDisplayWidescreenSelect');
+    this.resolutionDisplayStandard = $('#resolutionDisplayStandardSelect');
+    this.resolutionEncodingWidescreen = $('#resolutionEncodingWidescreenSelect');
+    this.resolutionEncodingStandard = $('#resolutionEncodingStandardSelect');
 
     this.configuration = configuration;
     this.sound = sound;
@@ -80,7 +82,8 @@
       $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || this.configuration.transmitHD);
       $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
       $("#settingColor").val($.cookie('settingColor') || this.configuration.color || $('body').css('backgroundColor'));
-      this.setResolution($.cookie('settingResolution'));
+      this.setResolutionDisplay($.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+      this.setResolutionEncoding($.cookie('settingResolutionEncoding') || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
       $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || ClientConfig.enableAutoAnswer );
       this.updateViewPositions();
     },
@@ -103,33 +106,49 @@
     },
     updateResolutionSelectVisibility: function(){
       var resolutionType = this.resolutionType.val();
-      this.resolutionWidescreen.hide();
-      this.resolutionStandard.hide();
+      this.resolutionDisplayWidescreen.hide();
+      this.resolutionDisplayStandard.hide();
+      this.resolutionEncodingWidescreen.hide();
+      this.resolutionEncodingStandard.hide();
       if(resolutionType === WebRTC.C.STANDARD) {
-        this.resolutionStandard.show();
+        this.resolutionDisplayStandard.show();
+        this.resolutionEncodingStandard.show();
       } else if(resolutionType === WebRTC.C.WIDESCREEN) {
-        this.resolutionWidescreen.show();
+        this.resolutionDisplayWidescreen.show();
+        this.resolutionEncodingWidescreen.show();
       }
     },
 
-    setResolution: function(resolution){
+    setResolutionDisplay: function(resolution){
+      this.setResolution(resolution, this.resolutionDisplayStandard, this.resolutionDisplayWidescreen);
+    },
+    setResolutionEncoding: function(resolution){
+      this.setResolution(resolution, this.resolutionEncodingStandard, this.resolutionEncodingWidescreen);
+    },
+    setResolution: function(resolution, resolutionStandard, resolutionWidescreen){
       if(WebRTC.Utils.containsKey(WebRTC.C.STANDARD_RESOLUTIONS, resolution)) {
         this.resolutionType.val(WebRTC.C.STANDARD);
-        this.resolutionStandard.val(resolution);
+        resolutionStandard.val(resolution);
       } else if(WebRTC.Utils.containsKey(WebRTC.C.WIDESCREEN_RESOLUTIONS, resolution)) {
         this.resolutionType.val(WebRTC.C.WIDESCREEN);
-        this.resolutionWidescreen.val(resolution);
+        resolutionWidescreen.val(resolution);
       } else {
-        this.resolutionType.val('');
+        console.error('no resolution type for '+resolution);
       }
       this.updateResolutionSelectVisibility();
     },
-    getResolution: function(){
+    getResolutionDisplay: function(){
+      return this.getResolution(this.resolutionDisplayStandard, this.resolutionDisplayWidescreen);
+    },
+    getResolutionEncoding: function(){
+      return this.getResolution(this.resolutionEncodingStandard, this.resolutionEncodingWidescreen);
+    },
+    getResolution: function(resolutionStandard, resolutionWidescreen){
       var resolutionType = this.resolutionType.val();
       if(resolutionType === WebRTC.C.STANDARD) {
-        return this.resolutionStandard.val();
+        return resolutionStandard.val();
       } else if(resolutionType === WebRTC.C.WIDESCREEN) {
-        return this.resolutionWidescreen.val();
+        return resolutionWidescreen.val();
       } else {
         return false;
       }
@@ -144,7 +163,8 @@
       $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
       $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
       $.cookie("settingColor", ($("#settingColor").val()), { expires: ClientConfig.expires });
-      $.cookie("settingResolution", (this.getResolution()), { expires: ClientConfig.expires });
+      $.cookie("settingResolutionDisplay", (this.getResolutionDisplay()), { expires: ClientConfig.expires });
+      $.cookie("settingResolutionEncoding", (this.getResolutionEncoding()), { expires: ClientConfig.expires });
       $.cookie("settingSize", ($("#settingSize").val()), { expires: ClientConfig.expires });
       $.cookie("settingAutoAnswer", ($("#settingAutoAnswer").prop('checked')), { expires: ClientConfig.expires });
       $.cookie("settingWindowPosition", "#localVideo" + "-" + this.localVideoTop.val() + "-" + this.localVideoLeft.val() + "|" +
