@@ -22,6 +22,22 @@ Utils= {
     return(false);
   },
 
+  containsKey: function(object, value) {
+    return $.inArray(value, $.map(object, function(key, value) { return key; })) !== -1;
+  },
+
+  containsValue: function(object, value) {
+    return $.inArray(value, $.map(object, function(key, value) { return value; })) !== -1;
+  },
+
+  addSelectOptions: function(options, selector) {
+    $.each(options, function(key, value) {
+      $(selector)
+        .append($('<option>', { value : value })
+        .text(key));
+    });
+  },
+
   // Generate a random userid
   randomUserid: function()
   {

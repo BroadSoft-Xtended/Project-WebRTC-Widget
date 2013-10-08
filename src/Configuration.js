@@ -108,7 +108,7 @@
 
     getRtcMediaHandlerOptions: function(){
       var options = {reuseLocalMedia: ClientConfig.enableConnectLocalMedia};
-      if (ClientConfig.enableHD === true & this.hd === true)
+      if (this.isHD())
       {
         options["videoBandwidth"] = this.transmitHD;
       }
@@ -122,6 +122,18 @@
 
     setSettings: function(settings){
       this.settings = settings;
+    },
+
+    isHD: function(){
+      return ClientConfig.enableHD === true && this.hd === true;
+    },
+
+    isWidescreen: function() {
+      return this.isHD() || this.settings.resolutionType.val() === WebRTC.C.WIDESCREEN;
+    },
+
+    getResolution: function() {
+      return this.isHD() ? WebRTC.C.R_1280x720 : this.settings.getResolution();
     }
   };
   WebRTC.Configuration = Configuration;

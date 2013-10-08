@@ -45,6 +45,60 @@ body {
   position: relative;
   top: 0px;
   left: 0px;
+  width:640px;
+}
+#main.r1280x720 {
+    width:1280px;
+}
+#main.r960x720 {
+    width:960px;
+}
+#main.r640x360, #main.r640x480 {
+    width:640px;
+}
+#main.r320x180, #main.r320x240 {
+    width:320px;
+}
+
+#main:-webkit-full-screen-ancestor:not(iframe) {
+    position:absolute !important;
+    top:0px;
+    left:0px;
+    right:0px;
+    bottom:0px;
+    width:100%;
+    height:100%;
+}
+
+#video {
+    position:relative;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 480px;
+}
+
+.r1280x720 #video, .r960x720 #video {
+    height:720px;
+}
+.r640x480 #video{
+    height:480px;
+}
+.r640x360 #video{
+    height:360px;
+}
+.r320x240 #video{
+    height:240px;
+}
+.r320x180 #video{
+    height:180px;
+}
+
+#video:-webkit-full-screen {
+    position: absolute;
+    height: 100%;
+    border: none;
+    z-index: 1;
 }
 
 #remoteVideo {
@@ -52,83 +106,44 @@ body {
   position: absolute;
   top: 0px;
   left: 0px;
-  width: 640px;
-  height: 480px;
+  width: 100%;
+  height: 100%;
   background-color: #191414;
   border-radius: 4px;
   border: 2px solid #DDDDDD;
   box-shadow: 0px 0px 10px #000000;
 }
 
-#remoteVideo.hd {
-  display: none;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 1280px;
-  height: 720px;
-  background-color: #191414;
-  border-radius: 4px;
-  border: 2px solid #DDDDDD;
-	box-shadow: 0px 0px 10px #000000;
-}
-
-:-webkit-full-screen #remoteVideo {
-  display: none;
-  position: absolute;
-  top: 0px;
-  right: auto;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  border: none;
-  z-index: 1;
-}
-
 #localVideo {
   display: none;
   position: absolute;
-  top: 355px;
+  bottom: 5px;
   left: 5px;
-  width: 160px;
-  height: 120px;
+  width: 25%;
+  height: 25%;
   background-color: #241D1D;
   border-radius: 4px;
   border: 2px solid #ddd;
   box-shadow: 0px 0px 10px #999999;
 }
 
-#localVideo.hd {
-  display: none;
-  position: absolute;
-  top: 535px;
-  left: 5px;
-  width: 320px;
-  height: 180px;
-  background-color: #241D1D;
-  border-radius: 4px;
-  border: 2px solid #ddd;
-  box-shadow: 0px 0px 10px #999999;
+:-webkit-full-screen #remoteVideo {
+    z-index: 1;
 }
-
 :-webkit-full-screen #localVideo {
-  display: none;
-  position: absolute;
-  top: auto;
-  left: 10px;
-  bottom: 10px;
-  width: 320px;
-  height: 240px;
-  border: none;
   z-index: 2;
+}
+:-webkit-full-screen #remoteVideo, :-webkit-full-screen #localVideo {
+    border: none;
+    border-radius: 0;
 }
 
 #videoBar {
   display: none;
-  position: absolute;
-  top: 485px;
+  position: relative;
+  top: 0px;
   left: 0px;
-  width: 640px;
+  width: 100%;
   height: 40px;
   background: black;
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#404040', endColorstr='#000000',GradientType=0 );
@@ -139,24 +154,14 @@ body {
   border-radius: 4px;
   border: 2px solid #DDDDDD;
   box-shadow: 0px 0px 10px #000000;
-}
-
-#videoBar.hd {
-  display: none;
-  position: absolute;
-  top: 725px;
-  left: 0px;
-  width: 1280px;
-  height: 40px;
-  background-color: #474343;
-  border-radius: 4px;
-  border: 2px solid #DDDDDD;
-  box-shadow: 0px 0px 10px #999999;
+  margin-top:5px;
 }
 
 :-webkit-full-screen #videoBar {
   position: absolute;
   z-index: 5;
+  top:auto;
+  bottom:0px;
   width: auto;
   height: 40px;
   background-color: #474343;
@@ -185,14 +190,6 @@ body {
   left: 265px;
 }
 
-#call.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 25px;
-  right: 265px;
-}
-
 .icon-call:before {
   content: "\e00e";
   color: #3B9E3B;
@@ -204,22 +201,6 @@ body {
 }
 
 /* Hangup Button */
-
-#hangup {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 605px;
-}
-
-#hangup.hd {
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 1245px;
-}
-
 .icon-hangup:before {
   content: "\e00f";
   color: #FF0000;
@@ -232,20 +213,19 @@ body {
 
 /* FullScreen Expand Button */
 
-#fullScreenExpand {
+#videoBar .icon {
   display: none;
-  position: absolute;
   z-index: 10;
-  top: 493px;
-  left: 15px;
+  margin: 0px 2.5px;
+  position: absolute;
 }
 
-#fullScreenExpand.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 15px;
+#videoBar .table {
+    height:100%;
+    margin: 6px;
+}
+#videoBar .cell {
+    width: 37px;
 }
 
 .icon-fullScreenExpand:before {
@@ -259,15 +239,6 @@ body {
 }
 
 /* FullScreen Contract Button */
-
-#fullScreenContract {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  bottom: 25px;
-  left: 25px;
-}
-
 .icon-fullScreenContract:before {
   content: "\e003";
   color: #FFFFFF;
@@ -279,23 +250,6 @@ body {
 }
 
 /* Self View Disable Button */
-
-#selfViewDisable {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 55px;
-}
-
-#selfViewDisable.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 55px;
-}
-
 .icon-selfViewDisable:before {
   content: "\e00a";
   color: #FFFFFF;
@@ -307,23 +261,6 @@ body {
 }
 
 /* Self View Enable Button */
-
-#selfViewEnable {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 55px;
-}
-
-#selfViewEnable.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  right: 55px;
-}
-
 .icon-selfViewEnable:before {
   content: "\e00d";
   color: #EFA233;
@@ -335,23 +272,6 @@ body {
 }
 
 /* Mute Audio Button */
-
-#muteAudio {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 130px;
-}
-
-#muteAudio.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 130px;
-}
-
 .icon-muteAudio:before {
   content: "\e008";
   color: #FFFFFF;
@@ -363,23 +283,6 @@ body {
 }
 
 /* Unmute Audio Button */
-
-#unmuteAudio {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 130px;
-}
-
-#unmuteAudio.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 130px;
-}
-
 .icon-unmuteAudio:before {
   content: "\e009";
   color: #EFA233;
@@ -391,22 +294,6 @@ body {
 }
 
 /* Dialpad Show Button */
-#dialpadIconShow {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 95px;
-}
-
-#dialpadIconShow.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 95px;
-}
-
 .icon-dialpadShow:before {
   content: "\e010";
   color: #FFFFFF;
@@ -418,23 +305,6 @@ body {
 }
 
 /* Dialpad Hide Button */
-
-#dialpadIconHide {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 95px;
-}
-
-#dialpadIconHide.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 95px;
-}
-
 .icon-dialpadHide:before {
   content: "\e010";
   color: #EFA233;
@@ -503,22 +373,6 @@ body {
 }
 
 /* Settings Button */
-#settings {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 493px;
-  left: 565px;
-}
-
-#settings.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 1205px;
-}
-
 .icon-settings:before {
   content: "\e00c";
   color: #FFFFFF;
@@ -546,16 +400,8 @@ body {
   display: none;
   position: absolute;
   z-index: 10;
-  top: 493px;
-  left: 565px;
-}
-
-#history.hd {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 733px;
-  left: 1205px;
+  top: 6px;
+  right: 60px;
 }
 
 .icon-history:before {
@@ -665,7 +511,7 @@ body {
   overflow-x: hidden;
   overflow-y: scroll;
   width: 435;
-  height: 210;
+  height: 180;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
   font-size: 20px; 
@@ -754,16 +600,8 @@ body {
   display: none;
   position: absolute;
   z-index: 20;
-  top: 323px;
-  left: 515px;
-  letter-spacing: 5px;
-}
-
-#dialpad.hd {
-  position: absolute;
-  z-index: 20;
-  top: 563px;
-  left: 1155px;
+  bottom: 50px;
+  right: 5px;
   letter-spacing: 5px;
 }
 
@@ -798,44 +636,23 @@ body {
   display: none;
   position: absolute;
   top: 13px;
-  left: 605px;
-}
-
-#connected.hd {
-  display: none;
-  position: absolute;
-  top: 13px;
-  left: 1245px;
+  right: 5px;
 }
 
 #registered {
   display: none;
   position: absolute;
   top: 13px;
-  left: 570px;
-}
-
-#registered.hd {
-  display: none;
-  position: absolute;
-  top: 13px;
-  left: 1190px;
+  right: 40px;
 }
 
 #timer {
   display: none;
-  position: absolute;
-  top: 494px;
-  left: 320px;
-  font-family: arial;
-  font-size: 20px; 
-  color: #FFFFFF;
-}
-
-#timer.hd {
-  position: absolute;
-  top: 734px;
-  left: 640px;
+  position:absolute;
+  top: 3px;
+  left: 0px;
+  width: 100%;
+  text-align: center;
   font-family: arial;
   font-size: 20px; 
   color: #FFFFFF;
@@ -843,16 +660,10 @@ body {
 
 #messages {
   position: absolute;
-  top: 450px;
-  left: 300px;
-  font-family:arial;
-  font-size: 20px; 
-}
-
-#messages.hd {
-  position: absolute;
-  top: 690px;
-  left: 900px;
+  bottom: 55px;
+  left:0px;
+  width: 100%;
+  text-align: center;
   font-family:arial;
   font-size: 20px; 
 }
@@ -1020,12 +831,13 @@ body {
     display: block;
 }
 
-.fixed-table {
+.table {
     display: table;
-    table-layout: fixed;
     width:100%;
 }
-
+.fixed {
+    table-layout: fixed;
+}
 .collapse {
     border-collapse: collapse;
 }

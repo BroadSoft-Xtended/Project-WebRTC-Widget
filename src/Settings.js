@@ -105,20 +105,20 @@
       var resolutionType = this.resolutionType.val();
       this.resolutionWidescreen.hide();
       this.resolutionStandard.hide();
-      if(resolutionType === 'standard') {
+      if(resolutionType === WebRTC.C.STANDARD) {
         this.resolutionStandard.show();
-      } else if(resolutionType === 'widescreen') {
+      } else if(resolutionType === WebRTC.C.WIDESCREEN) {
         this.resolutionWidescreen.show();
       }
     },
 
     setResolution: function(resolution){
-      var resolutionSelect = $("option[value='"+resolution+"']").parent();
-      resolutionSelect.val(resolution);
-      if(resolutionSelect.attr('id') === this.resolutionStandard.attr('id')) {
-        this.resolutionType.val('standard');
-      } else if(resolutionSelect.attr('id') === this.resolutionWidescreen.attr('id')) {
-        this.resolutionType.val('widescreen');
+      if(WebRTC.Utils.containsKey(WebRTC.C.STANDARD_RESOLUTIONS, resolution)) {
+        this.resolutionType.val(WebRTC.C.STANDARD);
+        this.resolutionStandard.val(resolution);
+      } else if(WebRTC.Utils.containsKey(WebRTC.C.WIDESCREEN_RESOLUTIONS, resolution)) {
+        this.resolutionType.val(WebRTC.C.WIDESCREEN);
+        this.resolutionWidescreen.val(resolution);
       } else {
         this.resolutionType.val('');
       }
@@ -126,9 +126,9 @@
     },
     getResolution: function(){
       var resolutionType = this.resolutionType.val();
-      if(resolutionType === 'standard') {
+      if(resolutionType === WebRTC.C.STANDARD) {
         return this.resolutionStandard.val();
-      } else if(resolutionType === 'widescreen') {
+      } else if(resolutionType === WebRTC.C.WIDESCREEN) {
         return this.resolutionWidescreen.val();
       } else {
         return false;

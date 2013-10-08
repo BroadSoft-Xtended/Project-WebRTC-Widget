@@ -33,6 +33,14 @@ test('persist with userid set', function() {
   strictEqual($.cookie("settingUserid"), "someuserid");
   strictEqual($.cookie("settingPassword"), "");
 });
+test('persist with resolution set', function() {
+  client = new WebRTC.Client();
+  client.settings.resolutionType.val(WebRTC.C.STANDARD);
+  client.settings.resolutionStandard.val(WebRTC.C.R_960x720);
+  client.settings.save.trigger("click");
+  strictEqual($.cookie("settingResolution"), WebRTC.C.R_960x720);
+  $.cookie("settingResolution", "");
+});
 test('updates localVideo top and left setting after drag', function() {
   client = new WebRTC.Client();
   client.localVideo.simulate( "drag", {dx: 50, dy: 100 });
@@ -42,14 +50,14 @@ test('updates localVideo top and left setting after drag', function() {
 test('setResolution with standard resolution', function() {
   client = new WebRTC.Client();
   client.settings.setResolution('320x240');
-  deepEqual(client.settings.resolutionType.val(), "standard");
+  deepEqual(client.settings.resolutionType.val(), WebRTC.C.STANDARD);
   deepEqual(client.settings.resolutionWidescreen.css("display"), "none");
   deepEqual(client.settings.resolutionStandard.css("display"), "inline-block");
 });
 test('setResolution with widescreen resolution', function() {
   client = new WebRTC.Client();
   client.settings.setResolution('320x180');
-  deepEqual(client.settings.resolutionType.val(), "widescreen");
+  deepEqual(client.settings.resolutionType.val(), WebRTC.C.WIDESCREEN);
   deepEqual(client.settings.resolutionWidescreen.css("display"), "inline-block");
   deepEqual(client.settings.resolutionStandard.css("display"), "none");
 });
@@ -80,20 +88,29 @@ test('format', function() {
   strictEqual($("#timer").text(), '');
 });
 
-  //module( "Client", {
-//  setup: function() {
-//  }, teardown: function() {
-//  }
-//});
-//test('call with hide param', function() {
-//  WebRTC.Utils.getSearchVariable = function(name){ return name === "hide" ? "true" : false;}
-//  client = new WebRTC.Client();
-//});
+module( "Client", {
+  setup: function() {
+  }, teardown: function() {
+  }
+});
+test('resolution class for hd=true', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "true" : false;}
+  client = new WebRTC.Client();
+  strictEqual($('#main').attr('class'), "r"+WebRTC.C.R_1280x720);
+});
+test('resolution class for resolution setting', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "false" : false;}
+  $.cookie("settingResolution", WebRTC.C.R_960x720);
+  client = new WebRTC.Client();
+  strictEqual($('#main').attr('class'), "r"+WebRTC.C.R_960x720);
+});
 
 module( "Configuration", {
   setup: function() {
     TestWebrtc.Helpers.mockSound();
     TestWebrtc.Helpers.mockLocation();
+    WebRTC.Utils.getSearchVariable = function(name){ return false;}
+    $.cookie("settingResolution", "");
   }, teardown: function() {
   }
 });

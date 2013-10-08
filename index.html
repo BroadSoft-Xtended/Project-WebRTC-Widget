@@ -108,21 +108,9 @@
     <input id="settingColor" type="color" style="width: 36px;"/><br>
     <span>Resolution</span>
       <span class="right">
-          <select id="resolutionTypeSelect">
-              <option value="">default</option>
-              <option value="standard">standard</option>
-              <option value="widescreen">widescreen</option>
-          </select>
-          <select id="resolutionStandardSelect">
-              <option value="960x720">960 x 720</option>
-              <option value="640x480">640 x 480</option>
-              <option value="320x240">320 x 240</option>
-          </select>
-          <select id="resolutionWidescreenSelect">
-              <option value="1280x720">1280 x 720</option>
-              <option value="640x360">640 x 360</option>
-              <option value="320x180">320 x 180</option>
-          </select>
+          <select id="resolutionTypeSelect"></select>
+          <select id="resolutionStandardSelect"></select>
+          <select id="resolutionWidescreenSelect"></select>
       </span>
     <div id="saveSettings">
     <a href="" title="Save Settings" class="icon-ok"></a>
@@ -132,9 +120,56 @@
     <video id="remoteVideo" autoplay="autoplay"></video>
     <video id="localVideo" autoplay="autoplay" muted="true"></video>
   </div>
-  <div id="videoBar"></div>
-  <div id="messages"></div>
-  <div id="timer"></div>
+  <div id="videoBar">
+      <div class="table fixed collapse">
+          <div class="cell">
+              <div id="fullScreenExpand" class="icon">
+                  <a href="" title="Expand Full Screen" class="icon-fullScreenExpand"></a>
+              </div>
+              <div id="fullScreenContract" class="icon">
+                  <a href="" title="Contract Full Screen" class="icon-fullScreenContract"></a>
+              </div>
+          </div>
+          <div class="cell">
+              <div id="selfViewDisable" class="icon">
+                  <a href="" title="Disable Self View" class="icon-selfViewDisable"></a>
+              </div>
+              <div id="selfViewEnable" class="icon">
+                  <a href="" title="Enable Self View" class="icon-selfViewEnable"></a>
+              </div>
+          </div>
+          <div class="cell">
+              <div id="dialpadIconShow" class="icon">
+                  <a href="" title="Show Dialpad" class="icon-dialpadShow"></a>
+              </div>
+              <div id="dialpadIconHide" class="icon">
+                  <a href="" title="Hide Dialpad" class="icon-dialpadHide"></a>
+              </div>
+          </div>
+          <div class="cell">
+              <div id="muteAudio" class="icon">
+                  <a href="" title="Mute Audio" class="icon-muteAudio"></a>
+              </div>
+              <div id="unmuteAudio" class="icon">
+                  <a href="" title="Unmute Audio" class="icon-unmuteAudio"></a>
+              </div>
+          </div>
+          <div class="cell" style="position:relative;top:0;left:0;width:auto;">
+              <div id="timer"></div>
+              <div id="messages"></div>
+          </div>
+          <div class="cell">
+              <div id="settings" class="icon">
+                  <span title="Settings" class="icon-settings"></span>
+              </div>
+          </div>
+          <div class="cell" style="width:42px;">
+              <div id="hangup" class="icon">
+                  <a href="" title="Hangup" class="icon-hangup"></a>
+              </div>
+          </div>
+      </div>
+  </div>
   <div id="connected">
     <span title="Websockets Status" class="icon-link"></span>
   </div>
@@ -152,36 +187,6 @@
   </div>
   <div id="quality4">
     <span title="Call Quality" class="icon-quality4"></span>
-  </div>
-  <div id="settings">
-    <span title="Settings" class="icon-settings"></span>
-  </div>
-  <div id="hangup">
-    <a href="" title="Hangup" class="icon-hangup"></a>
-  </div>
-  <div id="fullScreenExpand">
-    <a href="" title="Expand Full Screen" class="icon-fullScreenExpand"></a>
-  </div>
-  <div id="fullScreenContract">
-    <a href="" title="Contract Full Screen" class="icon-fullScreenContract"></a>
-  </div>
-  <div id="selfViewDisable">
-    <a href="" title="Disable Self View" class="icon-selfViewDisable"></a>
-  </div>
-  <div id="selfViewEnable">
-    <a href="" title="Enable Self View" class="icon-selfViewEnable"></a>
-  </div>
-  <div id="muteAudio">
-    <a href="" title="Mute Audio" class="icon-muteAudio"></a>
-  </div>
-  <div id="unmuteAudio">
-    <a href="" title="Unmute Audio" class="icon-unmuteAudio"></a>
-  </div>
-  <div id="dialpadIconShow">
-    <a href="" title="Show Dialpad" class="icon-dialpadShow"></a>
-  </div>
-  <div id="dialpadIconHide">
-    <a href="" title="Hide Dialpad" class="icon-dialpadHide"></a>
   </div>
   <div id="dialpad">
     <div>
@@ -283,7 +288,7 @@
 </div>   
 
 <div id="callStats" class="">
-  <div class="fixed-table collapse">
+  <div class="table fixed collapse">
     <div class="heading">
       <div class="cell">Video Stats</div>
       <div class="cell">Audio Stats</div>

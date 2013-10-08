@@ -11,6 +11,7 @@
 
   Client = function() {
     this.localVideo = $("#localVideo");
+    this.initUi();
 
     this.configuration = new WebRTC.Configuration();
     this.sound = new WebRTC.Sound();
@@ -31,6 +32,12 @@
   };
 
   Client.prototype = {
+    initUi: function() {
+      WebRTC.Utils.addSelectOptions(WebRTC.C.RESOLUTION_TYPES, "#resolutionTypeSelect");
+      WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, "#resolutionStandardSelect");
+      WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, "#resolutionWidescreenSelect");
+    },
+
     init: function() {
       var self = this;
       var unsupported = WebRTC.Utils.compatibilityCheck();
@@ -58,10 +65,7 @@
       }
 
       // Initial function selection
-      if (ClientConfig.enableHD === true && this.configuration.hd === true)
-      {
-        $("*").addClass("hd");
-      }
+      this.updateResolutionClass();
 
       if (this.configuration.register === true && !this.configuration.password)
       {
@@ -659,6 +663,21 @@
         self.pressDTMF(e.target.textContent);
       });
 
+      this.settings.resolutionType.bind('change', function(e)
+      {
+        self.updateResolutionClass();
+      });
+
+      this.settings.resolutionWidescreen.bind('change', function(e)
+      {
+        self.updateResolutionClass();
+      });
+      this.settings.resolutionStandard.bind('change', function(e)
+      {
+        self.updateResolutionClass();
+      });
+
+
   // Digits from keyboard
       document.onkeypress=function(e)
       {
@@ -685,6 +704,12 @@
       }
 
       this.sipStack.setRtcMediaHandlerOptions(this.configuration.getRtcMediaHandlerOptions());
+    },
+
+    updateResolutionClass: function(){
+      var mainClass = "";
+      mainClass += "r"+this.configuration.getResolution();
+      $("#main").attr("class", mainClass);
     }
   };
 

@@ -7,6 +7,7 @@ module.exports = function(grunt) {
     'src/Configuration.js',
     'src/Settings.js',
     'src/History.js',
+    'src/Constants.js',
     'src/Timer.js',
     'src/Stats.js',
     'src/Utils.js',
