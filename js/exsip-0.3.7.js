@@ -3783,7 +3783,7 @@ var DTMF,
     DEFAULT_INTER_TONE_GAP:  500
   };
 
-DTMF = function(session) {
+DTMF = function(session, localMedia, peerConnection) {
   var events = [
   'succeeded',
   'failed'
@@ -3793,8 +3793,12 @@ DTMF = function(session) {
   this.direction = null;
   this.tone = null;
   this.duration = null;
+  this.interToneGap = null;
+  this.dtmfSender = null;
 
   this.initEvents(events);
+
+  this.enableDtmfSender(localMedia, peerConnection);
 };
 DTMF.prototype = new ExSIP.EventEmitter();
 
@@ -3803,7 +3807,7 @@ DTMF.prototype.isDebug = function() {
 };
 
 DTMF.prototype.send = function(tone, options) {
-  var request_sender, event, eventHandlers, extraHeaders;
+  var event, eventHandlers, extraHeaders;
 
   if (tone === undefined) {
     throw new TypeError('Not enough arguments');
@@ -3837,32 +3841,35 @@ DTMF.prototype.send = function(tone, options) {
     this.tone = tone;
   }
 
-  // Duration is checked/corrected in RTCSession
-  this.duration = options.duration;
-
   // Set event handlers
   for (event in eventHandlers) {
     this.on(event, eventHandlers[event]);
   }
 
-  extraHeaders.push('Content-Type: application/dtmf-relay');
-
-  this.request = this.session.dialog.createRequest(ExSIP.C.INFO, extraHeaders);
-
-  this.request.body = "Signal= " + this.tone + "\r\n";
-  this.request.body += "Duration= " + this.duration;
-
-  request_sender = new RequestSender(this);
+  if(this.isDebug()) {
+    logger.log("sending DTMF with tone "+this.tone+", duration "+options.duration+", gap "+options.interToneGap);
+  }
+  this.dtmfSender.insertDTMF(this.tone, options.duration, options.interToneGap);
 
   this.session.emit('newDTMF', this.session, {
     originator: 'local',
-    dtmf: this,
-    request: this.request
+    dtmf: this
   });
-
-  request_sender.send();
 };
 
+DTMF.prototype.enableDtmfSender = function(localstream, peerConnection) {
+  if (localstream != null) {
+    var local_audio_track = localstream.getAudioTracks()[0];
+    this.dtmfSender = peerConnection.createDTMFSender(local_audio_track);
+    if(this.isDebug()) {
+      logger.log("Created DTMF Sender");
+    }
+//    dtmfSender.ontonechange = dtmfOnToneChange;
+  }
+  else {
+    logger.error("No Local Stream to create DTMF Sender");
+  }
+};
 /**
  * @private
  */
@@ -3986,8 +3993,9 @@ return DTMF;
         this.dialog = null;
         this.earlyDialogs = {};
         this.rtcMediaHandler = null;
+        this.dtmf = null;
 
-        // Session Timers
+      // Session Timers
         this.timers = {
             ackTimer: null,
             expiresTimer: null,
@@ -4352,13 +4360,20 @@ return DTMF;
     this.rtcMediaHandler.addStream(localMedia, streamAdditionSuccess, streamAdditionFailed);
   };
 
+  RTCSession.prototype.getDTMF = function() {
+    if(!this.dtmf) {
+      this.dtmf = new DTMF(this, this.rtcMediaHandler.localMedia, this.rtcMediaHandler.peerConnection);
+    }
+    return this.dtmf;
+  };
+
   /**
-     * Send a DTMF
-     *
-     * @param {String|Number} tones
-     * @param {Object} [options]
-     */
-    RTCSession.prototype.sendDTMF = function(tones, options) {
+   * Send a DTMF
+   *
+   * @param {String|Number} tones
+   * @param {Object} [options]
+   */
+  RTCSession.prototype.sendDTMF = function(tones, options) {
         var duration, interToneGap,
             position = 0,
             self = this;
@@ -4442,7 +4457,7 @@ return DTMF;
             if (tone === ',') {
                 timeout = 2000;
             } else {
-                var dtmf = new DTMF(self);
+                var dtmf = self.getDTMF();
                 dtmf.on('failed', function(){self.tones = null;});
                 dtmf.send(tone, options);
                 timeout = duration + interToneGap;
@@ -4697,6 +4712,7 @@ return DTMF;
             delete this.earlyDialogs[idx];
         }
 
+        this.dtmf = null;
         this.status = C.STATUS_TERMINATED;
 
         delete this.ua.sessions[this.id];

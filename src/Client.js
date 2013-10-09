@@ -525,7 +525,7 @@
         mainDestination.val(mainDestination.val() + digit);
         if (this.configuration.timerRunning === true)
         {
-          this.rtcSession.sendDTMF(digit, this.configuration.getExSIPOptions());
+          this.rtcSession.sendDTMF(digit, this.configuration.getDTMFOptions());
         }
       }
     },

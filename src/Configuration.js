@@ -29,6 +29,9 @@
   };
 
   Configuration.prototype = {
+    getDTMFOptions: function(){
+      return {duration: WebRTC.C.DEFAULT_DURATION, interToneGap: WebRTC.C.DEFAULT_INTER_TONE_GAP};
+    },
     getExSIPOptions: function(){
       // Options Passed to ExSIP
       var options =
