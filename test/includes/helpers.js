@@ -89,6 +89,17 @@ TestWebrtc.Helpers = {
     ExSIP.WebRTC.isSupported = true;
   },
 
+  deleteAllCookies: function() {
+    var cookies = document.cookie.split(";");
+
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i];
+      var eqPos = cookie.indexOf("=");
+      var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
+  },
+
   ringingResponse: function(ua) {
     var sip = "SIP/2.0 180 Ringing\r\n"+
       "Via: SIP/2.0/WS <via_host>;branch=<branch>;received=200.49.190.72\r\n"+

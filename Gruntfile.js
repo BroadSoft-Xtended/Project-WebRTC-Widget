@@ -145,10 +145,23 @@ module.exports = function(grunt) {
     qunit: {
       connectLocal: ['test/run-TestClient.html']
     },
+    "qunit-serverless": {
+      all: {
+        options: {
+          pageTemplate: "test/includes/qunit-page.tpl",
+          includeFiles: ["js/jquery.js", "js/jquery-ui.js", "js/jquery-cookie.js", "js/exsip-*.js",
+            "js/detect.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          testFiles: ["test/test-*.js"],
+          templateFiles: "index.html",
+          qunitCss: "stylesheet.css",
+          qunitJs: "test/qunit/qunit-1.11.0.js"
+        }
+      }
+    },
     watch: {
       develop: {
-        files: ['test/*.js', 'test/*.html', 'src/*.js'],
-        tasks: ['build','qunit'],
+        files: ['test/*.js', 'src/*.js', 'index.html', 'stylesheet.css'],
+        tasks: ['build','test'],
         options: {
           spawn: false
         }
@@ -165,7 +178,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-watch');
-
+  grunt.loadNpmTasks("grunt-qunit-serverless");
 
   // Task for building webrtc-devel.js (uncompressed), webrtc-X.Y.Z.js (uncompressed)
   // and webrtc-X.Y.Z.min.js (minified).
@@ -176,7 +189,7 @@ module.exports = function(grunt) {
   grunt.registerTask('devel', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel']);
 
   // Test tasks.
-  grunt.registerTask('testConnectLocal', ['qunit:connectLocal']);
+  grunt.registerTask('testConnectLocal', ['qunit-serverless']);
   grunt.registerTask('test', ['testConnectLocal']);
 
   // Travis CI task.
