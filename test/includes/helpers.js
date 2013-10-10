@@ -87,6 +87,7 @@ TestWebrtc.Helpers = {
       success();
     };
     ExSIP.WebRTC.isSupported = true;
+    ExSIP.UA.prototype.recoverTransport = function(){console.log("--recoverTransport");}
   },
 
   deleteAllCookies: function() {
