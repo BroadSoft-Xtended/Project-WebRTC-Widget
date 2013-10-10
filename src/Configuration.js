@@ -4,10 +4,10 @@
 
 (function(WebRTC) {
   var Configuration,
-    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Configuration');
 
   Configuration = function() {
-    console.log(LOG_PREFIX+'window.location.search : '+window.location.search);
+    logger.log('window.location.search : '+window.location.search);
     // Default URL variables
     this.register = (WebRTC.Utils.getSearchVariable("register") === "true");
     this.password = WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');

@@ -7,7 +7,7 @@
  ***************************************************/
 (function(WebRTC) {
   var Client,
-    LOG_PREFIX = WebRTC.name +' | '+ 'Client' +' | ';
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client');
 
   Client = function() {
     this.localVideo = $("#localVideo");
@@ -369,7 +369,7 @@
     // Initial startup
     onLoad: function(userid, password) {
       var self = this;
-      console.log(LOG_PREFIX +"onLoad");
+      logger.log("onLoad");
 
       // SIP stack
       this.sipStack = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));

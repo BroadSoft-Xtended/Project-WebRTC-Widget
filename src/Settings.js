@@ -7,7 +7,7 @@
  ***************************************************/
 (function(WebRTC) {
   var Settings,
-    LOG_PREFIX = WebRTC.name +' | '+ 'Settings' +' | ';
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Settings');
 
   Settings = function(client, configuration, sound) {
     this.localVideoTop = $("#settingLocalVideoTop");
@@ -66,7 +66,7 @@
     },
     updatePageColor: function(){
       var color = $("#settingColor").val();
-      console.log(LOG_PREFIX+'updating page color : '+color);
+      logger.log('updating page color : '+color);
       $('body').css('backgroundColor', color || '');
     },
     initUi: function(){
@@ -133,7 +133,7 @@
         this.resolutionType.val(WebRTC.C.WIDESCREEN);
         resolutionWidescreen.val(resolution);
       } else {
-        console.error('no resolution type for '+resolution);
+        logger.error('no resolution type for '+resolution);
       }
       this.updateResolutionSelectVisibility();
     },
