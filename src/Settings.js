@@ -66,7 +66,9 @@
     },
     updatePageColor: function(){
       var color = $("#settingColor").val();
-      logger.log('updating page color : '+color);
+      if(this.configuration.isDebug()) {
+        logger.log('updating page color : '+color);
+      }
       $('body').css('backgroundColor', color || '');
     },
     initUi: function(){

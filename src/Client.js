@@ -369,7 +369,9 @@
     // Initial startup
     onLoad: function(userid, password) {
       var self = this;
-      logger.log("onLoad");
+      if(this.configuration.isDebug()) {
+        logger.log("onLoad");
+      }
 
       // SIP stack
       this.sipStack = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));

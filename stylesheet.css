@@ -117,7 +117,7 @@ body {
 #localVideo {
   display: none;
   position: absolute;
-  bottom: 5px;
+  bottom: 1px;
   left: 5px;
   width: 25%;
   height: 25%;
