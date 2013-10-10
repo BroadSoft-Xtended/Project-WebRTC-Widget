@@ -1,5 +1,3 @@
-/*global console: false*/
-
 /**
  * @name WebRTC
  * @namespace
