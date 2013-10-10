@@ -18,7 +18,6 @@
     updateStreams: function(localStreams, remoteStreams) {
       var selfView = document.getElementById("localVideo");
       var remoteView = document.getElementById("remoteVideo");
-      console.log("update streams with remoteStreams : "+ExSIP.Utils.toString(remoteStreams)+", and localStreams : "+ExSIP.Utils.toString(localStreams));
       this.setVideoStream(selfView, localStreams);
       this.setVideoStream(remoteView, remoteStreams);
     },
