@@ -68,10 +68,12 @@ var Logger;
 
     this.format = function(date) {
       var dateTxt = this.formatString.replace(/%(.)/g, function(m, p) {
-        var rv = date[(dateMarkers[p])[0]]();
+        var dateMarker = dateMarkers[p];
+        var method = dateMarker[0];
+        var rv = date[method]();
 
-        if ( dateMarkers[p][1] != null ) {
-          rv = dateMarkers[p][1](rv);
+        if ( dateMarker[1] != null ) {
+          rv = dateMarker[1](rv);
         }
 
         return rv;

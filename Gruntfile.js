@@ -163,7 +163,7 @@ module.exports = function(grunt) {
         files: ['test/*.js', 'src/*.js', 'index.html', 'stylesheet.css'],
         tasks: ['build','test'],
         options: {
-          spawn: false
+          spawn: true
         }
       }
     }
