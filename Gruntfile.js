@@ -179,6 +179,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks("grunt-qunit-serverless");
+  grunt.loadNpmTasks('grunt-notify');
 
   // Task for building webrtc-devel.js (uncompressed), webrtc-X.Y.Z.js (uncompressed)
   // and webrtc-X.Y.Z.min.js (minified).

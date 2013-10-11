@@ -22,6 +22,7 @@
     "grunt-contrib-copy": "~0.4.0",
     "grunt-contrib-watch": ">=0.3.1",
     "grunt-qunit-serverless": ">=0.2.6",
+    "grunt-notify": ">=0.2.6",
     "pegjs": "0.7.0",
     "node-minify": "~0.7.2"
   },
