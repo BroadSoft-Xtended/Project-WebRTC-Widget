@@ -3543,6 +3543,9 @@ RTCMediaHandler.prototype = {
 
   addStream: function(stream, onSuccess, onFailure, constraints) {
     try {
+      if(this.session.ua.isDebug()) {
+        logger.log("stream : "+ExSIP.Utils.toString(stream));
+      }
       this.peerConnection.addStream(stream, constraints);
     } catch(e) {
       logger.error('error adding stream');
@@ -4357,6 +4360,7 @@ return DTMF;
     this.rtcMediaHandler = new RTCMediaHandler(this,
       {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}
     );
+    this.rtcMediaHandler.localMedia = localMedia;
     this.rtcMediaHandler.addStream(localMedia, streamAdditionSuccess, streamAdditionFailed);
   };
 
