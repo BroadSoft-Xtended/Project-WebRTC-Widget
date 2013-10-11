@@ -166,6 +166,14 @@ module.exports = function(grunt) {
           spawn: true
         }
       }
+    },
+    notify: {
+      qunit: {
+        options: {
+          title: 'Tests finished',  // optional
+          message: 'Tests run successfully' //required
+        }
+      }
     }
   });
 
@@ -191,7 +199,7 @@ module.exports = function(grunt) {
 
   // Test tasks.
   grunt.registerTask('testConnectLocal', ['qunit-serverless']);
-  grunt.registerTask('test', ['testConnectLocal']);
+  grunt.registerTask('test', ['testConnectLocal', 'notify:qunit']);
 
   // Travis CI task.
   // Doc: http://manuel.manuelles.nl/blog/2012/06/22/integrate-travis-ci-into-grunt/
