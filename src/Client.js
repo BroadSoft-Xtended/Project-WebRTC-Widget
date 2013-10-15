@@ -546,16 +546,7 @@
       {
         e.preventDefault();
         self.sound.playClick();
-        var mainDestination = $("#callControl input#destination");
-        var destination = mainDestination.val();
-        if (destination === "")
-        {
-          self.message(ClientConfig.messageEmptyDestination, "alert");
-        }
-        else
-        {
-          self.uriCall(destination);
-        }
+        self.call();
       });
 
       $('#hangup').bind('click', function(e)
@@ -681,6 +672,12 @@
         self.updateResolutionClass();
       });
 
+      $('#destination').keypress(function (e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          self.call();
+        }
+      });
 
   // Digits from keyboard
       document.onkeypress=function(e)
@@ -700,6 +697,19 @@
           self.history.toggle();
         }
       };
+    },
+
+    call: function(){
+      var mainDestination = $("#callControl input#destination");
+      var destination = mainDestination.val();
+      if (destination === "")
+      {
+        this.message(ClientConfig.messageEmptyDestination, "alert");
+      }
+      else
+      {
+        this.uriCall(destination);
+      }
     },
 
     updateRtcMediaHandlerOptions: function(){

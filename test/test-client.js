@@ -15,3 +15,12 @@ test('resolution class for resolution setting', function() {
   client = new WebRTC.Client();
   strictEqual($('#main').attr('class'), "r"+WebRTC.C.R_960x720);
 });
+test('call if enter pressed on destination input', function() {
+  var called = false;
+  WebRTC.Client.prototype.call = function(){console.log('call');called = true;};
+  client = new WebRTC.Client();
+  var event = jQuery.Event("keypress");
+  event.keyCode = 13;
+  $("#destination").trigger(event);
+  ok(called);
+});
