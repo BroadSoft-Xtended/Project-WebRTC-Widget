@@ -136,6 +136,29 @@ test('transfer on call ended', function() {
   TestWebrtc.Helpers.endCall();
   isVisible(client.transfer, false);
 });
+test('acceptTransfer triggered with empty target', function() {
+  var transferTarget = null;
+  client = new WebRTC.Client();
+  ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('transfer');transferTarget = target;};
+  TestWebrtc.Helpers.startCall();
+  client.transfer.trigger("click");
+  isVisible(client.transferPopup, true);
+  client.acceptTransfer.trigger("click");
+  isVisible(client.transferPopup, true);
+  strictEqual(transferTarget, null);
+});
+test('acceptTransfer triggered with target', function() {
+  var transferTarget = null;
+  client = new WebRTC.Client();
+  ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('transfer');transferTarget = target;};
+  TestWebrtc.Helpers.startCall();
+  client.transfer.trigger("click");
+  isVisible(client.transferPopup, true);
+  client.transferTarget.val("1000@other.domain.com");
+  client.acceptTransfer.trigger("click");
+  isVisible(client.transferPopup, false);
+  strictEqual(transferTarget, "sip:1000@other.domain.com");
+});
 
 function isVisible(element, visible) {
   strictEqual(element.css('opacity'), visible ? "1" : "0");

@@ -393,6 +393,7 @@ ExSIP.C= {
   CANCEL:     'CANCEL',
   INFO:       'INFO',
   INVITE:     'INVITE',
+  REFER:      'REFER',
   MESSAGE:    'MESSAGE',
   NOTIFY:     'NOTIFY',
   OPTIONS:    'OPTIONS',
@@ -2292,9 +2293,13 @@ var NonInviteServerTransactionPrototype = function() {
         case C.STATUS_PROCEEDING:
           this.state = C.STATUS_COMPLETED;
           this.last_response = response;
-          this.J = window.setTimeout(function() {
-            tr.timer_J();
-          }, ExSIP.Timers.TIMER_J);
+          if(ExSIP.Timers.TIMER_J === 0) {
+              tr.timer_J();
+          } else {
+            this.J = window.setTimeout(function() {
+              tr.timer_J();
+            }, ExSIP.Timers.TIMER_J);
+          }
           if(!this.transport.send(response)) {
             this.onTransportError();
             if (onFailure) {
@@ -3980,7 +3985,8 @@ return DTMF;
             STATUS_WAITING_FOR_ACK:    6,
             STATUS_CANCELED:           7,
             STATUS_TERMINATED:         8,
-            STATUS_CONFIRMED:          9
+            STATUS_CONFIRMED:          9,
+            STATUS_REFER_SENT:         10
         };
 
 
@@ -4186,6 +4192,9 @@ return DTMF;
 
           extraHeaders.push('Contact: ' + self.contact);
 
+          if(self.ua.isDebug()) {
+            logger.log('answer : sending reply');
+          }
           request.reply(200, null, extraHeaders,
               body,
               replySucceeded,
@@ -4219,6 +4228,9 @@ return DTMF;
 
       window.clearTimeout(this.timers.userNoAnswerTimer);
 
+      if(self.ua.isDebug()) {
+        logger.log('answer : getUserMedia');
+      }
       this.getUserMedia(mediaConstraints, answerCreationSucceeded, answerCreationFailed, true);
     };
 
@@ -4852,6 +4864,26 @@ return DTMF;
                             new DTMF(this).init_incoming(request);
                         }
                     }
+                    break;
+                case ExSIP.C.NOTIFY:
+                    if(this.status === C.STATUS_REFER_SENT) {
+                      request.reply(200);
+                      if(this.ua.isDebug()) {
+                        logger.log('received NOTIFY with body : ' + request.body);
+                      }
+                      if(request.body.trim() === 'SIP/2.0 200 OK') {
+                        if(this.sessionToTransfer) {
+                          if(this.ua.isDebug()) {
+                            logger.log('terminate transferred session : ' + this.sessionToTransfer.id);
+                          }
+                          this.sessionToTransfer.terminate();
+                        } else {
+                          if(this.ua.isDebug()) {
+                            logger.warn('no transferred session for REFER session : ' + this.id);
+                          }
+                        }
+                      }
+                    }
             }
         }
     };
@@ -4886,6 +4918,9 @@ return DTMF;
 
       // rtcMediaHandler.addStream successfully added
         streamAdditionSucceeded = function() {
+          if(self.ua.isDebug()){
+            logger.log('getUserMedia : streamAdditionSucceeded for isAnswer : '+isAnswer);
+          }
           if(isAnswer) {
             self.rtcMediaHandler.createAnswer(
               creationSucceeded,
@@ -4995,7 +5030,87 @@ return DTMF;
 
     };
 
-    /**
+  RTCSession.prototype.transfer = function(target, sessionToTransfer, options) {
+    this.sessionToTransfer = sessionToTransfer;
+    options = options || {};
+
+    var requestParams,
+      invalidTarget = false,
+      RTCConstraints = options.RTCConstraints || {},
+      extraHeaders = options.extraHeaders || [];
+
+    // Check target validity
+    try {
+      target = ExSIP.Utils.normalizeURI(target, this.ua.configuration.hostport_params);
+    } catch(e) {
+      target = ExSIP.URI.parse(ExSIP.C.INVALID_TARGET_URI);
+      invalidTarget = true;
+    }
+
+    // Set anonymous property
+    this.anonymous = options.anonymous;
+
+    // OutgoingSession specific parameters
+    this.isCanceled = false;
+    this.received_100 = false;
+
+    this.from_tag = ExSIP.Utils.newTag();
+    requestParams = {from_tag: this.from_tag};
+
+    this.contact = this.ua.contact.toString({
+      anonymous: this.anonymous,
+      outbound: true
+    });
+
+    if (this.anonymous) {
+      requestParams.from_display_name = 'Anonymous';
+      requestParams.from_uri = 'sip:anonymous@anonymous.invalid';
+
+      extraHeaders.push('P-Preferred-Identity: '+ this.ua.configuration.uri.toString());
+      extraHeaders.push('Privacy: id');
+    }
+
+    extraHeaders.push('Contact: '+ this.contact);
+    extraHeaders.push('Allow: '+ ExSIP.Utils.getAllowedMethods(this.ua));
+    extraHeaders.push('Content-Type: application/sdp');
+    extraHeaders.push('Require: tdialog');
+    extraHeaders.push('Refer-To: <' + target + '>');
+    var targetDialog = sessionToTransfer.dialog.id.call_id+";local-tag="+sessionToTransfer.dialog.id.remote_tag+";remote-tag="+sessionToTransfer.dialog.id.local_tag;
+    extraHeaders.push('Target-Dialog: '+targetDialog);
+
+    this.rtcMediaHandler = new RTCMediaHandler(this, RTCConstraints);
+
+    this.request = new ExSIP.OutgoingRequest(ExSIP.C.REFER, sessionToTransfer.dialog.remote_target, this.ua, requestParams, extraHeaders);
+
+    this.id = this.request.call_id + this.from_tag;
+
+    //Save the session into the ua sessions collection.
+    this.ua.sessions[this.id] = this;
+
+    this.newRTCSession('local', this.request);
+
+    if (invalidTarget) {
+      this.failed('local', null, ExSIP.C.causes.INVALID_TARGET);
+      if(this.ua.isDebug()) {
+        logger.warn("invalid target");
+      }
+    } else {
+      if (this.isCanceled || this.status === C.STATUS_TERMINATED) {
+        if(this.ua.isDebug()) {
+          logger.warn("canceled or terminated");
+        }
+        return;
+      }
+
+//      this.request.body = this.rtcMediaHandler.peerConnection.localDescription.sdp;
+      this.status = C.STATUS_REFER_SENT;
+      var request_sender = new ExSIP.RequestSender(this, this.ua);
+      request_sender.send();
+    }
+
+  };
+
+  /**
      * Reception of Response for Initial Request
      * @private
      */
@@ -5722,6 +5837,15 @@ ExSIP.Message = Message;
       return session;
     };
 
+    UA.prototype.transfer = function(target, sessionToTransfer, options) {
+      if(this.isDebug()) {
+        logger.log('transfer options : '+ExSIP.Utils.toString(options));
+      }
+      var session = new ExSIP.RTCSession(this);
+      session.transfer(target, sessionToTransfer, options);
+      return session;
+    };
+
     UA.prototype.getUserMedia = function(options, success, failure) {
       if(this.localMedia) {
         return this.localMedia;
@@ -6100,10 +6224,15 @@ ExSIP.Message = Message;
             } else if (method === ExSIP.C.NOTIFY) {
                 session = this.findSession(request);
                 if(session) {
-                    session.receiveRequest(request);
+                  if(this.isDebug()) {
+                    logger.log('received NOTIFY request for session : '+session.id);
+                  }
+                  session.receiveRequest(request);
                 } else {
                     if(this.isDebug()) {
                       logger.warn('received NOTIFY request for a non existent session');
+                      logger.log('request : '+(request.call_id + "-" + request.from_tag + "-" + request.to_tag));
+                      logger.log('sessions : '+Object.keys(this.sessions));
                     }
                     request.reply(481, 'Subscription does not exist');
                 }

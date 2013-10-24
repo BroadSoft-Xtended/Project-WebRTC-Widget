@@ -20,6 +20,7 @@
     this.transferPopup = $("#transferPopup");
     this.acceptTransfer = $("#acceptTransfer");
     this.rejectTransfer = $("#rejectTransfer");
+    this.transferTarget = $("#transferTarget");
     this.initUi();
 
     this.configuration = new WebRTC.Configuration();
@@ -630,6 +631,14 @@
       {
         e.preventDefault();
         self.sound.playClick();
+        var transferTarget = self.transferTarget.val();
+        if($.isBlank(transferTarget)) {
+          self.message(ClientConfig.messageOutsideDomain, "alert");
+          return;
+        }
+        transferTarget = self.validateDestination(transferTarget);
+        self.setTransferVisible(false);
+        self.sipStack.transfer(transferTarget, self.rtcSession);
       });
 
       this.rejectTransfer.bind('click', function(e)
