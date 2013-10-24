@@ -28,8 +28,8 @@ ClientConfig = {
     websocketsType: 'ws', // ws or wss
     stunServer: '204.117.64.117',
     stunPort: 3478,
-    domainFrom: 'exarionetworks.com',
-    domainTo: 'exarionetworks.com',
+    domainFrom: 'broadsoft.com',
+    domainTo: 'broadsoft.com',
     endCallURL: false,
     transmitVGA: 256,
     transmitHD: 512,
