@@ -11,6 +11,12 @@
 
   Client = function() {
     this.localVideo = $("#localVideo");
+    this.main = $("#main");
+    this.muteAudio = $('#muteAudio');
+    this.unmuteAudio = $('#unmuteAudio');
+    this.hangup = $("#hangup");
+    this.destination = $("#callControl input#destination");
+    this.transfer = $("#transfer");
     this.initUi();
 
     this.configuration = new WebRTC.Configuration();
@@ -23,6 +29,9 @@
     this.sipStack = null;
     this.rtcSession = null;
     this.fullScreen = false;
+    this.state = null;
+    this.muted = false;
+    this.transferVisible = false;
 
     this.configuration.setSettings(this.settings);
 
@@ -67,7 +76,7 @@
       }
 
       // Initial function selection
-      this.updateResolutionClass();
+      this.updateMainClass();
 
       if (this.configuration.register === true && !this.configuration.password)
       {
@@ -248,7 +257,7 @@
       }
 
       $('#call').fadeOut(1000);
-      $("#hangup").fadeIn(1000);
+      this.hangup.fadeIn(1000);
       this.message(ClientConfig.messageCall, "success");
 
       // Start the Call
@@ -289,7 +298,7 @@
       this.message("Incoming Call", "success");
       if (ClientConfig.enableAutoAnswer)
       {
-        $("#hangup").fadeIn(1000);
+//        $("#hangup").fadeIn(1000);
         this.rtcSession.answer(this.configuration.getExSIPOptions());
       }
       else
@@ -302,9 +311,10 @@
     },
 
     endCall: function() {
+      this.setCallState("ended");
       this.video.updateSessionStreams(this.rtcSession);
   //  rtcSession = null;
-      $("#hangup, #muteAudio").fadeOut(100);
+//      $("#hangup, #muteAudio").fadeOut(100);
       // Bring up the main elements
       if (ClientConfig.enableCallControl === true)
       {
@@ -447,15 +457,12 @@
         });
         self.rtcSession.on('started', function(e)
         {
+          self.setCallState("calling");
           self.video.updateSessionStreams(self.rtcSession);
           $('.stats-container').attr('id', self.getSessionId()+'-1');
           self.sound.pause();
           self.timer.start();
           self.message(ClientConfig.messageStarted, "success");
-          if (ClientConfig.enableMute)
-          {
-            $("#muteAudio").fadeIn(1000);
-          }
         });
         self.rtcSession.on('ended', function(e)
         {
@@ -523,8 +530,7 @@
           file = digit;
         }
         this.sound.playDtmfTone(file);
-        var mainDestination = $("#callControl input#destination");
-        mainDestination.val(mainDestination.val() + digit);
+        this.destination.val(this.destination.val() + digit);
         if (this.configuration.timerRunning === true)
         {
           this.rtcSession.sendDTMF(digit, this.configuration.getDTMFOptions());
@@ -549,7 +555,7 @@
         self.call();
       });
 
-      $('#hangup').bind('click', function(e)
+      this.hangup.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
@@ -594,22 +600,27 @@
         $("#localVideo, #selfViewDisable").fadeIn(1000);
       });
 
-      $('#muteAudio').bind('click', function(e)
+      this.muteAudio.bind('click', function(e)
       {
+        self.setMuted(true);
         e.preventDefault();
         self.sound.playClick();
         self.enableLocalAudio(false);
-        $("#muteAudio").fadeOut(1000);
-        $("#unmuteAudio").fadeIn(1000);
       });
 
-      $('#unmuteAudio').bind('click', function(e)
+      this.unmuteAudio.bind('click', function(e)
       {
+        self.setMuted(false);
         e.preventDefault();
         self.sound.playClick();
         self.enableLocalAudio(true);
-        $("#unmuteAudio").fadeOut(1000);
-        $("#muteAudio").fadeIn(1000);
+      });
+
+      this.transfer.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.setTransferVisible(!self.transferVisible);
       });
 
       $('#dialpadIconShow').bind('click', function(e)
@@ -643,7 +654,7 @@
         if (this.id === "acceptIncomingCall")
         {
           $('#call').fadeOut(1000);
-          $("#hangup").fadeIn(1000);
+//          self.hangup.fadeIn(1000);
           self.rtcSession.answer(self.configuration.getExSIPOptions());
         }
         else if (this.id === "rejectIncomingCall")
@@ -660,19 +671,19 @@
 
       this.settings.resolutionType.bind('change', function(e)
       {
-        self.updateResolutionClass();
+        self.updateMainClass();
       });
 
       this.settings.resolutionDisplayWidescreen.bind('change', function(e)
       {
-        self.updateResolutionClass();
+        self.updateMainClass();
       });
       this.settings.resolutionDisplayStandard.bind('change', function(e)
       {
-        self.updateResolutionClass();
+        self.updateMainClass();
       });
 
-      $('#destination').keypress(function (e) {
+      this.destination.keypress(function (e) {
         if (e.keyCode === 13) {
           e.preventDefault();
           self.call();
@@ -699,9 +710,21 @@
       };
     },
 
+    setCallState: function(state){
+      this.state = state;
+      this.updateMainClass();
+    },
+    setMuted: function(muted){
+      this.muted = muted;
+      this.updateMainClass();
+    },
+    setTransferVisible: function(visible){
+      this.transferVisible = visible;
+      this.updateMainClass();
+    },
+
     call: function(){
-      var mainDestination = $("#callControl input#destination");
-      var destination = mainDestination.val();
+      var destination = this.destination.val();
       if (destination === "")
       {
         this.message(ClientConfig.messageEmptyDestination, "alert");
@@ -720,10 +743,19 @@
       this.sipStack.setRtcMediaHandlerOptions(this.configuration.getRtcMediaHandlerOptions());
     },
 
-    updateResolutionClass: function(){
-      var mainClass = "";
-      mainClass += "r"+this.configuration.getResolutionDisplay();
-      $("#main").attr("class", mainClass);
+    updateMainClass: function(){
+      var mainClass = [];
+      mainClass.push("r"+this.configuration.getResolutionDisplay());
+      if(this.state) {
+        mainClass.push(this.state);
+      }
+      if (ClientConfig.enableMute)
+      {
+        mainClass.push("enable-mute");
+      }
+      if(this.muted) { mainClass.push("muted"); } else { mainClass.push("unmuted"); }
+      if(this.transferVisible) { mainClass.push("transfer-visible"); } else { mainClass.push("transfer-hidden"); }
+      this.main.attr("class", mainClass.join(" "));
     }
   };
 

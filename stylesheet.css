@@ -172,7 +172,7 @@ body {
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right {
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -225,7 +225,7 @@ body {
     margin: 6px;
 }
 #videoBar .cell {
-    width: 37px;
+    width: 35px;
 }
 
 .icon-fullScreenExpand:before {
@@ -448,6 +448,17 @@ body {
   color: #EFA233;
 }
 
+/* Transfer Button */
+.icon-transfer:before {
+  content: "\e001";
+  color: #FFFFFF;
+}
+
+.icon-transfer:hover:before {
+  content: "\e001";
+  color: #EFA233;
+}
+
 .button:active {
   color: #EFA233;
   background: -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A));
@@ -514,7 +525,7 @@ body {
   height: 180;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
-  font-size: 20px; 
+  font-size: 20px;
   line-height: 28px;
   z-index: 99;
 }
@@ -645,7 +656,7 @@ body {
   width: 100%;
   text-align: center;
   font-family: arial;
-  font-size: 20px; 
+  font-size: 16px;
   color: #FFFFFF;
 }
 
@@ -856,4 +867,26 @@ body {
 
 .resolutionSubType{
     display:none;
+}
+
+#videoBar .fadeable{
+    opacity: 0;
+    display: block;
+}
+
+.enable-mute.unmuted.calling #muteAudio,
+.enable-mute.muted.calling #unmuteAudio,
+.calling #hangup,
+.calling #transfer {
+    transition: all 1s linear;
+    opacity: 1;
+    z-index: 20;
+}
+.enable-mute.ended #muteAudio, .enable-mute.ended #unmuteAudio,
+.enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
+.ended #hangup,
+.ended #transfer{
+    transition: all 1s linear;
+    opacity: 0;
+    z-index: 10;
 }

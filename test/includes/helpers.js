@@ -36,6 +36,18 @@ TestWebrtc.Helpers = {
     registrar_server: 'registrar.exsip.NET:6060;TRansport=TCP'
   },
 
+  endCall: function() {
+    client.rtcSession.emit('ended');
+  },
+
+  startCall: function() {
+    var rtcSession = new ExSIP.RTCSession(client.sipStack);
+    rtcSession.id = "someid";
+    rtcSession.remote_identity = {uri: "remoteuri"};
+    client.sipStack.emit('newRTCSession', client.sipStack, {session: rtcSession});
+    rtcSession.emit('started');
+  },
+
   createFakeUA: function(options) {
     return new ExSIP.UA(ExSIP.Utils.merge_options(this.FAKE_UA_CONFIGURATION, options || {}));
   },
@@ -62,6 +74,7 @@ TestWebrtc.Helpers = {
 
   mockSound: function(){
     WebRTC.Sound.prototype.playClick = function(){console.log('playClick');}
+    WebRTC.Sound.prototype.pause = function(){console.log('pause');}
   },
 
   mockLocation: function(){
@@ -206,9 +219,9 @@ TestWebrtc.Helpers = {
       "Call-ID: <call_id>\r\n"+
       "CSeq: 637827301 INVITE\r\n"+
       "Contact: <sip:5vlmplnu@exarionetworks.com;transport=ws;ob>\r\n"+
-      "Allow: ACK,CANCEL,BYE,OPTIONS,INVITE\r\n"+
+      "Allow: "+(options["allow"] || "ACK,CANCEL,BYE,OPTIONS,INVITE")+"\r\n"+
       "Content-Type: application/sdp\r\n"+
-      "Supported: path, outbound, gruu\r\n"+
+      "Supported: "+(options["supported"] || "path, outbound, gruu")+"\r\n"+
       "User-Agent: Exario Networks WebRTC - 1.4\r\n"+
       "Content-Length: "+sdp.length+"\r\n"+
       "\r\n"+
