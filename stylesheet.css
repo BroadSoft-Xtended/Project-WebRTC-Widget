@@ -474,7 +474,7 @@ body {
 }
 
 /* Incoming Call Pupup */
-#callPopup, #reInvitePopup {
+#callPopup, #reInvitePopup, #transferPopup {
   display: none;
   background: #333333;
   padding: 10px; 	
@@ -490,6 +490,14 @@ body {
   z-index: 99;
 }
 
+.popup .actions {
+    text-align:right;
+}
+.popup .title {
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+}
 #callPopup span {
   color: #999999; 
   font-size: 22px; 
@@ -869,15 +877,17 @@ body {
     display:none;
 }
 
-#videoBar .fadeable{
+#main .fadeable{
     opacity: 0;
     display: block;
+    z-index: 10;
 }
 
 .enable-mute.unmuted.calling #muteAudio,
 .enable-mute.muted.calling #unmuteAudio,
 .calling #hangup,
-.calling #transfer {
+.calling #transfer,
+.calling.transfer-visible #transferPopup {
     transition: all 1s linear;
     opacity: 1;
     z-index: 20;
@@ -885,7 +895,8 @@ body {
 .enable-mute.ended #muteAudio, .enable-mute.ended #unmuteAudio,
 .enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
 .ended #hangup,
-.ended #transfer{
+.ended #transfer,
+.transfer-hidden #transferPopup {
     transition: all 1s linear;
     opacity: 0;
     z-index: 10;

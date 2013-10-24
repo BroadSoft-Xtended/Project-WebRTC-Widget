@@ -17,6 +17,9 @@
     this.hangup = $("#hangup");
     this.destination = $("#callControl input#destination");
     this.transfer = $("#transfer");
+    this.transferPopup = $("#transferPopup");
+    this.acceptTransfer = $("#acceptTransfer");
+    this.rejectTransfer = $("#rejectTransfer");
     this.initUi();
 
     this.configuration = new WebRTC.Configuration();
@@ -621,6 +624,19 @@
         e.preventDefault();
         self.sound.playClick();
         self.setTransferVisible(!self.transferVisible);
+      });
+
+      this.acceptTransfer.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+      });
+
+      this.rejectTransfer.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.setTransferVisible(false);
       });
 
       $('#dialpadIconShow').bind('click', function(e)

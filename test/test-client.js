@@ -43,6 +43,10 @@ test('hangup', function() {
   client = new WebRTC.Client();
   isVisible(client.hangup, false);
 });
+test('transferPopup', function() {
+  client = new WebRTC.Client();
+  isVisible(client.transferPopup, false);
+});
 test('muteAudio on call started', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
@@ -69,10 +73,31 @@ test('unmuteAudio on mute triggered', function() {
   client.unmuteAudio.trigger("click");
   isVisible(client.unmuteAudio, false);
 });
+test('transferPopup on transfer triggered', function() {
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.startCall();
+  client.transfer.trigger("click");
+  isVisible(client.transferPopup, true);
+  client.transfer.trigger("click");
+  isVisible(client.transferPopup, false);
+});
+test('transferPopup on transfer rejected', function() {
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.startCall();
+  client.transfer.trigger("click");
+  isVisible(client.transferPopup, true);
+  client.rejectTransfer.trigger("click");
+  isVisible(client.transferPopup, false);
+});
 test('hangup on call started', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
   isVisible(client.hangup, true);
+});
+test('transferPopup on call started', function() {
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.startCall();
+  isVisible(client.transferPopup, false);
 });
 test('muteAudio on call started and disabled muted', function() {
   ClientConfig.enableMute = false;
@@ -105,7 +130,7 @@ test('hangup on call ended', function() {
   TestWebrtc.Helpers.endCall();
   isVisible(client.hangup, false);
 });
-test('tranfer on call ended', function() {
+test('transfer on call ended', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.endCall();
