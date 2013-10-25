@@ -7,6 +7,8 @@
 //    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
   Timer = function(client, stats, configuration) {
+    this.text = $("#timer");
+
     this.client = client;
     this.stats = stats;
     this.configuration = configuration;
@@ -25,13 +27,13 @@
       this.callTimer = setInterval(timer, 1000);
       if (ClientConfig.enableCallTimer)
       {
-        $("#timer").fadeIn(100);
+        this.text.fadeIn(100);
       }
     },
 
     stop: function()
     {
-      $("#timer").fadeOut(100);
+      this.text.fadeOut(100);
       this.configuration.timerRunning = false;
       clearInterval(this.callTimer);
     },
@@ -49,7 +51,7 @@
           self.client.endCall();
           return;
         }
-        $("#timer").text(self.format(secs));
+        self.text.text(self.format(secs));
         if (ClientConfig.enableCallStats && WebRTC.Utils.isChrome())
         {
           self.stats.processStats();

@@ -239,7 +239,7 @@
       {
         destination = ("sip:" + destination);
       }
-      if ((destination.indexOf(ClientConfig.domainTo) === -1 ) && ClientConfig.allowOutside === false)
+      if (!ClientConfig.allowOutside && !new RegExp("[.||@]"+ClientConfig.domainTo).test(destination) )
       {
         this.message(ClientConfig.messageOutsideDomain, "alert");
         return(false);
@@ -247,6 +247,10 @@
       if ((destination.indexOf("@") === -1))
       {
         destination = (destination + "@" + ClientConfig.domainTo);
+      }
+      var domain = destination.substring(destination.indexOf("@"));
+      if(domain.indexOf(".") === -1) {
+        destination = destination + "." + ClientConfig.domainTo;
       }
       return(destination);
     },

@@ -6,6 +6,5 @@ module( "Timer", {
 });
 test('format', function() {
   client = new WebRTC.Client();
-  client.sipStack.emit('connected');
-  strictEqual($("#timer").text(), '');
+  strictEqual(client.timer.format(1), '00:00:01');
 });
