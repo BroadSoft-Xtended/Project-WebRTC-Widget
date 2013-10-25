@@ -6283,29 +6283,35 @@ ExSIP.Message = Message;
      * @private
      * @returns {Object} ws_server
      */
-    UA.prototype.getNextWsServer = function() {
-        // Order servers by weight
-        var idx, length, ws_server,
-            candidates = [];
+    UA.prototype.getNextWsServer = function(options) {
+      options = options || {};
 
-        length = this.configuration.ws_servers.length;
-        for (idx = 0; idx < length; idx++) {
-            ws_server = this.configuration.ws_servers[idx];
-
-            if (ws_server.status === ExSIP.Transport.C.STATUS_ERROR) {
-                continue;
-            } else if (candidates.length === 0) {
-                candidates.push(ws_server);
-            } else if (ws_server.weight > candidates[0].weight) {
-                candidates = [ws_server];
-            } else if (ws_server.weight === candidates[0].weight) {
-                candidates.push(ws_server);
-            }
+      var candidates = [];
+      // Add only server with status ready
+      for(var i=0; i < this.configuration.ws_servers.length; i++){
+        var server = this.configuration.ws_servers[i];
+        if(server.status === ExSIP.Transport.C.STATUS_READY) {
+          candidates.push(server);
         }
+      }
 
-        idx = Math.floor((Math.random()* candidates.length));
+      // Order servers by weight
+      candidates = candidates.sort(function(a,b) {
+        return b.weight - a.weight;
+      });
 
-        return candidates[idx];
+      if(candidates.length === 0) {
+        return undefined;
+      }
+
+      var idx;
+      idx = this.transport ? candidates.indexOf(this.transport.server) : -1;
+      idx += 1;
+      if(idx >= candidates.length) {
+        idx = 0;
+      }
+
+      return candidates[idx];
     };
 
     /**
@@ -6353,11 +6359,21 @@ ExSIP.Message = Message;
           logger.log('next connection attempt in '+ nextRetry +' seconds');
         }
 
-        window.setTimeout(
-            function(){
-                ua.transportRecoverAttempts = count + 1;
-                new ExSIP.Transport(ua, server);
-            }, nextRetry * 1000);
+        var maxTransportRecoveryAttempts = ua.configuration.max_transport_recovery_attempts;
+        if(typeof(maxTransportRecoveryAttempts) !== "undefined" && count >= parseInt(maxTransportRecoveryAttempts, 10)) {
+          return;
+        }
+
+        var retry = function(){
+          ua.transportRecoverAttempts = count + 1;
+          new ExSIP.Transport(ua, server);
+        };
+
+        if(nextRetry === 0) {
+          retry();
+        } else {
+          window.setTimeout(retry, nextRetry * 1000);
+        }
     };
 
     /**
@@ -6574,6 +6590,7 @@ ExSIP.Message = Message;
                 "authorization_user",
                 "connection_recovery_max_interval",
                 "connection_recovery_min_interval",
+                "max_transport_recovery_attempts",
                 "display_name",
                 "hack_via_tcp", // false.
                 "hack_ip_in_contact", //false
@@ -6718,7 +6735,17 @@ ExSIP.Message = Message;
                 var value;
                 if(ExSIP.Utils.isDecimal(connection_recovery_min_interval)) {
                     value = window.Number(connection_recovery_min_interval);
-                    if(value > 0) {
+                    if(value >= 0) {
+                        return value;
+                    }
+                }
+            },
+
+            max_transport_recovery_attempts: function(max_transport_recovery_attempts) {
+                var value;
+                if(ExSIP.Utils.isDecimal(max_transport_recovery_attempts)) {
+                    value = window.Number(max_transport_recovery_attempts);
+                    if(value >= 0) {
                         return value;
                     }
                 }

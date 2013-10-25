@@ -87,7 +87,7 @@
       var config  =
       {
         'uri': sip_uri,
-        'ws_servers': ClientConfig.websocketsType + "://" + ClientConfig.websocketsGateway + ":" + ClientConfig.websocketsPort,
+        'ws_servers': ClientConfig.websocketsServers,
         'stun_servers': 'stun:' + ClientConfig.stunServer + ':' + ClientConfig.stunPort,
         'trace_sip': ClientConfig.debug
       };

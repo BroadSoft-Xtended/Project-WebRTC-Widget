@@ -23,9 +23,7 @@ ClientConfig = {
     disableICE: true,
     volumeClick: 1,
     volumeDTMF: 1,
-    websocketsGateway: 'webrtc.exarionetworks.com',
-    websocketsPort: 8060,
-    websocketsType: 'ws', // ws or wss
+    websocketsServers: [{'ws_uri':'ws://webrtc.exarionetworks.com:8060', 'weight':0}],
     stunServer: '204.117.64.117',
     stunPort: 3478,
     domainFrom: 'broadsoft.com',

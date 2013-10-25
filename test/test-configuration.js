@@ -8,6 +8,14 @@ module( "Configuration", {
   }, teardown: function() {
   }
 });
+test('websocketsServers', function() {
+  ClientConfig.websocketsServers = [
+    {'ws_uri':'ws://webrtc-gw1.exarionetworks.com:8060', 'weight':0},
+    {'ws_uri':'ws://webrtc-gw2.exarionetworks.com:8060', 'weight':0},
+    {'ws_uri':'ws://webrtc-gw.exarionetworks.com:8060', 'weight':0}]
+  client = new WebRTC.Client();
+  strictEqual(client.sipStack.configuration.ws_servers.length, 3);
+});
 test('userid', function() {
   client = new WebRTC.Client();
   ok("chooses random userid", client.configuration.userid !== undefined);
