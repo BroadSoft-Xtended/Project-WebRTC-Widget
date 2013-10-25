@@ -266,6 +266,11 @@
 
       $('#call').fadeOut(1000);
       this.hangup.fadeIn(1000);
+
+      if(this.configuration.isDebug()) {
+        logger.log("calling destination : "+destination);
+      }
+
       this.message(ClientConfig.messageCall, "success");
 
       // Start the Call
