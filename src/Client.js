@@ -71,9 +71,11 @@
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
           $("#callStats").draggable({
+            snap: "#remoteVideo,#videoBar",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
           $("#callHistory").draggable({
+            snap: "#remoteVideo,#videoBar",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
         });
