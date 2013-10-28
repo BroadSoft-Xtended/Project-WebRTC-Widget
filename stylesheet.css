@@ -451,12 +451,12 @@ body {
 
 /* Transfer Button */
 .icon-transfer:before {
-  content: "\e001";
+  content: "\e014";
   color: #FFFFFF;
 }
 
 .icon-transfer:hover:before {
-  content: "\e001";
+  content: "\e014";
   color: #EFA233;
 }
 
