@@ -67,7 +67,7 @@
         $(function()
         {
           self.localVideo.draggable({
-            snap: "#remoteVideo",
+            snap: "#remoteVideo,#videoBar",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
           $("#callStats").draggable({

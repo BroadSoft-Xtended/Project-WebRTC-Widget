@@ -125,6 +125,7 @@ body {
   border-radius: 4px;
   border: 2px solid #ddd;
   box-shadow: 0px 0px 10px #999999;
+  z-index: 99;
 }
 
 :-webkit-full-screen #remoteVideo {
