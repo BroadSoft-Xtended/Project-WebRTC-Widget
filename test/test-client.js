@@ -178,9 +178,23 @@ test('acceptTransfer triggered with target', function() {
   isVisible(client.transferPopup, false);
   strictEqual(transferTarget, "sip:1000@other.domain.to");
 });
+test('acceptTransfer triggered with target and with attended checked', function() {
+  var basicTransferTarget = null;
+  var attendedTransferTarget = null;
+  client = new WebRTC.Client();
+  ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('basic transfer');basicTransferTarget = target;};
+  ExSIP.UA.prototype.attendedTransfer = function(target, rtcSession){console.log('attended transfer');attendedTransferTarget = target;};
+  TestWebrtc.Helpers.startCall();
+  client.transfer.trigger("click");
+  client.transferTypeAttended.prop('checked', true);
+  client.transferTarget.val("1000@other.domain.to");
+  client.acceptTransfer.trigger("click");
+  strictEqual(attendedTransferTarget, "sip:1000@other.domain.to");
+});
 
 function isVisible(element, visible) {
+  var isPopup = element.attr('class').indexOf('popup') !== -1;
   strictEqual(element.css('opacity'), visible ? "1" : "0");
-  strictEqual(element.css('zIndex'), visible ? "20" : "10");
+  strictEqual(element.css('zIndex'), visible ? (isPopup ? "100" : "20") : "10");
 
 }

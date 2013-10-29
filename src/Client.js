@@ -21,6 +21,7 @@
     this.acceptTransfer = $("#acceptTransfer");
     this.rejectTransfer = $("#rejectTransfer");
     this.transferTarget = $("#transferTarget");
+    this.transferTypeAttended = $("#transferTypeAttended");
     this.initUi();
 
     this.configuration = new WebRTC.Configuration();
@@ -649,7 +650,11 @@
         }
         transferTarget = self.validateDestination(transferTarget);
         self.setTransferVisible(false);
-        self.sipStack.transfer(transferTarget, self.rtcSession);
+        if(self.transferTypeAttended.is(':checked')) {
+          self.sipStack.attendedTransfer(transferTarget, self.rtcSession);
+        } else {
+          self.sipStack.transfer(transferTarget, self.rtcSession);
+        }
       });
 
       this.rejectTransfer.bind('click', function(e)

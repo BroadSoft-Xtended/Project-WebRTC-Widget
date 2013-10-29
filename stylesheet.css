@@ -482,13 +482,30 @@ body {
   border: 2px solid #DDDDDD;
   float: left;
   position: absolute;
-  top: 100; 
-  left: 100;;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
   font-size: 14px; 
   line-height: 18px;
-  z-index: 99;
+  z-index: 100;
+}
+
+#callPopup, #reInvitePopup {
+    width:151px;
+    height:137px;
+}
+#transferPopup {
+    color: white;
+    width:280px;
+    height:60px;
+}
+
+#transferTarget {
+    width: 200px;
 }
 
 .popup .actions {
@@ -887,11 +904,16 @@ body {
 .enable-mute.unmuted.calling #muteAudio,
 .enable-mute.muted.calling #unmuteAudio,
 .calling #hangup,
-.calling #transfer,
-.calling.transfer-visible #transferPopup {
+.calling #transfer
+{
     transition: all 1s linear;
     opacity: 1;
     z-index: 20;
+}
+.calling.transfer-visible #transferPopup {
+    transition: all 1s linear;
+    opacity: 1;
+    z-index: 100;
 }
 .enable-mute.ended #muteAudio, .enable-mute.ended #unmuteAudio,
 .enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
