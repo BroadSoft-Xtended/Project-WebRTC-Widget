@@ -3464,7 +3464,7 @@ RTCMediaHandler.prototype = {
     );
   },
 
-  createOffer: function(onSuccess, onFailure) {
+  createOffer: function(onSuccess, onFailure, constraints) {
     var self = this;
 
     this.onIceCompleted = function() {
@@ -3485,10 +3485,11 @@ RTCMediaHandler.prototype = {
         logger.error('unable to create offer');
         logger.error(e);
         onFailure();
-      } );
+      },
+      constraints );
   },
 
-  createAnswer: function(onSuccess, onFailure) {
+  createAnswer: function(onSuccess, onFailure, constraints) {
     var self = this;
 
     this.onIceCompleted = function() {
@@ -3507,8 +3508,8 @@ RTCMediaHandler.prototype = {
         logger.error('unable to create answer');
         logger.error(e);
         onFailure();
-      }
-    );
+      },
+      constraints);
   },
 
   setLocalDescription: function(sessionDescription, onFailure) {
@@ -3977,7 +3978,7 @@ return DTMF;
 
   RTCSession.prototype.initRtcMediaHandler = function(options) {
     options = options || {};
-    this.rtcMediaHandler = new RTCMediaHandler(this, options.RTCConstraints || {});
+    this.rtcMediaHandler = new RTCMediaHandler(this, options.RTCConstraints || {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]});
   };
 
   /**
@@ -4263,9 +4264,7 @@ return DTMF;
     var localMedia = this.rtcMediaHandler.localMedia;
     this.rtcMediaHandler.close();
 
-    this.rtcMediaHandler = new RTCMediaHandler(this,
-      {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}
-    );
+    this.initRtcMediaHandler();
     this.rtcMediaHandler.localMedia = localMedia;
     this.rtcMediaHandler.connect(localMedia, connectSuccess, connectFailed, true, self.request.body);
   };
@@ -4459,9 +4458,7 @@ return DTMF;
     }
 
     //Initialize Media Session
-    this.rtcMediaHandler = new RTCMediaHandler(this,
-      {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}
-    );
+    this.initRtcMediaHandler();
     this.rtcMediaHandler.onMessage(
       'offer',
       request.body,
@@ -4534,7 +4531,6 @@ return DTMF;
     var event,
       eventHandlers = options.eventHandlers || {},
       mediaConstraints = options.mediaConstraints || {audio: true, video: true},
-      RTCConstraints = options.RTCConstraints || {},
       self = this;
 
     // Check Session Status
@@ -4549,7 +4545,7 @@ return DTMF;
 
     // Session parameter initialization
     this.from_tag = ExSIP.Utils.newTag();
-    this.rtcMediaHandler = new RTCMediaHandler(this, RTCConstraints);
+    this.initRtcMediaHandler(options);
 
     if (!ExSIP.WebRTC.isSupported) {
       this.failed('local', null, ExSIP.C.causes.WEBRTC_NOT_SUPPORTED);
@@ -4883,21 +4879,24 @@ return DTMF;
   };
 
   RTCSession.prototype.hold = function(inviteSuccessCallback) {
-    this.setLocalMode(ExSIP.C.SENDONLY);
+    this.setLocalMode(ExSIP.C.SENDONLY, ExSIP.C.SENDONLY);
     this.sendInviteRequest(undefined, undefined, inviteSuccessCallback);
   };
 
   RTCSession.prototype.unhold = function(inviteSuccessCallback) {
-    this.setLocalMode(ExSIP.C.SENDRECV);
+    this.setLocalMode(ExSIP.C.SENDRECV, ExSIP.C.SENDRECV);
     this.sendInviteRequest(undefined, undefined, inviteSuccessCallback);
   };
 
-  RTCSession.prototype.setLocalMode = function(mode) {
+  RTCSession.prototype.setLocalMode = function(audioMode, videoMode) {
+//    this.rtcMediaHandler.close();
+//    this.initRTCMediaHandler();
     var localDescription = this.rtcMediaHandler.peerConnection.localDescription;
-    localDescription.setVideoMode(mode);
-    localDescription.setAudioMode(mode);
-    logger.log("Set mode "+mode+" and change local description of type "+localDescription.type+" to : "+localDescription.sdp);
-    this.rtcMediaHandler.peerConnection.setLocalDescription(localDescription);
+    localDescription.setVideoMode(videoMode);
+    localDescription.setAudioMode(audioMode);
+    var type = "offer";
+    logger.log("Set mode (audio="+audioMode+",video="+videoMode+") and change local description of type "+localDescription.type+" to : "+type+","+localDescription.sdp);
+    this.rtcMediaHandler.peerConnection.setLocalDescription(new ExSIP.WebRTC.RTCSessionDescription({sdp: localDescription.sdp, type: "offer"}));
   };
 
   /**

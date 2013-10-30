@@ -52,6 +52,17 @@ test('getExSIPOptions with resolution', function() {
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
 });
+test('getExSIPOptions with resolution 960x720', function() {
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.audioOnly, false);
+  strictEqual(client.configuration.hd, "false");
+  client.settings.setResolutionEncoding('960x720');
+  var options = {
+    mediaConstraints: { audio: true, video: { mandatory: { minWidth: 960, minHeight: 720 }}},
+    RTCConstraints: {'optional': [],'mandatory': {}}
+  };
+  deepEqual(client.configuration.getExSIPOptions(), options);
+});
 test('getExSIPOptions with hd=true', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "true" : false;}
   client = new WebRTC.Client();

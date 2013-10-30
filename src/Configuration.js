@@ -65,7 +65,13 @@
         var resolution = this.settings.getResolutionEncoding();
         if(!$.isBlank(resolution)) {
           var resolutions = resolution.split('x');
-          return { mandatory: { maxWidth: parseInt(resolutions[0], 10), maxHeight: parseInt(resolutions[1], 10) }};
+          var width = parseInt(resolutions[0], 10);
+          var height = parseInt(resolutions[1], 10);
+          if(height <= 480) {
+            return { mandatory: { maxWidth: width, maxHeight: height }};
+          } else {
+            return { mandatory: { minWidth: width, minHeight: height }};
+          }
         } else {
           return false;
         }
