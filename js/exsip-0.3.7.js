@@ -108,6 +108,7 @@ var Logger;
     warn: function(msg, ua) {
       if(!ua || ua.isDebug()) {
         console.warn(this.formatMsg(msg));
+        console.trace();
       }
     },
     formatMsg: function(msg) {
@@ -2074,7 +2075,7 @@ var InviteClientTransactionPrototype = function() {
     this.ack = 'ACK ' + this.request.ruri + ' SIP/2.0\r\n';
     this.ack += 'Via: ' + this.request.headers['Via'].toString() + '\r\n';
 
-    if(this.request.headers['Route']) {
+    if(this.request.headers['Route'] && this.request.headers['Route'].toString() !== "") {
       this.ack += 'Route: ' + this.request.headers['Route'].toString() + '\r\n';
     }
 
@@ -3419,16 +3420,31 @@ RTCMediaHandler.prototype = {
     this.addStream(rtcMediaHandler.localMedia, streamAdditionSucceeded, streamAdditionFailed);
   },
 
-  connect: function(stream, connectSucceeded, connectFailed, isAnswer) {
+  connect: function(stream, connectSucceeded, connectFailed, isAnswer, remoteSdp) {
     var self = this;
 
-    var streamAdditionSucceeded = function() {
-      logger.log('connect : streamAdditionSucceeded for isAnswer : '+isAnswer, self.session.ua);
+    var setRemoteDescription = function() {
+      self.onMessage(
+        'offer',
+        remoteSdp,
+        createAO, connectFailed
+      );
+    };
 
+    var createAO = function(){
       if(isAnswer) {
         self.createAnswer(connectSucceeded, connectFailed);
       } else {
         self.createOffer(connectSucceeded, connectFailed);
+      }
+    };
+
+    var streamAdditionSucceeded = function() {
+      logger.log('connect : for isAnswer : '+isAnswer, self.session.ua);
+      if(remoteSdp) {
+        setRemoteDescription();
+      } else {
+        createAO();
       }
     };
 
@@ -3438,6 +3454,7 @@ RTCMediaHandler.prototype = {
       }
 
       self.session.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
+      connectFailed();
     };
 
     this.addStream(
@@ -3581,19 +3598,19 @@ RTCMediaHandler.prototype = {
     };
 
     this.peerConnection.oniceconnectionstatechange = function(e) {
-      logger.log('oniceconnectionstatechange: '+ ExSIP.Utils.toString(e), self.session.ua);
+      logger.log('oniceconnectionstatechange : '+ e.iceConnectionState, self.session.ua);
     };
 
     this.peerConnection.onnegotiationneeded = function(e) {
-      logger.log('onnegotiationneeded:: '+ ExSIP.Utils.toString(e), self.session.ua);
+      logger.log('onnegotiationneeded : '+ e.type, self.session.ua);
     };
 
     this.peerConnection.onsignalingstatechange = function(e) {
-      logger.log('onsignalingstatechange:: '+ ExSIP.Utils.toString(e), self.session.ua);
+      logger.log('onsignalingstatechange : '+ e.signalingState, self.session.ua);
     };
 
     this.peerConnection.ondatachannel = function(e) {
-      logger.log('ondatachannel:: '+ ExSIP.Utils.toString(e), self.session.ua);
+      logger.log('ondatachannel : '+ ExSIP.Utils.toString(e), self.session.ua);
     };
 
     this.setOnIceCandidateCallback();
@@ -4228,61 +4245,29 @@ return DTMF;
       self.failed('system', null, ExSIP.C.causes.CONNECTION_ERROR);
     };
 
-    var answerCreationSuccess = function(body) {
-      logger.log("answer creation success", self.ua);
+    var connectSuccess = function() {
+      logger.log("onMessage success", self.ua);
       self.request.reply(200, null, extraHeaders,
-        body,
+        self.rtcMediaHandler.peerConnection.localDescription.sdp,
         replySucceeded,
         replyFailed
       );
     };
 
-    var answerCreationFailed = function() {
-      if (self.status === C.STATUS_TERMINATED) {
-        return;
-      }
-
-      self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
-    };
-
-    var onMessageSuccess = function() {
-      self.rtcMediaHandler.createAnswer(
-        answerCreationSuccess,
-        answerCreationFailed
-      );
-    };
-
-    var onMessageFailure = function(e) {
+    var connectFailed = function(e) {
       logger.warn('invalid SDP', self.ua);
       logger.warn(e, self.ua);
       self.request.reply(488);
     };
 
-    var streamAdditionSuccess = function() {
-      self.rtcMediaHandler.onMessage(
-        'offer',
-        self.request.body,
-        onMessageSuccess, onMessageFailure
-      );
-    };
-
-    var streamAdditionFailed = function() {
-      if (self.status === C.STATUS_TERMINATED) {
-        return;
-      }
-
-      self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
-    };
-
     var localMedia = this.rtcMediaHandler.localMedia;
     this.rtcMediaHandler.close();
 
-    //Initialize Media Session
     this.rtcMediaHandler = new RTCMediaHandler(this,
       {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]}
     );
     this.rtcMediaHandler.localMedia = localMedia;
-    this.rtcMediaHandler.addStream(localMedia, streamAdditionSuccess, streamAdditionFailed);
+    this.rtcMediaHandler.connect(localMedia, connectSuccess, connectFailed, true, self.request.body);
   };
 
   RTCSession.prototype.getDTMF = function() {
@@ -4911,6 +4896,7 @@ return DTMF;
     var localDescription = this.rtcMediaHandler.peerConnection.localDescription;
     localDescription.setVideoMode(mode);
     localDescription.setAudioMode(mode);
+    logger.log("Set mode "+mode+" and change local description of type "+localDescription.type+" to : "+localDescription.sdp);
     this.rtcMediaHandler.peerConnection.setLocalDescription(localDescription);
   };
 
@@ -5215,7 +5201,7 @@ return DTMF;
     var session = this,
       event_name = 'failed';
 
-    logger.log('failed : '+cause, this.ua);
+    logger.warn('failed : '+cause, this.ua);
 
     session.close();
     session.emit(event_name, session, {

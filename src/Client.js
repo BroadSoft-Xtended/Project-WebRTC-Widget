@@ -735,6 +735,10 @@
       document.onkeypress=function(e)
       {
         e = e || window.event;
+        if(self.transferTarget.is(e.srcElement)) {
+          return;
+        }
+
         if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode === 35 || e.charCode === 42)
         {
           var digit = String.fromCharCode(e.charCode);
