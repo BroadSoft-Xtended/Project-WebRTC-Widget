@@ -63,6 +63,27 @@
         $("#settingsPopup").fadeOut(100);
         location.reload(0);
       });
+      this.resolutionType.bind('change', function(e)
+      {
+        self.client.updateMainClass();
+        self.client.updateUserMedia();
+      });
+      this.resolutionDisplayWidescreen.bind('change', function(e)
+      {
+        self.client.updateMainClass();
+      });
+      this.resolutionDisplayStandard.bind('change', function(e)
+      {
+        self.client.updateMainClass();
+      });
+      this.resolutionEncodingWidescreen.bind('change', function(e)
+      {
+        self.client.updateUserMedia();
+      });
+      this.resolutionEncodingStandard.bind('change', function(e)
+      {
+        self.client.updateUserMedia();
+      });
     },
     updatePageColor: function(){
       var color = $("#settingColor").val();
@@ -90,10 +111,10 @@
       this.updateViewPositions();
     },
     updateViewPositions: function(){
-      if (this.client.localVideo.position().top !== 0 && this.client.localVideo.position().left !== 0)
+      if (this.client.video.local.position().top !== 0 && this.client.video.local.position().left !== 0)
       {
-        this.localVideoTop.val(this.client.localVideo.position().top);
-        this.localVideoLeft.val(this.client.localVideo.position().left);
+        this.localVideoTop.val(this.client.video.local.position().top);
+        this.localVideoLeft.val(this.client.video.local.position().left);
       }
       if ($("#callHistory").position().top !== 0 && $("#callHistory").position().left !== 0)
       {
@@ -141,6 +162,20 @@
     },
     getResolutionDisplay: function(){
       return this.getResolution(this.resolutionDisplayStandard, this.resolutionDisplayWidescreen);
+    },
+    getResolutionEncodingWidth: function(){
+      var resolution = this.getResolutionEncoding();
+      if(!$.isBlank(resolution)) {
+        var resolutions = resolution.split('x');
+        return parseInt(resolutions[0], 10);
+      }
+    },
+    getResolutionEncodingHeight: function(){
+      var resolution = this.getResolutionEncoding();
+      if(!$.isBlank(resolution)) {
+        var resolutions = resolution.split('x');
+        return parseInt(resolutions[1], 10);
+      }
     },
     getResolutionEncoding: function(){
       return this.getResolution(this.resolutionEncodingStandard, this.resolutionEncodingWidescreen);

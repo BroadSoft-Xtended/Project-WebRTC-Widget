@@ -44,5 +44,6 @@ ClientConfig = {
     messageConnectionFailed: "Connection Failed!",
     messageRegistered: "Registered",
     messageRegistrationFailed: "Registration Failed!",
-    messageEmptyDestination: "Invalid Number"
+    messageEmptyDestination: "Invalid Number",
+    messageGetUserMedia: "Retrieving User Media Failed"
 };

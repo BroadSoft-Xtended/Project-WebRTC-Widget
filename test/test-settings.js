@@ -51,7 +51,7 @@ test('persist with resolution set', function() {
 });
 test('updates localVideo top and left setting after drag', function() {
   client = new WebRTC.Client();
-  client.localVideo.simulate( "drag", {dx: 50, dy: 100 });
+  client.video.local.simulate( "drag", {dx: 50, dy: 100 });
   strictEqual(client.settings.localVideoLeft.val(), "55");
   strictEqual(client.settings.localVideoTop.val(), "484");
 });
@@ -83,4 +83,13 @@ test('change resolution type', function() {
   deepEqual(client.settings.resolutionEncodingWidescreen.css("display"), "none");
   deepEqual(client.settings.resolutionDisplayStandard.css("display"), "inline-block");
   deepEqual(client.settings.resolutionEncodingStandard.css("display"), "inline-block");
+});
+test('change encoding resolution with different video resolution', function() {
+  WebRTC.Video.prototype.localWidth = function(){return 640;}
+  WebRTC.Video.prototype.localHeight = function(){return 480;}
+  client = new WebRTC.Client();
+  client.settings.resolutionEncodingStandard.val(WebRTC.C.R_960x720);
+  client.settings.resolutionEncodingStandard.trigger('change');
+  client.video.local.trigger("playing");
+  strictEqual(client.messages.text(), "Video resolution 640,480 does not match selected encoding 960,720");
 });

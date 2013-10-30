@@ -6,20 +6,37 @@
   var Video;
 //    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
-  Video = function() {
+  Video = function(client) {
+    this.local = $('#localVideo');
+    this.remote = $('#remoteVideo');
+
+    this.client = client;
+    this.registerListeners();
   };
 
   Video.prototype = {
+    registerListeners: function(){
+      var self = this;
+      this.local.bind("playing", function(){
+        self.client.validateUserMediaResolution();
+      });
+    },
     updateSessionStreams: function(rtcSession) {
       this.updateStreams(rtcSession ? rtcSession.getLocalStreams() : null,
         rtcSession ? rtcSession.getRemoteStreams() : null);
     },
 
     updateStreams: function(localStreams, remoteStreams) {
-      var selfView = document.getElementById("localVideo");
-      var remoteView = document.getElementById("remoteVideo");
-      this.setVideoStream(selfView, localStreams);
-      this.setVideoStream(remoteView, remoteStreams);
+      this.setVideoStream(this.local[0], localStreams);
+      this.setVideoStream(this.remote[0], remoteStreams);
+    },
+
+    localWidth: function(){
+      return this.local[0].videoWidth;
+    },
+
+    localHeight: function(){
+      return this.local[0].videoHeight;
     },
 
     setVideoStream: function(video, streams) {

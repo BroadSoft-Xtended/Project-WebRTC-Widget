@@ -10,7 +10,6 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client');
 
   Client = function() {
-    this.localVideo = $("#localVideo");
     this.main = $("#main");
     this.muteAudio = $('#muteAudio');
     this.unmuteAudio = $('#unmuteAudio');
@@ -22,14 +21,15 @@
     this.rejectTransfer = $("#rejectTransfer");
     this.transferTarget = $("#transferTarget");
     this.transferTypeAttended = $("#transferTypeAttended");
+    this.messages = $("#messages");
     this.initUi();
 
+    this.video = new WebRTC.Video(this);
     this.configuration = new WebRTC.Configuration();
     this.sound = new WebRTC.Sound();
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound);
     this.stats = new WebRTC.Stats(this);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
-    this.video = new WebRTC.Video();
     this.history = new WebRTC.History(this.sound);
     this.sipStack = null;
     this.rtcSession = null;
@@ -67,7 +67,7 @@
       {
         $(function()
         {
-          self.localVideo.draggable({
+          self.video.local.draggable({
             snap: "#remoteVideo,#videoBar",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
@@ -230,9 +230,9 @@
       {
         return;
       }
-      $("#messages").stop(true, true).fadeOut();
-      $("#messages").removeClass("normal success warning alert");
-      $("#messages").addClass(level).text(text).fadeIn(10).fadeOut(10000);
+      this.messages.stop(true, true).fadeOut();
+      this.messages.removeClass("normal success warning alert");
+      this.messages.addClass(level).text(text).fadeIn(10).fadeOut(10000);
     },
 
     // Make sure destination allowed and in proper format
@@ -270,9 +270,7 @@
       $('#call').fadeOut(1000);
       this.hangup.fadeIn(1000);
 
-      if(this.configuration.isDebug()) {
-        logger.log("calling destination : "+destination);
-      }
+      logger.log("calling destination : "+destination, this.configuration);
 
       this.message(ClientConfig.messageCall, "success");
 
@@ -395,9 +393,7 @@
     // Initial startup
     onLoad: function(userid, password) {
       var self = this;
-      if(this.configuration.isDebug()) {
-        logger.log("onLoad");
-      }
+      logger.log("onLoad", this.configuration);
 
       // SIP stack
       this.sipStack = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));
@@ -424,17 +420,13 @@
         }
         self.message(ClientConfig.messageConnected, "success");
 
-        if(ClientConfig.enableConnectLocalMedia) {
-          // Connect to local stream
-          self.sipStack.getUserMedia(self.configuration.getExSIPOptions(), function(localStream){
-            self.video.updateStreams([localStream], []);
-            // Start a call
-            if (self.configuration.destination !== false)
-            {
-              self.uriCall(self.configuration.destination);
-            }
-          });
-        }
+        self.updateUserMedia(function(){
+          // Start a call
+          if (self.configuration.destination !== false)
+          {
+            self.uriCall(self.configuration.destination);
+          }
+        });
       });
       this.sipStack.on('disconnected', function(e)
       {
@@ -710,20 +702,6 @@
         self.pressDTMF(e.target.textContent);
       });
 
-      this.settings.resolutionType.bind('change', function(e)
-      {
-        self.updateMainClass();
-      });
-
-      this.settings.resolutionDisplayWidescreen.bind('change', function(e)
-      {
-        self.updateMainClass();
-      });
-      this.settings.resolutionDisplayStandard.bind('change', function(e)
-      {
-        self.updateMainClass();
-      });
-
       this.destination.keypress(function (e) {
         if (e.keyCode === 13) {
           e.preventDefault();
@@ -786,6 +764,39 @@
       }
 
       this.sipStack.setRtcMediaHandlerOptions(this.configuration.getRtcMediaHandlerOptions());
+    },
+
+    updateUserMedia: function(userMediaCallback){
+      var self = this;
+      if(ClientConfig.enableConnectLocalMedia) {
+        // Connect to local stream
+        var options = this.configuration.getExSIPOptions();
+        this.sipStack.getUserMedia(options, function(localStream){
+          self.video.updateStreams([localStream], []);
+          if(userMediaCallback) {
+            userMediaCallback();
+          }
+        }, function(){
+          this.message(ClientConfig.messageGetUserMedia || "Get User Media Failed", "alert");
+        }, true);
+      }
+    },
+
+    validateUserMediaResolution: function(){
+      var encodingWidth = this.settings.getResolutionEncodingWidth();
+      var encodingHeight = this.settings.getResolutionEncodingHeight();
+      var videoWidth = this.video.localWidth();
+      var videoHeight = this.video.localHeight();
+      logger.log("validating video resolution "+videoWidth+","+videoHeight+" to match selected encoding "+encodingWidth+","+encodingHeight, this.configuration);
+      if(!videoWidth && !videoHeight) {
+        return;
+      }
+
+      if(encodingWidth !== videoWidth || encodingHeight !== videoHeight) {
+        var msg = "Video resolution "+videoWidth+","+videoHeight+" does not match selected encoding "+encodingWidth+","+encodingHeight;
+        this.message(msg, "alert");
+        logger.warn(msg, this.configuration);
+      }
     },
 
     updateMainClass: function(){

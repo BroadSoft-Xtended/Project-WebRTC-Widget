@@ -62,11 +62,9 @@
       if(this.hd === true) {
         return { mandatory: { minWidth: 1280, minHeight: 720 }};
       } else {
-        var resolution = this.settings.getResolutionEncoding();
-        if(!$.isBlank(resolution)) {
-          var resolutions = resolution.split('x');
-          var width = parseInt(resolutions[0], 10);
-          var height = parseInt(resolutions[1], 10);
+        var width = this.settings.getResolutionEncodingWidth();
+        var height = this.settings.getResolutionEncodingHeight();
+        if(width && height) {
           if(height <= 480) {
             return { mandatory: { maxWidth: width, maxHeight: height }};
           } else {

@@ -2650,7 +2650,7 @@ Dialog = function(session, message, type, state) {
 
   this.session = session;
   session.ua.dialogs[this.id.toString()] = this;
-  logger.log('new ' + type + ' dialog created with status ' + (this.state === C.STATUS_EARLY ? 'EARLY': 'CONFIRMED', session.ua));
+  logger.log('new ' + type + ' dialog created with status ' + (this.state === C.STATUS_EARLY ? 'EARLY': 'CONFIRMED'), session.ua);
 };
 
 Dialog.prototype = {
@@ -5747,9 +5747,14 @@ ExSIP.Message = Message;
       return session;
     };
 
-    UA.prototype.getUserMedia = function(options, success, failure) {
-      if(this.localMedia) {
+    UA.prototype.getUserMedia = function(options, success, failure, force) {
+      if(!force && this.localMedia) {
         return this.localMedia;
+      }
+
+      if(this.localMedia) {
+        logger.log("stopping existing local media stream", this);
+        this.localMedia.stop();
       }
 
       logger.log('options : '+ExSIP.Utils.toString(options), this);
