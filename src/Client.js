@@ -21,6 +21,10 @@
     this.rejectTransfer = $("#rejectTransfer");
     this.transferTarget = $("#transferTarget");
     this.transferTypeAttended = $("#transferTypeAttended");
+    this.callButton = $('#call');
+    this.reInvitePopup = $('#reInvitePopup');
+    this.acceptReInviteCall = $("#acceptReInviteCall");
+    this.rejectReInviteCall = $("#rejectReInviteCall");
     this.messages = $("#messages");
     this.initUi();
 
@@ -194,7 +198,8 @@
       $("#remoteVideo, #videoBar").fadeIn(1000);
       if (ClientConfig.enableCallControl && !this.configuration.hideCallControl)
       {
-        $("#callControl, #call, #ok").fadeIn(1000);
+        $("#callControl, #ok").fadeIn(1000);
+        this.callButton.fadeIn(1000);
       }
       if (ClientConfig.enableDialpad)
       {
@@ -267,8 +272,8 @@
         return;
       }
 
-      $('#call').fadeOut(1000);
-      this.hangup.fadeIn(1000);
+      this.setCallState("calling");
+      this.callButton.fadeOut(1000);
 
       logger.log("calling destination : "+destination, this.configuration);
 
@@ -280,9 +285,12 @@
 
     // Incoming reinvite function
     incomingReInvite: function(e) {
+      var self = this;
       if (ClientConfig.enableAutoAcceptReInvite) {
+        logger.log("auto accepting reInvite");
         e.data.session.acceptReInvite();
       } else {
+        this.setEvent("reInvite");
         var incomingCallName = e.data.request.from.display_name;
         var incomingCallUser = e.data.request.from.uri.user;
         var title = e.data.audioAdd ? "Adding Audio" : "Adding Video";
@@ -291,14 +299,14 @@
         $("#reInvitePopup .incomingCallName").text(incomingCallName);
         $("#reInvitePopup .incomingCallUser").text(incomingCallUser);
         $("#reInvitePopup .title").text(title);
-        $("#acceptReInviteCall").off("click");
-        $("#acceptReInviteCall").on("click", function(){
-          $('#reInvitePopup').fadeOut(1000);
+        this.acceptReInviteCall.off("click");
+        this.acceptReInviteCall.on("click", function(){
+          self.setEvent("reInvite-done");
           e.data.session.acceptReInvite();
         });
-        $("#rejectReInviteCall").off("click");
-        $("#rejectReInviteCall").on("click", function(){
-          $('#reInvitePopup').fadeOut(1000);
+        this.rejectReInviteCall.off("click");
+        this.rejectReInviteCall.on("click", function(){
+          self.setEvent("reInvite-done");
           e.data.session.rejectReInvite();
         });
       }
@@ -312,7 +320,6 @@
       this.message("Incoming Call", "success");
       if (ClientConfig.enableAutoAnswer)
       {
-//        $("#hangup").fadeIn(1000);
         this.rtcSession.answer(this.configuration.getExSIPOptions());
       }
       else
@@ -328,7 +335,6 @@
       this.setCallState("ended");
       this.video.updateSessionStreams(this.rtcSession);
   //  rtcSession = null;
-//      $("#hangup, #muteAudio").fadeOut(100);
       // Bring up the main elements
       if (ClientConfig.enableCallControl === true)
       {
@@ -416,7 +422,7 @@
         }
         if (ClientConfig.enableCallControl && !self.configuration.hideCallControl)
         {
-          $("#call").fadeIn(1000);
+          self.callButton.fadeIn(1000);
         }
         self.message(ClientConfig.messageConnected, "success");
 
@@ -437,9 +443,10 @@
         }
         self.message(ClientConfig.messageConnectionFailed, "alert");
         self.endCall();
-        $("#call").hide();
+        self.callButton.hide();
       });
       this.sipStack.on('onReInvite', function(e) {
+        logger.log("incoming onReInvite event");
         self.incomingReInvite(e);
       });
       this.sipStack.on('newRTCSession', function(e)
@@ -465,7 +472,7 @@
         });
         self.rtcSession.on('started', function(e)
         {
-          self.setCallState("calling");
+          self.setCallState("started");
           self.video.updateSessionStreams(self.rtcSession);
           $('.stats-container').attr('id', self.getSessionId()+'-1');
           self.sound.pause();
@@ -556,7 +563,7 @@
       var self = this;
 
   // Buttons
-      $('#call').bind('click', function(e)
+      this.callButton.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
@@ -689,8 +696,7 @@
         self.sound.pause();
         if (this.id === "acceptIncomingCall")
         {
-          $('#call').fadeOut(1000);
-//          self.hangup.fadeIn(1000);
+          self.callButton.fadeOut(1000);
           self.rtcSession.answer(self.configuration.getExSIPOptions());
         }
         else if (this.id === "rejectIncomingCall")
@@ -736,6 +742,10 @@
       };
     },
 
+    setEvent: function(event){
+      this.event = event;
+      this.updateMainClass();
+    },
     setCallState: function(state){
       this.state = state;
       this.updateMainClass();
@@ -807,6 +817,9 @@
       mainClass.push("r"+this.configuration.getResolutionDisplay());
       if(this.state) {
         mainClass.push(this.state);
+      }
+      if(this.event) {
+        mainClass.push(this.event);
       }
       if (ClientConfig.enableMute)
       {

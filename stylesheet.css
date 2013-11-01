@@ -901,16 +901,17 @@ body {
     z-index: 10;
 }
 
-.enable-mute.unmuted.calling #muteAudio,
-.enable-mute.muted.calling #unmuteAudio,
-.calling #hangup,
-.calling #transfer
+.enable-mute.unmuted.started #muteAudio,
+.enable-mute.muted.started #unmuteAudio,
+.started #hangup, .calling #hangup,
+.started #transfer
 {
     transition: all 1s linear;
     opacity: 1;
     z-index: 20;
 }
-.calling.transfer-visible #transferPopup {
+.started.transfer-visible #transferPopup,
+.reInvite #reInvitePopup{
     transition: all 1s linear;
     opacity: 1;
     z-index: 100;
@@ -919,7 +920,8 @@ body {
 .enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
 .ended #hangup,
 .ended #transfer,
-.transfer-hidden #transferPopup {
+.transfer-hidden #transferPopup,
+.reInvite-done #reInvitePopup{
     transition: all 1s linear;
     opacity: 0;
     z-index: 10;

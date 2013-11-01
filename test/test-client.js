@@ -46,6 +46,32 @@ test('call if enter pressed on destination input', function() {
   $("#destination").trigger(event);
   ok(called);
 });
+test('reInvite popup', function() {
+  client = new WebRTC.Client();
+  isVisible(client.reInvitePopup, false);
+});
+test('reInvite popup after incoming reInvite', function() {
+  ClientConfig.enableAutoAcceptReInvite = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.emitReInvite(client);
+  isVisible(client.reInvitePopup, true);
+});
+test('reInvite popup after incoming reInvite and accept clicked', function() {
+  ClientConfig.enableAutoAcceptReInvite = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.emitReInvite(client);
+  client.acceptReInviteCall.trigger("click");
+  isVisible(client.reInvitePopup, false);
+  ok(reInviteAccepted, "should have accepted the reInvite")
+});
+test('reInvite popup after incoming reInvite and reject clicked', function() {
+  ClientConfig.enableAutoAcceptReInvite = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.emitReInvite(client);
+  client.rejectReInviteCall.trigger("click");
+  isVisible(client.reInvitePopup, false);
+  ok(reInviteRejected, "should have rejected the reInvite")
+});
 test('muteAudio', function() {
   client = new WebRTC.Client();
   isVisible(client.muteAudio, false);

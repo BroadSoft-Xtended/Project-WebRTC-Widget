@@ -36,6 +36,16 @@ TestWebrtc.Helpers = {
     registrar_server: 'registrar.exsip.NET:6060;TRansport=TCP'
   },
 
+  emitReInvite: function(client) {
+    client.sipStack.emit("onReInvite", client.sipStack, {
+      session: {acceptReInvite: function(){reInviteAccepted = true;},
+        rejectReInvite: function(){reInviteRejected = true;}},
+      request: {from: {displayName: "test", uri: {user: "user"}}},
+      audioAdd: true,
+      videoAdd: true
+    });
+  },
+
   endCall: function() {
     client.rtcSession.emit('ended');
   },
