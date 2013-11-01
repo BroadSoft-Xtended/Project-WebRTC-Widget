@@ -3415,36 +3415,48 @@ RTCMediaHandler.prototype = {
       self.session.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
     };
 
-    this.setLocalDescription(rtcMediaHandler.peerConnection.localDescription);
+    var description = new ExSIP.WebRTC.RTCSessionDescription({type: "offer", sdp: rtcMediaHandler.peerConnection.localDescription.sdp});
+    this.setLocalDescription(description);
 
     this.addStream(rtcMediaHandler.localMedia, streamAdditionSucceeded, streamAdditionFailed);
   },
 
-  connect: function(stream, connectSucceeded, connectFailed, isAnswer, remoteSdp) {
+  connect: function(stream, connectSucceeded, connectFailed, options) {
     var self = this;
+    options = options || {};
+    logger.log('connect with isAnswer : '+options.isAnswer+" and remoteSdp : "+options.remoteSdp, self.session.ua);
 
-    var setRemoteDescription = function() {
+    var setRemoteDescription = function(successCallback) {
       self.onMessage(
-        'offer',
-        remoteSdp,
-        createAO, connectFailed
+        options.isAnswer ? 'offer' : 'answer',
+        options.remoteSdp,
+        successCallback, function(e){
+          logger.error("setRemoteDescription failed");
+          logger.error(e);
+          connectFailed();
+        }
       );
     };
 
-    var createAO = function(){
-      if(isAnswer) {
-        self.createAnswer(connectSucceeded, connectFailed);
-      } else {
-        self.createOffer(connectSucceeded, connectFailed);
-      }
+    var createAnswer = function(){
+      self.createAnswer(connectSucceeded, connectFailed, options.mediaConstraints);
+    };
+
+    var createOffer = function(){
+      self.createOffer(function(){
+        if(options.remoteSdp) {
+          setRemoteDescription(connectSucceeded);
+        } else {
+          connectSucceeded();
+        }
+      }, connectFailed, options.mediaConstraints);
     };
 
     var streamAdditionSucceeded = function() {
-      logger.log('connect : for isAnswer : '+isAnswer, self.session.ua);
-      if(remoteSdp) {
-        setRemoteDescription();
+      if(options.isAnswer) {
+        setRemoteDescription(createAnswer);
       } else {
-        createAO();
+        createOffer();
       }
     };
 
@@ -3512,11 +3524,17 @@ RTCMediaHandler.prototype = {
       constraints);
   },
 
+  getRemoteDescriptionSdp: function() {
+    return this.peerConnection.remoteDescription ? this.peerConnection.remoteDescription.sdp : undefined;
+  },
+
   setLocalDescription: function(sessionDescription, onFailure) {
-    logger.log('peerConnection.setLocalDescription : '+ExSIP.Utils.toString(sessionDescription), this.session.ua);
+    logger.log('peerConnection.setLocalDescription with type '+sessionDescription.type +' : '+sessionDescription.sdp, this.session.ua);
     this.peerConnection.setLocalDescription(
       sessionDescription,
-      function(){},
+      function(){
+        logger.log('setLocalDescription successful');
+      },
       function(e) {
         logger.error('unable to set local description');
         logger.error(e);
@@ -3527,7 +3545,7 @@ RTCMediaHandler.prototype = {
 
   addStream: function(stream, onSuccess, onFailure, constraints) {
     try {
-      logger.log("stream : "+ExSIP.Utils.toString(stream), this.session.ua);
+      logger.log("add stream : "+ExSIP.Utils.toString(stream), this.session.ua);
       this.peerConnection.addStream(stream, constraints);
     } catch(e) {
       logger.error('error adding stream');
@@ -3551,6 +3569,7 @@ RTCMediaHandler.prototype = {
 
   removeStream: function(stream) {
     try {
+      logger.log("remove stream : "+ExSIP.Utils.toString(stream), this.session.ua);
       this.peerConnection.removeStream(stream);
     } catch(e) {
       logger.error('error removing stream');
@@ -3700,11 +3719,11 @@ RTCMediaHandler.prototype = {
     var description = new ExSIP.WebRTC.RTCSessionDescription({type: type, sdp:body});
     if(this.session.ua.rtcMediaHandlerOptions["videoBandwidth"]) {
       description.setVideoBandwidth(this.session.ua.rtcMediaHandlerOptions["videoBandwidth"]);
-      logger.log("Modifying SDP with videoBandwidth : "+this.session.ua.rtcMediaHandlerOptions["videoBandwidth"]+"!!!!\n" + description.sdp, this.session.ua);
+      logger.log("Modifying SDP with videoBandwidth : "+this.session.ua.rtcMediaHandlerOptions["videoBandwidth"], this.session.ua);
     }
 
     if(this.peerConnection) {
-      logger.log('peerConnection.setRemoteDescription : '+description.sdp, this.session.ua);
+      logger.log('peerConnection.setRemoteDescription for type '+type+' : '+description.sdp, this.session.ua);
       this.peerConnection.setRemoteDescription(
         description,
         onSuccess,
@@ -4021,7 +4040,12 @@ return DTMF;
           this.cancelReason = cancel_reason;
         } else if (this.status === C.STATUS_INVITE_SENT) {
           if(this.received_100) {
-            this.request.cancel(cancel_reason);
+            if(typeof(this.request.cancel) === 'undefined') {
+              this.sendBye(options);
+              this.ended('local', null, ExSIP.C.causes.BYE);
+            } else {
+              this.request.cancel(cancel_reason);
+            }
           } else {
             this.isCanceled = true;
             this.cancelReason = cancel_reason;
@@ -4166,7 +4190,7 @@ return DTMF;
     window.clearTimeout(this.timers.userNoAnswerTimer);
 
     logger.log('answer : getUserMedia', self.ua);
-    this.getUserMedia(mediaConstraints, answerCreationSucceeded, answerCreationFailed, true);
+    this.getUserMedia(mediaConstraints, answerCreationSucceeded, answerCreationFailed, {isAnswer: true, remoteSdp: request.body});
   };
 
   /**
@@ -4261,12 +4285,23 @@ return DTMF;
       self.request.reply(488);
     };
 
-    var localMedia = this.rtcMediaHandler.localMedia;
+    this.reconnectRtcMediaHandler(connectSuccess, connectFailed, {isAnswer: true, remoteSdp: this.request.body});
+  };
+
+  RTCSession.prototype.reconnectRtcMediaHandler = function(connectSuccess, connectFailed, options) {
+    var self = this;
+    options = options || {};
+    var localMedia = options.localMedia || this.rtcMediaHandler.localMedia;
+    options.remoteSdp = options.remoteSdp || this.rtcMediaHandler.getRemoteDescriptionSdp();
     this.rtcMediaHandler.close();
 
     this.initRtcMediaHandler();
     this.rtcMediaHandler.localMedia = localMedia;
-    this.rtcMediaHandler.connect(localMedia, connectSuccess, connectFailed, true, self.request.body);
+    this.rtcMediaHandler.connect(localMedia, function(){
+        self.started('local');
+        connectSuccess();
+      }, connectFailed, options
+    );
   };
 
   RTCSession.prototype.getDTMF = function() {
@@ -4764,12 +4799,13 @@ return DTMF;
    * Get User Media
    * @private
    */
-  RTCSession.prototype.getUserMedia = function(constraints, creationSucceeded, creationFailed, isAnswer) {
+  RTCSession.prototype.getUserMedia = function(constraints, creationSucceeded, creationFailed, options) {
     var self = this;
 
     var userMediaSucceeded = function(stream) {
       self.ua.localMedia = stream;
-      self.rtcMediaHandler.connect(stream, creationSucceeded, creationFailed, isAnswer);
+      self.rtcMediaHandler.connect(stream, creationSucceeded, creationFailed, options);
+//      self.reconnectRtcMediaHandler(creationSucceeded, creationFailed, {localMedia: stream, isAnswer: isAnswer});
     };
 
     var userMediaFailed = function() {
@@ -4845,7 +4881,6 @@ return DTMF;
 
     extraHeaders.push('Contact: '+ this.contact);
     extraHeaders.push('Allow: '+ ExSIP.Utils.getAllowedMethods(this.ua));
-    extraHeaders.push('Content-Type: application/sdp');
 
     this.request = new ExSIP.OutgoingRequest(method, target, this.ua, requestParams, extraHeaders);
 
@@ -4878,14 +4913,14 @@ return DTMF;
     this.sendRequest(ExSIP.C.REFER, options);
   };
 
-  RTCSession.prototype.hold = function(inviteSuccessCallback) {
+  RTCSession.prototype.hold = function(inviteSuccessCallback, inviteFailureCallback) {
     this.setLocalMode(ExSIP.C.SENDONLY, ExSIP.C.SENDONLY);
-    this.sendInviteRequest(undefined, undefined, inviteSuccessCallback);
+    this.sendInviteRequest(undefined, undefined, inviteSuccessCallback, inviteFailureCallback);
   };
 
-  RTCSession.prototype.unhold = function(inviteSuccessCallback) {
+  RTCSession.prototype.unhold = function(inviteSuccessCallback, inviteFailureCallback) {
     this.setLocalMode(ExSIP.C.SENDRECV, ExSIP.C.SENDRECV);
-    this.sendInviteRequest(undefined, undefined, inviteSuccessCallback);
+    this.sendInviteRequest(undefined, undefined, inviteSuccessCallback, inviteFailureCallback);
   };
 
   RTCSession.prototype.setLocalMode = function(audioMode, videoMode) {
@@ -5071,6 +5106,12 @@ return DTMF;
       this.status = options["status"];
     }
     request.body = options["sdp"];
+
+    var hasSdp = request.body && request.body.length > 0;
+    if(!ExSIP.Utils.containsHeader(request.extraHeaders, "Content-Type") && hasSdp) {
+      request.extraHeaders.push('Content-Type: application/sdp');
+    }
+
     var request_sender = new RequestSender(this, request);
     request_sender.send();
   };
@@ -5656,11 +5697,16 @@ ExSIP.Message = Message;
         return;
       }
 
+      var holdFailed = function(){
+        logger.log("hold failed", self);
+      };
+
       var holdSuccess = function(){
+        logger.log("hold success - sending refer to transferee", self);
         self.sendReferBasic(sessionToTransfer, transferTarget, options);
       };
 
-      sessionToTransfer.hold(holdSuccess);
+      sessionToTransfer.hold(holdSuccess, holdFailed);
     };
 
     UA.prototype.attendedTransfer = function(transferTarget, sessionToTransfer, options) {
@@ -5679,25 +5725,37 @@ ExSIP.Message = Message;
       targetSession.rtcMediaHandler.copy(sessionToTransfer.rtcMediaHandler);
 
       var holdTargetSuccess = function(){
+        logger.log("hold target success - sending attended refer", self);
         self.sendReferAttended(sessionToTransfer, targetSession, transferTarget, options);
       };
 
+      var holdTargetFailed = function(){
+        logger.log("hold target failed", self);
+      };
+
       var sendTargetInviteSuccess = function(){
-        targetSession.hold(holdTargetSuccess);
+        logger.log("send invite to target success - putting target on hold", self);
+        targetSession.hold(holdTargetSuccess, holdTargetFailed);
       };
 
       var sendTargetInviteFailed = function(statusCode){
+        logger.log("send invite to target failed - sending basic refer", self);
         if(statusCode === 420) {
           self.sendReferBasic(sessionToTransfer, transferTarget, options);
         }
       };
 
+      var holdFailed = function(){
+        logger.log("hold failed", self);
+      };
+
       var holdSuccess = function(){
+        logger.log("hold success - sending invite to target", self);
         targetSession.sendInviteRequest(transferTarget, {extraHeaders: ["Require: replaces"]},
           sendTargetInviteSuccess, sendTargetInviteFailed);
       };
 
-      sessionToTransfer.hold(holdSuccess);
+      sessionToTransfer.hold(holdSuccess, holdFailed);
     };
 
     UA.prototype.sendReferAttended = function(sessionToTransfer, targetSession, transferTarget, options) {
@@ -6992,6 +7050,15 @@ Utils= {
       return window.Math.floor(window.Math.random()*(to-from+1)+from);
     }
     return '192.0.2.' + getOctet(1, 254);
+  },
+
+  containsHeader: function(headers, name) {
+    for(var i=0; i<headers.length; i++) {
+      if(headers[i].indexOf(name) !== -1) {
+        return true;
+      }
+    }
+    return false;
   },
 
   getAllowedMethods: function(ua) {

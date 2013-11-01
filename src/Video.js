@@ -3,8 +3,8 @@
  */
 
 (function(WebRTC) {
-  var Video;
-//    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
+  var Video,
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Video');
 
   Video = function(client) {
     this.local = $('#localVideo');
@@ -27,6 +27,8 @@
     },
 
     updateStreams: function(localStreams, remoteStreams) {
+      logger.log('updateStreams with localStreams '+(localStreams ? localStreams.length : 0)+
+        ' and remoteStreams '+(remoteStreams ? remoteStreams.length : 0));
       this.setVideoStream(this.local[0], localStreams);
       this.setVideoStream(this.remote[0], remoteStreams);
     },

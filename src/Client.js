@@ -629,6 +629,9 @@
         e.preventDefault();
         self.sound.playClick();
         self.setTransferVisible(!self.transferVisible);
+        if(self.transferVisible) {
+          self.transferTarget.focus();
+        }
       });
 
       this.acceptTransfer.bind('click', function(e)
