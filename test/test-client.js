@@ -4,6 +4,7 @@ module( "Client", {
     TestWebrtc.Helpers.mockSound();
     ClientConfig.domainTo = "domain.to";
     ClientConfig.domainFrom = "domain.from";
+    ClientConfig.enableTransfer = true;
     WebRTC.Client.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }
@@ -96,6 +97,12 @@ test('muteAudio on call started', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
   isVisible(client.muteAudio, true);
+});
+test('transfer on call started with enableTransfer is false', function() {
+  ClientConfig.enableTransfer = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.startCall();
+  isVisible(client.transfer, false);
 });
 test('transfer on call started', function() {
   client = new WebRTC.Client();

@@ -904,13 +904,13 @@ body {
 .enable-mute.unmuted.started #muteAudio,
 .enable-mute.muted.started #unmuteAudio,
 .started #hangup, .calling #hangup,
-.started #transfer
+.enable-transfer.started #transfer
 {
     transition: all 1s linear;
     opacity: 1;
     z-index: 20;
 }
-.started.transfer-visible #transferPopup,
+.enable-transfer.started.transfer-visible #transferPopup,
 .reInvite #reInvitePopup{
     transition: all 1s linear;
     opacity: 1;
@@ -919,8 +919,8 @@ body {
 .enable-mute.ended #muteAudio, .enable-mute.ended #unmuteAudio,
 .enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
 .ended #hangup,
-.ended #transfer,
-.transfer-hidden #transferPopup,
+.enable-transfer.ended #transfer,
+.enable-transfer.transfer-hidden #transferPopup,
 .reInvite-done #reInvitePopup{
     transition: all 1s linear;
     opacity: 0;

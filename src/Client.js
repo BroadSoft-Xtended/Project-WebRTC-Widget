@@ -825,6 +825,10 @@
       {
         mainClass.push("enable-mute");
       }
+      if (ClientConfig.enableTransfer)
+      {
+        mainClass.push("enable-transfer");
+      }
       if(this.muted) { mainClass.push("muted"); } else { mainClass.push("unmuted"); }
       if(this.transferVisible) { mainClass.push("transfer-visible"); } else { mainClass.push("transfer-hidden"); }
       this.main.attr("class", mainClass.join(" "));
