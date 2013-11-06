@@ -5761,8 +5761,7 @@ ExSIP.Message = Message;
     UA.prototype.sendReferAttended = function(sessionToTransfer, targetSession, transferTarget, options) {
       var referSession = this.getReferSession(sessionToTransfer, options);
       options = this.getReferOptions(sessionToTransfer, targetSession, options);
-      var targetContact = targetSession.dialog.remote_target;
-      var referTo = "<"+(targetContact || transferTarget).toString()+
+      var referTo = "<"+(transferTarget).toString()+
         "?Replaces="+targetSession.dialog.id.call_id+
         "%3Bto-tag%3D"+targetSession.dialog.id.remote_tag+
         "%3Bfrom-tag%3D"+targetSession.dialog.id.local_tag+">";

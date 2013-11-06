@@ -25,7 +25,7 @@
     this.historyClear = $("#historyClear");
     this.historyCallLink = $("#historyCallLink");
 
-    this.page = null;
+    this.pageNumber = 0;
     this.historyToggled = false;
     this.client = client;
     this.sound = sound;
@@ -35,6 +35,29 @@
     this.rows = [];
 
     this.registerListeners();
+
+    this.updateContent();
+  };
+
+  History.Page = function (number, callsValue) {
+    this.number = number;
+    this.calls = this.parseCalls(callsValue);
+  };
+
+  History.Page.prototype = {
+    callsAsString: function () {
+      return this.calls.map(function(call){return call.toString();}).join("~");
+    },
+    parseCalls: function (callsValue) {
+      var calls = [];
+      if(callsValue.trim().length > 0) {
+        var callsArray = callsValue.split("~");
+        for(var i=0; i<callsArray.length; i++){
+          calls.push(new History.Call(callsArray[i]));
+        }
+      }
+      return calls;
+    }
   };
 
   History.Call = function (value) {
@@ -77,21 +100,26 @@
       var pages = [];
       var regex = new RegExp(/page_(.*)\=(.*)\|end\1/g);
       while (match = regex.exec(allCookies)) {
-        pages.push(match[2]);
+        var page = new History.Page(parseInt(match[1], 10), match[2]);
+        pages.push(page);
       }
+      // sort pages descendingly
+      pages.sort(function(page1, page2) {
+        return page2.number - page1.number;
+      });
       return pages;
     },
 
     updateButtonsVisibility: function() {
-      var pagesArray = this.pages();
-      var pagesCount = pagesArray ? pagesArray.length - 1 : 0;
-      if (this.page < pagesCount) {
+      var pages = this.pages();
+      var pagesCount = pages ? pages.length - 1 : 0;
+      if (this.pageNumber < pagesCount) {
         this.historyForward.show();
       }
       else {
         this.historyForward.hide();
       }
-      if (this.page > 0) {
+      if (this.pageNumber > 0) {
         this.historyBack.show();
       }
       else {
@@ -102,27 +130,34 @@
     updateContent: function() {
       this.content.html("");
       this.rows = [];
-      var pagesArray = this.pages();
-      logger.log("updateContent for pageNumber : "+this.page+" with pages : "+pagesArray.length);
+      var pages = this.pages();
+      logger.log("updateContent for pageNumber : "+this.pageNumber+" with pages : "+pages.length);
       this.updateButtonsVisibility();
-      if(this.page < pagesArray.length) {
-        var calls = this.getCalls(pagesArray[this.page]);
-        logger.log("page with calls : "+calls.length);
-        for (var i = 0; i < calls.length; i++) {
-          var row = $('#historyRowSample').clone();
-          row.attr('id', '');
-          row.attr('class', 'history-row');
-          var call = new History.Call(calls[i]);
-          row.bind("click", this.callDetailsHandler(call));
-          row.find(".historyCall").text((this.page * 10) + i + 1);
-          row.find(".historyDestination").text(call.destinationWithoutSip());
-          row.find(".historyDirection").text(call.direction);
-          row.find(".historyDate").text(call.startDate());
-          row.find(".historyLength").text(call.length);
-          this.rows.push(row);
-          row.appendTo(this.content);
-        }
+      var calls = this.getAllCalls();
+      var startPos = this.callsPerPage * this.pageNumber;
+      for (var i = startPos; i < startPos + this.callsPerPage && i < calls.length; i++) {
+        var row = $('#historyRowSample').clone();
+        row.attr('id', '');
+        row.attr('class', 'history-row');
+        var call = calls[i];
+        row.bind("click", this.callDetailsHandler(call));
+        row.find(".historyCall").text((this.pageNumber * 10) + i + 1);
+        row.find(".historyDestination").text(call.destinationWithoutSip());
+        row.find(".historyDirection").text(call.direction);
+        row.find(".historyDate").text(call.startDate());
+        row.find(".historyLength").text(call.length);
+        this.rows.push(row);
+        row.appendTo(this.content);
       }
+    },
+
+    getAllCalls:function () {
+      var pages = this.pages();
+      var calls = [];
+      for(var i=0; i<pages.length; i++) {
+        calls = calls.concat(pages[i].calls);
+      }
+      return calls;
     },
 
     callDetailsHandler:function (call) {
@@ -144,8 +179,8 @@
       };
     },
 
-    setPage: function(page) {
-      this.page = page;
+    setPageNumber: function(pageNumber) {
+      this.pageNumber = pageNumber;
       this.updateContent();
     },
 
@@ -155,13 +190,13 @@
       this.historyForward.bind('click', function (e) {
         e.preventDefault();
         self.sound.playClick();
-        self.setPage(self.page + 1);
+        self.setPageNumber(self.pageNumber + 1);
       });
 
       this.historyBack.bind('click', function (e) {
         e.preventDefault();
         self.sound.playClick();
-        self.setPage(self.page - 1);
+        self.setPageNumber(self.pageNumber - 1);
       });
 
       this.historyDetailsClose.bind('click', function (e) {
@@ -181,18 +216,18 @@
       this.historyClear.bind('click', function (e) {
         e.preventDefault();
         self.sound.playClick();
-        var pagesArray = self.pages();
-        for (var i = 0; i < pagesArray.length; i++) {
-          $.removeCookie("page_" + (i));
+        var pages = self.pages();
+        for (var i = 0; i < pages.length; i++) {
+          $.removeCookie("page_" + (pages[i].number));
         }
-        self.setPage(0);
+        self.setPageNumber(0);
       });
     },
 
-    persistPage:function (pageNumber, calls) {
-      var cookieKey = ("page_" + pageNumber);
-      var cookieValue = calls.join("~") + "|end"+pageNumber;
-      logger.log("persistCall : cookieValue : "+cookieValue);
+    persistPage:function (page) {
+      var cookieKey = ("page_" + page.number);
+      var cookieValue = page.callsAsString() + "|end"+page.number;
+      logger.log("persistCall : "+cookieKey+"="+cookieValue);
       $.cookie(cookieKey, cookieValue, { expires:ClientConfig.expires});
     },
 
@@ -201,39 +236,38 @@
         return;
       }
       // Get latest cookie
-      var pagesArray = this.pages();
-      var pageNumber = null;
-      if (pagesArray.length > 0) {
-        pageNumber = pagesArray.length - 1;
+      var pages = this.pages();
+      var page = null;
+      if (pages.length > 0) {
+        page = pages[0];
       }
       else {
-        pageNumber = 0;
+        page = new History.Page(0, "");
       }
 
-      var calls = [];
-      if(pagesArray.length > 0) {
-        calls = this.getCalls(pagesArray[pagesArray.length-1]);
-      }
-
-      if(calls.length >= this.callsPerPage) {
-        calls = [];
-        pageNumber++;
-        if(pageNumber >= this.maxPages) {
-          // remove first call and reorder calls to each page
-          var allCalls = [];
-          for(var i=0; i<pagesArray.length; i++) {
-            allCalls = allCalls.concat(this.getCalls(pagesArray[i]));
+      if(page.calls.length >= this.callsPerPage) {
+        if(page.number+1 >= this.maxPages) {
+          // remove oldest call and reorder calls to each page
+          for(var i=0; i<pages.length; i++) {
+            var lastPageCall = pages[i].calls.pop();
+            if(i+1 < pages.length) {
+              pages[i+1].calls.unshift(lastPageCall);
+            }
+            this.persistPage(pages[i]);
           }
-          pageNumber = -1;
-          for(var j=1; j<allCalls.length; j+=this.callsPerPage) {
-            calls = allCalls.slice(j, this.callsPerPage);
-            pageNumber++;
-            this.persistPage(pageNumber, calls);
-          }
+        } else {
+          page = new History.Page(page.number+1, "");
         }
       }
 
       // cookie vars
+      var call = this.createCall(rtcSession);
+      page.calls.unshift(call);
+      this.persistPage(page);
+      this.updateContent();
+    },
+
+    createCall: function(rtcSession) {
       var call = new History.Call();
       var start = rtcSession.start_time;
       call.startTime = new Date(start).getTime();
@@ -254,21 +288,12 @@
       call.videoLostPer = this.stats.getAvg("video", "packetsLostPer");
       call.jitter = this.stats.getAvg("audio", "googJitterReceived");
       call.length = WebRTC.Utils.format(Math.round(Math.abs((rtcSession.end_time - start) / 1000)));
-      calls.push(call.toString());
-      this.persistPage(pageNumber, calls);
-      this.updateContent();
-    },
-
-    getCalls: function (page) {
-      return page ? page.split("~") : [];
+      return call;
     },
 
     toggle:function () {
       if (ClientConfig.enableCallHistory === true) {
         if (this.historyToggled === false) {
-          if(!this.page) {
-            this.setPage(Math.max(0, this.pages().length - 1));
-          }
           $("#callHistory, #historyClear").fadeIn(100);
         }
         else if (this.historyToggled === true) {

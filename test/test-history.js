@@ -4,6 +4,11 @@ module( "History", {
     TestWebrtc.Helpers.deleteAllCookies();
     ClientConfig.enableCallHistory = true;
     rtcSession = createRtcSession();
+    session1 = createRtcSession("remote1")
+    session2 = createRtcSession("remote2")
+    session3 = createRtcSession("remote3")
+    session4 = createRtcSession("remote4")
+    session5 = createRtcSession("remote5")
     WebRTC.Stats.prototype.getValue = function(type, name){
       return "test-"+type+"-"+name;
     }
@@ -17,16 +22,18 @@ test('persistCall', function() {
   client = new WebRTC.Client();
   client.history.persistCall(rtcSession);
   deepEqual(document.cookie, "page_0="+getCallCookieValue()+"|end0");
-  deepEqual(client.history.pages(), [getCallCookieValue()]);
+  deepEqual(client.history.pages(), [new WebRTC.History.Page(0, getCallCookieValue())]);
 });
 test('persistCall and toggle', function() {
   client = new WebRTC.Client();
   client.history.persistCall(rtcSession);
   client.history.toggle();
-  strictEqual(client.history.page, 0);
+  strictEqual(client.history.pageNumber, 0);
   strictEqual(client.history.historyForward.is(":visible"), false);
   strictEqual(client.history.historyBack.is(":visible"), false);
+  strictEqual(client.history.content.text().indexOf("remote") !== -1, true, "Should contain content");
 });
+
 test('persistCall and toggle and show details', function() {
   client = new WebRTC.Client();
   client.history.persistCall(rtcSession);
@@ -59,45 +66,45 @@ test('persistCall and toggle and show details and call', function() {
 });
 test('persistCall for multiple calls', function() {
   client = new WebRTC.Client();
-  client.history.persistCall(rtcSession);
-  client.history.persistCall(rtcSession);
-  deepEqual(document.cookie, "page_0="+getCallCookieValue() + "~" + getCallCookieValue() + "|end0");
-  deepEqual(client.history.pages(), [getCallCookieValue() + "~" + getCallCookieValue()]);
+  client.history.persistCall(session1);
+  client.history.persistCall(session2);
+  deepEqual(document.cookie, "page_0="+getCallCookieValue(session2) + "~" + getCallCookieValue(session1) + "|end0");
+  deepEqual(client.history.pages(), [new WebRTC.History.Page(0, getCallCookieValue(session2)+"~"+getCallCookieValue(session1))]);
 });
 test('persistCall for multiple calls and higher than callsPerPage', function() {
   client = new WebRTC.Client();
   client.history.callsPerPage = 2;
-  client.history.persistCall(rtcSession);
-  client.history.persistCall(rtcSession);
-  client.history.persistCall(rtcSession);
-  deepEqual(document.cookie, "page_0="+getCallCookieValue() + "~" + getCallCookieValue() + "|end0; page_1="+getCallCookieValue()+"|end1");
-  deepEqual(client.history.pages(), [getCallCookieValue() + "~" + getCallCookieValue(), getCallCookieValue()]);
+  client.history.persistCall(session1);
+  client.history.persistCall(session2);
+  client.history.persistCall(session3);
+  deepEqual(document.cookie, "page_0="+getCallCookieValue(session2) + "~" + getCallCookieValue(session1) + "|end0; page_1="+getCallCookieValue(session3)+"|end1");
+  deepEqual(client.history.pages(), [new WebRTC.History.Page(1, getCallCookieValue(session3)), new WebRTC.History.Page(0, getCallCookieValue(session2)+"~"+getCallCookieValue(session1))]);
 });
 test('multiple pages and toggle', function() {
   client = new WebRTC.Client();
   client.history.callsPerPage = 2;
-  client.history.persistCall(createRtcSession("remote1"));
-  client.history.persistCall(createRtcSession("remote2"));
-  client.history.persistCall(createRtcSession("remote3"));
+  client.history.persistCall(session1);
+  client.history.persistCall(session2);
+  client.history.persistCall(session3);
   client.history.toggle();
-  strictEqual(client.history.page, 1);
+  strictEqual(client.history.pageNumber, 0);
   strictEqual(client.history.content.text().indexOf("remote1") === -1, true, "Should not contain session1 destination");
-  strictEqual(client.history.content.text().indexOf("remote2") === -1, true, "Should not contain session2 destination");
+  strictEqual(client.history.content.text().indexOf("remote2") !== -1, true, "Should contain session2 destination");
   strictEqual(client.history.content.text().indexOf("remote3") !== -1, true, "Should contain session3 destination");
-  strictEqual(client.history.historyForward.is(":visible"), false);
-  strictEqual(client.history.historyBack.is(":visible"), true);
+  strictEqual(client.history.historyForward.is(":visible"), true);
+  strictEqual(client.history.historyBack.is(":visible"), false);
 });
 
 test('multiple pages, toggle, clear and toggle again', function() {
   client = new WebRTC.Client();
   client.history.callsPerPage = 2;
-  client.history.persistCall(createRtcSession("remote1"));
-  client.history.persistCall(createRtcSession("remote2"));
-  client.history.persistCall(createRtcSession("remote3"));
+  client.history.persistCall(session1);
+  client.history.persistCall(session2);
+  client.history.persistCall(session3);
   client.history.toggle();
-  strictEqual(client.history.page, 1);
+  strictEqual(client.history.pageNumber, 0);
   client.history.historyClear.trigger("click");
-  strictEqual(client.history.page, 0);
+  strictEqual(client.history.pageNumber, 0);
   strictEqual(client.history.content.text(), "", "Should not contain content");
   strictEqual(client.history.historyForward.is(":visible"), false);
   strictEqual(client.history.historyBack.is(":visible"), false);
@@ -106,33 +113,37 @@ test('multiple pages, toggle, clear and toggle again', function() {
 test('multiple pages and toggle and click forward', function() {
   client = new WebRTC.Client();
   client.history.callsPerPage = 2;
-  client.history.persistCall(createRtcSession("remote1"));
-  client.history.persistCall(createRtcSession("remote2"));
-  client.history.persistCall(createRtcSession("remote3"));
+  client.history.persistCall(session1);
+  client.history.persistCall(session2);
+  client.history.persistCall(session3);
   client.history.toggle();
-  client.history.historyBack.trigger("click");
-  strictEqual(client.history.page, 0);
+  client.history.historyForward.trigger("click");
+  strictEqual(client.history.pageNumber, 1);
   strictEqual(client.history.content.text().indexOf("remote1") !== -1, true, "Should contain session1 destination");
-  strictEqual(client.history.content.text().indexOf("remote2") !== -1, true, "Should contain session2 destination");
+  strictEqual(client.history.content.text().indexOf("remote2") === -1, true, "Should not contain session2 destination");
   strictEqual(client.history.content.text().indexOf("remote3") === -1, true, "Should not contain session3 destination");
-  strictEqual(client.history.historyForward.is(":visible"), true, "Should show forward button");
-  strictEqual(client.history.historyBack.is(":visible"), false, "Should hide back button");
+  strictEqual(client.history.historyForward.is(":visible"), false, "Should show forward button");
+  strictEqual(client.history.historyBack.is(":visible"), true, "Should hide back button");
 });
 
 test('persistCall for multiple calls and higher than callsPerPage and pages above maxPages', function() {
   client = new WebRTC.Client();
   client.history.callsPerPage = 2;
-  client.history.maxPages = 1;
-  var session1 = createRtcSession("remote1");
+  client.history.maxPages = 2;
   client.history.persistCall(session1);
-  var session2 = createRtcSession("remote2");
   client.history.persistCall(session2);
-  var session3 = createRtcSession("remote3");
   client.history.persistCall(session3);
-  deepEqual(document.cookie, "page_0="+getCallCookieValue(session2) + "~" + getCallCookieValue(session3) + "|end0");
-  deepEqual(client.history.pages(), [getCallCookieValue(session2) + "~" + getCallCookieValue(session3)]);
+  client.history.persistCall(session4);
+  client.history.persistCall(session5);
+  deepEqual(document.cookie, "page_0="+getCallCookieValue(session3) + "~" + getCallCookieValue(session2) + "|end0; page_1="+getCallCookieValue(session5) + "~" + getCallCookieValue(session4) + "|end1");
+  deepEqual(client.history.pages(), [
+    new WebRTC.History.Page(1, getCallCookieValue(session5)+"~"+getCallCookieValue(session4)),
+    new WebRTC.History.Page(0, getCallCookieValue(session3)+"~"+getCallCookieValue(session2))]);
 });
 
+function getCall(session) {
+  return new WebRTC.History.Call(getCallCookieValue(session));
+}
 function getCallCookieValue(session) {
   session = session || rtcSession;
   return session.start_time.getTime()+"|"+session.remote_identity.uri+"|------>|" + getStatsCookieValue()+ "|00:00:00"
