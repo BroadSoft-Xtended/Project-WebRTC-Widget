@@ -51,22 +51,12 @@
           self.client.endCall();
           return;
         }
-        self.text.text(self.format(secs));
+        self.text.text(WebRTC.Utils.format(secs));
         if (ClientConfig.enableCallStats && WebRTC.Utils.isChrome())
         {
           self.stats.processStats();
         }
       };
-    },
-
-    format: function(seconds)
-    {
-      var hrs = Math.floor(seconds / 3600);
-      seconds %= 3600;
-      var mns = Math.floor(seconds / 60);
-      seconds %= 60;
-      var formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (seconds < 10 ? "0" : "") + seconds;
-      return(formatedDuration);
     }
   };
 

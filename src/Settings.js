@@ -61,7 +61,7 @@
         self.sound.playClick();
         self.persist();
         $("#settingsPopup").fadeOut(100);
-        location.reload(0);
+        self.reload();
       });
       this.resolutionType.bind('change', function(e)
       {
@@ -84,6 +84,9 @@
       {
         self.client.updateUserMedia();
       });
+    },
+    reload: function(){
+      location.reload(0);
     },
     updatePageColor: function(){
       var color = $("#settingColor").val();

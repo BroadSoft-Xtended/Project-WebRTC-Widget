@@ -5,10 +5,12 @@ module( "Client", {
     ClientConfig.domainTo = "domain.to";
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableTransfer = true;
+    ClientConfig.enableCallStats = false;
     WebRTC.Client.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }
 });
+
 test('validateDestination', function() {
   client = new WebRTC.Client();
   ClientConfig.allowOutside = true;
@@ -40,8 +42,8 @@ test('resolution class for resolution setting', function() {
 });
 test('call if enter pressed on destination input', function() {
   var called = false;
-  WebRTC.Client.prototype.call = function(){console.log('call');called = true;};
   client = new WebRTC.Client();
+  client.call = function(){console.log('call');called = true;};
   var event = jQuery.Event("keypress");
   event.keyCode = 13;
   $("#destination").trigger(event);

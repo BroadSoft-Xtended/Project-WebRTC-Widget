@@ -3,6 +3,7 @@ module( "Settings", {
     TestWebrtc.Helpers.mockSound();
     TestWebrtc.Helpers.mockLocation();
     TestWebrtc.Helpers.deleteAllCookies();
+    ClientConfig.enableCallStats = false;
   }, teardown: function() {
   }
 });

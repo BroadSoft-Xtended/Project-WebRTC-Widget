@@ -475,7 +475,7 @@ body {
 }
 
 /* Incoming Call Pupup */
-#callPopup, #reInvitePopup, #transferPopup {
+#callPopup, #reInvitePopup, #transferPopup, #callHistoryDetails {
   display: none;
   background: #333333;
   padding: 10px; 	
@@ -925,4 +925,28 @@ body {
     transition: all 1s linear;
     opacity: 0;
     z-index: 10;
+}
+#historyRowSample {
+    display: none;
+}
+#callHistoryDetails {
+    width: 150px;
+    height: 190px;
+    background: white;
+}
+#historyDetailsClose {
+    text-align: right;
+    margin-top: 10px;
+}
+#historyDetailsClose .icon-ok{
+    margin:0px;
+}
+#callHistory .actions {
+    margin-top:10px;
+}
+.history-row {
+    cursor: pointer;
+}
+#historyCallLink {
+    text-align: left;
 }

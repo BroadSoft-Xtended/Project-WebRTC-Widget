@@ -212,6 +212,13 @@ var TimelineDataSeries = (function() {
             this.color_ = color;
         },
 
+        getAvg: function() {
+            var sum = 0;
+            for(var i=0; i<this.dataPoints_.length; i++) {
+                sum += this.dataPoints_[i].value;
+            }
+            return sum / this.dataPoints_.length;
+        },
         /**
          * Returns a list containing the values of the data series at |count|
          * points, starting at |startTime|, and |stepSize| milliseconds apart.
@@ -873,16 +880,29 @@ var packetsLostPercentage = function(srcDataSeries, peerConnectionElement, repor
 
 // Converts the value of total bytes to bits per second.
 function getLastValue(peerConnectionElement, reportType, reportId, label) {
-    var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
-    var srcDataSeries = dataSeries[dataSeriesId];
-    if(srcDataSeries) {
-        return srcDataSeries.dataPoints_[srcDataSeries.dataPoints_.length-1].value;
-    }
-    return null;
+  return getLastValueAt(peerConnectionElement, reportType, reportId, label, 1);
+}
+
+function getLastValueAt(peerConnectionElement, reportType, reportId, label, index) {
+  var srcDataSeries = getDataSeries(peerConnectionElement.id, reportType, reportId, label);
+  if(srcDataSeries) {
+    return srcDataSeries.dataPoints_[srcDataSeries.dataPoints_.length-index].value;
+  }
+  return null;
+}
+
+function getAvgValue(peerConnectionElement, reportType, reportId, label) {
+  var srcDataSeries = getDataSeries(peerConnectionElement.id, reportType, reportId, label);
+  return srcDataSeries ? srcDataSeries.getAvg() : null;
+}
+
+function getDataSeries(peerConnectionId, reportType, reportId, label) {
+  var dataSeriesId = this.dataSeriesId(peerConnectionId, reportType, reportId, label);
+  return dataSeries[dataSeriesId];
 }
 
 function getValueBefore(peerConnectionElement, reportType, reportId, label, timestamp) {
-    var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
+    var dataSeriesId = this.dataSeriesId(peerConnectionElement.id, reportType, reportId, label);
     var srcDataSeries = dataSeries[dataSeriesId];
     if(srcDataSeries) {
         for(i = srcDataSeries.dataPoints_.length - 1; i >= 0; i--) {
@@ -896,8 +916,8 @@ function getValueBefore(peerConnectionElement, reportType, reportId, label, time
 }
 
 
-function dataSeriesId(peerConnectionElement, reportType, reportId, label) {
-    return peerConnectionElement.id + '-' + reportType + '-' + reportId + '-' + label;
+function dataSeriesId(peerConnectionId, reportType, reportId, label) {
+    return peerConnectionId + '-' + reportType + '-' + reportId + '-' + label;
 }
 
 function graphViewId(peerConnectionElement, reportType, reportId, graphType) {
@@ -1000,7 +1020,7 @@ function updateGraph(peerConnectionElement, reportType, reportId, singleReport, 
     }
     // Adds the new dataSeries to the graphView. We have to do it here to cover
     // both the simple and compound graph cases.
-    var dataSeriesId = this.dataSeriesId(peerConnectionElement, reportType, reportId, label);
+    var dataSeriesId = this.dataSeriesId(peerConnectionElement.id, reportType, reportId, label);
     if (!graphViews[graphViewId].hasDataSeries(dataSeries[dataSeriesId]))
         graphViews[graphViewId].addDataSeries(dataSeries[dataSeriesId]);
     graphViews[graphViewId].updateEndDate();
@@ -1020,7 +1040,7 @@ function drawSingleReport(
         if (isNaN(rawValue))
             continue;
 
-        var rawDataSeriesId = dataSeriesId(peerConnectionElement, reportType, reportId, rawLabel);
+        var rawDataSeriesId = dataSeriesId(peerConnectionElement.id, reportType, reportId, rawLabel);
 
         var finalDataSeriesId = rawDataSeriesId;
         var finalLabel = rawLabel;
@@ -1036,7 +1056,7 @@ function drawSingleReport(
             finalValue = dataConversionConfig[rawLabel].convertFunction(
                 dataSeries[rawDataSeriesId], peerConnectionElement, reportType, reportId);
             finalLabel = dataConversionConfig[rawLabel].convertedName;
-            finalDataSeriesId = dataSeriesId(peerConnectionElement, reportType, reportId, finalLabel);
+            finalDataSeriesId = dataSeriesId(peerConnectionElement.id, reportType, reportId, finalLabel);
         }
 
         // Updates the final dataSeries to draw.
@@ -1248,6 +1268,7 @@ var StatsTable = (function(ssrcInfoManager) {
                     var value = getLastValue(peerConnectionElement, reportType, reportId, label);
                     if(value != null) {
                         $(this).html(value);
+                        $(this).attr("data-avg", getAvgValue(peerConnectionElement, reportType, reportId, label))
                     } else {
                     }
                 }
@@ -1655,7 +1676,7 @@ function updateAllPeerConnections(data) {
  *     stat, and the odd index entry is the value.
  */
 function addStats(data) {
-    var peerConnectionElement = $('[id="'+getPeerConnectionId(data)+'"]')[0];
+    var peerConnectionElement = getPeerConnectionElement(data);
     if (!peerConnectionElement)
         return;
 
@@ -1696,6 +1717,9 @@ function addStats(data) {
 
 }
 
+function getPeerConnectionElement(data) {
+  return $('[id="'+getPeerConnectionId(data)+'"]')[0];
+}
 
 /**
  * Delegates to dumpCreator to update the recording status.

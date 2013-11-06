@@ -100,6 +100,14 @@
 
     },
 
+    getValue: function(type, name) {
+      return $('[data-type="'+type+'"][data-var="'+name+'"]').text();
+    },
+
+    getAvg: function(type, name) {
+      return Math.round(($('[data-type="'+type+'"][data-var="'+name+'"]').attr("data-avg") * 100)) / 100.0;
+    },
+
     initialize: function() {
       var self = this;
       $("a.stats-var").click(function(){

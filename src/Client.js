@@ -34,7 +34,7 @@
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound);
     this.stats = new WebRTC.Stats(this);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
-    this.history = new WebRTC.History(this.sound);
+    this.history = new WebRTC.History(this, this.sound, this.stats);
     this.sipStack = null;
     this.rtcSession = null;
     this.fullScreen = false;
@@ -264,11 +264,12 @@
     },
 
     // URL call
-    uriCall: function(destination)
+    uriCall: function(destinationToValidate)
     {
-      destination = this.validateDestination(destination);
+      var destination = this.validateDestination(destinationToValidate);
       if (destination === false)
       {
+        logger.log("destination is not valid : "+destinationToValidate);
         return;
       }
 
@@ -357,45 +358,6 @@
       return this.rtcSession.id.replace(/\./g,'');
     },
 
-    setCookie: function()
-    {
-      if (!ClientConfig.enableCallHistory)
-      {
-        return;
-      }
-      // Get latest cookie
-      var allCookies = document.cookie;
-      var callsArray = allCookies.match(/call_(.*?)\:\d{2}\:\d{2}/g);
-      var callNumber = null;
-      if (callsArray)
-      {
-        callNumber = callsArray.length + 1;
-      }
-      else
-      {
-        callNumber = 0;
-      }
-      callNumber++;
-
-      // cookie vars
-      var start = this.rtcSession.start_time;
-      var epochStart = new Date(start).getTime();
-      var length = this.timer.format(Math.round(Math.abs((this.rtcSession.end_time - start) / 1000)));
-      var remote = this.rtcSession.remote_identity.uri;
-      var direction = null;
-      if (this.rtcSession.direction === "outgoing")
-      {
-        direction = "------>";
-      }
-      else
-      {
-        direction = "<------";
-      }
-      var cookieKey = ("call_" + callNumber);
-      var cookieValue = (epochStart + "|" + remote + "|" + direction + "|" + length);
-      $.cookie(cookieKey, cookieValue, { expires: ClientConfig.expires});
-    },
-
     // Initial startup
     onLoad: function(userid, password) {
       var self = this;
@@ -482,7 +444,7 @@
         self.rtcSession.on('ended', function(e)
         {
           self.message(ClientConfig.messageEnded, "normal");
-          self.setCookie();
+          self.history.persistCall(self.rtcSession);
           self.endCall();
         });
         // handle incoming call

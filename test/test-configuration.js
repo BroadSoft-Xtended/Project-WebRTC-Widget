@@ -5,6 +5,7 @@ module( "Configuration", {
     WebRTC.Utils.getSearchVariable = function(name){ return false;}
     $.cookie("settingResolutionDisplay", "");
     $.cookie("settingResolutionEncoding", "");
+    ClientConfig.enableCallStats = false;
   }, teardown: function() {
   }
 });
@@ -28,6 +29,7 @@ test('register after persist', function() {
   client = new WebRTC.Client();
   strictEqual(client.sipStack.configuration.register, false);
   client.settings.save.trigger("click");
+  client.timer.stop();
   client = new WebRTC.Client();
   strictEqual(client.sipStack.configuration.register, false);
 });

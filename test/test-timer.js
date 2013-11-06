@@ -6,5 +6,7 @@ module( "Timer", {
 });
 test('format', function() {
   client = new WebRTC.Client();
-  strictEqual(client.timer.format(1), '00:00:01');
+  var timerFunction = client.timer.runningTimer();
+  timerFunction();
+  strictEqual(client.timer.text.text(), '00:00:00');
 });

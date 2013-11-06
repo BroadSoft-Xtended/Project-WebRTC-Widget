@@ -6,6 +6,16 @@
 var Utils;
 
 Utils= {
+  format: function(seconds)
+  {
+    var hrs = Math.floor(seconds / 3600);
+    seconds %= 3600;
+    var mns = Math.floor(seconds / 60);
+    seconds %= 60;
+    var formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (seconds < 10 ? "0" : "") + seconds;
+    return(formatedDuration);
+  },
+
   /* Pull the URL variables out of URL */
   getSearchVariable: function(variable)
   {
