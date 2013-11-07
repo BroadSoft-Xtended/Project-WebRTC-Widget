@@ -30,8 +30,9 @@ ClientConfig = {
     domainFrom: 'broadsoft.com',
     domainTo: 'broadsoft.com',
     endCallURL: false,
-    transmitVGA: 256,
-    transmitHD: 512,
+    bandwidthLow: 128,
+    bandwidthMed: 512,
+    bandwidthHigh: 2048,
     expires: 365,
     debug: false,
 

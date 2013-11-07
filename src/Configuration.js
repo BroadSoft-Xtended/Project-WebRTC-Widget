@@ -26,8 +26,6 @@
     // Client Variables
     this.timerRunning = false;
     this.disableICE = ClientConfig.disableICE;
-    this.transmitVGA = $.cookie('settingTransmitVGA') || ClientConfig.transmitVGA;
-    this.transmitHD = $.cookie('settingTransmitHD') || ClientConfig.transmitHD;
   };
 
   Configuration.prototype = {
@@ -117,14 +115,7 @@
 
     getRtcMediaHandlerOptions: function(){
       var options = {reuseLocalMedia: ClientConfig.enableConnectLocalMedia};
-      if (this.isHD())
-      {
-        options["videoBandwidth"] = this.transmitHD;
-      }
-      else
-      {
-        options["videoBandwidth"] = this.transmitVGA;
-      }
+      options["videoBandwidth"] = this.settings.getBandwidth();
       options["disableICE"] = this.disableICE;
       return options;
     },

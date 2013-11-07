@@ -19,6 +19,9 @@
     this.resolutionDisplayStandard = $('#resolutionDisplayStandardSelect');
     this.resolutionEncodingWidescreen = $('#resolutionEncodingWidescreenSelect');
     this.resolutionEncodingStandard = $('#resolutionEncodingStandardSelect');
+    this.settingBandwidthLow = $('#settingBandwidthLow');
+    this.settingBandwidthMed = $('#settingBandwidthMed');
+    this.settingBandwidthHigh = $('#settingBandwidthHigh');
 
     this.configuration = configuration;
     this.sound = sound;
@@ -63,10 +66,23 @@
         $("#settingsPopup").fadeOut(100);
         self.reload();
       });
+      this.settingBandwidthLow.bind('blur', function(e)
+      {
+        self.client.updateRtcMediaHandlerOptions();
+      });
+      this.settingBandwidthMed.bind('blur', function(e)
+      {
+        self.client.updateRtcMediaHandlerOptions();
+      });
+      this.settingBandwidthHigh.bind('blur', function(e)
+      {
+        self.client.updateRtcMediaHandlerOptions();
+      });
       this.resolutionType.bind('change', function(e)
       {
         self.client.updateMainClass();
         self.client.updateUserMedia();
+        self.client.updateRtcMediaHandlerOptions();
       });
       this.resolutionDisplayWidescreen.bind('change', function(e)
       {
@@ -79,11 +95,23 @@
       this.resolutionEncodingWidescreen.bind('change', function(e)
       {
         self.client.updateUserMedia();
+        self.client.updateRtcMediaHandlerOptions();
       });
       this.resolutionEncodingStandard.bind('change', function(e)
       {
         self.client.updateUserMedia();
+        self.client.updateRtcMediaHandlerOptions();
       });
+    },
+    getBandwidth: function(){
+      var height = this.getResolutionEncodingHeight();
+      if(height <= 240) {
+        return this.settingBandwidthLow.val();
+      } else if(height <= 480) {
+        return this.settingBandwidthMed.val();
+      } else if(height <= 720) {
+        return this.settingBandwidthHigh.val();
+      }
     },
     reload: function(){
       location.reload(0);
@@ -104,8 +132,9 @@
       $("#settingPassword").val(this.configuration.password);
       $("#settingSelfViewDisable").prop('checked', ($.cookie('settingSelfViewDisable') === "true"));
       $("#settingHD").prop('checked', ($.cookie('settingHD') === "true"));
-      $("#settingTransmitVGA").val($.cookie('settingTransmitVGA') || this.configuration.transmitVGA);
-      $("#settingTransmitHD").val($.cookie('settingTransmitHDSetting') || this.configuration.transmitHD);
+      this.settingBandwidthLow.val($.cookie('settingBandwidthLow') || ClientConfig.bandwidthLow);
+      this.settingBandwidthMed.val($.cookie('settingBandwidthMed') || ClientConfig.bandwidthMed);
+      this.settingBandwidthHigh.val($.cookie('settingBandwidthHigh') || ClientConfig.bandwidthHigh);
       $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
       $("#settingColor").val($.cookie('settingColor') || this.configuration.color || $('body').css('backgroundColor'));
       this.setResolutionDisplay($.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
@@ -199,9 +228,9 @@
       $.cookie("settingPassword", ($("#settingPassword").val()), { expires: ClientConfig.expires });
       $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: ClientConfig.expires });
       $.cookie("settingHD", ($("#settingHD").prop('checked')), { expires: ClientConfig.expires });
-      $.cookie("settingTransmitVGA", ($("#settingTransmitVGA").val()), { expires: ClientConfig.expires });
-      $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
-      $.cookie("settingTransmitHD", ($("#settingTransmitHD").val()), { expires: ClientConfig.expires });
+      $.cookie("settingBandwidthLow", (this.settingBandwidthLow.val()), { expires: ClientConfig.expires });
+      $.cookie("settingBandwidthMed", (this.settingBandwidthMed.val()), { expires: ClientConfig.expires });
+      $.cookie("settingBandwidthHigh", (this.settingBandwidthHigh.val()), { expires: ClientConfig.expires });
       $.cookie("settingColor", ($("#settingColor").val()), { expires: ClientConfig.expires });
       $.cookie("settingResolutionDisplay", (this.getResolutionDisplay()), { expires: ClientConfig.expires });
       $.cookie("settingResolutionEncoding", (this.getResolutionEncoding()), { expires: ClientConfig.expires });
