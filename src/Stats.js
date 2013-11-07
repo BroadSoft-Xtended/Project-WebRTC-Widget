@@ -40,7 +40,7 @@
 
     processStats: function() {
       var self = this;
-      var peerConnection = this.client.rtcSession.rtcMediaHandler.peerConnection;
+      var peerConnection = this.client.activeSession.rtcMediaHandler.peerConnection;
 
       peerConnection.getStats(function (stats)
       {

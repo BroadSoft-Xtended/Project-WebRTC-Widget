@@ -60,12 +60,20 @@
 
 <div id="main">
   <div id="errorPopup"></div>
-  <div id="callPopup">
+  <div id="callPopup" class="fadeable popup">
     <span>Incoming Call</span><br><br>
     <span class="incomingCallName"></span><br>
     <span class="incomingCallUser"></span><br><br>
-    <button class="button" id="acceptIncomingCall" type="button">Accept</button>
-    <button class="button" id="rejectIncomingCall" type="button">Reject</button>
+    <div class="table">
+        <div class="cell">
+            <button class="button" id="acceptIncomingCall" type="button">Accept</button>
+            <button class="button" id="holdAndAnswerButton" type="button">Hold And Answer</button><br>
+            <button class="button" id="dropAndAnswerButton" type="button">Drop And Answer</button>
+        </div>
+        <div class="cell" style="text-align:right;">
+            <button class="button" id="rejectIncomingCall" type="button">Reject</button>
+        </div>
+    </div>
   </div>
   <div id="reInvitePopup" class="fadeable popup">
     <span class="title">ReInvite</span><br><br>

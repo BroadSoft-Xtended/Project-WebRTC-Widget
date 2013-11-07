@@ -47,7 +47,7 @@
         var secs = Math.round((new Date().getTime() - startTime) / 1000);
         if (self.configuration.maxCallLength && secs >= self.configuration.maxCallLength)
         {
-          self.client.rtcSession.terminate();
+          self.client.terminateSessions();
           self.client.endCall();
           return;
         }

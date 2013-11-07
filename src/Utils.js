@@ -104,6 +104,17 @@ Utils= {
     return (/firefox/).test(ua.browser.family.toLowerCase());
   },
 
+  rebindListeners: function(type, elements, listener){
+    for(var i=0; i<elements.length; i++) {
+      this.rebindListener(type, elements[i], listener);
+    }
+  },
+
+  rebindListener: function(type, element, listener){
+    element.off(type);
+    element.on(type, listener);
+  },
+
   colorNameToHex: function(color){
     if(!color) {
       return false;

@@ -39,8 +39,8 @@ ClientConfig = {
     // Client Messages
     messageProgress: "Ringing",
     messageOutsideDomain: "Invalid Destination",
-    messageStarted: "Call Started",
-    messageEnded: "Call Ended",
+    messageStarted: "Call Started with {0}",
+    messageEnded: "Call Ended with {0}",
     messageCall: "Performing NAT Tests",
     messageConnected: "Connected",
     messageConnectionFailed: "Connection Failed!",

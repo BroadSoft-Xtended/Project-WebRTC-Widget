@@ -26,6 +26,13 @@
     this.acceptReInviteCall = $("#acceptReInviteCall");
     this.rejectReInviteCall = $("#rejectReInviteCall");
     this.messages = $("#messages");
+    this.callPopup = $("#callPopup");
+    this.incomingCallName = $("#callPopup .incomingCallName");
+    this.incomingCallUser = $("#callPopup .incomingCallUser");
+    this.acceptIncomingCall = $("#acceptIncomingCall");
+    this.rejectIncomingCall = $("#rejectIncomingCall");
+    this.holdAndAnswerButton = $("#holdAndAnswerButton");
+    this.dropAndAnswerButton = $("#dropAndAnswerButton");
     this.initUi();
 
     this.video = new WebRTC.Video(this);
@@ -36,7 +43,8 @@
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats);
     this.sipStack = null;
-    this.rtcSession = null;
+    this.activeSession = null;
+    this.sessions = [];
     this.fullScreen = false;
     this.state = null;
     this.muted = false;
@@ -111,7 +119,7 @@
       window.onbeforeunload = function(e) {
         if (self.configuration.timerRunning)
         {
-          self.rtcSession.terminate();
+          self.terminateSessions();
         }
         self.endCall();
         return null;
@@ -269,7 +277,7 @@
       var destination = this.validateDestination(destinationToValidate);
       if (destination === false)
       {
-        logger.log("destination is not valid : "+destinationToValidate);
+        logger.log("destination is not valid : "+destinationToValidate, this.configuration);
         return;
       }
 
@@ -288,7 +296,7 @@
     incomingReInvite: function(e) {
       var self = this;
       if (ClientConfig.enableAutoAcceptReInvite) {
-        logger.log("auto accepting reInvite");
+        logger.log("auto accepting reInvite", this.configuration);
         e.data.session.acceptReInvite();
       } else {
         this.setEvent("reInvite");
@@ -314,28 +322,58 @@
     },
 
     // Incoming call function
-    incomingCall: function(e)
+    incomingCall: function(evt)
     {
-      var incomingCallName = e.data.request.from.display_name;
-      var incomingCallUser = e.data.request.from.uri.user;
+      var self = this;
+      var session = evt.data.session;
+      var incomingCallName = evt.data.request.from.display_name;
+      var incomingCallUser = evt.data.request.from.uri.user;
       this.message("Incoming Call", "success");
-      if (ClientConfig.enableAutoAnswer)
+      if (!this.activeSession && ClientConfig.enableAutoAnswer)
       {
-        this.rtcSession.answer(this.configuration.getExSIPOptions());
+        session.answer(this.configuration.getExSIPOptions());
       }
       else
       {
-        $("#callPopup").fadeIn(100);
-        $("#callPopup .incomingCallName").text(incomingCallName);
-        $("#callPopup .incomingCallUser").text(incomingCallUser);
+        this.setEvent("incomingCall");
+        this.incomingCallName.text(incomingCallName);
+        this.incomingCallUser.text(incomingCallUser);
+        WebRTC.Utils.rebindListeners("click", [this.rejectIncomingCall, this.acceptIncomingCall, this.holdAndAnswerButton, this.dropAndAnswerButton],
+          function(e) {
+            e.preventDefault();
+            self.setEvent("incomingCall-done");
+            self.sound.pause();
+            if ($(this).is(self.acceptIncomingCall)) {
+              self.callButton.fadeOut(1000);
+              session.answer(self.configuration.getExSIPOptions());
+            } else if ($(this).is(self.dropAndAnswerButton)) {
+              self.terminateSession(self.activeSession);
+              session.answer(self.configuration.getExSIPOptions());
+            } else if ($(this).is(self.holdAndAnswerButton)) {
+              var firstSession = self.activeSession;
+              session.on('ended', function(e) {
+                self.message("Resuming with " + firstSession.remote_identity.uri.user, "normal");
+                logger.log("incoming call ended - unholding first call", self.configuration);
+                firstSession.unhold(function() {
+                  logger.log("unhold first call successful", self.configuration);
+                });
+              });
+              self.activeSession.hold(function(){
+                logger.log("hold successful - answering incoming call", self.configuration);
+                session.answer(self.configuration.getExSIPOptions());
+              });
+            } else if ($(this).is(self.rejectIncomingCall)) {
+              self.terminateSession(session);
+            }
+          });
         this.sound.playRingtone();
       }
     },
 
     endCall: function() {
       this.setCallState("ended");
-      this.video.updateSessionStreams(this.rtcSession);
-  //  rtcSession = null;
+      this.setEvent(null);
+      this.video.updateSessionStreams(this.activeSession);
       // Bring up the main elements
       if (ClientConfig.enableCallControl === true)
       {
@@ -355,7 +393,7 @@
     },
 
     getSessionId: function(){
-      return this.rtcSession.id.replace(/\./g,'');
+      return this.activeSession.id.replace(/\./g,'');
     },
 
     // Initial startup
@@ -377,6 +415,7 @@
       // sipStack callbacks
       this.sipStack.on('connected', function(e)
       {
+        self.setCallState("connected");
         if (ClientConfig.enableConnectionIcon)
         {
           $("#connected").removeClass("alert");
@@ -408,20 +447,21 @@
         self.callButton.hide();
       });
       this.sipStack.on('onReInvite', function(e) {
-        logger.log("incoming onReInvite event");
+        logger.log("incoming onReInvite event", self.configuration);
         self.incomingReInvite(e);
       });
       this.sipStack.on('newRTCSession', function(e)
       {
-        self.rtcSession = e.data.session;
+        var session = e.data.session;
+        self.sessions.push(session);
 
         // call event handlers
-        self.rtcSession.on('progress', function(e)
+        session.on('progress', function(e)
         {
           self.message(ClientConfig.messageProgress, "normal");
           self.sound.playDtmfRingback();
         });
-        self.rtcSession.on('failed', function(e)
+        session.on('failed', function(e)
         {
           var error = e.data.cause;
           self.message(error, "alert");
@@ -432,19 +472,24 @@
           self.sound.pause();
           self.endCall();
         });
-        self.rtcSession.on('started', function(e)
+        var sessionStarted = function(e)
         {
+          logger.log("setting active session to "+ e.sender.id, self.configuration);
+          self.activeSession = e.sender;
           self.setCallState("started");
-          self.video.updateSessionStreams(self.rtcSession);
+          self.video.updateSessionStreams(e.sender);
           $('.stats-container').attr('id', self.getSessionId()+'-1');
           self.sound.pause();
           self.timer.start();
-          self.message(ClientConfig.messageStarted, "success");
-        });
-        self.rtcSession.on('ended', function(e)
+          self.message(ClientConfig.messageStarted.replace('{0}', e.sender.remote_identity.uri.user), "success");
+        };
+        session.on('started', sessionStarted);
+        session.on('unholded', sessionStarted);
+        session.on('ended', function(e)
         {
-          self.message(ClientConfig.messageEnded, "normal");
-          self.history.persistCall(self.rtcSession);
+          self.terminateSession(e.sender);
+          self.message(ClientConfig.messageEnded.replace('{0}', e.sender.remote_identity.uri.user), "normal");
+          self.history.persistCall(e.sender);
           self.endCall();
         });
         // handle incoming call
@@ -510,13 +555,13 @@
         this.destination.val(this.destination.val() + digit);
         if (this.configuration.timerRunning === true)
         {
-          this.rtcSession.sendDTMF(digit, this.configuration.getDTMFOptions());
+          this.activeSession.sendDTMF(digit, this.configuration.getDTMFOptions());
         }
       }
     },
 
     enableLocalAudio: function(enabled) {
-      var localMedia = this.rtcSession.getLocalStreams()[0];
+      var localMedia = this.activeSession.getLocalStreams()[0];
       var localAudio = localMedia.getAudioTracks()[0];
       localAudio.enabled = enabled;
     },
@@ -536,7 +581,7 @@
       {
         e.preventDefault();
         self.sound.playClick();
-        self.rtcSession.terminate();
+        self.terminateSession(self.activeSession);
         if (self.fullScreen === true)
         {
           $('#fullScreenContract').click();
@@ -615,9 +660,9 @@
         transferTarget = self.validateDestination(transferTarget);
         self.setTransferVisible(false);
         if(self.transferTypeAttended.is(':checked')) {
-          self.sipStack.attendedTransfer(transferTarget, self.rtcSession);
+          self.sipStack.attendedTransfer(transferTarget, self.activeSession);
         } else {
-          self.sipStack.transfer(transferTarget, self.rtcSession);
+          self.sipStack.transfer(transferTarget, self.activeSession);
         }
       });
 
@@ -649,22 +694,6 @@
         e.preventDefault();
         self.sound.playClick();
         self.history.toggle();
-      });
-
-      $('#acceptIncomingCall, #rejectIncomingCall').bind('click', function(e)
-      {
-        e.preventDefault();
-        $("#callPopup").fadeOut(500);
-        self.sound.pause();
-        if (this.id === "acceptIncomingCall")
-        {
-          self.callButton.fadeOut(1000);
-          self.rtcSession.answer(self.configuration.getExSIPOptions());
-        }
-        else if (this.id === "rejectIncomingCall")
-        {
-          self.rtcSession.terminate();
-        }
       });
 
       // Dialpad digits
@@ -702,6 +731,31 @@
           self.history.toggle();
         }
       };
+    },
+
+    terminateSession: function(session){
+      if(!session) {
+        return;
+      }
+      var index = this.sessions.indexOf(session);
+      if(index !== -1) {
+        this.sessions.splice(index, index+1);
+      }
+      if(session.status !== ExSIP.RTCSession.C.STATUS_TERMINATED) {
+        session.terminate();
+      }
+      if(session === this.activeSession) {
+        logger.log("clearing active session", this.configuration);
+        this.activeSession = null;
+      }
+    },
+
+    terminateSessions: function(){
+      var allSessions = [];
+      allSessions = allSessions.concat(this.sessions);
+      for(var i=0; i<allSessions.length; i++){
+        this.terminateSession(allSessions[i]);
+      }
     },
 
     setEvent: function(event){

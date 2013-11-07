@@ -20,6 +20,6 @@
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
   <!-- Templates -->
-  <% _.each(script.templates, function(template) { %> <%= template.replace(/.*<body[^>]*>((.|[\n\r])*)<\/body>.*/im, '$1') %> <% }); %>
+  <% _.each(script.templates, function(template) { %> <%= template.match(/.*<body[^>]*>((.|[\n\r])*)<\/body>.*/im)[1] %> <% }); %>
 </body>
 </html>

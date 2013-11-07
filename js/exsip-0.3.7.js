@@ -3954,6 +3954,8 @@ return DTMF;
       'failed',
       'started',
       'ended',
+      'holded',
+      'unholded',
       'newDTMF'
     ];
 
@@ -4914,13 +4916,25 @@ return DTMF;
   };
 
   RTCSession.prototype.hold = function(inviteSuccessCallback, inviteFailureCallback) {
+    var self = this;
     this.setLocalMode(ExSIP.C.SENDONLY, ExSIP.C.SENDONLY);
-    this.sendInviteRequest(undefined, undefined, inviteSuccessCallback, inviteFailureCallback);
+    this.sendInviteRequest(undefined, undefined, function() {
+      self.holded();
+      if(inviteSuccessCallback) {
+        inviteSuccessCallback();
+      }
+    }, inviteFailureCallback);
   };
 
   RTCSession.prototype.unhold = function(inviteSuccessCallback, inviteFailureCallback) {
+    var self = this;
     this.setLocalMode(ExSIP.C.SENDRECV, ExSIP.C.SENDRECV);
-    this.sendInviteRequest(undefined, undefined, inviteSuccessCallback, inviteFailureCallback);
+    this.sendInviteRequest(undefined, undefined, function() {
+      self.unholded();
+      if(inviteSuccessCallback) {
+        inviteSuccessCallback();
+      }
+    }, inviteFailureCallback);
   };
 
   RTCSession.prototype.setLocalMode = function(audioMode, videoMode) {
@@ -5215,6 +5229,14 @@ return DTMF;
       originator: originator,
       response: message || null
     });
+  };
+
+  RTCSession.prototype.holded = function() {
+    this.emit('holded', this);
+  };
+
+  RTCSession.prototype.unholded = function() {
+    this.emit('unholded', this);
   };
 
   /**
