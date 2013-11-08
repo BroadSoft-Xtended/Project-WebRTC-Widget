@@ -2,9 +2,9 @@
   var Stats;
 //    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
-  Stats = function(client) {
+  Stats = function(sipStack) {
     this.statsToggled = false;
-    this.client = client;
+    this.sipStack = sipStack;
 
     this.initialize();
   };
@@ -40,7 +40,7 @@
 
     processStats: function() {
       var self = this;
-      var peerConnection = this.client.activeSession.rtcMediaHandler.peerConnection;
+      var peerConnection = this.sipStack.activeSession.rtcMediaHandler.peerConnection;
 
       peerConnection.getStats(function (stats)
       {
@@ -76,7 +76,7 @@
           report["stats"] = valueObj;
           reports.push(report);
         }
-        var data = {"lid":1,"pid":self.client.getSessionId(),"reports":reports};
+        var data = {"lid":1,"pid":self.sipStack.getSessionId(),"reports":reports};
         addStats(data);
       });
     },

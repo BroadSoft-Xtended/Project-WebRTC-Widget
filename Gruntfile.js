@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 
   var srcFiles = [
     'src/WebRTC.js',
+    'src/EventBus.js',
     'src/Configuration.js',
     'src/Settings.js',
     'src/History.js',
@@ -13,6 +14,7 @@ module.exports = function(grunt) {
     'src/Utils.js',
     'src/Sound.js',
     'src/Video.js',
+    'src/SIPStack.js',
     'src/Client.js'
   ];
 

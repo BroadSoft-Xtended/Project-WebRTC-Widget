@@ -68,21 +68,21 @@
       });
       this.settingBandwidthLow.bind('blur', function(e)
       {
-        self.client.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateRtcMediaHandlerOptions();
       });
       this.settingBandwidthMed.bind('blur', function(e)
       {
-        self.client.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateRtcMediaHandlerOptions();
       });
       this.settingBandwidthHigh.bind('blur', function(e)
       {
-        self.client.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateRtcMediaHandlerOptions();
       });
       this.resolutionType.bind('change', function(e)
       {
         self.client.updateMainClass();
-        self.client.updateUserMedia();
-        self.client.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateUserMedia();
+        self.client.sipStack.updateRtcMediaHandlerOptions();
       });
       this.resolutionDisplayWidescreen.bind('change', function(e)
       {
@@ -94,13 +94,13 @@
       });
       this.resolutionEncodingWidescreen.bind('change', function(e)
       {
-        self.client.updateUserMedia();
-        self.client.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateUserMedia();
+        self.client.sipStack.updateRtcMediaHandlerOptions();
       });
       this.resolutionEncodingStandard.bind('change', function(e)
       {
-        self.client.updateUserMedia();
-        self.client.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateUserMedia();
+        self.client.sipStack.updateRtcMediaHandlerOptions();
       });
     },
     getBandwidth: function(){
@@ -118,9 +118,7 @@
     },
     updatePageColor: function(){
       var color = $("#settingColor").val();
-      if(this.configuration.isDebug()) {
-        logger.log('updating page color : '+color);
-      }
+      logger.log('updating page color : '+color, this.configuration);
       $('body').css('backgroundColor', color || '');
     },
     initUi: function(){

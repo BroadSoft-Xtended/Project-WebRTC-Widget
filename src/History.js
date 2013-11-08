@@ -3,8 +3,7 @@
  */
 
 (function (WebRTC) {
-  var History,
-    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'History');
+  var History;
 
   History = function (client, sound, stats) {
     this.callHistory = $('#callHistory');
@@ -130,8 +129,6 @@
     updateContent: function() {
       this.content.html("");
       this.rows = [];
-      var pages = this.pages();
-      logger.log("updateContent for pageNumber : "+this.pageNumber+" with pages : "+pages.length);
       this.updateButtonsVisibility();
       var calls = this.getAllCalls();
       var startPos = this.callsPerPage * this.pageNumber;
@@ -227,7 +224,6 @@
     persistPage:function (page) {
       var cookieKey = ("page_" + page.number);
       var cookieValue = page.callsAsString() + "|end"+page.number;
-      logger.log("persistCall : "+cookieKey+"="+cookieValue);
       $.cookie(cookieKey, cookieValue, { expires:ClientConfig.expires});
     },
 

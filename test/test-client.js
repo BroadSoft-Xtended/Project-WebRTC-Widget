@@ -6,7 +6,7 @@ module( "Client", {
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableTransfer = true;
     ClientConfig.enableCallStats = false;
-    WebRTC.Client.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
+    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }
 });
@@ -18,33 +18,6 @@ test('validateDestination', function() {
   strictEqual(client.validateDestination("1000@webrtc"), "sip:1000@webrtc.domain.to");
   strictEqual(client.validateDestination("1000@webrtc.domain.to"), "sip:1000@webrtc.domain.to");
   strictEqual(client.validateDestination("1000@domain.to"), "sip:1000@domain.to");
-});
-test('RTCMediaHandlerOptions and bandwidth med change', function() {
-  ClientConfig.allowOutside = true;
-  client = new WebRTC.Client();
-  client.sipStack.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
-  client.settings.settingBandwidthMed.val("600");
-  client.settings.settingBandwidthMed.trigger("blur");
-  deepEqual(rtcMediaHandlerOptions, {
-    "disableICE": true,
-    "reuseLocalMedia": true,
-    "videoBandwidth": "600"
-  });
-});
-test('RTCMediaHandlerOptions and bandwidth low change for resolution 180', function() {
-  ClientConfig.allowOutside = true;
-  client = new WebRTC.Client();
-  client.sipStack.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
-  client.settings.settingBandwidthLow.val("200");
-  client.settings.settingBandwidthLow.trigger("blur");
-  client.settings.resolutionType.val(WebRTC.C.STANDARD);
-  client.settings.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
-  client.settings.resolutionEncodingStandard.trigger("change");
-  deepEqual(rtcMediaHandlerOptions, {
-    "disableICE": true,
-    "reuseLocalMedia": true,
-    "videoBandwidth": "200"
-  });
 });
 test('validateDestination with allowOutside = false', function() {
   client = new WebRTC.Client();

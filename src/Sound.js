@@ -6,7 +6,8 @@
   var Sound;
 //    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
-  Sound = function() {
+  Sound = function(sipStack) {
+    this.sipStack = sipStack;
     this.soundOut = document.createElement("audio");
     this.soundOut.volume = ClientConfig.volumeClick;
     this.soundOutDTMF = document.createElement("audio");
@@ -14,6 +15,16 @@
   };
 
   Sound.prototype = {
+    enableLocalAudio: function(enabled) {
+      var localStreams = this.sipStack.getLocalStreams();
+      if(!localStreams) {
+        return;
+      }
+      var localMedia = localStreams[0];
+      var localAudio = localMedia.getAudioTracks()[0];
+      localAudio.enabled = enabled;
+    },
+
     pause: function(){
       this.soundOut.pause();
     },

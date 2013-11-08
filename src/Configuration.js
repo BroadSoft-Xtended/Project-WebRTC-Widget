@@ -7,9 +7,7 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Configuration');
 
   Configuration = function() {
-    if(this.isDebug()) {
-      logger.log('window.location.search : '+window.location.search);
-    }
+    logger.log('window.location.search : '+window.location.search, this);
     // Default URL variables
     this.register = (WebRTC.Utils.getSearchVariable("register") === "true");
     this.password = WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');

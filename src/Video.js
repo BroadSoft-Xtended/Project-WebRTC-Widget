@@ -3,14 +3,15 @@
  */
 
 (function(WebRTC) {
-  var Video,
-    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Video');
+  var Video;
 
-  Video = function(client) {
+  Video = function(client, sipStack, eventBus) {
     this.local = $('#localVideo');
     this.remote = $('#remoteVideo');
+    this.eventBus = eventBus;
 
     this.client = client;
+    this.sipStack = sipStack;
     this.registerListeners();
   };
 
@@ -20,15 +21,16 @@
       this.local.bind("playing", function(){
         self.client.validateUserMediaResolution();
       });
+      this.eventBus.on("userMediaUpdated", function(e){
+        self.updateStreams([e.data.localStream], []);
+      });
     },
-    updateSessionStreams: function(rtcSession) {
-      this.updateStreams(rtcSession ? rtcSession.getLocalStreams() : null,
-        rtcSession ? rtcSession.getRemoteStreams() : null);
+
+    updateSessionStreams: function() {
+      this.updateStreams(this.sipStack.getLocalStreams(), this.sipStack.getRemoteStreams());
     },
 
     updateStreams: function(localStreams, remoteStreams) {
-      logger.log('updateStreams with localStreams '+(localStreams ? localStreams.length : 0)+
-        ' and remoteStreams '+(remoteStreams ? remoteStreams.length : 0));
       this.setVideoStream(this.local[0], localStreams);
       this.setVideoStream(this.remote[0], remoteStreams);
     },

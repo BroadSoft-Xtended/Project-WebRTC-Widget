@@ -35,16 +35,15 @@
     this.dropAndAnswerButton = $("#dropAndAnswerButton");
     this.initUi();
 
-    this.video = new WebRTC.Video(this);
     this.configuration = new WebRTC.Configuration();
-    this.sound = new WebRTC.Sound();
+    this.eventBus = new WebRTC.EventBus(this.configuration);
+    this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
+    this.sound = new WebRTC.Sound(this.sipStack);
+    this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound);
-    this.stats = new WebRTC.Stats(this);
+    this.stats = new WebRTC.Stats(this.sipStack);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats);
-    this.sipStack = null;
-    this.activeSession = null;
-    this.sessions = [];
     this.fullScreen = false;
     this.state = null;
     this.muted = false;
@@ -119,7 +118,7 @@
       window.onbeforeunload = function(e) {
         if (self.configuration.timerRunning)
         {
-          self.terminateSessions();
+          self.sipStack.terminateSessions();
         }
         self.endCall();
         return null;
@@ -289,91 +288,13 @@
       this.message(ClientConfig.messageCall, "success");
 
       // Start the Call
-      this.sipStack.call(destination, this.configuration.getExSIPOptions());
-    },
-
-    // Incoming reinvite function
-    incomingReInvite: function(e) {
-      var self = this;
-      if (ClientConfig.enableAutoAcceptReInvite) {
-        logger.log("auto accepting reInvite", this.configuration);
-        e.data.session.acceptReInvite();
-      } else {
-        this.setEvent("reInvite");
-        var incomingCallName = e.data.request.from.display_name;
-        var incomingCallUser = e.data.request.from.uri.user;
-        var title = e.data.audioAdd ? "Adding Audio" : "Adding Video";
-        this.message(title, "success");
-        $("#reInvitePopup").fadeIn(100);
-        $("#reInvitePopup .incomingCallName").text(incomingCallName);
-        $("#reInvitePopup .incomingCallUser").text(incomingCallUser);
-        $("#reInvitePopup .title").text(title);
-        this.acceptReInviteCall.off("click");
-        this.acceptReInviteCall.on("click", function(){
-          self.setEvent("reInvite-done");
-          e.data.session.acceptReInvite();
-        });
-        this.rejectReInviteCall.off("click");
-        this.rejectReInviteCall.on("click", function(){
-          self.setEvent("reInvite-done");
-          e.data.session.rejectReInvite();
-        });
-      }
-    },
-
-    // Incoming call function
-    incomingCall: function(evt)
-    {
-      var self = this;
-      var session = evt.data.session;
-      var incomingCallName = evt.data.request.from.display_name;
-      var incomingCallUser = evt.data.request.from.uri.user;
-      this.message("Incoming Call", "success");
-      if (!this.activeSession && ClientConfig.enableAutoAnswer)
-      {
-        session.answer(this.configuration.getExSIPOptions());
-      }
-      else
-      {
-        this.setEvent("incomingCall");
-        this.incomingCallName.text(incomingCallName);
-        this.incomingCallUser.text(incomingCallUser);
-        WebRTC.Utils.rebindListeners("click", [this.rejectIncomingCall, this.acceptIncomingCall, this.holdAndAnswerButton, this.dropAndAnswerButton],
-          function(e) {
-            e.preventDefault();
-            self.setEvent("incomingCall-done");
-            self.sound.pause();
-            if ($(this).is(self.acceptIncomingCall)) {
-              self.callButton.fadeOut(1000);
-              session.answer(self.configuration.getExSIPOptions());
-            } else if ($(this).is(self.dropAndAnswerButton)) {
-              self.terminateSession(self.activeSession);
-              session.answer(self.configuration.getExSIPOptions());
-            } else if ($(this).is(self.holdAndAnswerButton)) {
-              var firstSession = self.activeSession;
-              session.on('ended', function(e) {
-                self.message("Resuming with " + firstSession.remote_identity.uri.user, "normal");
-                logger.log("incoming call ended - unholding first call", self.configuration);
-                firstSession.unhold(function() {
-                  logger.log("unhold first call successful", self.configuration);
-                });
-              });
-              self.activeSession.hold(function(){
-                logger.log("hold successful - answering incoming call", self.configuration);
-                session.answer(self.configuration.getExSIPOptions());
-              });
-            } else if ($(this).is(self.rejectIncomingCall)) {
-              self.terminateSession(session);
-            }
-          });
-        this.sound.playRingtone();
-      }
+      this.sipStack.call(destination);
     },
 
     endCall: function() {
       this.setCallState("ended");
       this.setEvent(null);
-      this.video.updateSessionStreams(this.activeSession);
+      this.video.updateSessionStreams();
       // Bring up the main elements
       if (ClientConfig.enableCallControl === true)
       {
@@ -392,112 +313,13 @@
       }
     },
 
-    getSessionId: function(){
-      return this.activeSession.id.replace(/\./g,'');
-    },
-
     // Initial startup
     onLoad: function(userid, password) {
       var self = this;
       logger.log("onLoad", this.configuration);
 
-      // SIP stack
-      this.sipStack = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));
+      this.sipStack.init(userid, password);
 
-      this.updateRtcMediaHandlerOptions();
-
-      // Start SIP Stack
-      this.sipStack.start();
-
-      // Start the GUI
-      this.guiStart();
-
-      // sipStack callbacks
-      this.sipStack.on('connected', function(e)
-      {
-        self.setCallState("connected");
-        if (ClientConfig.enableConnectionIcon)
-        {
-          $("#connected").removeClass("alert");
-          $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
-        }
-        if (ClientConfig.enableCallControl && !self.configuration.hideCallControl)
-        {
-          self.callButton.fadeIn(1000);
-        }
-        self.message(ClientConfig.messageConnected, "success");
-
-        self.updateUserMedia(function(){
-          // Start a call
-          if (self.configuration.destination !== false)
-          {
-            self.uriCall(self.configuration.destination);
-          }
-        });
-      });
-      this.sipStack.on('disconnected', function(e)
-      {
-        if (ClientConfig.enableConnectionIcon)
-        {
-          $("#connected").removeClass("success");
-          $("#connected").addClass("alert").fadeIn(100);
-        }
-        self.message(ClientConfig.messageConnectionFailed, "alert");
-        self.endCall();
-        self.callButton.hide();
-      });
-      this.sipStack.on('onReInvite', function(e) {
-        logger.log("incoming onReInvite event", self.configuration);
-        self.incomingReInvite(e);
-      });
-      this.sipStack.on('newRTCSession', function(e)
-      {
-        var session = e.data.session;
-        self.sessions.push(session);
-
-        // call event handlers
-        session.on('progress', function(e)
-        {
-          self.message(ClientConfig.messageProgress, "normal");
-          self.sound.playDtmfRingback();
-        });
-        session.on('failed', function(e)
-        {
-          var error = e.data.cause;
-          self.message(error, "alert");
-          if (error === "User Denied Media Access")
-          {
-            self.errorPopup("WebRTC was not able to access your camera!");
-          }
-          self.sound.pause();
-          self.endCall();
-        });
-        var sessionStarted = function(e)
-        {
-          logger.log("setting active session to "+ e.sender.id, self.configuration);
-          self.activeSession = e.sender;
-          self.setCallState("started");
-          self.video.updateSessionStreams(e.sender);
-          $('.stats-container').attr('id', self.getSessionId()+'-1');
-          self.sound.pause();
-          self.timer.start();
-          self.message(ClientConfig.messageStarted.replace('{0}', e.sender.remote_identity.uri.user), "success");
-        };
-        session.on('started', sessionStarted);
-        session.on('unholded', sessionStarted);
-        session.on('ended', function(e)
-        {
-          self.terminateSession(e.sender);
-          self.message(ClientConfig.messageEnded.replace('{0}', e.sender.remote_identity.uri.user), "normal");
-          self.history.persistCall(e.sender);
-          self.endCall();
-        });
-        // handle incoming call
-        if (e.data.session.direction === "incoming")
-        {
-          self.incomingCall(e);
-        }
-      });
       if(!ClientConfig.enableConnectLocalMedia) {
         if (self.configuration.destination !== false) {
           // Wait 300 ms for websockets connection then call destination in URL
@@ -505,28 +327,8 @@
         }
       }
 
-      // Registration callbacks only if registering
-      if (password !== false)
-      {
-        this.sipStack.on('registered', function(e)
-        {
-          if (ClientConfig.enableRegistrationIcon)
-          {
-            $("#registered").removeClass("alert");
-            $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
-          }
-          self.message(ClientConfig.messageRegistered, "success");
-        });
-        this.sipStack.on('registrationFailed', function(e)
-        {
-          if (ClientConfig.enableRegistrationIcon)
-          {
-            //$("#registered").removeClass("success");
-            $("#registered").addClass("alert").fadeIn(100);
-          }
-          self.message(ClientConfig.messageRegistrationFailed, "alert");
-        });
-      }
+      // Start the GUI
+      this.guiStart();
     },
 
     // What we do when we get a digit during a call
@@ -555,21 +357,133 @@
         this.destination.val(this.destination.val() + digit);
         if (this.configuration.timerRunning === true)
         {
-          this.activeSession.sendDTMF(digit, this.configuration.getDTMFOptions());
+          this.sipStack.sendDTMF(digit);
         }
       }
-    },
-
-    enableLocalAudio: function(enabled) {
-      var localMedia = this.activeSession.getLocalStreams()[0];
-      var localAudio = localMedia.getAudioTracks()[0];
-      localAudio.enabled = enabled;
     },
 
     registerListeners: function() {
       var self = this;
 
-  // Buttons
+      this.eventBus.on("ended", function(e){
+        self.sipStack.terminateSession(e.sender);
+        self.message(ClientConfig.messageEnded.replace('{0}', e.sender.remote_identity.uri.user), "normal");
+        self.history.persistCall(e.sender);
+        self.endCall();
+      });
+      this.eventBus.on("started", function(e){
+        logger.log("setting active session to "+ e.sender.id, self.configuration);
+        self.sipStack.activeSession = e.sender;
+        self.setCallState("started");
+        self.video.updateSessionStreams(e.sender);
+        $('.stats-container').attr('id', self.sipStack.getSessionId()+'-1');
+        self.sound.pause();
+        self.timer.start();
+        self.message(ClientConfig.messageStarted.replace('{0}', e.sender.remote_identity.uri.user), "success");
+      });
+      this.eventBus.on("disconnected", function(e){
+        if (ClientConfig.enableConnectionIcon)
+        {
+          $("#connected").removeClass("success");
+          $("#connected").addClass("alert").fadeIn(100);
+        }
+        self.message(ClientConfig.messageConnectionFailed, "alert");
+        self.endCall();
+        self.callButton.hide();
+      });
+      this.eventBus.on("failed", function(e){
+        var error = e.data.cause;
+        self.message(error, "alert");
+        if (error === "User Denied Media Access")
+        {
+          self.errorPopup("WebRTC was not able to access your camera!");
+        }
+        self.sound.pause();
+        self.endCall();
+      });
+      this.eventBus.on("progress", function(e){
+        self.message(ClientConfig.messageProgress, "normal");
+        self.sound.playDtmfRingback();
+      });
+      this.eventBus.on("message", function(e){
+        self.message(e.data.text, e.data.level);
+      });
+      this.eventBus.on("registrationFailed", function(e){
+        if (ClientConfig.enableRegistrationIcon)
+        {
+          //$("#registered").removeClass("success");
+          $("#registered").addClass("alert").fadeIn(100);
+        }
+        self.message(ClientConfig.messageRegistrationFailed, "alert");
+      });
+      this.eventBus.on("registered", function(e){
+        if (ClientConfig.enableRegistrationIcon)
+        {
+          $("#registered").removeClass("alert");
+          $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
+        }
+        self.message(ClientConfig.messageRegistered, "success");
+      });
+      this.eventBus.on("connected", function(e){
+        self.setCallState("connected");
+        if (ClientConfig.enableConnectionIcon)
+        {
+          $("#connected").removeClass("alert");
+          $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
+        }
+        if (ClientConfig.enableCallControl && !self.configuration.hideCallControl)
+        {
+          self.callButton.fadeIn(1000);
+        }
+        self.message(ClientConfig.messageConnected, "success");
+
+        self.sipStack.updateUserMedia(function(){
+          // Start a call
+          if (self.configuration.destination !== false)
+          {
+            self.client.uriCall(self.configuration.destination);
+          }
+        });
+      });
+      this.eventBus.on("incomingCall", function(evt){
+        var incomingCallName = evt.data.request.from.display_name;
+        var incomingCallUser = evt.data.request.from.uri.user;
+        self.message("Incoming Call", "success");
+        self.setEvent("incomingCall");
+        self.incomingCallName.text(incomingCallName);
+        self.incomingCallUser.text(incomingCallUser);
+        WebRTC.Utils.rebindListeners("click",
+          [self.rejectIncomingCall, self.acceptIncomingCall, self.holdAndAnswerButton, self.dropAndAnswerButton],
+          function(e) {
+            e.preventDefault();
+            self.incomingCallHandler($(this), evt.data.session);
+          }
+        );
+        self.sound.playRingtone();
+      });
+      this.eventBus.on("reInvite", function(e){
+        self.setEvent("reInvite");
+        var incomingCallName = e.data.request.from.display_name;
+        var incomingCallUser = e.data.request.from.uri.user;
+        var title = e.data.audioAdd ? "Adding Audio" : "Adding Video";
+        self.message(title, "success");
+        $("#reInvitePopup").fadeIn(100);
+        $("#reInvitePopup .incomingCallName").text(incomingCallName);
+        $("#reInvitePopup .incomingCallUser").text(incomingCallUser);
+        $("#reInvitePopup .title").text(title);
+        self.acceptReInviteCall.off("click");
+        self.acceptReInviteCall.on("click", function(){
+          self.setEvent("reInvite-done");
+          e.data.session.acceptReInvite();
+        });
+        self.rejectReInviteCall.off("click");
+        self.rejectReInviteCall.on("click", function(){
+          self.setEvent("reInvite-done");
+          e.data.session.rejectReInvite();
+        });
+      });
+
+      // Buttons
       this.callButton.bind('click', function(e)
       {
         e.preventDefault();
@@ -581,7 +495,7 @@
       {
         e.preventDefault();
         self.sound.playClick();
-        self.terminateSession(self.activeSession);
+        self.sipStack.terminateSession();
         if (self.fullScreen === true)
         {
           $('#fullScreenContract').click();
@@ -627,7 +541,7 @@
         self.setMuted(true);
         e.preventDefault();
         self.sound.playClick();
-        self.enableLocalAudio(false);
+        self.sound.enableLocalAudio(false);
       });
 
       this.unmuteAudio.bind('click', function(e)
@@ -635,7 +549,7 @@
         self.setMuted(false);
         e.preventDefault();
         self.sound.playClick();
-        self.enableLocalAudio(true);
+        self.sound.enableLocalAudio(true);
       });
 
       this.transfer.bind('click', function(e)
@@ -659,11 +573,7 @@
         }
         transferTarget = self.validateDestination(transferTarget);
         self.setTransferVisible(false);
-        if(self.transferTypeAttended.is(':checked')) {
-          self.sipStack.attendedTransfer(transferTarget, self.activeSession);
-        } else {
-          self.sipStack.transfer(transferTarget, self.activeSession);
-        }
+        self.sipStack.transfer(transferTarget, self.transferTypeAttended.is(':checked'));
       });
 
       this.rejectTransfer.bind('click', function(e)
@@ -702,6 +612,11 @@
         self.pressDTMF(e.target.textContent);
       });
 
+      this.eventBus.on('message', function(e)
+      {
+        self.message();
+      });
+
       this.destination.keypress(function (e) {
         if (e.keyCode === 13) {
           e.preventDefault();
@@ -733,28 +648,19 @@
       };
     },
 
-    terminateSession: function(session){
-      if(!session) {
-        return;
-      }
-      var index = this.sessions.indexOf(session);
-      if(index !== -1) {
-        this.sessions.splice(index, index+1);
-      }
-      if(session.status !== ExSIP.RTCSession.C.STATUS_TERMINATED) {
-        session.terminate();
-      }
-      if(session === this.activeSession) {
-        logger.log("clearing active session", this.configuration);
-        this.activeSession = null;
-      }
-    },
-
-    terminateSessions: function(){
-      var allSessions = [];
-      allSessions = allSessions.concat(this.sessions);
-      for(var i=0; i<allSessions.length; i++){
-        this.terminateSession(allSessions[i]);
+    incomingCallHandler: function(source, session){
+      this.setEvent("incomingCall-done");
+      this.sound.pause();
+      if (source.is(this.acceptIncomingCall)) {
+        this.callButton.fadeOut(1000);
+        this.sipStack.answer(session);
+      } else if (source.is(this.dropAndAnswerButton)) {
+        this.sipStack.terminateSession();
+        this.sipStack.answer(session);
+      } else if (source.is(this.holdAndAnswerButton)) {
+        this.sipStack.holdAndAnswer(session);
+      } else if (source.is(this.rejectIncomingCall)) {
+        this.sipStack.terminateSession(session);
       }
     },
 
@@ -784,30 +690,6 @@
       else
       {
         this.uriCall(destination);
-      }
-    },
-
-    updateRtcMediaHandlerOptions: function(){
-      if(typeof(this.sipStack) === 'undefined') {
-        return;
-      }
-
-      this.sipStack.setRtcMediaHandlerOptions(this.configuration.getRtcMediaHandlerOptions());
-    },
-
-    updateUserMedia: function(userMediaCallback){
-      var self = this;
-      if(ClientConfig.enableConnectLocalMedia) {
-        // Connect to local stream
-        var options = this.configuration.getExSIPOptions();
-        this.sipStack.getUserMedia(options, function(localStream){
-          self.video.updateStreams([localStream], []);
-          if(userMediaCallback) {
-            userMediaCallback();
-          }
-        }, function(){
-          this.message(ClientConfig.messageGetUserMedia || "Get User Media Failed", "alert");
-        }, true);
       }
     },
 

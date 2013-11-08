@@ -6,7 +6,7 @@ module( "Call Waiting", {
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableTransfer = true;
     ClientConfig.enableCallStats = false;
-    WebRTC.Client.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
+    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }
 });
@@ -69,11 +69,11 @@ test('2nd incoming call and hold+answer click', function() {
   incomingSession.answer = function(options){console.log("answer"); answerOptions = options; incomingSession.started('local');}
   TestWebrtc.Helpers.incomingCall(incomingSession);
 
-  ok(client.activeSession === outgoingSession, "Outgoing session should be active");
-  deepEqual(client.sessions.length, 2);
+  ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active");
+  deepEqual(client.sipStack.sessions.length, 2);
   client.holdAndAnswerButton.trigger("click");
-  ok(client.activeSession === incomingSession, "Incoming session should be active");
-  deepEqual(client.sessions.length, 2);
+  ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
+  deepEqual(client.sipStack.sessions.length, 2);
   notStrictEqual(answerOptions, "", "Answer should have been called");
 });
 
@@ -87,10 +87,10 @@ test('2nd incoming call and hold+answer click and resume 1st call after 2nd ends
   TestWebrtc.Helpers.incomingCall(incomingSession);
 
   client.holdAndAnswerButton.trigger("click");
-  ok(client.activeSession === incomingSession, "Incoming session should be active");
+  ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
   client.hangup.trigger("click");
-  ok(client.activeSession === outgoingSession, "Outgoing session should be active again");
-  strictEqual(client.sessions.length, 1);
+  ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active again");
+  strictEqual(client.sipStack.sessions.length, 1);
 });
 
 test('2nd incoming call and drop+answer click', function() {
@@ -103,11 +103,11 @@ test('2nd incoming call and drop+answer click', function() {
   incomingSession.answer = function(options){console.log("answer"); answerOptions = options; incomingSession.started('local');}
   TestWebrtc.Helpers.incomingCall(incomingSession);
 
-  ok(client.activeSession === outgoingSession, "Outgoing session should be active");
-  deepEqual(client.sessions.length, 2);
+  ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active");
+  deepEqual(client.sipStack.sessions.length, 2);
   client.dropAndAnswerButton.trigger("click");
-  ok(client.activeSession === incomingSession, "Incoming session should be active");
-  deepEqual(client.sessions.length, 1);
+  ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
+  deepEqual(client.sipStack.sessions.length, 1);
   notStrictEqual(answerOptions, "", "Answer should have been called");
 });
 

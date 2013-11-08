@@ -25,7 +25,7 @@ TestWebrtc.Helpers = {
   },
 
   emitReInvite: function(client) {
-    client.sipStack.emit("onReInvite", client.sipStack, {
+    client.sipStack.ua.emit("onReInvite", client.sipStack.ua, {
       session: {acceptReInvite: function(){reInviteAccepted = true;},
         rejectReInvite: function(){reInviteRejected = true;}},
       request: {from: {displayName: "test", uri: {user: "user"}}},
@@ -35,17 +35,17 @@ TestWebrtc.Helpers = {
   },
 
   connect: function() {
-    client.sipStack.emit('connected', client.sipStack);
+    client.sipStack.ua.emit('connected', client.sipStack.ua);
   },
 
   endCall: function() {
-    client.activeSession.status = ExSIP.RTCSession.C.STATUS_TERMINATED;
-    client.activeSession.emit('ended', client.activeSession);
+    client.sipStack.activeSession.status = ExSIP.RTCSession.C.STATUS_TERMINATED;
+    client.sipStack.activeSession.emit('ended', client.sipStack.activeSession);
   },
 
   startCall: function(session) {
     session = session || this.outgoingSession();
-    client.sipStack.emit('newRTCSession', client.sipStack, {session: session});
+    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
     session.emit('started', session);
   },
 
@@ -66,7 +66,7 @@ TestWebrtc.Helpers = {
   },
 
   createSession: function(){
-    var session = new ExSIP.RTCSession(client.sipStack);
+    var session = new ExSIP.RTCSession(client.sipStack.ua);
     session.hold = function(success){console.log("hold"); session.holded(), success();}
     session.unhold = function(success){console.log("unhold"); session.unholded(), success();}
     session.terminate = function(options){console.log("terminate"); session.ended('local');}
@@ -77,7 +77,7 @@ TestWebrtc.Helpers = {
   incomingCall: function(session){
     session = session || this.incomingSession();
     var request = {to_tag: "1234567", from_tag: "7654321", from: {display_name: "Incoming DisplayName", uri: {user: "Incoming User"}}};
-    client.sipStack.emit('newRTCSession', client.sipStack, {session: session, request: request});
+    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session, request: request});
   },
 
   mockSound: function(){
