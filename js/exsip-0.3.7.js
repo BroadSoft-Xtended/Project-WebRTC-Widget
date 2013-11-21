@@ -3317,12 +3317,13 @@ ExSIP.Registrator = Registrator;
  */
 (function(ExSIP){
 
-var RequestSender = function(applicant, request) {
+var RequestSender = function(applicant, request, callbacks) {
   this.applicant = applicant;
   this.request = request || applicant.request;
   this.session = (applicant instanceof ExSIP.RTCSession)? applicant : applicant.session;
   this.reattempt = false;
   this.reatemptTimer = null;
+  this.callbacks = callbacks || {};
   this.request_sender = new ExSIP.InDialogRequestSender(this);
 };
 
@@ -3345,10 +3346,19 @@ RequestSender.prototype = {
           this.getReattemptTimeout()
         );
       } else {
-        this.applicant.receiveResponse(response);
+        this.applicant.receiveResponse(response, this.callbacks);
       }
     } else {
-      this.applicant.receiveResponse(response);
+      this.applicant.receiveResponse(response, this.callbacks);
+      if(response.status_code >= 200 && response.status_code < 299) {
+        if(this.callbacks["success"]) {
+          this.callbacks["success"]();
+        }
+      } else if(response.status_code >= 400) {
+        if(this.callbacks["failure"]) {
+          this.callbacks["failure"]();
+        }
+      }
     }
   },
 
@@ -3722,6 +3732,22 @@ RTCMediaHandler.prototype = {
       logger.log("Modifying SDP with videoBandwidth : "+this.session.ua.rtcMediaHandlerOptions["videoBandwidth"], this.session.ua);
     }
 
+//    description.sdp = "v=0\r\n"+
+//      "o=mscore 1384795821 1 IN IP4 204.117.64.113\r\n"+
+//    "s=d4q5no0ml0fhj4h685ur\r\n"+
+//    "t=0 0\r\n"+
+//    "m=audio 44476 RTP/SAVPF 111 126\r\n"+
+//    "c=IN IP4 204.117.64.113\r\n"+
+//    "a=rtpmap:111 opus/48000/2\r\n"+
+//    "a=rtpmap:126 telephone-event/8000\r\n"+
+//    "a=fmtp:111 minptime=10\r\n"+
+//    "a=rtcp-mux\r\n"+
+//    "a=crypto:0 AES_CM_128_HMAC_SHA1_32 inline:iYtsHDIl+1uXQV91p04VNy/PjJk2bQ2H6lqXVlXI\r\n"+
+//    "a=ice-ufrag:oHazMhXZ4VvxTk5r\r\n"+
+//    "a=ice-pwd:zCO3DbLuyVpPiFodARvjgUa7\r\n"+
+//    "a=ssrc:4282715684 cname:qavdWNEl8g4zsfjY\r\n"+
+//    "a=candidate:0 1 udp 2113929216 204.117.64.113 44476 typ host\r\n";
+//
     if(this.peerConnection) {
       logger.log('peerConnection.setRemoteDescription for type '+type+' : '+description.sdp, this.session.ua);
       this.peerConnection.setRemoteDescription(
@@ -3833,7 +3859,7 @@ DTMF.prototype.enableDtmfSender = function(localstream, peerConnection) {
   if (localstream != null) {
     var local_audio_track = localstream.getAudioTracks()[0];
     this.dtmfSender = peerConnection.createDTMFSender(local_audio_track);
-    logger.log("Created DTMF Sender", this.session.ua);
+    logger.log("Created DTMF Sender with canInsertDTMF : "+this.dtmfSender.canInsertDTMF, this.session.ua);
 //    dtmfSender.ontonechange = dtmfOnToneChange;
   }
   else {
@@ -4000,6 +4026,9 @@ return DTMF;
   RTCSession.prototype.initRtcMediaHandler = function(options) {
     options = options || {};
     this.rtcMediaHandler = new RTCMediaHandler(this, options.RTCConstraints || {"optional": [{'DtlsSrtpKeyAgreement': 'true'}]});
+    if(options["copy"]) {
+      this.rtcMediaHandler.copy(options["copy"]);
+    }
   };
 
   /**
@@ -4770,6 +4799,11 @@ return DTMF;
             }
           }
           break;
+        case ExSIP.C.REFER:
+          if(this.status === C.STATUS_CONFIRMED) {
+            this.ua.processRefer(this, request);
+          }
+          break;
         case ExSIP.C.NOTIFY:
           if(this.status === C.STATUS_REFER_SENT) {
             request.reply(200);
@@ -4831,13 +4865,11 @@ return DTMF;
   };
 
   RTCSession.prototype.sendInviteRequest = function(target, options, inviteSuccessCallback, inviteFailureCallback) {
-    this.inviteSuccessCallback = inviteSuccessCallback;
-    this.inviteFailureCallback = inviteFailureCallback;
     options = options || {};
     options["status"] = C.STATUS_INVITE_SENT;
     options["sdp"] = this.rtcMediaHandler.peerConnection.localDescription.sdp;
     options["target"] = target;
-    this.sendRequest(ExSIP.C.INVITE, options);
+    this.sendRequest(ExSIP.C.INVITE, options, {inviteSuccess: inviteSuccessCallback, inviteFailure: inviteFailureCallback});
   };
   /**
    * Initial Request Sender
@@ -4915,6 +4947,14 @@ return DTMF;
     this.sendRequest(ExSIP.C.REFER, options);
   };
 
+  RTCSession.prototype.sendNotifyRequest = function(options, successCallback, failureCallback) {
+    options = options || {};
+    var extraHeaders = ['Content-Type: message/sipfrag',
+      'Subscription-State: '+(options['subscriptionState'] || "active;expires=60")];
+    options = ExSIP.Utils.merge_options({extraHeaders: extraHeaders},  options);
+    this.sendRequest(ExSIP.C.NOTIFY, options, {success: successCallback, failure: failureCallback});
+  };
+
   RTCSession.prototype.hold = function(inviteSuccessCallback, inviteFailureCallback) {
     var self = this;
     this.setLocalMode(ExSIP.C.SENDONLY, ExSIP.C.SENDONLY);
@@ -4952,9 +4992,10 @@ return DTMF;
    * Reception of Response for Initial Request
    * @private
    */
-  RTCSession.prototype.receiveResponse = function(response) {
+  RTCSession.prototype.receiveResponse = function(response, callbacks) {
     var cause,
       session = this;
+    callbacks = callbacks || {};
 
     if(this.status !== C.STATUS_INVITE_SENT && this.status !== C.STATUS_1XX_RECEIVED) {
       logger.warn('status ('+this.status+') not invite sent or 1xx received', this.ua);
@@ -5021,10 +5062,8 @@ return DTMF;
             session.status = C.STATUS_CONFIRMED;
             session.sendACK();
             session.started('remote', response);
-            if(session.inviteSuccessCallback) {
-              var callback = session.inviteSuccessCallback;
-              session.inviteSuccessCallback = undefined;
-              callback();
+            if(callbacks["inviteSuccess"]) {
+              callbacks["inviteSuccess"]();
             }
           },
           /*
@@ -5041,10 +5080,8 @@ return DTMF;
       default:
         cause = ExSIP.Utils.sipErrorCause(response.status_code);
         this.failed('remote', response, cause);
-        if(session.inviteFailureCallback) {
-          var callback = session.inviteFailureCallback;
-          session.inviteFailureCallback = undefined;
-          callback(response.status_code);
+        if(callbacks["inviteFailure"]) {
+          callbacks["inviteFailure"](response);
         }
     }
   };
@@ -5096,14 +5133,15 @@ return DTMF;
       options.extraHeaders.push('Reason: '+ reason);
     }
 
-    this.sendRequest(ExSIP.C.BYE, options.extraHeaders, body);
+    options["sdp"] = body;
+    this.sendRequest(ExSIP.C.BYE, options);
   };
 
 
   /**
    * @private
    */
-  RTCSession.prototype.sendRequest = function(method, options) {
+  RTCSession.prototype.sendRequest = function(method, options, requestCallbacks) {
     var request;
     options = options || {};
     if(this.dialog) {
@@ -5126,7 +5164,7 @@ return DTMF;
       request.extraHeaders.push('Content-Type: application/sdp');
     }
 
-    var request_sender = new RequestSender(this, request);
+    var request_sender = new RequestSender(this, request, requestCallbacks);
     request_sender.send();
   };
 
@@ -5760,9 +5798,9 @@ ExSIP.Message = Message;
         targetSession.hold(holdTargetSuccess, holdTargetFailed);
       };
 
-      var sendTargetInviteFailed = function(statusCode){
+      var sendTargetInviteFailed = function(response){
         logger.log("send invite to target failed - sending basic refer", self);
-        if(statusCode === 420) {
+        if(response.status_code === 420) {
           self.sendReferBasic(sessionToTransfer, transferTarget, options);
         }
       };
@@ -5789,6 +5827,36 @@ ExSIP.Message = Message;
         "%3Bfrom-tag%3D"+targetSession.dialog.id.local_tag+">";
       options.extraHeaders.push('Refer-To: '+referTo);
       referSession.sendReferRequest(sessionToTransfer, options);
+    };
+
+    UA.prototype.processRefer = function(sessionToTransfer, referRequest) {
+      var self = this;
+      referRequest.reply(202);
+      var inviteSuccess = function() {
+        sessionToTransfer.sendNotifyRequest({sdp: "SIP/2.0 200 OK", subscriptionState: "terminated;reason=noresource"});
+      };
+      var inviteFailure = function(response) {
+        var status = response.status_code + " " + response.reason_phrase;
+        logger.log("Invite failed : "+status);
+        sessionToTransfer.sendNotifyRequest({sdp: "SIP/2.0 "+status, subscriptionState: "terminated;reason=noresource"});
+      };
+      var notifySuccess = function() {
+        var referTo = referRequest.getHeader('Refer-To');
+        referTo = ExSIP.Utils.stripSip(referTo);
+        var referToParts = referTo.split("?");
+        var target = referToParts[0];
+        logger.log("Notify successful - sending INVITE to transfer target : "+target);
+        var options = {};
+        if(referToParts.length > 1) {
+          options["extraHeaders"] = ExSIP.Utils.getHeadersFromQuery(referToParts[1]);
+        }
+        var transferTargetSession = self.newSession({copy: sessionToTransfer.rtcMediaHandler});
+        transferTargetSession.sendInviteRequest(target, options, inviteSuccess, inviteFailure);
+      };
+      var notifyFailure = function() {
+        logger.log("Notify failed");
+      };
+      sessionToTransfer.sendNotifyRequest({sdp: "SIP/2.0 100 Trying"}, notifySuccess, notifyFailure);
     };
 
     UA.prototype.sendReferBasic = function(sessionToTransfer, transferTarget, options) {
@@ -6358,6 +6426,7 @@ ExSIP.Message = Message;
                 // Password
                 password: null,
 
+
                 // Registration parameters
                 register_expires: 600,
                 register_min_expires: 120,
@@ -6907,6 +6976,21 @@ Utils= {
 
   isDecimal: function (num) {
     return !isNaN(num) && (parseFloat(num) === parseInt(num,10));
+  },
+
+  getHeadersFromQuery: function (query) {
+    var headers = [];
+    var queryParts = query.split("&");
+    for(var i=0; i<queryParts.length; i++) {
+      var parameters = queryParts[i].split("=");
+      headers.push(parameters[0]+": "+decodeURIComponent(parameters[1]));
+    }
+    return headers;
+  },
+
+  stripSip: function (address) {
+    var match = address.match(/<sip\:(.*)\>/);
+    return match ? match[1] : address;
   },
 
   createRandomToken: function(size, base) {

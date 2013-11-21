@@ -33,7 +33,6 @@
     this.rejectIncomingCall = $("#rejectIncomingCall");
     this.holdAndAnswerButton = $("#holdAndAnswerButton");
     this.dropAndAnswerButton = $("#dropAndAnswerButton");
-    this.initUi();
 
     this.configuration = new WebRTC.Configuration();
     this.eventBus = new WebRTC.EventBus(this.configuration);
@@ -57,14 +56,6 @@
   };
 
   Client.prototype = {
-    initUi: function() {
-      WebRTC.Utils.addSelectOptions(WebRTC.C.RESOLUTION_TYPES, "#resolutionTypeSelect");
-      WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, "#resolutionDisplayStandardSelect");
-      WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, "#resolutionDisplayWidescreenSelect");
-      WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, "#resolutionEncodingStandardSelect");
-      WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, "#resolutionEncodingWidescreenSelect");
-    },
-
     init: function() {
       var self = this;
       var unsupported = WebRTC.Utils.compatibilityCheck();
@@ -441,7 +432,7 @@
           // Start a call
           if (self.configuration.destination !== false)
           {
-            self.client.uriCall(self.configuration.destination);
+            self.uriCall(self.configuration.destination);
           }
         });
       });
