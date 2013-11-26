@@ -1111,6 +1111,7 @@ ExSIP.Parser = Parser;
 
 (function(ExSIP) {
 var
+  SIPMessage,
   OutgoingRequest,
   IncomingMessage,
   IncomingRequest,
@@ -1118,178 +1119,14 @@ var
   logger = new ExSIP.Logger(ExSIP.name +' | '+ 'SIP MESSAGE');
 
 /**
- * @augments ExSIP
- * @class Class for outgoing SIP request.
- * @param {String} method request method
- * @param {String} ruri request uri
- * @param {ExSIP.UA} ua
- * @param {Object} params parameters that will have priority over ua.configuration parameters:
- * <br>
- *  - cseq, call_id, from_tag, from_uri, from_display_name, to_uri, to_tag, route_set
- * @param {Object} [headers] extra headers
- * @param {String} [body]
+ * @augments SIPMessage
+ * @class Class for SIP messages.
  */
-OutgoingRequest = function(method, ruri, ua, params, extraHeaders, body) {
-  var
-    to,
-    from,
-    call_id,
-    cseq;
-
-  params = params || {};
-
-  // Mandatory parameters check
-  if(!method || !ruri || !ua) {
-    return null;
-  }
-
+SIPMessage = function() {
   this.headers = {};
-  this.method = method;
-  this.ruri = ruri;
-  this.body = body;
-  this.extraHeaders = extraHeaders || [];
-
-  // Fill the Common SIP Request Headers
-
-  // Route
-  if (params.route_set) {
-    this.setHeader('route', params.route_set);
-  } else if (ua.configuration.use_preloaded_route){
-    this.setHeader('route', ua.transport.server.sip_uri);
-  }
-
-  // Via
-  // Empty Via header. Will be filled by the client transaction.
-  this.setHeader('via', '');
-
-  // Max-Forwards
-  this.setHeader('max-forwards', ExSIP.UA.C.MAX_FORWARDS);
-
-  // To
-  to = (params.to_display_name || params.to_display_name === 0) ? '"' + params.to_display_name + '" ' : '';
-  to += '<' + (params.to_uri || ruri) + '>';
-  to += params.to_tag ? ';tag=' + params.to_tag : '';
-  this.to = new ExSIP.NameAddrHeader.parse(to);
-  this.setHeader('to', to);
-
-  // From
-  if (params.from_display_name || params.from_display_name === 0) {
-    from = '"' + params.from_display_name + '" ';
-  } else if (ua.configuration.display_name) {
-    from = '"' + ua.configuration.display_name + '" ';
-  } else {
-    from = '';
-  }
-  from += '<' + (params.from_uri || ua.configuration.uri) + '>;tag=';
-  from += params.from_tag || ExSIP.Utils.newTag();
-  this.from = new ExSIP.NameAddrHeader.parse(from);
-  this.setHeader('from', from);
-
-  // Call-ID
-  call_id = params.call_id || (ua.configuration.exsip_id + ExSIP.Utils.createRandomToken(15));
-  this.call_id = call_id;
-  this.setHeader('call-id', call_id);
-
-  // CSeq
-  cseq = params.cseq || Math.floor(Math.random() * 10000);
-  this.cseq = cseq;
-  this.setHeader('cseq', cseq + ' ' + method);
 };
 
-OutgoingRequest.prototype = {
-  /**
-   * Replace the the given header by the given value.
-   * @param {String} name header name
-   * @param {String | Array} value header value
-   */
-  setHeader: function(name, value) {
-    this.headers[ExSIP.Utils.headerize(name)] = (value instanceof Array) ? value : [value];
-  },
-  toString: function() {
-    var msg = '', header, length, idx;
-
-    msg += this.method + ' ' + this.ruri + ' SIP/2.0\r\n';
-
-    for (header in this.headers) {
-      length = this.headers[header].length;
-      for (idx = 0; idx < length; idx++) {
-        msg += header + ': ' + this.headers[header][idx] + '\r\n';
-      }
-    }
-
-    length = this.extraHeaders.length;
-    for (idx = 0; idx < length; idx++) {
-      msg += this.extraHeaders[idx] +'\r\n';
-    }
-
-    msg += 'Supported: ' +  ExSIP.UA.C.SUPPORTED +'\r\n';
-    msg += 'User-Agent: Exario Networks WebRTC - 1.4\r\n';
-
-    if(this.body) {
-      length = ExSIP.Utils.str_utf8_length(this.body);
-      msg += 'Content-Length: ' + length + '\r\n\r\n';
-      msg += this.body;
-    } else {
-      msg += 'Content-Length: 0\r\n\r\n';
-    }
-
-    return msg;
-  }
-};
-
-/**
- * @augments ExSIP
- * @class Class for incoming SIP message.
- */
-IncomingMessage = function(){
-  this.data = null;
-  this.headers = null;
-  this.method =  null;
-  this.via = null;
-  this.via_branch = null;
-  this.call_id = null;
-  this.cseq = null;
-  this.from = null;
-  this.from_tag = null;
-  this.to = null;
-  this.to_tag = null;
-  this.body = null;
-};
-
-IncomingMessage.prototype = {
-  /**
-  * Insert a header of the given name and value into the last position of the
-  * header array.
-  * @param {String} name header name
-  * @param {String} value header value
-  */
-  addHeader: function(name, value) {
-    var header = { raw: value };
-
-    name = ExSIP.Utils.headerize(name);
-
-    if(this.headers[name]) {
-      this.headers[name].push(header);
-    } else {
-      this.headers[name] = [header];
-    }
-  },
-
-  /**
-   * Count the number of headers of the given header name.
-   * @param {String} name header name
-   * @returns {Number} Number of headers with the given name
-   */
-  countHeader: function(name) {
-    var header = this.headers[ExSIP.Utils.headerize(name)];
-
-    if(header) {
-      return header.length;
-    } else {
-      return 0;
-    }
-  },
-
+SIPMessage.prototype = {
   /**
    * Get the value of the given header name at the given position.
    * @param {String} name header name
@@ -1342,11 +1179,44 @@ IncomingMessage.prototype = {
   },
 
   /**
-  * Parse the given header on the given index.
-  * @param {String} name header name
-  * @param {Number} [idx=0] header index
-  * @returns {Object|undefined} Parsed header object, undefined if the header is not present or in case of a parsing error.
-  */
+   * Insert a header of the given name and value into the last position of the
+   * header array.
+   * @param {String} name header name
+   * @param {String} value header value
+   */
+  addHeader: function(name, value) {
+    var header = { raw: value };
+
+    name = ExSIP.Utils.headerize(name);
+
+    if(this.headers[name]) {
+      this.headers[name].push(header);
+    } else {
+      this.headers[name] = [header];
+    }
+  },
+
+  /**
+   * Count the number of headers of the given header name.
+   * @param {String} name header name
+   * @returns {Number} Number of headers with the given name
+   */
+  countHeader: function(name) {
+    var header = this.headers[ExSIP.Utils.headerize(name)];
+
+    if(header) {
+      return header.length;
+    } else {
+      return 0;
+    }
+  },
+
+  /**
+   * Parse the given header on the given index.
+   * @param {String} name header name
+   * @param {Number} [idx=0] header index
+   * @returns {Object|undefined} Parsed header object, undefined if the header is not present or in case of a parsing error.
+   */
   parseHeader: function(name, idx) {
     var header, value, parsed;
 
@@ -1396,27 +1266,160 @@ IncomingMessage.prototype = {
   },
 
   /**
-  * Replace the value of the given header by the value.
-  * @param {String} name header name
-  * @param {String} value header value
-  */
+   * Replace the value of the given header by the value.
+   * @param {String} name header name
+   * @param {String} value header value
+   */
   setHeader: function(name, value) {
     var header = { raw: value };
     this.headers[ExSIP.Utils.headerize(name)] = [header];
-  },
-
-  toString: function() {
-    return this.data;
   }
 };
 
-/**
+  /**
+ * @augments ExSIP
+ * @class Class for outgoing SIP request.
+ * @param {String} method request method
+ * @param {String} ruri request uri
+ * @param {ExSIP.UA} ua
+ * @param {Object} params parameters that will have priority over ua.configuration parameters:
+ * <br>
+ *  - cseq, call_id, from_tag, from_uri, from_display_name, to_uri, to_tag, route_set
+ * @param {Object} [headers] extra headers
+ * @param {String} [body]
+ */
+OutgoingRequest = function(method, ruri, ua, params, extraHeaders, body) {
+  SIPMessage.call(this);
+  var
+    to,
+    from,
+    call_id,
+    cseq;
+
+  params = params || {};
+
+  // Mandatory parameters check
+  if(!method || !ruri || !ua) {
+    return null;
+  }
+
+  this.method = method;
+  this.ruri = ruri;
+  this.body = body;
+  this.extraHeaders = extraHeaders || [];
+
+  // Fill the Common SIP Request Headers
+
+  // Route
+  if (params.route_set && params.route_set.toString() !== "") {
+    this.setHeader('route', params.route_set);
+  } else if (ua.configuration.use_preloaded_route){
+    this.setHeader('route', ua.transport.server.sip_uri);
+  }
+
+  // Via
+  // Empty Via header. Will be filled by the client transaction.
+  this.setHeader('via', '');
+
+  // Max-Forwards
+  this.setHeader('max-forwards', ExSIP.UA.C.MAX_FORWARDS);
+
+  // To
+  to = (params.to_display_name || params.to_display_name === 0) ? '"' + params.to_display_name + '" ' : '';
+  to += '<' + (params.to_uri || ruri) + '>';
+  to += params.to_tag ? ';tag=' + params.to_tag : '';
+  this.to = new ExSIP.NameAddrHeader.parse(to);
+  this.setHeader('to', to);
+
+  // From
+  if (params.from_display_name || params.from_display_name === 0) {
+    from = '"' + params.from_display_name + '" ';
+  } else if (ua.configuration.display_name) {
+    from = '"' + ua.configuration.display_name + '" ';
+  } else {
+    from = '';
+  }
+  from += '<' + (params.from_uri || ua.configuration.uri) + '>;tag=';
+  from += params.from_tag || ExSIP.Utils.newTag();
+  this.from = new ExSIP.NameAddrHeader.parse(from);
+  this.setHeader('from', from);
+
+  // Call-ID
+  call_id = params.call_id || (ua.configuration.exsip_id + ExSIP.Utils.createRandomToken(15));
+  this.call_id = call_id;
+  this.setHeader('call-id', call_id);
+
+  // CSeq
+  cseq = params.cseq || Math.floor(Math.random() * 10000);
+  this.cseq = cseq;
+  this.setHeader('cseq', cseq + ' ' + method);
+};
+
+OutgoingRequest.prototype = new SIPMessage();
+
+OutgoingRequest.prototype.toString = function() {
+  var msg = '', header, length, idx;
+
+  msg += this.method + ' ' + this.ruri + ' SIP/2.0\r\n';
+
+  for (header in this.headers) {
+    length = this.headers[header].length;
+    for (idx = 0; idx < length; idx++) {
+      msg += header + ': ' + this.headers[header][idx].raw + '\r\n';
+    }
+  }
+
+  length = this.extraHeaders.length;
+  for (idx = 0; idx < length; idx++) {
+    msg += this.extraHeaders[idx] +'\r\n';
+  }
+
+  msg += 'Supported: ' +  ExSIP.UA.C.SUPPORTED +'\r\n';
+  msg += 'User-Agent: Exario Networks WebRTC - 1.4\r\n';
+
+  if(this.body) {
+    length = ExSIP.Utils.str_utf8_length(this.body);
+    msg += 'Content-Length: ' + length + '\r\n\r\n';
+    msg += this.body;
+  } else {
+    msg += 'Content-Length: 0\r\n\r\n';
+  }
+
+  return msg;
+};
+
+
+  /**
+ * @augments ExSIP
+ * @class Class for incoming SIP message.
+ */
+IncomingMessage = function(){
+  SIPMessage.call(this);
+  this.data = null;
+  this.method =  null;
+  this.via = null;
+  this.via_branch = null;
+  this.call_id = null;
+  this.cseq = null;
+  this.from = null;
+  this.from_tag = null;
+  this.to = null;
+  this.to_tag = null;
+  this.body = null;
+};
+
+IncomingMessage.prototype.toString = function(){
+  return this.data;
+};
+IncomingMessage.prototype = new SIPMessage();
+
+  /**
  * @augments IncomingMessage
  * @class Class for incoming SIP request.
  */
 IncomingRequest = function(ua) {
+  IncomingMessage.call(this);
   this.ua = ua;
-  this.headers = {};
   this.ruri = null;
   this.transport = null;
   this.server_transaction = null;
@@ -1539,13 +1542,12 @@ IncomingRequest.prototype.reply_sl = function(code, reason) {
   this.transport.send(response);
 };
 
-
 /**
  * @augments IncomingMessage
  * @class Class for incoming SIP response.
  */
 IncomingResponse = function() {
-  this.headers = {};
+  IncomingMessage.call(this);
   this.status_code = null;
   this.reason_phrase = null;
 };
@@ -2073,16 +2075,16 @@ var InviteClientTransactionPrototype = function() {
     var tr = this;
 
     this.ack = 'ACK ' + this.request.ruri + ' SIP/2.0\r\n';
-    this.ack += 'Via: ' + this.request.headers['Via'].toString() + '\r\n';
+    this.ack += 'Via: ' + this.request.getHeader('Via').toString() + '\r\n';
 
-    if(this.request.headers['Route'] && this.request.headers['Route'].toString() !== "") {
-      this.ack += 'Route: ' + this.request.headers['Route'].toString() + '\r\n';
+    if(this.request.getHeader('Route') && this.request.getHeader('Route').toString() !== "") {
+      this.ack += 'Route: ' + this.request.getHeader('Route').toString() + '\r\n';
     }
 
     this.ack += 'To: ' + response.getHeader('to') + '\r\n';
-    this.ack += 'From: ' + this.request.headers['From'].toString() + '\r\n';
-    this.ack += 'Call-ID: ' + this.request.headers['Call-ID'].toString() + '\r\n';
-    this.ack += 'CSeq: ' + this.request.headers['CSeq'].toString().split(' ')[0];
+    this.ack += 'From: ' + this.request.getHeader('From').toString() + '\r\n';
+    this.ack += 'Call-ID: ' + this.request.getHeader('Call-ID').toString() + '\r\n';
+    this.ack += 'CSeq: ' + this.request.getHeader('CSeq').toString().split(' ')[0];
     this.ack += ' ACK\r\n\r\n';
 
     this.D = window.setTimeout(function() {tr.timer_D();}, ExSIP.Timers.TIMER_D);
@@ -2094,16 +2096,16 @@ var InviteClientTransactionPrototype = function() {
     var request = tr.request;
 
     this.cancel = ExSIP.C.CANCEL + ' ' + request.ruri + ' SIP/2.0\r\n';
-    this.cancel += 'Via: ' + request.headers['Via'].toString() + '\r\n';
+    this.cancel += 'Via: ' + request.getHeader('Via').toString() + '\r\n';
 
-    if(this.request.headers['Route']) {
-      this.cancel += 'Route: ' + request.headers['Route'].toString() + '\r\n';
+    if(this.request.getHeader('Route')) {
+      this.cancel += 'Route: ' + request.getHeader('Route').toString() + '\r\n';
     }
 
-    this.cancel += 'To: ' + request.headers['To'].toString() + '\r\n';
-    this.cancel += 'From: ' + request.headers['From'].toString() + '\r\n';
-    this.cancel += 'Call-ID: ' + request.headers['Call-ID'].toString() + '\r\n';
-    this.cancel += 'CSeq: ' + request.headers['CSeq'].toString().split(' ')[0] +
+    this.cancel += 'To: ' + request.getHeader('To').toString() + '\r\n';
+    this.cancel += 'From: ' + request.getHeader('From').toString() + '\r\n';
+    this.cancel += 'Call-ID: ' + request.getHeader('Call-ID').toString() + '\r\n';
+    this.cancel += 'CSeq: ' + request.getHeader('CSeq').toString().split(' ')[0] +
     ' CANCEL\r\n';
 
     if(reason) {
@@ -3684,7 +3686,9 @@ RTCMediaHandler.prototype = {
   close: function() {
     logger.log('closing PeerConnection', this.session.ua);
     if(this.peerConnection) {
-      this.peerConnection.close();
+      if(this.peerConnection.signalingState !== 'closed') {
+        this.peerConnection.close();
+      }
 
       if(!this.session.ua.reuseLocalMedia()) {
         if(this.localMedia) {
@@ -4819,7 +4823,7 @@ return DTMF;
             if(status >= 200 && status <= 299) {
               logger.log('terminate transferred session : ' + this.sessionToTransfer.id, this.ua);
               this.sessionToTransfer.terminate();
-            } else if(status >= 400 && status <= 499) {
+            } else if(status >= 400 && status <= 699) {
               logger.warn('unholding session : ' + this.sessionToTransfer.id, this.ua);
               this.sessionToTransfer.unhold(function(){
                 logger.log('unholded session : ' + self.sessionToTransfer.id, self.ua);
@@ -4927,7 +4931,7 @@ return DTMF;
 
     if (invalidTarget) {
       this.failed('local', null, ExSIP.C.causes.INVALID_TARGET);
-      logger.warn("invalid target", this.ua);
+      logger.warn("invalid target : "+target, this.ua);
     } else {
       if (this.isCanceled || this.status === C.STATUS_TERMINATED) {
         logger.warn("canceled or terminated", this.ua);

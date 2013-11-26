@@ -188,6 +188,10 @@
         if (e.data.session.direction === "incoming")
         {
           self.incomingCall(e);
+        } else {
+          if(!self.activeSession) {
+            self.activeSession = session;
+          }
         }
       });
 

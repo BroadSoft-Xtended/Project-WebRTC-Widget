@@ -487,6 +487,7 @@
         e.preventDefault();
         self.sound.playClick();
         self.sipStack.terminateSession();
+        self.endCall();
         if (self.fullScreen === true)
         {
           $('#fullScreenContract').click();
