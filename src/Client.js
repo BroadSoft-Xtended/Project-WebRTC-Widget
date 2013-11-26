@@ -362,15 +362,16 @@
         self.history.persistCall(e.sender);
         self.endCall();
       });
+      this.eventBus.on("unholded", function(e){
+        self.onSessionStarted(e.sender);
+        self.message(ClientConfig.messageUnholded.replace('{0}', e.sender.remote_identity.uri.user), "success");
+      });
       this.eventBus.on("started", function(e){
-        logger.log("setting active session to "+ e.sender.id, self.configuration);
-        self.sipStack.activeSession = e.sender;
-        self.setCallState("started");
-        self.video.updateSessionStreams(e.sender);
-        $('.stats-container').attr('id', self.sipStack.getSessionId()+'-1');
-        self.sound.pause();
-        self.timer.start();
+        self.onSessionStarted(e.sender);
         self.message(ClientConfig.messageStarted.replace('{0}', e.sender.remote_identity.uri.user), "success");
+      });
+      this.eventBus.on("holded", function(e){
+        self.message(ClientConfig.messageHolded.replace('{0}', e.sender.remote_identity.uri.user), "success");
       });
       this.eventBus.on("disconnected", function(e){
         if (ClientConfig.enableConnectionIcon)
@@ -638,6 +639,16 @@
           self.history.toggle();
         }
       };
+    },
+
+    onSessionStarted: function(sender){
+      logger.log("setting active session to "+ sender.id, this.configuration);
+      this.sipStack.activeSession = sender;
+      this.setCallState("started");
+      this.video.updateSessionStreams(sender);
+      $('.stats-container').attr('id', this.sipStack.getSessionId()+'-1');
+      this.sound.pause();
+      this.timer.start();
     },
 
     incomingCallHandler: function(source, session){

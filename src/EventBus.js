@@ -21,6 +21,8 @@
       'progress',
       'failed',
       'started',
+      'holded',
+      'unholded',
       'ended'
     ];
 
@@ -61,6 +63,12 @@
   };
   EventBus.prototype.started = function(sender, data) {
     this.emit("started", sender, data);
+  };
+  EventBus.prototype.holded = function(sender, data) {
+    this.emit("holded", sender, data);
+  };
+  EventBus.prototype.unholded = function(sender, data) {
+    this.emit("unholded", sender, data);
   };
   EventBus.prototype.ended = function(sender, data) {
     this.emit("ended", sender, data);

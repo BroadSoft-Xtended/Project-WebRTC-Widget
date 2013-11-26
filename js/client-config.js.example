@@ -40,6 +40,8 @@ ClientConfig = {
     messageProgress: "Ringing",
     messageOutsideDomain: "Invalid Destination",
     messageStarted: "Call Started with {0}",
+    messageHolded: "Call Holded with {0}",
+    messageUnholded: "Call Unholded with {0}",
     messageEnded: "Call Ended with {0}",
     messageCall: "Performing NAT Tests",
     messageConnected: "Connected",

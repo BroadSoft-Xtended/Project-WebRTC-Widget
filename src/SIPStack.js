@@ -178,7 +178,10 @@
           self.eventBus.started(e.sender, e.data);
         });
         session.on('unholded', function(e) {
-          self.eventBus.started(e.sender, e.data);
+          self.eventBus.unholded(e.sender, e.data);
+        });
+        session.on('holded', function(e) {
+          self.eventBus.holded(e.sender, e.data);
         });
         session.on('ended', function(e)
         {
