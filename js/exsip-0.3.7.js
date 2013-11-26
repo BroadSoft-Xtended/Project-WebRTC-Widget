@@ -3974,7 +3974,8 @@ return DTMF;
       STATUS_CANCELED:           7,
       STATUS_TERMINATED:         8,
       STATUS_CONFIRMED:          9,
-      STATUS_REFER_SENT:         10
+      STATUS_REFER_SENT:         10,
+      STATUS_BYE_SENT:           11
     };
 
 
@@ -4113,8 +4114,7 @@ return DTMF;
 
         // Send Bye
         this.sendBye(options);
-        this.ended('local', null, ExSIP.C.causes.BYE);
-        break;
+        return;
     }
 
     this.close();
@@ -5001,8 +5001,14 @@ return DTMF;
       session = this;
     callbacks = callbacks || {};
 
+    if(this.status === C.STATUS_BYE_SENT) {
+      this.sendACK();
+      this.ended('local', null, ExSIP.C.causes.BYE);
+      return;
+    }
+
     if(this.status !== C.STATUS_INVITE_SENT && this.status !== C.STATUS_1XX_RECEIVED) {
-      logger.warn('status ('+this.status+') not invite sent or 1xx received', this.ua);
+      logger.warn('status ('+this.status+') not invite sent or 1xx received or terminated', this.ua);
       return;
     }
 
@@ -5138,6 +5144,7 @@ return DTMF;
     }
 
     options["sdp"] = body;
+    options["status"] = C.STATUS_BYE_SENT;
     this.sendRequest(ExSIP.C.BYE, options);
   };
 
