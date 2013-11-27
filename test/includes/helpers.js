@@ -98,7 +98,7 @@ TestWebrtc.Helpers = {
         localDescription: null,
         remoteDescription: null,
         close: function(){console.log("-- RTCPeerConnection.close()")},
-        setRemoteDescription: function(description, success, failure){console.log("-- RTCPeerConnection.setRemoteDescription() : "+ExSIP.Utils.toString(description));this.remoteDescription = description; success();},
+        setRemoteDescription: function(description, success, failure){console.log("-- RTCPeerConnection.setRemoteDescription() : "+ExSIP.Utils.toString(description));this.remoteDescription = description; if(success){success();}},
         addStream: function(){console.log("-- RTCPeerConnection.addStream()")},
         createOffer: function(success){console.log("-- RTCPeerConnection.createOffer()"); success(new ExSIP.WebRTC.RTCSessionDescription());},
         createAnswer: function(success){console.log("-- RTCPeerConnection.createAnswer()"); success(new ExSIP.WebRTC.RTCSessionDescription());},

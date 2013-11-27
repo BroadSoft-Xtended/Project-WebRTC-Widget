@@ -368,7 +368,9 @@
       });
       this.eventBus.on("started", function(e){
         self.onSessionStarted(e.sender);
-        self.message(ClientConfig.messageStarted.replace('{0}', e.sender.remote_identity.uri.user), "success");
+        if(e.data && !e.data.isReconnect) {
+          self.message(ClientConfig.messageStarted.replace('{0}', e.sender.remote_identity.uri.user), "success");
+        }
       });
       this.eventBus.on("holded", function(e){
         self.message(ClientConfig.messageHolded.replace('{0}', e.sender.remote_identity.uri.user), "success");

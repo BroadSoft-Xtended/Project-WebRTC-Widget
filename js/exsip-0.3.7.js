@@ -3456,12 +3456,12 @@ RTCMediaHandler.prototype = {
 
     var createOffer = function(){
       self.createOffer(function(){
-        if(options.remoteSdp) {
+        if(options.remoteSdp && options.remoteSdp !== "") {
           setRemoteDescription(connectSucceeded);
         } else {
           connectSucceeded();
         }
-      }, connectFailed, options.mediaConstraints);
+      }, connectFailed, options);
     };
 
     var streamAdditionSucceeded = function() {
@@ -3488,8 +3488,9 @@ RTCMediaHandler.prototype = {
     );
   },
 
-  createOffer: function(onSuccess, onFailure, constraints) {
+  createOffer: function(onSuccess, onFailure, options) {
     var self = this;
+    options = options || {};
 
     this.onIceCompleted = function() {
       logger.log('createOffer : onIceCompleted', self.session.ua);
@@ -3500,6 +3501,12 @@ RTCMediaHandler.prototype = {
 
     this.peerConnection.createOffer(
       function(sessionDescription){
+        if(options.videoMode) {
+          sessionDescription.setVideoMode(options.videoMode);
+        }
+        if(options.audioMode) {
+          sessionDescription.setAudioMode(options.audioMode);
+        }
         self.setLocalDescription(
           sessionDescription,
           onFailure
@@ -3510,7 +3517,7 @@ RTCMediaHandler.prototype = {
         logger.error(e);
         onFailure();
       },
-      constraints );
+      options.mediaConstraints );
   },
 
   createAnswer: function(onSuccess, onFailure, constraints) {
@@ -4327,13 +4334,12 @@ return DTMF;
     var self = this;
     options = options || {};
     var localMedia = options.localMedia || this.rtcMediaHandler.localMedia;
-    options.remoteSdp = options.remoteSdp || this.rtcMediaHandler.getRemoteDescriptionSdp();
     this.rtcMediaHandler.close();
 
     this.initRtcMediaHandler();
     this.rtcMediaHandler.localMedia = localMedia;
     this.rtcMediaHandler.connect(localMedia, function(){
-        self.started('local');
+        self.started('local', undefined, true);
         connectSuccess();
       }, connectFailed, options
     );
@@ -4961,35 +4967,33 @@ return DTMF;
 
   RTCSession.prototype.hold = function(inviteSuccessCallback, inviteFailureCallback) {
     var self = this;
-    this.setLocalMode(ExSIP.C.SENDONLY, ExSIP.C.SENDONLY);
-    this.sendInviteRequest(undefined, undefined, function() {
-      self.holded();
-      if(inviteSuccessCallback) {
-        inviteSuccessCallback();
-      }
-    }, inviteFailureCallback);
+    this.changeLocalMode(ExSIP.C.SENDONLY, ExSIP.C.SENDONLY, function(){
+        self.holded();
+        if(inviteSuccessCallback) {
+          inviteSuccessCallback();
+        }
+      },
+      inviteFailureCallback);
   };
 
   RTCSession.prototype.unhold = function(inviteSuccessCallback, inviteFailureCallback) {
     var self = this;
-    this.setLocalMode(ExSIP.C.SENDRECV, ExSIP.C.SENDRECV);
-    this.sendInviteRequest(undefined, undefined, function() {
-      self.unholded();
-      if(inviteSuccessCallback) {
-        inviteSuccessCallback();
-      }
-    }, inviteFailureCallback);
+    this.changeLocalMode(ExSIP.C.SENDRECV, ExSIP.C.SENDRECV, function(){
+        self.unholded();
+        if(inviteSuccessCallback) {
+          inviteSuccessCallback();
+        }
+      },
+      inviteFailureCallback);
   };
 
-  RTCSession.prototype.setLocalMode = function(audioMode, videoMode) {
-//    this.rtcMediaHandler.close();
-//    this.initRTCMediaHandler();
-    var localDescription = this.rtcMediaHandler.peerConnection.localDescription;
-    localDescription.setVideoMode(videoMode);
-    localDescription.setAudioMode(audioMode);
-    var type = "offer";
-    logger.log("Set mode (audio="+audioMode+",video="+videoMode+") and change local description of type "+localDescription.type+" to : "+type+","+localDescription.sdp);
-    this.rtcMediaHandler.peerConnection.setLocalDescription(new ExSIP.WebRTC.RTCSessionDescription({sdp: localDescription.sdp, type: "offer"}));
+  RTCSession.prototype.changeLocalMode = function(audioMode, videoMode, inviteSuccessCallback, inviteFailureCallback) {
+    var self = this;
+    this.reconnectRtcMediaHandler(function(){
+      self.sendInviteRequest(undefined, undefined, inviteSuccessCallback, inviteFailureCallback);
+    }, function(){
+      logger.error("Could not change local mode");
+    }, {audioMode: audioMode, videoMode: videoMode});
   };
 
   /**
@@ -5268,7 +5272,7 @@ return DTMF;
   /**
    * @private
    */
-  RTCSession.prototype.started = function(originator, message) {
+  RTCSession.prototype.started = function(originator, message, isReconnect) {
     var session = this,
       event_name = 'started';
 
@@ -5276,7 +5280,8 @@ return DTMF;
 
     session.emit(event_name, session, {
       originator: originator,
-      response: message || null
+      response: message || null,
+      isReconnect: isReconnect
     });
   };
 
@@ -5769,14 +5774,15 @@ ExSIP.Message = Message;
       }
 
       var holdFailed = function(){
-        logger.log("hold failed", self);
+        logger.log("transfer : hold failed", self);
       };
 
       var holdSuccess = function(){
-        logger.log("hold success - sending refer to transferee", self);
+        logger.log("transfer : hold success - sending refer to transferee", self);
         self.sendReferBasic(sessionToTransfer, transferTarget, options);
       };
 
+      logger.log("transfer : holding session to transfer", self);
       sessionToTransfer.hold(holdSuccess, holdFailed);
     };
 
@@ -5796,36 +5802,37 @@ ExSIP.Message = Message;
       targetSession.rtcMediaHandler.copy(sessionToTransfer.rtcMediaHandler);
 
       var holdTargetSuccess = function(){
-        logger.log("hold target success - sending attended refer", self);
+        logger.log("transfer : hold target success - sending attended refer", self);
         self.sendReferAttended(sessionToTransfer, targetSession, transferTarget, options);
       };
 
       var holdTargetFailed = function(){
-        logger.log("hold target failed", self);
+        logger.log("transfer : hold target failed", self);
       };
 
       var sendTargetInviteSuccess = function(){
-        logger.log("send invite to target success - putting target on hold", self);
+        logger.log("transfer : send invite to target success - putting target on hold", self);
         targetSession.hold(holdTargetSuccess, holdTargetFailed);
       };
 
       var sendTargetInviteFailed = function(response){
-        logger.log("send invite to target failed - sending basic refer", self);
+        logger.log("transfer : send invite to target failed - sending basic refer", self);
         if(response.status_code === 420) {
           self.sendReferBasic(sessionToTransfer, transferTarget, options);
         }
       };
 
       var holdFailed = function(){
-        logger.log("hold failed", self);
+        logger.log("transfer : hold failed", self);
       };
 
       var holdSuccess = function(){
-        logger.log("hold success - sending invite to target", self);
+        logger.log("transfer : hold success - sending invite to target", self);
         targetSession.sendInviteRequest(transferTarget, {extraHeaders: ["Require: replaces"]},
           sendTargetInviteSuccess, sendTargetInviteFailed);
       };
 
+      logger.log("transfer : holding session to transfer", self);
       sessionToTransfer.hold(holdSuccess, holdFailed);
     };
 
