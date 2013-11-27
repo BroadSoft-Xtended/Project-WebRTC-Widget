@@ -4960,7 +4960,8 @@ return DTMF;
   RTCSession.prototype.sendNotifyRequest = function(options, successCallback, failureCallback) {
     options = options || {};
     var extraHeaders = ['Content-Type: message/sipfrag',
-      'Subscription-State: '+(options['subscriptionState'] || "active;expires=60")];
+      'Subscription-State: '+(options['subscriptionState'] || "active;expires=60"),
+      'Event: refer'];
     options = ExSIP.Utils.merge_options({extraHeaders: extraHeaders},  options);
     this.sendRequest(ExSIP.C.NOTIFY, options, {success: successCallback, failure: failureCallback});
   };
