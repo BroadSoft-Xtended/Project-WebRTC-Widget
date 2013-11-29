@@ -47,16 +47,16 @@ body {
   left: 0px;
   width:640px;
 }
-#main.r1280x720 {
+#client.r1280x720 {
     width:1280px;
 }
-#main.r960x720 {
+#client.r960x720 {
     width:960px;
 }
-#main.r640x360, #main.r640x480 {
+#client.r640x360, #client.r640x480 {
     width:640px;
 }
-#main.r320x180, #main.r320x240 {
+#client.r320x180, #client.r320x240 {
     width:320px;
 }
 
@@ -895,10 +895,10 @@ body {
     display:none;
 }
 
-#main .fadeable{
+#client .fadeable{
     opacity: 0;
     display: block;
-    z-index: 10;
+    z-index: -1;
 }
 
 #holdAndAnswerButton, #dropAndAnswerButton, #acceptIncomingCall {
@@ -907,13 +907,14 @@ body {
 
 .started #holdAndAnswerButton,
 .started #dropAndAnswerButton,
-#main:not(.started) #acceptIncomingCall {
+#client:not(.started) #acceptIncomingCall {
     display:inline-block;
 }
 
 .enable-mute.unmuted.started #muteAudio,
 .enable-mute.muted.started #unmuteAudio,
 .started #hangup, .calling #hangup,
+.enable-call-control.connected #call,
 .enable-transfer.started #transfer
 {
     transition: all 1s linear;
@@ -927,17 +928,19 @@ body {
     opacity: 1;
     z-index: 100;
 }
-.enable-mute.ended #muteAudio, .enable-mute.ended #unmuteAudio,
+.enable-mute.connected #muteAudio, .enable-mute.disconnected #muteAudio,
+.enable-mute.connected #unmuteAudio, .enable-mute.disconnected #unmuteAudio,
 .enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
-.ended #hangup,
-.enable-transfer.ended #transfer,
+.connected #hangup, .disconnected #hangup,
+#client:not(.connected) #call,
+.enable-transfer.connected #transfer, .enable-transfer.disconnected #transfer,
 .enable-transfer.transfer-hidden #transferPopup,
 .reInvite-done #reInvitePopup,
 .incomingCall-done #callPopup
 {
     transition: all 1s linear;
     opacity: 0;
-    z-index: 10;
+    z-index: -1;
 }
 #historyRowSample {
     display: none;

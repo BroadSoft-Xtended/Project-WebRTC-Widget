@@ -4312,8 +4312,16 @@ return DTMF;
       self.failed('system', null, ExSIP.C.causes.CONNECTION_ERROR);
     };
 
+    var previousRemoteDescription = self.rtcMediaHandler.peerConnection.remoteDescription;
     var connectSuccess = function() {
       logger.log("onMessage success", self.ua);
+      var remoteDescription = self.rtcMediaHandler.peerConnection.remoteDescription;
+      if(previousRemoteDescription.getVideoMode() === ExSIP.C.SENDRECV && remoteDescription.getVideoMode() === ExSIP.C.SENDONLY) {
+        self.holded();
+      }
+      if(previousRemoteDescription.getVideoMode() === ExSIP.C.SENDONLY && remoteDescription.getVideoMode() === ExSIP.C.SENDRECV) {
+        self.unholded();
+      }
       self.request.reply(200, null, extraHeaders,
         self.rtcMediaHandler.peerConnection.localDescription.sdp,
         replySucceeded,
@@ -4327,7 +4335,7 @@ return DTMF;
       self.request.reply(488);
     };
 
-    this.reconnectRtcMediaHandler(connectSuccess, connectFailed, {isAnswer: true, remoteSdp: this.request.body});
+    this.reconnectRtcMediaHandler(connectSuccess, connectFailed, {isAnswer: true, remoteSdp: this.request.body, isReconnect: true});
   };
 
   RTCSession.prototype.reconnectRtcMediaHandler = function(connectSuccess, connectFailed, options) {
@@ -4628,7 +4636,6 @@ return DTMF;
     } else {
       this.getUserMedia(mediaConstraints, function(){
         logger.log('offer succeeded', self.ua);
-        self.started('local');
         success();
       }, function(){
         logger.log('offer failed', self.ua);
@@ -5268,6 +5275,10 @@ return DTMF;
       originator: originator,
       response: response || null
     });
+  };
+
+  RTCSession.prototype.isStarted = function() {
+    return this.start_time !== null;
   };
 
   /**

@@ -44,6 +44,7 @@
         logger.log("clearing active session", this.configuration);
         this.activeSession = null;
       }
+      this.client.updateClientClass();
     },
 
     terminateSessions: function(){
@@ -98,6 +99,22 @@
       this.ua.setRtcMediaHandlerOptions(this.configuration.getRtcMediaHandlerOptions());
     },
 
+    getCallState: function(){
+      if(this.sessions.length > 0) {
+        if(this.sessions.length === 1 && !this.sessions[0].isStarted()) {
+          return "calling";
+        } else {
+          return "started";
+        }
+      } else {
+        if(this.ua && this.ua.isConnected()) {
+          return "connected";
+        } else {
+          return "disconnected";
+        }
+      }
+    },
+
     updateUserMedia: function(userMediaCallback){
       var self = this;
       if(ClientConfig.enableConnectLocalMedia) {
@@ -150,10 +167,12 @@
       // sipStack callbacks
       this.ua.on('connected', function(e)
       {
+        self.client.updateClientClass();
         self.eventBus.connected();
       });
       this.ua.on('disconnected', function(e)
       {
+        self.client.updateClientClass();
         self.eventBus.disconnected();
       });
       this.ua.on('onReInvite', function(e) {
@@ -164,6 +183,7 @@
       {
         var session = e.data.session;
         self.sessions.push(session);
+        self.client.updateClientClass();
 
         // call event handlers
         session.on('progress', function(e)
@@ -175,6 +195,7 @@
           self.eventBus.failed(e.sender, e.data);
         });
         session.on('started', function(e) {
+          self.client.updateClientClass();
           self.eventBus.started(e.sender, e.data);
         });
         session.on('unholded', function(e) {

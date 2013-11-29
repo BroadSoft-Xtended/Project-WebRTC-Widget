@@ -80,17 +80,17 @@
       });
       this.resolutionType.bind('change', function(e)
       {
-        self.client.updateMainClass();
+        self.client.updateClientClass();
         self.client.sipStack.updateUserMedia();
         self.client.sipStack.updateRtcMediaHandlerOptions();
       });
       this.resolutionDisplayWidescreen.bind('change', function(e)
       {
-        self.client.updateMainClass();
+        self.client.updateClientClass();
       });
       this.resolutionDisplayStandard.bind('change', function(e)
       {
-        self.client.updateMainClass();
+        self.client.updateClientClass();
       });
       this.resolutionEncodingWidescreen.bind('change', function(e)
       {

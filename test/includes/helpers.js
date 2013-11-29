@@ -10,7 +10,7 @@ TestWebrtc.Helpers = {
   isVisible: function(element, visible) {
     var isPopup = element.attr('class').indexOf('popup') !== -1;
     strictEqual(element.css('opacity'), visible ? "1" : "0");
-    strictEqual(element.css('zIndex'), visible ? (isPopup ? "100" : "20") : "10");
+    strictEqual(element.css('zIndex'), visible ? (isPopup ? "100" : "20") : "-1");
   },
 
   deleteAllCookies: function() {
@@ -46,12 +46,24 @@ TestWebrtc.Helpers = {
   startCall: function(session) {
     session = session || this.outgoingSession();
     client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
-    session.emit('started', session);
+    session.started('local');
   },
 
-  outgoingSession: function(){
+  newCall: function(session) {
+    session = session || this.outgoingSession();
+    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
+  },
+
+  failCall: function(session) {
+    session = session || this.outgoingSession();
+    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
+    session.failed('local', 'somemessage', 'somecause');
+  },
+
+  outgoingSession: function(option){
+    option = option || {};
     var session = this.createSession();
-    session.id = "someid";
+    session.id = option.id || "someid";
     session.remote_identity = {uri: "remoteuri"};
     return session;
   },
@@ -67,8 +79,8 @@ TestWebrtc.Helpers = {
 
   createSession: function(){
     var session = new ExSIP.RTCSession(client.sipStack.ua);
-    session.hold = function(success){console.log("hold"); session.holded(), success();}
-    session.unhold = function(success){console.log("unhold"); session.unholded(), success();}
+    session.hold = function(success){console.log("hold"); session.holded(); if(success){success();}}
+    session.unhold = function(success){console.log("unhold"); session.unholded(); if(success){success();}}
     session.terminate = function(options){console.log("terminate"); session.ended('local');}
     session.answer = function(options){console.log("answer"); answerOptions = options; session.started('local');}
     return session;

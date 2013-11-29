@@ -31,14 +31,14 @@ test('validateDestination with allowOutside = false', function() {
 test('resolution class for hd=true', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "true" : false;}
   client = new WebRTC.Client();
-  strictEqual(client.main.attr('class').split(" ")[0], "r"+WebRTC.C.R_1280x720);
+  strictEqual(client.client.attr('class').split(" ")[0], "r"+WebRTC.C.R_1280x720);
 });
 test('resolution class for resolution setting', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "false" : false;}
   $.cookie("settingResolutionDisplay", WebRTC.C.R_960x720);
   $.cookie("settingResolutionEncoding", WebRTC.C.R_320x240);
   client = new WebRTC.Client();
-  strictEqual(client.main.attr('class').split(" ")[0], "r"+WebRTC.C.R_960x720);
+  strictEqual(client.client.attr('class').split(" ")[0], "r"+WebRTC.C.R_960x720);
 });
 test('call if enter pressed on destination input', function() {
   var called = false;
@@ -83,33 +83,14 @@ test('unmuteAudio', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.isVisible(client.unmuteAudio, false);
 });
-test('transfer', function() {
-  client = new WebRTC.Client();
-  TestWebrtc.Helpers.isVisible(client.transfer, false);
-});
 test('hangup', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.isVisible(client.hangup, false);
-});
-test('transferPopup', function() {
-  client = new WebRTC.Client();
-  TestWebrtc.Helpers.isVisible(client.transferPopup, false);
 });
 test('muteAudio on call started', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.isVisible(client.muteAudio, true);
-});
-test('transfer on call started with enableTransfer is false', function() {
-  ClientConfig.enableTransfer = false;
-  client = new WebRTC.Client();
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.transfer, false);
-});
-test('transfer on call started', function() {
-  client = new WebRTC.Client();
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.transfer, true);
 });
 test('muteAudio on mute triggered', function() {
   client = new WebRTC.Client();
@@ -127,31 +108,10 @@ test('unmuteAudio on mute triggered', function() {
   client.unmuteAudio.trigger("click");
   TestWebrtc.Helpers.isVisible(client.unmuteAudio, false);
 });
-test('transferPopup on transfer triggered', function() {
-  client = new WebRTC.Client();
-  TestWebrtc.Helpers.startCall();
-  client.transfer.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.transferPopup, true);
-  client.transfer.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.transferPopup, false);
-});
-test('transferPopup on transfer rejected', function() {
-  client = new WebRTC.Client();
-  TestWebrtc.Helpers.startCall();
-  client.transfer.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.transferPopup, true);
-  client.rejectTransfer.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.transferPopup, false);
-});
 test('hangup on call started', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.isVisible(client.hangup, true);
-});
-test('transferPopup on call started', function() {
-  client = new WebRTC.Client();
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.transferPopup, false);
 });
 test('muteAudio on call started and disabled muted', function() {
   ClientConfig.enableMute = false;
@@ -184,45 +144,20 @@ test('hangup on call ended', function() {
   TestWebrtc.Helpers.endCall();
   TestWebrtc.Helpers.isVisible(client.hangup, false);
 });
-test('transfer on call ended', function() {
+test('hangup on calling', function() {
   client = new WebRTC.Client();
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.endCall();
-  TestWebrtc.Helpers.isVisible(client.transfer, false);
+  client.sipStack.ua.isConnected = function(){ return true;}
+  client.uriCall("1000@webrtc.domain.to");
+  TestWebrtc.Helpers.newCall();
+  strictEqual(client.sipStack.getCallState(), "calling");
+  TestWebrtc.Helpers.isVisible(client.hangup, true);
+  TestWebrtc.Helpers.isVisible(client.callButton, false);
 });
-test('acceptTransfer triggered with empty target', function() {
-  var transferTarget = null;
+test('hangup on failed', function() {
   client = new WebRTC.Client();
-  ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('transfer');transferTarget = target;};
-  TestWebrtc.Helpers.startCall();
-  client.transfer.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.transferPopup, true);
-  client.acceptTransfer.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.transferPopup, true);
-  strictEqual(transferTarget, null);
-});
-test('acceptTransfer triggered with target', function() {
-  var transferTarget = null;
-  client = new WebRTC.Client();
-  ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('transfer');transferTarget = target;};
-  TestWebrtc.Helpers.startCall();
-  client.transfer.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.transferPopup, true);
-  client.transferTarget.val("1000@other.domain.to");
-  client.acceptTransfer.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.transferPopup, false);
-  strictEqual(transferTarget, "sip:1000@other.domain.to");
-});
-test('acceptTransfer triggered with target and with attended checked', function() {
-  var basicTransferTarget = null;
-  var attendedTransferTarget = null;
-  client = new WebRTC.Client();
-  ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('basic transfer');basicTransferTarget = target;};
-  ExSIP.UA.prototype.attendedTransfer = function(target, rtcSession){console.log('attended transfer');attendedTransferTarget = target;};
-  TestWebrtc.Helpers.startCall();
-  client.transfer.trigger("click");
-  client.transferTypeAttended.prop('checked', true);
-  client.transferTarget.val("1000@other.domain.to");
-  client.acceptTransfer.trigger("click");
-  strictEqual(attendedTransferTarget, "sip:1000@other.domain.to");
+  client.sipStack.ua.isConnected = function(){ return true;}
+  TestWebrtc.Helpers.failCall();
+  strictEqual(client.sipStack.getCallState(), "connected");
+  TestWebrtc.Helpers.isVisible(client.hangup, false);
+  TestWebrtc.Helpers.isVisible(client.callButton, true);
 });
