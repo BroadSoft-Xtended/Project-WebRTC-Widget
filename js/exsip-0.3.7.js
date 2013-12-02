@@ -3517,7 +3517,7 @@ RTCMediaHandler.prototype = {
         logger.error(e);
         onFailure();
       },
-      options.mediaConstraints );
+      options.createOfferConstraints );
   },
 
   createAnswer: function(onSuccess, onFailure, constraints) {
@@ -4641,7 +4641,7 @@ return DTMF;
         logger.log('offer failed', self.ua);
         self.failed('local', null, ExSIP.C.causes.WEBRTC_ERROR);
         failure();
-      }, false);
+      }, options);
     }
   };
 

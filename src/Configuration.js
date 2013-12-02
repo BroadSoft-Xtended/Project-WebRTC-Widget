@@ -39,7 +39,8 @@
           audio: true,
           video: this.getVideoConstraints()
         },
-        RTCConstraints: {'optional': [],'mandatory': {}}
+        RTCConstraints: {'optional': [],'mandatory': {}},
+        createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
       };
 
       return options;
