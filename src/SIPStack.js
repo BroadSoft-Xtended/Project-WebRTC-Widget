@@ -219,18 +219,14 @@
         }
       });
 
-      // Registration callbacks only if registering
-      if (password !== false)
+      this.ua.on('registered', function(e)
       {
-        this.ua.on('registered', function(e)
-        {
-          self.eventBus.registered();
-        });
-        this.ua.on('registrationFailed', function(e)
-        {
-          self.eventBus.registrationFailed();
-        });
-      }
+        self.eventBus.registered();
+      });
+      this.ua.on('registrationFailed', function(e)
+      {
+        self.eventBus.registrationFailed(e.data);
+      });
     }
   };
   WebRTC.SIPStack = SIPStack;

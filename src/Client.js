@@ -78,9 +78,9 @@
         });
       }
 
-      if (this.configuration.register === true && !this.configuration.password)
+      if (this.configuration.register === true && !this.configuration.getPassword())
       {
-        this.authPopUp(this.configuration.userid, this.configuration.password);
+        this.authPopUp(this.configuration.userid, this.configuration.getPassword());
       }
       else
       {
@@ -108,7 +108,7 @@
         return null;
       };
 
-      this.onLoad(this.configuration.userid, this.configuration.password);
+      this.onLoad(this.configuration.userid, this.configuration.getPassword());
     },
 
     authPopUp: function() {
@@ -396,7 +396,12 @@
           //$("#registered").removeClass("success");
           $("#registered").addClass("alert").fadeIn(100);
         }
-        self.message(ClientConfig.messageRegistrationFailed, "alert");
+        var statusCode = e.data.response.status_code;
+        var msg = statusCode;
+        if(statusCode === 403) {
+          msg = "403 Authentication Failure";
+        }
+        self.message(ClientConfig.messageRegistrationFailed.replace('{0}', msg), "alert");
       });
       this.eventBus.on("registered", function(e){
         if (ClientConfig.enableRegistrationIcon)

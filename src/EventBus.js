@@ -49,8 +49,8 @@
   EventBus.prototype.registered = function() {
     this.emit("registered", this);
   };
-  EventBus.prototype.registrationFailed = function() {
-    this.emit("registrationFailed", this);
+  EventBus.prototype.registrationFailed = function(data) {
+    this.emit("registrationFailed", this, data);
   };
   EventBus.prototype.disconnected = function() {
     this.emit("disconnected", this);
