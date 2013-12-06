@@ -140,6 +140,19 @@ module.exports = function(grunt) {
         src: 'js/client-config.js.example',
         dest: 'js/client-config.js'
       },
+      indexDev: {
+        options: {
+          processContent: function (content, srcpath) {
+              var pkg = grunt.config.get('pkg');
+              var minLibName = 'exsip.js';
+              var devLibName = 'exsip-devel.js';
+              grunt.log.writeln('Replacing ' + minLibName +' with '+devLibName);
+              return content.replace(minLibName, devLibName);
+            }
+        },
+        src: 'index.html',
+        dest: 'index-dev.html'
+      },
       webrtc: {
         src: 'dist/<%= pkg.name %>-devel.js',
         dest: 'js/webrtc.js'
@@ -195,7 +208,7 @@ module.exports = function(grunt) {
   // Task for building webrtc-devel.js (uncompressed), webrtc-X.Y.Z.js (uncompressed)
   // and webrtc-X.Y.Z.min.js (minified).
   // Both webrtc-devel.js and webrtc-X.Y.Z.js are the same file with different name.
-  grunt.registerTask('build', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel', 'concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist', 'uglify:dist', 'copy:clientConfig', 'copy:webrtc']);
+  grunt.registerTask('build', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel', 'concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist', 'uglify:dist', 'copy:clientConfig', 'copy:indexDev', 'copy:webrtc']);
 
   // Task for building webrtc-devel.js (uncompressed).
   grunt.registerTask('devel', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel']);

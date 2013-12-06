@@ -4,4 +4,5 @@
 /src/config.js
 /js/client-config.js
 /js/webrtc.js
+/js/exsip-devel.js
 index-dev.html
