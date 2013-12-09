@@ -44,7 +44,7 @@ body {
   position: relative;
   top: 0px;
   left: 0px;
-  width:640px;
+  width:100%;
 }
 #client.r1280x720 {
     width:1280px;
