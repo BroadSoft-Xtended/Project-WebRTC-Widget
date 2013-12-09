@@ -1,7 +1,7 @@
 /***************************************************
  * Created on Mon Jan 14 15:32:43 GMT 2013 by:
  *
- * Copyright 2013 Exario Networks
+ * Copyright 2013 Broadsoft
  * http://www.broadsoft.com
  ***************************************************/
 @font-face {
@@ -914,7 +914,9 @@ body {
 .enable-mute.muted.started #unmuteAudio,
 .started #hangup, .calling #hangup,
 .enable-call-control.connected #call,
-.enable-transfer.started #transfer
+.enable-transfer.started #transfer,
+#client:not(.holded).enable-hold.started #hold,
+.enable-hold.started.holded #resume
 {
     transition: all 1s linear;
     opacity: 1;
@@ -935,7 +937,9 @@ body {
 .enable-transfer.connected #transfer, .enable-transfer.disconnected #transfer,
 .enable-transfer.transfer-hidden #transferPopup,
 .reInvite-done #reInvitePopup,
-.incomingCall-done #callPopup
+.incomingCall-done #callPopup,
+#client.holded #hold, #client:not(.started) #hold,
+#client:not(.holded) #resume, #client:not(.started) #resume,
 {
     transition: all 1s linear;
     opacity: 0;

@@ -63,7 +63,6 @@ test('2nd incoming call and hold+answer click', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.connect();
   var outgoingSession = TestWebrtc.Helpers.outgoingSession();
-  outgoingSession.hold = function(success){console.log("hold"); success();}
   TestWebrtc.Helpers.startCall(outgoingSession);
   var incomingSession = TestWebrtc.Helpers.incomingSession();
   incomingSession.answer = function(options){console.log("answer"); answerOptions = options; incomingSession.started('local');}

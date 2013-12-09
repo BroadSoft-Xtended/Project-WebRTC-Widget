@@ -2,7 +2,7 @@
  * Created on Mon Jan 14 15:32:43 GMT 2013 by:
  * Nathan Stratton <nathan@robotics.net>
  *
- * Copyright 2013 Exario Networks
+ * Copyright 2013 Broadsoft
  * http://www.broadsoft.com
  ***************************************************/
 (function(WebRTC) {

@@ -2,7 +2,7 @@
  * Created on Mon Jan 14 15:32:43 GMT 2013 by:
  * Nathan Stratton <nathan@robotics.net>
  *
- * Copyright 2013 Exario Networks
+ * Copyright 2013 Broadsoft
  * http://www.broadsoft.com
  ***************************************************/
 (function(WebRTC) {
@@ -40,6 +40,8 @@
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack);
+    this.hold = new WebRTC.Icon($( "#hold" ), this.sound);
+    this.resume = new WebRTC.Icon($( "#resume" ), this.sound);
     this.fullScreen = false;
     this.muted = false;
 
@@ -520,6 +522,24 @@
         $("#localVideo, #selfViewDisable").fadeIn(1000);
       });
 
+      this.hold.onClick(function(e)
+      {
+        self.hold.disable();
+        var enable = function(){
+          self.hold.enable();
+        };
+        self.sipStack.hold(enable, enable);
+      });
+
+      this.resume.onClick(function(e)
+      {
+        self.resume.disable();
+        var enable = function(){
+          self.resume.enable();
+        };
+        self.sipStack.unhold(enable, enable);
+      });
+
       this.muteAudio.bind('click', function(e)
       {
         self.setMuted(true);
@@ -684,6 +704,10 @@
       if (ClientConfig.enableTransfer)
       {
         classes.push("enable-transfer");
+      }
+      if (ClientConfig.enableHold)
+      {
+        classes.push("enable-hold");
       }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }

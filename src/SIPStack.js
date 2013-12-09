@@ -75,6 +75,18 @@
       session.answer(this.configuration.getExSIPOptions());
     },
 
+    hold: function(successCallback, failureCallback){
+      if(this.activeSession) {
+        this.activeSession.hold(successCallback, failureCallback);
+      }
+    },
+
+    unhold: function(successCallback, failureCallback){
+      if(this.activeSession) {
+        this.activeSession.unhold(successCallback, failureCallback);
+      }
+    },
+
     call: function(destination){
       var self = this;
       var session = this.ua.call(destination, this.configuration.getExSIPOptions());
@@ -110,7 +122,11 @@
         if(this.sessions.length === 1 && !this.sessions[0].isStarted()) {
           return "calling";
         } else {
-          return "started";
+          if(this.activeSession && this.activeSession.isHolded()) {
+            return "started holded";
+          } else {
+            return "started";
+          }
         }
       } else {
         if(this.ua && this.ua.isConnected()) {
@@ -205,9 +221,11 @@
           self.eventBus.started(e.sender, e.data);
         });
         session.on('unholded', function(e) {
+          this.client.updateClientClass();
           self.eventBus.unholded(e.sender, e.data);
         });
         session.on('holded', function(e) {
+          this.client.updateClientClass();
           self.eventBus.holded(e.sender, e.data);
         });
         session.on('ended', function(e)

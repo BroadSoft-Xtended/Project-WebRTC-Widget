@@ -16,6 +16,7 @@ module.exports = function(grunt) {
     'src/Sound.js',
     'src/Video.js',
     'src/SIPStack.js',
+    'src/Icon.js',
     'src/Client.js'
   ];
 
@@ -27,7 +28,7 @@ module.exports = function(grunt) {
 /***************************************************\n\
 * Created on Mon Jan 14 15:32:43 GMT 2013 by:\n\
 *\n\
-* Copyright 2013 Exario Networks\n\
+* Copyright 2013 Broadsoft\n\
 * http://www.broadsoft.com\n\
 ***************************************************/\n\n\n',
       footer: '\
@@ -175,7 +176,7 @@ module.exports = function(grunt) {
     },
     watch: {
       develop: {
-        files: ['test/*.js', 'test/includes/*.js', 'src/*.js', 'index.html', 'stylesheet.css'],
+        files: ['test/*.js', 'test/includes/*.js', 'src/*.js', 'index.html', 'stylesheet.css', 'js/exsip.js'],
         tasks: ['build','test'],
         options: {
           spawn: true
