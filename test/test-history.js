@@ -57,11 +57,11 @@ test('persistCall and toggle and show details and call', function() {
   client.sipStack.call = function(dest) {
     destination = dest;
   };
-  client.history.persistCall(createRtcSession("sip:remote1@webrtc.exarionetworks.com"));
+  client.history.persistCall(createRtcSession("sip:remote1@webrtc.broadsoft.com"));
   client.history.toggle();
   client.history.rows[0].trigger("click");
   client.history.historyCallLink.trigger("click");
-  strictEqual(destination, "sip:remote1@webrtc.exarionetworks.com", "Should trigger call on sipStack with correct destination");
+  strictEqual(destination, "sip:remote1@webrtc.broadsoft.com", "Should trigger call on sipStack with correct destination");
   strictEqual(client.history.callHistoryDetails.is(":visible"), false, "Should hide details popup");
 });
 test('persistCall for multiple calls', function() {

@@ -26,10 +26,9 @@ module.exports = function(grunt) {
       banner: '\
 /***************************************************\n\
 * Created on Mon Jan 14 15:32:43 GMT 2013 by:\n\
-* Nathan Stratton <nathan@robotics.net>\n\
 *\n\
 * Copyright 2013 Exario Networks\n\
-* http://www.exarionetworks.com\n\
+* http://www.broadsoft.com\n\
 ***************************************************/\n\n\n',
       footer: '\
 \n\n\nwindow.WebRTC = WebRTC;\n\

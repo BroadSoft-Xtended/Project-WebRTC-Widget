@@ -3,7 +3,7 @@
  * Nathan Stratton <nathan@robotics.net>
  *
  * Copyright 2013 Exario Networks
- * http://www.exarionetworks.com
+ * http://www.broadsoft.com
  ***************************************************/
 (function(WebRTC) {
   var Client,
