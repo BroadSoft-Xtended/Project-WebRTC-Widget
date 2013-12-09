@@ -9,7 +9,7 @@
   var Settings,
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Settings');
 
-  Settings = function(client, configuration, sound) {
+  Settings = function(client, configuration, sound, eventBus, sipStack) {
     this.localVideoTop = $("#settingLocalVideoTop");
     this.localVideoLeft = $("#settingLocalVideoLeft");
     this.userid = $("#settingUserid");
@@ -26,7 +26,10 @@
     this.configuration = configuration;
     this.sound = sound;
     this.client = client;
+    this.eventBus = eventBus;
+    this.sipStack = sipStack;
     this.toggled = false;
+    this.settingsChanged = false;
 
     this.registerListeners();
     this.initUi();
@@ -37,6 +40,11 @@
     registerListeners: function() {
       var self = this;
 
+      this.eventBus.on("ended", function(e){
+        if(self.settingsChanged) {
+          self.reload();
+        }
+      });
       $('#resolutionTypeSelect').bind('change', function(e){
         self.updateResolutionSelectVisibility();
       });
@@ -64,7 +72,11 @@
         self.sound.playClick();
         self.persist();
         $("#settingsPopup").fadeOut(100);
-        self.reload();
+        if(!self.sipStack.activeSession) {
+          self.reload();
+        } else {
+          self.settingsChanged = true;
+        }
       });
       this.settingBandwidthLow.bind('blur', function(e)
       {

@@ -35,7 +35,7 @@
     this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
     this.sound = new WebRTC.Sound(this.sipStack);
     this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
-    this.settings = new WebRTC.Settings(this, this.configuration, this.sound);
+    this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
     this.stats = new WebRTC.Stats(this.sipStack);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats);

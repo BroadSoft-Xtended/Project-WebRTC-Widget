@@ -28,6 +28,16 @@ test('persist', function() {
   strictEqual($.cookie("settingUserid"), "");
   strictEqual($.cookie("settingPassword"), "");
 });
+test('persist with active call', function() {
+  client = new WebRTC.Client();
+  var reload = false;
+  client.settings.reload = function(){reload = true;}
+  TestWebrtc.Helpers.startCall();
+  client.settings.save.trigger("click");
+  strictEqual(reload, false);
+  TestWebrtc.Helpers.endCall();
+  strictEqual(reload, true);
+});
 test('persist with userid set', function() {
   client = new WebRTC.Client();
   client.settings.userid.val('someuserid');
