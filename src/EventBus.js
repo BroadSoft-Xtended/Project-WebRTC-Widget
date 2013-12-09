@@ -23,7 +23,8 @@
       'started',
       'holded',
       'unholded',
-      'ended'
+      'ended',
+      'calling'
     ];
 
     this.initEvents(events);
@@ -72,6 +73,9 @@
   };
   EventBus.prototype.ended = function(sender, data) {
     this.emit("ended", sender, data);
+  };
+  EventBus.prototype.calling = function(sender, data) {
+    this.emit("calling", sender, data);
   };
   EventBus.prototype.isDebug = function() {
     return this.configuration.isDebug();

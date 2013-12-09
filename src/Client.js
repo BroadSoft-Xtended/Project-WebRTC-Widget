@@ -28,6 +28,7 @@
     this.rejectIncomingCall = $("#rejectIncomingCall");
     this.holdAndAnswerButton = $("#holdAndAnswerButton");
     this.dropAndAnswerButton = $("#dropAndAnswerButton");
+    this.errorPopup = $( "#errorPopup" );
 
     this.configuration = new WebRTC.Configuration();
     this.eventBus = new WebRTC.EventBus(this.configuration);
@@ -151,8 +152,8 @@
       });
     },
 
-    errorPopup: function(error) {
-      $( "#errorPopup" ).text(error).dialog(
+    showErrorPopup: function(error) {
+      this.errorPopup.text(error).dialog(
         {
           draggable: true,
           dialogClass: "no-close",
@@ -378,7 +379,7 @@
         self.message(error, "alert");
         if (error === "User Denied Media Access")
         {
-          self.errorPopup("WebRTC was not able to access your camera!");
+          self.showErrorPopup("WebRTC was not able to access your microphone/camera!");
         }
         self.sound.pause();
         self.sipStack.terminateSession(e.sender);

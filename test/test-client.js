@@ -161,3 +161,13 @@ test('hangup on failed', function() {
   TestWebrtc.Helpers.isVisible(client.hangup, false);
   TestWebrtc.Helpers.isVisible(client.callButton, true);
 });
+test('getUserMedia failed', function() {
+  client = new WebRTC.Client();
+  client.eventBus.on("calling", function(evt){
+    evt.sender.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
+  });
+  TestWebrtc.Helpers.connect();
+  client.call();
+  client.uriCall("1000@webrtc.domain.to");
+  strictEqual(client.errorPopup.dialog( "isOpen" ), true);
+});

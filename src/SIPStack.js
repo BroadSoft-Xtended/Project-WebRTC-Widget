@@ -76,7 +76,13 @@
     },
 
     call: function(destination){
-      this.ua.call(destination, this.configuration.getExSIPOptions());
+      var self = this;
+      var session = this.ua.call(destination, this.configuration.getExSIPOptions());
+      session.on('failed', function(e)
+      {
+        self.eventBus.failed(e.sender, e.data);
+      });
+      this.eventBus.calling(session);
     },
 
     sendDTMF: function(digit) {
