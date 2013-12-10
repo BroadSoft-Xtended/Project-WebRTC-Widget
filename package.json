@@ -4,7 +4,7 @@
   "description": "the broadsoft webrtc client",
   "version": "0.1.0",
   "homepage": "http://exsip.net",
-  "author": "Dominik Steiner <dsteiner@broadsoft.com>",
+  "author": "Dominik Steiner",
   "keywords": [
     "sip",
     "websocket",
