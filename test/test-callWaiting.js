@@ -28,6 +28,20 @@ test('1st incoming call', function() {
   strictEqual(client.acceptIncomingCall.is(":visible"), true);
 });
 
+test('incoming call and cancel', function() {
+  ClientConfig.enableAutoAnswer = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.connect();
+  var session = TestWebrtc.Helpers.incomingSession();
+  var answerOptions = "";
+  session.answer = function(options){console.log("answer"); answerOptions = options;}
+  TestWebrtc.Helpers.incomingCall(session);
+  strictEqual(answerOptions, "", "Answer should NOT have been called");
+  TestWebrtc.Helpers.isVisible(client.callPopup, true);
+  session.failed('remote', null, ExSIP.C.causes.CANCELED);
+  TestWebrtc.Helpers.isVisible(client.callPopup, false);
+});
+
 test('1st incoming call with enableAutoAnswer', function() {
   ClientConfig.enableAutoAnswer = true;
   client = new WebRTC.Client();

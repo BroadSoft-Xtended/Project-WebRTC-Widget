@@ -342,6 +342,10 @@
         {
           self.showErrorPopup("WebRTC was not able to access your microphone/camera!");
         }
+        else if (error === ExSIP.C.causes.CANCELED)
+        {
+          self.setEvent("incomingCall-done");
+        }
         self.sound.pause();
         self.sipStack.terminateSession(e.sender);
       });
