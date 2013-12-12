@@ -3,6 +3,7 @@ module( "History", {
     TestWebrtc.Helpers.mockWebRTC();
     TestWebrtc.Helpers.deleteAllCookies();
     ClientConfig.enableCallHistory = true;
+    ClientConfig.register = false;
     rtcSession = createRtcSession();
     session1 = createRtcSession("remote1")
     session2 = createRtcSession("remote2")

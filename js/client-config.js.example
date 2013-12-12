@@ -36,6 +36,7 @@ ClientConfig = {
     bandwidthHigh: 2048,
     expires: 365,
     debug: false,
+    register: false,
 
     // Client Messages
     messageProgress: "Ringing",

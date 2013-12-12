@@ -40,6 +40,7 @@
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack);
+    this.authentication = new WebRTC.Authentication(this, this.configuration, this.eventBus);
     this.hold = new WebRTC.Icon($( "#hold" ), this.sound);
     this.resume = new WebRTC.Icon($( "#resume" ), this.sound);
     this.fullScreen = false;
@@ -81,18 +82,6 @@
         });
       }
 
-      if (this.configuration.register === true && !this.configuration.getPassword())
-      {
-        this.authPopUp(this.configuration.userid, this.configuration.getPassword());
-      }
-      else
-      {
-        if (!this.configuration.userid)
-        {
-          this.configuration.userid = WebRTC.Utils.randomUserid();
-        }
-      }
-
       if (this.configuration.destination)
       {
         this.configuration.hideCallControl = true;
@@ -111,47 +100,17 @@
         return null;
       };
 
-      this.onLoad(this.configuration.userid, this.configuration.getPassword());
-    },
-
-    authPopUp: function() {
-      var self = this;
-      if (this.configuration.userid !== false)
+      var requireRegister = this.configuration.register === true || ClientConfig.register === true;
+      if (requireRegister && !this.configuration.getPassword())
       {
-        $("#authPopup input#username").val(this.configuration.userid);
+        this.authentication.show();
       }
 
-      $("#authPopup").keypress(function(e)
+      if (!this.configuration.userid)
       {
-        if (e.which === 13)
-        {
-          $('#authPopupButton').click();
-        }
-      });
-
-      $("#authPopup").fadeIn(300);
-      $('#authPopupButton').click(function()
-      {
-        var userid = $("#authPopup input#username").val();
-        var password = $("#authPopup input#password").val();
-        if ($("#authPopup input#displayName").val())
-        {
-          self.configuration.displayName = $("#authPopup input#displayName").val();
-        }
-        self.configuration.register=true;
-        if (userid === "")
-        {
-          $("#alert").text("Invalid Username").fadeIn(10).fadeOut(4000);
-          return;
-        }
-        if (password === "")
-        {
-          $("#alert").text("Invalid Password").fadeIn(10).fadeOut(4000);
-          return;
-        }
-        $("#authPopup").fadeOut(300);
-        self.onLoad(userid, password);
-      });
+        this.configuration.userid = WebRTC.Utils.randomUserid();
+      }
+      this.onLoad(this.configuration.userid, this.configuration.getPassword());
     },
 
     showErrorPopup: function(error) {
@@ -467,6 +426,10 @@
           e.data.session.rejectReInvite();
         });
       });
+      this.eventBus.on('message', function(e)
+      {
+        self.message();
+      });
 
       // Buttons
       this.callButton.bind('click', function(e)
@@ -583,11 +546,6 @@
       $("#dialpad").bind('click', function(e)
       {
         self.pressDTMF(e.target.textContent);
-      });
-
-      this.eventBus.on('message', function(e)
-      {
-        self.message();
       });
 
       this.destination.keypress(function (e) {
@@ -711,6 +669,7 @@
       }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }
+      if(this.authentication.visible) { classes.push("auth-visible"); } else { classes.push("auth-hidden"); }
       this.client.attr("class", classes.join(" "));
     }
   };

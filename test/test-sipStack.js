@@ -6,6 +6,7 @@ module( "SipStack", {
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableTransfer = true;
     ClientConfig.enableCallStats = false;
+    ClientConfig.register = false;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }

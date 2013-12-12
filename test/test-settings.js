@@ -4,6 +4,7 @@ module( "Settings", {
     TestWebrtc.Helpers.mockLocation();
     TestWebrtc.Helpers.deleteAllCookies();
     ClientConfig.enableCallStats = false;
+    ClientConfig.register = false;
   }, teardown: function() {
   }
 });

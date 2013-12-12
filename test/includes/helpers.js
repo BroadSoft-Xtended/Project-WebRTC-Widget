@@ -38,6 +38,10 @@ TestWebrtc.Helpers = {
     client.sipStack.ua.emit('connected', client.sipStack.ua);
   },
 
+  registrationFailed: function(statusCode) {
+    client.sipStack.ua.emit('registrationFailed', client.sipStack.ua, {response: {status_code: (statusCode || 401)}});
+  },
+
   endCall: function() {
     client.sipStack.activeSession.status = ExSIP.RTCSession.C.STATUS_TERMINATED;
     client.sipStack.activeSession.emit('ended', client.sipStack.activeSession);

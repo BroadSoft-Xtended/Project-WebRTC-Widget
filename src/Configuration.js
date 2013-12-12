@@ -102,9 +102,9 @@
       }
 
       // Modify config object based password
-      if (password === false || password === undefined || password === '')
+      if ((password === false || password === undefined || password === '') && !ClientConfig.register)
       {
-        config.register = true;
+        config.register = false;
       }
       else
       {
