@@ -26,7 +26,7 @@
 
       this.eventBus.on("registrationFailed", function(e){
         var statusCode = e.data.response.status_code;
-        if(statusCode === 401 && ClientConfig.register === true) {
+        if((statusCode === 401  || statusCode === 403 || statusCode === 404) && self.configuration.getRegister() === true) {
           self.setVisible(true);
         }
       });
@@ -39,15 +39,9 @@
         {
           self.configuration.displayName = self.displayName.val();
         }
-        self.configuration.register=true;
         if (userid === "")
         {
           $("#alert").text("Invalid Username").fadeIn(10).fadeOut(4000);
-          return;
-        }
-        if (password === "")
-        {
-          $("#alert").text("Invalid Password").fadeIn(10).fadeOut(4000);
           return;
         }
         self.setVisible(false);

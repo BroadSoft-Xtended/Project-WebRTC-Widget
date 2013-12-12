@@ -100,12 +100,6 @@
         return null;
       };
 
-      var requireRegister = this.configuration.register === true || ClientConfig.register === true;
-      if (requireRegister && !this.configuration.getPassword())
-      {
-        this.authentication.show();
-      }
-
       if (!this.configuration.userid)
       {
         this.configuration.userid = WebRTC.Utils.randomUserid();

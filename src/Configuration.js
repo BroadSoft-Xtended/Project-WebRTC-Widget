@@ -9,7 +9,6 @@
   Configuration = function() {
     logger.log('window.location.search : '+window.location.search, this);
     // Default URL variables
-    this.register = (WebRTC.Utils.getSearchVariable("register") === "true");
     this.userid = WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
     this.destination = WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
@@ -26,6 +25,9 @@
   };
 
   Configuration.prototype = {
+    getRegister: function(){
+      return WebRTC.Utils.getSearchVariable("register") === "true" || ClientConfig.register;
+    },
     getPassword: function(){
       return WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');
     },
@@ -102,7 +104,7 @@
       }
 
       // Modify config object based password
-      if ((password === false || password === undefined || password === '') && !ClientConfig.register)
+      if ((password === false || password === undefined || password === '') && !this.getRegister())
       {
         config.register = false;
       }
