@@ -309,7 +309,7 @@
       });
       this.eventBus.on("unholded", function(e){
         self.onSessionStarted(e.sender);
-        self.message(ClientConfig.messageUnholded.replace('{0}', e.sender.remote_identity.uri.user), "success");
+        self.message(ClientConfig.messageResume.replace('{0}', e.sender.remote_identity.uri.user), "success");
       });
       this.eventBus.on("started", function(e){
         self.onSessionStarted(e.sender);
@@ -318,7 +318,7 @@
         }
       });
       this.eventBus.on("holded", function(e){
-        self.message(ClientConfig.messageHolded.replace('{0}', e.sender.remote_identity.uri.user), "success");
+        self.message(ClientConfig.messageHold.replace('{0}', e.sender.remote_identity.uri.user), "success");
       });
       this.eventBus.on("disconnected", function(e){
         if (ClientConfig.enableConnectionIcon)
