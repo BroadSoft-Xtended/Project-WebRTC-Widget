@@ -122,7 +122,7 @@
         if(this.sessions.length === 1 && !this.sessions[0].isStarted()) {
           return "calling";
         } else {
-          if(this.activeSession && this.activeSession.isHolded()) {
+          if(this.activeSession && this.activeSession.isHeld()) {
             return "started holded";
           } else {
             return "started";
