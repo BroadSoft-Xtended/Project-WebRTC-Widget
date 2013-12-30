@@ -23,15 +23,15 @@ test('userid', function() {
 });
 test('register', function() {
   client = new WebRTC.Client();
-  strictEqual(client.sipStack.configuration.register, false);
+  strictEqual(client.sipStack.configuration.getRegister(), false);
 });
 test('register after persist', function() {
   client = new WebRTC.Client();
-  strictEqual(client.sipStack.configuration.register, false);
+  strictEqual(client.sipStack.configuration.getRegister(), false);
   client.settings.save.trigger("click");
   client.timer.stop();
   client = new WebRTC.Client();
-  strictEqual(client.sipStack.configuration.register, false);
+  strictEqual(client.sipStack.configuration.getRegister(), false);
 });
 test('getExSIPOptions', function() {
   client = new WebRTC.Client();

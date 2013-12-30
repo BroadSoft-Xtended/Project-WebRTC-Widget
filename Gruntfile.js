@@ -17,6 +17,7 @@ module.exports = function(grunt) {
     'src/Video.js',
     'src/SIPStack.js',
     'src/Icon.js',
+    'src/Authentication.js',
     'src/Client.js'
   ];
 
