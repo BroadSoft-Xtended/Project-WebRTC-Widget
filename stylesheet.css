@@ -945,6 +945,7 @@ body {
     z-index: 20;
 }
 .enable-transfer.started.transfer-visible #transferPopup,
+#client:not(.disconnected).auth-visible #authPopup,
 .reInvite #reInvitePopup,
 .incomingCall #callPopup{
     transition: all 1s linear;
@@ -958,6 +959,7 @@ body {
 #client:not(.connected) #call,
 .enable-transfer.connected #transfer, .enable-transfer.disconnected #transfer,
 .enable-transfer.transfer-hidden #transferPopup,
+#client.disconnected #authPopup, #client.auth-hidden #authPopup,
 .reInvite-done #reInvitePopup,
 .incomingCall-done #callPopup,
 #client.holded #hold, #client:not(.started) #hold,
