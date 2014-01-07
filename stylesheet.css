@@ -937,8 +937,8 @@ body {
 .started #hangup, .calling #hangup,
 .enable-call-control.connected #call,
 .enable-transfer.started #transfer,
-#client:not(.holded).enable-hold.started #hold,
-.enable-hold.started.holded #resume
+#client:not(.held).enable-hold.started #hold,
+.enable-hold.started.held #resume
 {
     transition: all 1s linear;
     opacity: 1;
@@ -962,8 +962,8 @@ body {
 #client.disconnected #authPopup, #client.auth-hidden #authPopup,
 .reInvite-done #reInvitePopup,
 .incomingCall-done #callPopup,
-#client.holded #hold, #client:not(.started) #hold,
-#client:not(.holded) #resume, #client:not(.started) #resume,
+#client.held #hold, #client:not(.started) #hold,
+#client:not(.held) #resume, #client:not(.started) #resume,
 {
     transition: all 1s linear;
     opacity: 0;

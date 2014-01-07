@@ -4,7 +4,15 @@
 
 (function(WebRTC) {
   var SIPStack,
-    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'SIPStack');
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'SIPStack'),
+    C = {
+      // RTCSession states
+      STATE_CONNECTED:    "connected",
+      STATE_DISCONNECTED: "disconnected",
+      STATE_CALLING:      "calling",
+      STATE_STARTED:      "started",
+      STATE_HELD:         "held"
+    };
 
   SIPStack = function(client, configuration, eventBus) {
     this.client = client;
@@ -120,19 +128,19 @@
     getCallState: function(){
       if(this.sessions.length > 0) {
         if(this.sessions.length === 1 && !this.sessions[0].isStarted()) {
-          return "calling";
+          return C.STATE_CALLING;
         } else {
           if(this.activeSession && this.activeSession.isHeld()) {
-            return "started holded";
+            return C.STATE_STARTED + " " + C.STATE_HELD;
           } else {
-            return "started";
+            return C.STATE_STARTED;
           }
         }
       } else {
         if(this.ua && this.ua.isConnected()) {
-          return "connected";
+          return C.STATE_CONNECTED;
         } else {
-          return "disconnected";
+          return C.STATE_DISCONNECTED;
         }
       }
     },
@@ -254,4 +262,5 @@
     }
   };
   WebRTC.SIPStack = SIPStack;
+  WebRTC.SIPStack.C = C;
 }(WebRTC));

@@ -547,7 +547,7 @@
       });
 
       this.destination.keypress(function (e) {
-        if (e.keyCode === 13) {
+        if (e.keyCode === 13 && self.sipStack.getCallState() === WebRTC.SIPStack.C.STATE_CONNECTED) {
           e.preventDefault();
           self.call();
         }
