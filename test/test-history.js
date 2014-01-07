@@ -1,5 +1,6 @@
 module( "History", {
   setup: function() {
+    localStorage.clear();
     TestWebrtc.Helpers.mockWebRTC();
     TestWebrtc.Helpers.deleteAllCookies();
     ClientConfig.enableCallHistory = true;
@@ -22,7 +23,8 @@ module( "History", {
 test('persistCall', function() {
   client = new WebRTC.Client();
   client.history.persistCall(rtcSession);
-  deepEqual(document.cookie, "page_0="+getCallCookieValue()+"|end0");
+  strictEqual(localStorage.length, 1);
+  deepEqual(localStorage["page_0"], getCallCookieValue());
   deepEqual(client.history.pages(), [new WebRTC.History.Page(0, getCallCookieValue())]);
 });
 test('persistCall and toggle', function() {
@@ -69,7 +71,8 @@ test('persistCall for multiple calls', function() {
   client = new WebRTC.Client();
   client.history.persistCall(session1);
   client.history.persistCall(session2);
-  deepEqual(document.cookie, "page_0="+getCallCookieValue(session2) + "~" + getCallCookieValue(session1) + "|end0");
+  strictEqual(localStorage.length, 1);
+  deepEqual(localStorage["page_0"], getCallCookieValue(session2) + "~" + getCallCookieValue(session1));
   deepEqual(client.history.pages(), [new WebRTC.History.Page(0, getCallCookieValue(session2)+"~"+getCallCookieValue(session1))]);
 });
 test('persistCall for multiple calls and higher than callsPerPage', function() {
@@ -78,7 +81,9 @@ test('persistCall for multiple calls and higher than callsPerPage', function() {
   client.history.persistCall(session1);
   client.history.persistCall(session2);
   client.history.persistCall(session3);
-  deepEqual(document.cookie, "page_0="+getCallCookieValue(session2) + "~" + getCallCookieValue(session1) + "|end0; page_1="+getCallCookieValue(session3)+"|end1");
+  strictEqual(localStorage.length, 2);
+  deepEqual(localStorage["page_0"], getCallCookieValue(session2) + "~" + getCallCookieValue(session1));
+  deepEqual(localStorage["page_1"], getCallCookieValue(session3));
   deepEqual(client.history.pages(), [new WebRTC.History.Page(1, getCallCookieValue(session3)), new WebRTC.History.Page(0, getCallCookieValue(session2)+"~"+getCallCookieValue(session1))]);
 });
 test('multiple pages and toggle', function() {
@@ -136,7 +141,9 @@ test('persistCall for multiple calls and higher than callsPerPage and pages abov
   client.history.persistCall(session3);
   client.history.persistCall(session4);
   client.history.persistCall(session5);
-  deepEqual(document.cookie, "page_0="+getCallCookieValue(session3) + "~" + getCallCookieValue(session2) + "|end0; page_1="+getCallCookieValue(session5) + "~" + getCallCookieValue(session4) + "|end1");
+  strictEqual(localStorage.length, 2);
+  deepEqual(localStorage["page_0"], getCallCookieValue(session3) + "~" + getCallCookieValue(session2));
+  deepEqual(localStorage["page_1"], getCallCookieValue(session5) + "~" + getCallCookieValue(session4));
   deepEqual(client.history.pages(), [
     new WebRTC.History.Page(1, getCallCookieValue(session5)+"~"+getCallCookieValue(session4)),
     new WebRTC.History.Page(0, getCallCookieValue(session3)+"~"+getCallCookieValue(session2))]);

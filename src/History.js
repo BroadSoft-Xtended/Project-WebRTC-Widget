@@ -94,13 +94,16 @@
 
   History.prototype = {
     pages: function(){
-      var allCookies = document.cookie;
-      var match = null;
       var pages = [];
-      var regex = new RegExp(/page_(.*)\=(.*)\|end\1/g);
-      while (match = regex.exec(allCookies)) {
-        var page = new History.Page(parseInt(match[1], 10), match[2]);
-        pages.push(page);
+      for(var i=0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        var regex = new RegExp(/page_(.*)/g);
+        var match = regex.exec(key);
+        if(match != null && match.length > 1) {
+          var value = localStorage.getItem(key);
+          var page = new History.Page(parseInt(match[1], 10), value);
+          pages.push(page);
+        }
       }
       // sort pages descendingly
       pages.sort(function(page1, page2) {
@@ -215,16 +218,16 @@
         self.sound.playClick();
         var pages = self.pages();
         for (var i = 0; i < pages.length; i++) {
-          $.removeCookie("page_" + (pages[i].number));
+          localStorage.removeItem("page_" + (pages[i].number));
         }
         self.setPageNumber(0);
       });
     },
 
     persistPage:function (page) {
-      var cookieKey = ("page_" + page.number);
-      var cookieValue = page.callsAsString() + "|end"+page.number;
-      $.cookie(cookieKey, cookieValue, { expires:ClientConfig.expires});
+      var key = ("page_" + page.number);
+      var value = page.callsAsString();
+      localStorage[key] = value;
     },
 
     persistCall:function (rtcSession) {
