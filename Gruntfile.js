@@ -121,7 +121,10 @@ module.exports = function(grunt) {
     uglify: {
       dist: {
         files: {
-          'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/<%= pkg.name %>-<%= pkg.version %>.js']
+          'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+          'js/stats.min.js': ['js/stats.js'],
+          'js/jquery-cookie.min.js': ['js/jquery-cookie.js'],
+          'js/detect.min.js': ['js/detect.js']
         }
       },
       options: {
