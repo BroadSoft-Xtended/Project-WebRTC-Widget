@@ -108,22 +108,7 @@
     },
 
     showErrorPopup: function(error) {
-      this.errorPopup.text(error).dialog(
-        {
-          draggable: true,
-          dialogClass: "no-close",
-          buttons:
-            [
-              {
-                text: "OK",
-                click: function()
-                {
-                  $( this ).dialog( "close" );
-                }
-              }
-            ]
-        }
-      );
+      window.alert(error);
     },
 
     // Setup the GUI

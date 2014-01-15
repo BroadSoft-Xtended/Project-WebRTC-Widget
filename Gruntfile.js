@@ -122,9 +122,8 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
-          'js/stats.min.js': ['js/stats.js'],
-          'js/jquery-cookie.min.js': ['js/jquery-cookie.js'],
-          'js/detect.min.js': ['js/detect.js']
+          'js/3rdparty.js': ['js/jquery.js', 'js/jquery-cookie.js', 'js/jquery-ui-1.10.3.custom.js',
+            'js/stats.js', 'js/jquery-cookie.js', 'js/detect.js']
         }
       },
       options: {
@@ -169,8 +168,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           pageTemplate: "test/includes/qunit-page.tpl",
-          includeFiles: ["js/jquery.js", "js/jquery-ui.js", "js/jquery-cookie.js", "js/exsip-*.js",
-            "js/detect.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          includeFiles: ["js/3rdparty.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
           testFiles: ["test/test-*.js"],
           templateFiles: "index.html",
           qunitCss: "stylesheet.css",
