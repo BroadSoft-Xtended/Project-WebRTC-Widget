@@ -108,22 +108,7 @@
     },
 
     showErrorPopup: function(error) {
-      this.errorPopup.text(error).dialog(
-        {
-          draggable: true,
-          dialogClass: "no-close",
-          buttons:
-            [
-              {
-                text: "OK",
-                click: function()
-                {
-                  $( this ).dialog( "close" );
-                }
-              }
-            ]
-        }
-      );
+      window.alert(error);
     },
 
     // Setup the GUI
@@ -547,7 +532,7 @@
       });
 
       this.destination.keypress(function (e) {
-        if (e.keyCode === 13) {
+        if (e.keyCode === 13 && self.sipStack.getCallState() === WebRTC.SIPStack.C.STATE_CONNECTED) {
           e.preventDefault();
           self.call();
         }

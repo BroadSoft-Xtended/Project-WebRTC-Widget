@@ -43,11 +43,25 @@ test('resolution class for resolution setting', function() {
 test('call if enter pressed on destination input', function() {
   var called = false;
   client = new WebRTC.Client();
+  TestWebrtc.Helpers.connect();
+  client.sipStack.ua.isConnected = function(){return true;};
   client.call = function(){console.log('call');called = true;};
   var event = jQuery.Event("keypress");
   event.keyCode = 13;
   $("#destination").trigger(event);
   ok(called);
+});
+test('call and press enter on destination input', function() {
+  var called = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.startCall();
+  strictEqual(client.sipStack.getCallState(), WebRTC.SIPStack.C.STATE_STARTED);
+  client.sipStack.call = function(destination){console.log('call');called = true;};
+  var event = jQuery.Event("keypress");
+  event.keyCode = 13;
+  client.destination.val("1000@domain.to");
+  client.destination.trigger(event);
+  ok(!called);
 });
 test('reInvite popup', function() {
   client = new WebRTC.Client();
@@ -162,12 +176,14 @@ test('hangup on failed', function() {
   TestWebrtc.Helpers.isVisible(client.callButton, true);
 });
 test('getUserMedia failed', function() {
+  var alertCalled = false;
   client = new WebRTC.Client();
+  client.showErrorPopup = function(){ alertCalled = true;}
   client.eventBus.on("calling", function(evt){
     evt.sender.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
   });
   TestWebrtc.Helpers.connect();
   client.call();
   client.uriCall("1000@webrtc.domain.to");
-  strictEqual(client.errorPopup.dialog( "isOpen" ), true);
+  strictEqual(alertCalled, true);
 });

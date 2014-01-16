@@ -121,7 +121,9 @@ module.exports = function(grunt) {
     uglify: {
       dist: {
         files: {
-          'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/<%= pkg.name %>-<%= pkg.version %>.js']
+          'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+          'js/3rdparty.js': ['js/jquery-1.9.0.js', 'js/jquery-cookie-1.3.1.js', 'js/jquery-ui-1.10.3.custom.js',
+            'js/stats.js', 'js/detect-2.1.5.js']
         }
       },
       options: {
@@ -166,8 +168,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           pageTemplate: "test/includes/qunit-page.tpl",
-          includeFiles: ["js/jquery.js", "js/jquery-ui.js", "js/jquery-cookie.js", "js/exsip-*.js",
-            "js/detect.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          includeFiles: ["js/3rdparty.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
           testFiles: ["test/test-*.js"],
           templateFiles: "index.html",
           qunitCss: "stylesheet.css",
