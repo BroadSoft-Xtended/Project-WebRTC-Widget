@@ -5,7 +5,7 @@
 (function (WebRTC) {
   var History;
 
-  History = function (client, sound, stats) {
+  History = function (client, sound, stats, sipStack) {
     this.callHistory = $('#callHistory');
     this.content = $('#callHistory .content');
     this.historyForward = $('#historyForward');
@@ -29,6 +29,7 @@
     this.client = client;
     this.sound = sound;
     this.stats = stats;
+    this.sipStack = sipStack;
     this.callsPerPage = 10;
     this.maxPages = 25;
     this.rows = [];
@@ -206,11 +207,13 @@
 
       this.historyCallLink.bind('click', function (e) {
         e.preventDefault();
-        self.sound.playClick();
-        var destination = self.historyCallLink.attr("data-destination");
-        self.client.destination.val(destination);
-        self.client.call();
-        self.callHistoryDetails.hide();
+        if(self.sipStack.getCallState() === WebRTC.SIPStack.C.STATE_CONNECTED) {
+          self.sound.playClick();
+          var destination = self.historyCallLink.attr("data-destination");
+          self.client.destination.val(destination);
+          self.client.call();
+          self.callHistoryDetails.hide();
+        }
       });
 
       this.historyClear.bind('click', function (e) {

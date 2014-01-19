@@ -56,6 +56,8 @@ test('persistCall and toggle and show details', function() {
 test('persistCall and toggle and show details and call', function() {
   ClientConfig.allowOutside = true;
   client = new WebRTC.Client();
+  TestWebrtc.Helpers.connect();
+  client.sipStack.ua.isConnected = function(){return true;};
   var destination = "";
   client.sipStack.call = function(dest) {
     destination = dest;
@@ -67,6 +69,20 @@ test('persistCall and toggle and show details and call', function() {
   strictEqual(destination, "sip:remote1@webrtc.broadsoft.com", "Should trigger call on sipStack with correct destination");
   strictEqual(client.history.callHistoryDetails.is(":visible"), false, "Should hide details popup");
 });
+test('WEBRTC-34 : persistCall and toggle and show details and call with existing call', function() {
+  ClientConfig.allowOutside = true;
+  client = new WebRTC.Client();
+  var called = false;
+  client.sipStack.call = function(dest) { called = true; };
+  client.history.persistCall(createRtcSession("sip:remote1@webrtc.broadsoft.com"));
+  TestWebrtc.Helpers.startCall();
+  client.history.toggle();
+  client.history.rows[0].trigger("click");
+  client.history.historyCallLink.trigger("click");
+  strictEqual(called, false);
+  strictEqual(client.history.callHistoryDetails.is(":visible"), false, "Should hide details popup");
+});
+
 test('persistCall for multiple calls', function() {
   client = new WebRTC.Client();
   client.history.persistCall(session1);
