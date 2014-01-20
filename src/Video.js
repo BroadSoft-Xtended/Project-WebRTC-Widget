@@ -3,7 +3,8 @@
  */
 
 (function(WebRTC) {
-  var Video;
+  var Video,
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Video');
 
   Video = function(client, sipStack, eventBus) {
     this.local = $('#localVideo');
@@ -31,6 +32,7 @@
     },
 
     updateStreams: function(localStreams, remoteStreams) {
+      logger.log("updating video streams", this.client.configuration);
       this.setVideoStream(this.local[0], localStreams);
       this.setVideoStream(this.remote[0], remoteStreams);
     },
