@@ -14,12 +14,8 @@ ClientConfig = {
     enableRegistrationIcon: false,
     enableConnectionIcon: true,
     enableWindowDrag: true,
-    enableSettings: false,
-    enableAutoAnswer: false,
     enableAutoAcceptReInvite: true,
     enableConnectLocalMedia: true,
-    enableTransfer: false,
-    enableHold: false,
 
     // Client Variables
     allowOutside: true,
