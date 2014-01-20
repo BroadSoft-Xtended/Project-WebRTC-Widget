@@ -4,8 +4,10 @@ module( "Client", {
     TestWebrtc.Helpers.mockSound();
     ClientConfig.domainTo = "domain.to";
     ClientConfig.domainFrom = "domain.from";
+    ClientConfig.enableMute = true;
     ClientConfig.enableTransfer = true;
     ClientConfig.enableCallStats = false;
+    ClientConfig.enableCallControl = true;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }
