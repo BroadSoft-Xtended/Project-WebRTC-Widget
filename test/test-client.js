@@ -8,6 +8,7 @@ module( "Client", {
     ClientConfig.enableTransfer = true;
     ClientConfig.enableCallStats = false;
     ClientConfig.enableCallControl = true;
+    ClientConfig.enableHD = true;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }
