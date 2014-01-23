@@ -27,7 +27,7 @@ ClientConfig = {
       stunServer: 'stun.server.ip.address',
       stunPort: 3478,
       domainFrom: 'from.domain',
-      domainTo: 'to.domain.',
+      domainTo: 'to.domain',
     endCallURL: false,
     bandwidthLow: 128,
     bandwidthMed: 512,
