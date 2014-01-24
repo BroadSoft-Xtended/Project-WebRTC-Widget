@@ -122,7 +122,7 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
-          'js/3rdparty.js': ['js/jquery-1.9.0.js', 'js/jquery-cookie-1.3.1.js', 'js/jquery-ui-1.10.3.custom.js',
+          'js/3rdparty.js': ['js/jquery-1.11.0.js', 'js/jquery-cookie-1.3.1.js', 'js/jquery-ui-1.10.3.custom.js',
             'js/stats.js', 'js/detect-2.1.5.js']
         }
       },
