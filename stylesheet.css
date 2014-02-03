@@ -1,0 +1,995 @@
+/***************************************************
+ * Created on Mon Jan 14 15:32:43 GMT 2013 by:
+ *
+ * Copyright 2013 Broadsoft
+ * http://www.broadsoft.com
+ ***************************************************/
+@font-face {
+  font-family: 'Exario-Icon-Fonts';
+    src: local("☺"),
+      url('fonts/Exario-Icon-Fonts.svg#Exario-Icon-Fonts') format('svg'),
+      url('fonts/Exario-Icon-Fonts.ttf') format('truetype');
+}
+
+body {
+  background-color: #FFFFFF;
+}
+
+#callControl {
+  display: none;
+  position: relative;
+  left: 0px;
+  height: 75px;
+  color: #666666; 
+  font-family:arial;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#callControl input {
+  background: #666666; 
+  border-bottom: 1px solid #333;
+  border-left: 1px solid #000;
+  border-right: 1px solid #333;
+  border-top: 1px solid #000;
+  color: #FFFFFF; 
+  border-radius: 3px;
+  font-family:arial;
+  font-size: 16px;
+  padding: 6px 6px 4px;
+  width: 250px;
+}
+
+#main {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width:100%;
+}
+#client.r1280x720 {
+    width:1280px;
+}
+#client.r960x720 {
+    width:960px;
+}
+#client.r640x360, #client.r640x480 {
+    width:640px;
+}
+#client.r320x180, #client.r320x240 {
+    width:320px;
+}
+
+#main:-webkit-full-screen-ancestor:not(iframe) {
+    position:absolute !important;
+    top:0px;
+    left:0px;
+    right:0px;
+    bottom:0px;
+    width:100%;
+    height:100%;
+}
+
+#video {
+    position:relative;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 480px;
+}
+
+.r1280x720 #video, .r960x720 #video {
+    height:720px;
+}
+.r640x480 #video{
+    height:480px;
+}
+.r640x360 #video{
+    height:360px;
+}
+.r320x240 #video{
+    height:240px;
+}
+.r320x180 #video{
+    height:180px;
+}
+
+#video:-webkit-full-screen {
+    position: absolute;
+    height: 100%;
+    border: none;
+    z-index: 1;
+}
+
+#remoteVideo {
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: #191414;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #000000;
+}
+
+#localVideo {
+  display: none;
+  position: absolute;
+  bottom: 1px;
+  left: 5px;
+  width: 25%;
+  height: 25%;
+  background-color: #241D1D;
+  border-radius: 4px;
+  border: 2px solid #ddd;
+  box-shadow: 0px 0px 10px #999999;
+  z-index: 99;
+}
+
+:-webkit-full-screen #remoteVideo {
+    z-index: 1;
+}
+:-webkit-full-screen #localVideo {
+  z-index: 2;
+}
+:-webkit-full-screen #remoteVideo, :-webkit-full-screen #localVideo {
+    border: none;
+    border-radius: 0;
+}
+
+#videoBar {
+  display: none;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 40px;
+  background: black;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#404040', endColorstr='#000000',GradientType=0 );
+  background-image: -ms-linear-gradient(center top , #404040, #000000);
+  background-image: linear-gradient(to bottom, #404040, #000000);
+  background-image: -webkit-linear-gradient(#404040, #000000);
+  background-image: -moz-linear-gradient(top, #404040, #000000);
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #000000;
+  margin-top:5px;
+}
+
+:-webkit-full-screen #videoBar {
+  position: absolute;
+  z-index: 5;
+  top:auto;
+  bottom:0px;
+  width: auto;
+  height: 40px;
+  background-color: #474343;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #999999;
+}
+
+/* Default size for all icons */
+
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume {
+  font-family: 'Exario-Icon-Fonts';
+  speak: none;
+  text-decoration: none;
+  margin: 0 0.35em 0 0;
+  font-size: 25px;
+}
+
+/* Call Button */
+
+#call {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 25px;
+  left: 265px;
+}
+
+.icon-call:before {
+  content: "\e00e";
+  color: #3B9E3B;
+}
+
+.icon-call:hover:before {
+  content: "\e00e";
+  color: #EFA233;
+}
+
+/* Hangup Button */
+.icon-hangup:before {
+  content: "\e00f";
+  color: #FF0000;
+}
+
+.icon-hangup:hover:before {
+  content: "\e00f";
+  color: #EFA233;
+}
+
+/* FullScreen Expand Button */
+
+#videoBar .icon {
+  display: none;
+  z-index: 10;
+  margin: 0px 2.5px;
+  position: absolute;
+}
+
+#videoBar .table {
+    height:100%;
+    margin: 6px;
+}
+#videoBar .cell {
+    width: 35px;
+}
+
+.icon-fullScreenExpand:before {
+  content: "\e002";
+  color: #FFFFFF;
+}
+
+.icon-fullScreenExpand:hover:before {
+  content: "\e002";
+  color: #EFA233;
+}
+
+/* FullScreen Contract Button */
+.icon-fullScreenContract:before {
+  content: "\e003";
+  color: #FFFFFF;
+}
+
+.icon-fullScreenContract:hover:before {
+  content: "\e003";
+  color: #EFA233;
+}
+
+/* Self View Disable Button */
+.icon-selfViewDisable:before {
+  content: "\e00a";
+  color: #FFFFFF;
+}
+
+.icon-selfViewDisable:hover:before {
+  content: "\e00a";
+  color: #EFA233;
+}
+
+/* Self View Enable Button */
+.icon-selfViewEnable:before {
+  content: "\e00d";
+  color: #EFA233;
+}
+
+.icon-selfViewEnable:hover:before {
+  content: "\e00d";
+  color: #EFA233;
+}
+
+/* Mute Audio Button */
+.icon-muteAudio:before {
+  content: "\e008";
+  color: #FFFFFF;
+}
+
+.icon-muteAudio:hover:before {
+  content: "\e008";
+  color: #EFA233;
+}
+
+/* Unmute Audio Button */
+.icon-unmuteAudio:before {
+  content: "\e009";
+  color: #EFA233;
+}
+
+.icon-unmuteAudio:hover:before {
+  content: "\e009";
+  color: #EFA233;
+}
+
+/* Dialpad Show Button */
+.icon-dialpadShow:before {
+  content: "\e010";
+  color: #FFFFFF;
+}
+
+.icon-dialpadShow:hover:before {
+  content: "\e010";
+  color: #EFA233;
+}
+
+/* Dialpad Hide Button */
+.icon-dialpadHide:before {
+  content: "\e010";
+  color: #EFA233;
+}
+
+.icon-dialpadHide:hover:before {
+  content: "\e010";
+  color: #EFA233;
+}
+
+/* Dialpad Hide Button */
+#quality1 {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+
+.icon-quality1:before {
+  content: "\e007";
+  color: #00FF00;
+  opacity: .4;
+}
+
+#quality2 {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+
+.icon-quality2:before {
+  content: "\e006";
+  color: #FFFF00;
+  opacity: .4;
+}
+
+#quality3 {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+
+.icon-quality3:before {
+  content: "\e005";
+  color: #FF9900;
+  opacity: .4;
+}
+
+#quality4 {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+
+.icon-quality4:before {
+  content: "\e004";
+  color: #FF0000;
+  opacity: .4;
+}
+
+/* Settings Button */
+.icon-settings:before {
+  content: "\e00c";
+  color: #FFFFFF;
+  opacity: .4;
+}
+
+.icon-settings:hover:before {
+  content: "\e00c";
+  color: #EFA233;
+}
+
+/* Ok Button */
+.icon-ok:before {
+  content: "\e011";
+  color: #00FF00;
+}
+
+.icon-ok:hover:before {
+  content: "\e011";
+  color: #EFA233;
+}
+
+/* History Button */
+#history {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 6px;
+  right: 60px;
+}
+
+.icon-history:before {
+  content: "\e012";
+  color: #FFFFFF;
+  opacity: .4;
+}
+
+.icon-history:hover:before {
+  content: "\e012";
+  color: #EFA233;
+}
+
+/* Trash Button */
+.icon-trash:before {
+  content: "\e013";
+  color: #FF0000;
+}
+
+.icon-trash:hover:before {
+  content: "\e013";
+  color: #EFA233;
+}
+
+/* Left Button */
+.icon-left:before {
+  content: "\e000";
+  color: #00FF00;
+}
+
+.icon-left:hover:before {
+  content: "\e000";
+  color: #EFA233;
+}
+
+/* Right Button */
+.icon-right:before {
+  content: "\e001";
+  color: #00FF00;
+}
+
+.icon-right:hover:before {
+  content: "\e001";
+  color: #EFA233;
+}
+
+/* Transfer Button */
+.icon-transfer:before {
+  content: "\e014";
+  color: #FFFFFF;
+}
+
+.icon-transfer:hover:before {
+  content: "\e014";
+  color: #EFA233;
+}
+
+/* Hold Button */
+.icon-hold:before {
+  content: "\e015";
+  color: #FFFFFF;
+}
+
+.icon-hold:hover:before {
+  content: "\e015";
+  color: #EFA233;
+}
+
+/* Resume Button */
+.icon-resume:before {
+  content: "\e016";
+  color: #FFFFFF;
+}
+
+.icon-resume:hover:before {
+  content: "\e016";
+  color: #EFA233;
+}
+
+.button:active {
+  color: #EFA233;
+  background: -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A));
+  background: linear-gradient(to bottom left, #7CDD07, #FAA51A);
+}
+
+.button:hover {
+  box-shadow: 0px 0px 10px #999;
+}
+
+.icon-link:before {
+  content: "\e00b";
+}
+
+/* Incoming Call Pupup */
+#callPopup, #reInvitePopup, #transferPopup, #callHistoryDetails {
+  display: none;
+  background: #333333;
+  padding: 10px; 	
+  border: 2px solid #DDDDDD;
+  float: left;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  box-shadow: 0px 0px 10px #999999;
+  border-radius: 3px;
+  font-size: 14px; 
+  line-height: 18px;
+  z-index: 100;
+}
+
+#callPopup, #reInvitePopup {
+    width:170px;
+    height:137px;
+}
+#transferPopup {
+    color: white;
+    width:280px;
+    height:60px;
+}
+
+#transferTarget {
+    width: 200px;
+}
+
+.popup .actions {
+    text-align:right;
+}
+.popup .title {
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+}
+#callPopup span {
+  color: #999999; 
+  font-size: 22px; 
+}
+
+.ui-widget-content.ui-dialog {
+  display: none;
+  color: #999999;
+  font-size: 22px;
+  background: #333333;
+  padding: 10px; 	
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #999999;
+  border-radius: 3px;
+  z-index: 99;
+}
+
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+
+#settingsPopup {
+  display: none;
+  background: #333333;
+  padding: 2px; 	
+  border: 2px solid #DDDDDD;
+  position: absolute;
+  top: 5px; 
+  left: 5px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  width: 435;
+  height: 180;
+  box-shadow: 0px 0px 10px #999999;
+  border-radius: 3px;
+  font-size: 20px;
+  line-height: 28px;
+  z-index: 99;
+}
+
+/* Settings Popup */
+#settingsPopup span {
+  color: #999999; 
+  font-size: 20px; 
+}
+
+#settingsPopup [type="checkbox"] {
+  width: 18;
+  height: 18;
+}
+
+#settingsPopup .short {
+    width: 36px;
+}
+/* Auth Button */
+#authPopup {
+  display: none;
+  background: #333333;
+  padding: 10px; 	
+  border: 2px solid #DDDDDD;
+  float: left;
+  position: fixed;
+  top: 50%; 
+  left: 50%;
+  box-shadow: 0px 0px 10px #999999;
+  border-radius: 3px;
+  font-size: 14px; 
+  line-height: 18px;
+}
+
+#authPopup span {
+  color: #999999; 
+  font-size: 14px; 
+  line-height: 18px;
+}
+
+#authPopup input {
+  background: #666666; 
+  border-bottom: 1px solid #333333;
+  border-left: 1px solid #000000;
+  border-right: 1px solid #333333;
+  border-top: 1px solid #000000;
+  color: #FFFFFF; 
+  border-radius: 3px;
+  font-family: arial;
+  font-size: 16px;
+  padding: 6px 6px 4px;
+  width: 200px;
+}
+
+#authPopup button {
+  border-color: #999999; 
+  border-width: 1px;
+  border-radius: 4px;
+  color: #333333;
+  cursor: pointer;
+  padding: 6px 6px 4px;
+  margin-top: 10px;
+  font-size: 12px; 
+  width: 214px;
+}
+
+#authPopup #alert {
+  font-size: 20px;
+  text-align: center;
+  color: #FF0000;
+}
+
+#dialpad {
+  display: none;
+  position: absolute;
+  z-index: 20;
+  bottom: 50px;
+  right: 5px;
+  letter-spacing: 5px;
+}
+
+#dialpad button {
+  color: #333333;
+  opacity: 0.8;
+  font-family:arial;
+  font-size: 20px;
+  width: 30px;
+  border-color: #000000; 
+  border-width: 1px;
+  border-radius: 4px;
+  border-spacing: 5em;
+  font-weight: bold;
+  line-height: 30px;
+  margin: .1em;
+  border-top-style: outset;
+  cursor: pointer;
+}
+
+#dialpad button:active {
+  color: #EFA233;
+  background: -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A));
+  background: linear-gradient(to left bottom, #F47A20, #FAA51A);
+}
+
+#dialpad button:hover {
+  box-shadow: 1px 1px 20px #999999;
+}
+
+#connected {
+  display: none;
+  position: absolute;
+  top: 13px;
+  right: 5px;
+}
+
+#registered {
+  display: none;
+  position: absolute;
+  top: 13px;
+  right: 40px;
+}
+
+#timer {
+  display: none;
+  position:absolute;
+  top: 3px;
+  left: 0px;
+  width: 100%;
+  text-align: center;
+  font-family: arial;
+  font-size: 16px;
+  color: #FFFFFF;
+}
+
+#messages {
+  position: absolute;
+  bottom: 55px;
+  left:0px;
+  width: 100%;
+  text-align: center;
+  font-family:arial;
+  font-size: 20px; 
+}
+
+.normal {
+  color: #999999;
+}
+
+.success {
+  color: #00FF00;
+}
+
+.warning {
+  color: #FFFF00;
+}
+
+.alert {
+  color: #FF0000;
+}
+
+#callHistory {
+  display: none;
+  position: absolute;
+  top: 88px;
+  left: 378px;
+  width: 265px;
+  height: 420px;
+  background-color: #191414;
+  border-radius: 4px;
+  border: 2px solid #DDDDDD;
+  box-shadow: 0px 0px 10px #999999;
+}
+
+#callHistory .historyDestination {
+  position: absolute;
+  color: #0082FF;
+  left: 10px;
+  font-family:arial;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+#callHistory .historyDirection {
+  position: absolute;
+  color: #0082FF;
+  left: 205px;
+  font-family:arial;
+  font-size: 18px; 
+}
+
+#callHistory .historyDate {
+  position: absolute;
+  color: #0082FF;
+  left: 20px;
+  font-family:arial;
+  font-size: 10px; 
+}
+
+#callHistory .historyLength {
+  position: absolute;
+  color: #0082FF;
+  left: 205px;
+  font-family:arial;
+  font-size: 10px; 
+}
+
+#callHistory .rowSpace {
+  padding: .5em;
+}
+
+#historyBack {
+  display: none;
+  position: absolute;
+  top: 385;
+  left: 5px;
+}
+
+#historyClose {
+  position: absolute;
+  top: 385;
+  left: 80px;
+}
+
+#historyClear {
+  position: absolute;
+  top: 385;
+  left: 155px;
+}
+
+#historyForward {
+  display: none;
+  position: absolute;
+  top: 385;
+  right: 5px;
+}
+
+#callStats {
+  display: none;
+  position: absolute;
+	top: 10px;
+  color: #666666;
+	left: 660px;
+	width: 400px;
+  padding: 2px; 	
+	border-radius: 4px;
+	border: 2px solid #DDDDDD;
+	box-shadow: 0px 0px 10px #999999;
+}
+
+#callStats .statsVideo {
+  position: absolute;
+  white-space: pre-wrap;
+  color: #0082FF;
+  left: 10px;
+  font-family:arial;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+#callStats .statsAudio {
+  position: absolute;
+  white-space: pre-wrap;
+  color: #0082FF;
+  left: 260px;
+  float: left;
+  font-family:arial;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.unsupported {
+  position: absolute;
+  top: 240px;
+  left: 30px;
+  width: 600px;
+  background-color: #191414;
+  text-align: center;
+  display:none;
+  color: white;
+  z-index: 10;
+}
+
+.stats-table-container, .stats-graph-sub-container {
+    display: none;
+}
+
+.stats0-selected .kiloBitsSentPerSecond-video,
+.stats1-selected .kiloBitsSentPerSecond-audio,
+.stats2-selected .kiloBitsReceivedPerSecond-video,
+.stats3-selected .kiloBitsReceivedPerSecond-audio,
+.stats4-selected .packetsLost-video,
+.stats5-selected .packetsLostPer-video,
+.stats6-selected .packetsLost-audio,
+.stats7-selected .packetsLostPer-audio,
+.stats8-selected .googFrameRateSent-video,
+.stats9-selected .googFrameRateReceived-video,
+.stats10-selected .audioOutputLevel-audio,
+.stats11-selected .audioInputLevel-audio,
+.stats12-selected .googFrameWidthReceived-video,
+.stats13-selected .googFrameHeightReceived-video,
+.stats14-selected .googFrameWidthSent-video,
+.stats15-selected .googFrameHeightSent-video,
+.stats16-selected .googRtt-audio,
+.stats17-selected .googJitterReceived-audio {
+    display: block;
+}
+
+.table {
+    display: table;
+    width:100%;
+}
+.fixed {
+    table-layout: fixed;
+}
+.collapse {
+    border-collapse: collapse;
+}
+
+.cell {
+    display: table-cell;
+}
+
+.heading {
+    display: table-row;
+    font-weight: bold;
+}
+
+.row {
+    display: table-row;
+}
+
+.group {
+    display: table-row-group;
+}
+
+.stats-graph-sub-container canvas {
+    width: 100%;
+}
+
+.resolutionSubType{
+    display:none;
+}
+
+#client .fadeable{
+    opacity: 0;
+    display: block;
+    z-index: -1;
+}
+
+#holdAndAnswerButton, #dropAndAnswerButton, #acceptIncomingCall {
+    display:none;
+}
+
+.started #holdAndAnswerButton,
+.started #dropAndAnswerButton,
+#client:not(.started) #acceptIncomingCall {
+    display:inline-block;
+}
+
+.enable-mute.unmuted.started #muteAudio,
+.enable-mute.muted.started #unmuteAudio,
+.started #hangup, .calling #hangup,
+.enable-call-control.connected #call,
+.enable-transfer.started #transfer,
+#client:not(.held).enable-hold.started #hold,
+.enable-hold.started.held #resume
+{
+    transition: all 1s linear;
+    opacity: 1;
+    z-index: 20;
+}
+.enable-transfer.started.transfer-visible #transferPopup,
+#client:not(.disconnected).auth-visible #authPopup,
+.reInvite #reInvitePopup,
+.incomingCall #callPopup{
+    transition: all 1s linear;
+    opacity: 1;
+    z-index: 100;
+}
+.enable-mute.connected #muteAudio, .enable-mute.disconnected #muteAudio,
+.enable-mute.connected #unmuteAudio, .enable-mute.disconnected #unmuteAudio,
+.enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
+.connected #hangup, .disconnected #hangup,
+#client:not(.connected) #call,
+.enable-transfer.connected #transfer, .enable-transfer.disconnected #transfer,
+.enable-transfer.transfer-hidden #transferPopup,
+#client.disconnected #authPopup, #client.auth-hidden #authPopup,
+.reInvite-done #reInvitePopup,
+.incomingCall-done #callPopup,
+#client.held #hold, #client:not(.started) #hold,
+#client:not(.held) #resume, #client:not(.started) #resume,
+{
+    transition: all 1s linear;
+    opacity: 0;
+    z-index: -1;
+}
+#historyRowSample {
+    display: none;
+}
+#callHistoryDetails {
+    width: 150px;
+    height: 190px;
+    background: white;
+}
+#historyDetailsClose {
+    text-align: right;
+    margin-top: 10px;
+}
+#historyDetailsClose .icon-ok{
+    margin:0px;
+}
+#callHistory .actions {
+    margin-top:10px;
+}
+.history-row {
+    cursor: pointer;
+}
+#historyCallLink {
+    text-align: left;
+}
