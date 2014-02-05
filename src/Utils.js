@@ -19,7 +19,7 @@ Utils= {
   /* Pull the URL variables out of URL */
   getSearchVariable: function(variable)
   {
-    var search = window.location.search.substring(1);
+    var search = decodeURIComponent(window.location.search.substring(1));
     var vars = search.split("&");
     for (var i=0;i<vars.length;i++)
     {
@@ -153,8 +153,15 @@ Utils= {
 
   isHexColor: function(color) {
     return (/(^#?[0-9A-F]{6}$)|(^#?[0-9A-F]{3}$)/i.test(color));
-  }
+  },
 
+  parseDTMFTones: function(destination) {
+    if(!destination) {
+      return null;
+    }
+    var dtmfMatch = destination.match(/,[0-9A-D#*,]+/, '');
+    return dtmfMatch ? dtmfMatch[0] : null;
+  }
 };
 
 WebRTC.Utils = Utils;

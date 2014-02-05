@@ -191,7 +191,9 @@
       if(domain.indexOf(".") === -1) {
         destination = destination + "." + ClientConfig.domainTo;
       }
-      return(destination);
+
+      // WEBRTC-35 : filter out dtmf tones from destination
+      return destination.replace(/,[0-9A-D#*,]+/, '');
     },
 
     // URL call
@@ -298,6 +300,11 @@
       });
       this.eventBus.on("started", function(e){
         self.onSessionStarted(e.sender);
+        var dtmfTones = WebRTC.Utils.parseDTMFTones(self.configuration.destination);
+        if(dtmfTones) {
+          logger.log("DTMF tones found in destination - sending DTMF tones : "+dtmfTones);
+          self.sipStack.sendDTMF(dtmfTones);
+        }
         if(e.data && !e.data.isReconnect) {
           self.message(ClientConfig.messageStarted.replace('{0}', e.sender.remote_identity.uri.user), "success");
         }

@@ -21,6 +21,70 @@ test('userid', function() {
   client = new WebRTC.Client();
   ok("chooses random userid", client.configuration.userid !== undefined);
 });
+test('destination', function() {
+  ClientConfig.enableConnectLocalMedia = true;
+  ClientConfig.domainTo = "domain.to";
+  ClientConfig.allowOutside = true;
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "destination" ? "8323303810" : false;}
+  client = new WebRTC.Client();
+  var calledDestination = '';
+  client.sipStack.call = function(destination){calledDestination = destination;};
+  client.sipStack.ua.getUserMedia = function(options, success, failure, force){success();};
+
+  TestWebrtc.Helpers.connect();
+  strictEqual(calledDestination, "sip:8323303810@domain.to");
+});
+test('WEBRTC-35 : destination with dtmf tones', function() {
+  ClientConfig.enableConnectLocalMedia = true;
+  ClientConfig.domainTo = "domain.to";
+  ClientConfig.allowOutside = true;
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "destination" ? "8323303810,,123132" : false;}
+  client = new WebRTC.Client();
+  var calledDestination = '', sentTones = '';
+  client.sipStack.call = function(destination){calledDestination = destination;};
+  client.sipStack.sendDTMF = function(tones){sentTones = tones;};
+  client.sipStack.ua.getUserMedia = function(options, success, failure, force){success();};
+
+  TestWebrtc.Helpers.connect();
+  strictEqual(calledDestination, "sip:8323303810@domain.to");
+
+  TestWebrtc.Helpers.startCall();
+  strictEqual(sentTones, ",,123132");
+});
+test('WEBRTC-35 : destination with dtmf tones and #', function() {
+  ClientConfig.enableConnectLocalMedia = true;
+  ClientConfig.domainTo = "domain.to";
+  ClientConfig.allowOutside = true;
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "destination" ? "8323303810,,123132#" : false;}
+  client = new WebRTC.Client();
+  var calledDestination = '', sentTones = '';
+  client.sipStack.call = function(destination){calledDestination = destination;};
+  client.sipStack.sendDTMF = function(tones){sentTones = tones;};
+  client.sipStack.ua.getUserMedia = function(options, success, failure, force){success();};
+
+  TestWebrtc.Helpers.connect();
+  strictEqual(calledDestination, "sip:8323303810@domain.to");
+
+  TestWebrtc.Helpers.startCall();
+  strictEqual(sentTones, ",,123132#");
+});
+test('WEBRTC-35 : destination with dtmf tones and domain', function() {
+  ClientConfig.enableConnectLocalMedia = true;
+  ClientConfig.domainTo = "domain.to";
+  ClientConfig.allowOutside = true;
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "destination" ? "8323303810,,123132@some.domain" : false;}
+  client = new WebRTC.Client();
+  var calledDestination = '', sentTones = '';
+  client.sipStack.call = function(destination){calledDestination = destination;};
+  client.sipStack.sendDTMF = function(tones){sentTones = tones;};
+  client.sipStack.ua.getUserMedia = function(options, success, failure, force){success();};
+
+  TestWebrtc.Helpers.connect();
+  strictEqual(calledDestination, "sip:8323303810@some.domain");
+
+  TestWebrtc.Helpers.startCall();
+  strictEqual(sentTones, ",,123132");
+});
 test('register', function() {
   client = new WebRTC.Client();
   strictEqual(client.sipStack.configuration.getRegister(), false);
