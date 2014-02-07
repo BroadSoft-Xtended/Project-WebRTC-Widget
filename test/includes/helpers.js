@@ -51,6 +51,12 @@ TestWebrtc.Helpers = {
     session = session || this.outgoingSession();
     client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
     session.started('local');
+    return session;
+  },
+
+  reconnectCall: function(session) {
+    session = session || this.outgoingSession();
+    session.started('local', undefined, true);
   },
 
   newCall: function(session) {

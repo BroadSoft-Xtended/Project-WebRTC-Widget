@@ -48,8 +48,13 @@ test('WEBRTC-35 : destination with dtmf tones', function() {
   TestWebrtc.Helpers.connect();
   strictEqual(calledDestination, "sip:8323303810@domain.to");
 
-  TestWebrtc.Helpers.startCall();
+  var session = TestWebrtc.Helpers.startCall();
   strictEqual(sentTones, ",,123132");
+
+  sentTones = '';
+
+  TestWebrtc.Helpers.reconnectCall(session);
+  strictEqual(sentTones, "", "Should NOT send the dtmf again");
 });
 test('WEBRTC-35 : destination with dtmf tones and #', function() {
   ClientConfig.enableConnectLocalMedia = true;

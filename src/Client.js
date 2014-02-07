@@ -301,7 +301,7 @@
       this.eventBus.on("started", function(e){
         self.onSessionStarted(e.sender);
         var dtmfTones = WebRTC.Utils.parseDTMFTones(self.configuration.destination);
-        if(dtmfTones) {
+        if(dtmfTones && e.data && !e.data.isReconnect) {
           logger.log("DTMF tones found in destination - sending DTMF tones : "+dtmfTones);
           self.sipStack.sendDTMF(dtmfTones);
         }
