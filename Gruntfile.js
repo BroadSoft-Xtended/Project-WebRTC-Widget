@@ -11,6 +11,7 @@ module.exports = function(grunt) {
     'src/Transfer.js',
     'src/Constants.js',
     'src/Timer.js',
+    'src/Whiteboard.js',
     'src/Stats.js',
     'src/Utils.js',
     'src/Sound.js',
@@ -168,7 +169,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           pageTemplate: "test/includes/qunit-page.tpl",
-          includeFiles: ["js/3rdparty.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          includeFiles: ["js/3rdparty.js", "js/sketch.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
           testFiles: ["test/test-*.js"],
           templateFiles: "index.html",
           qunitCss: "stylesheet.css",

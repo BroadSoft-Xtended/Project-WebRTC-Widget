@@ -109,6 +109,12 @@
       this.activeSession.sendDTMF(digit, this.configuration.getDTMFOptions());
     },
 
+    sendData: function(data) {
+      if(this.activeSession) {
+        this.activeSession.sendData(data);
+      }
+    },
+
     transfer: function(transferTarget, isAttended) {
       if(isAttended) {
         this.ua.attendedTransfer(transferTarget, this.activeSession);
@@ -239,6 +245,14 @@
         session.on('ended', function(e)
         {
           self.eventBus.ended(e.sender, e.data);
+        });
+        session.on('dataSent', function(e)
+        {
+          self.eventBus.dataSent(e.sender, e.data);
+        });
+        session.on('dataReceived', function(e)
+        {
+          self.eventBus.dataReceived(e.sender, e.data);
         });
         // handle incoming call
         if (e.data.session.direction === "incoming")

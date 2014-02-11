@@ -39,6 +39,7 @@
     this.stats = new WebRTC.Stats(this.sipStack);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack);
+    this.whiteboard = new WebRTC.Whiteboard(this, this.eventBus, this.sipStack);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack);
     this.authentication = new WebRTC.Authentication(this, this.configuration, this.eventBus);
     this.hold = new WebRTC.Icon($( "#hold" ), this.sound);
@@ -561,6 +562,11 @@
         else if (e.charCode === 83)
         {
           self.stats.toggle();
+        }
+        // toggle whiteboard
+        else if (e.charCode === 87)
+        {
+          self.whiteboard.toggle();
         }
         else if (e.charCode === 72)
         {
