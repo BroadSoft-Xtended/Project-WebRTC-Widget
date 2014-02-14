@@ -15,29 +15,71 @@
     this.sipStack = sipStack;
     this.eventBus = eventBus;
 
-    this.color = '#000000';
+    this.color = '#000';
     this.size = 5;
     this.tool = 'marker';
     this.action = [];
 
-//    this.canvas.sketch();
-
-    var self = this;
-
-    this.canvas.bind('click mousedown mouseup mousemove mouseleave mouseout touchstart touchmove touchend touchcancel', jQuery.proxy( this, "onEvent" ));
-
-    this.eventBus.on("dataReceived", function(e){
-      var data = e.data.data;
-      var img = new Image();
-      img.onload = function(){
-        self.clear();
-        self.context.drawImage(img,0,0); // Or at whatever offset you like
-      };
-      img.src = data;
-    });
+    this.initCanvas();
+    this.registerListeners();
+    this.updateToolsSelection();
   };
 
   Whiteboard.prototype = {
+    registerListeners: function() {
+      var self = this;
+      this.eventBus.on("dataReceived", function(e){
+        var data = e.data.data;
+        var img = new Image();
+        img.onload = function(){
+          self.clear();
+          self.context.drawImage(img,0,0); // Or at whatever offset you like
+        };
+        img.src = data;
+      });
+    },
+    initCanvas: function() {
+      var self = this;
+      $.each(['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#f0f', '#000', '#fff'], function() {
+        $('#whiteboard .tools').append("<a href='#simple_sketch' onclick='javascript:;' data-color='" + this + "' style='width: 10px; background: " + this + ";'></a> ");
+      });
+      $.each([3, 5, 10, 15], function() {
+        $('#whiteboard .tools').append("<a href='#simple_sketch' onclick='javascript:;' data-size='" + this + "' style='background: #ccc'>" + this + "</a> ");
+      });
+
+      this.canvas.bind('click mousedown mouseup mousemove mouseleave mouseout touchstart touchmove touchend touchcancel', jQuery.proxy( this, "onEvent" ));
+
+      $('body').delegate("a[href=\"#" + (this.canvas.attr('id')) + "\"]", 'click', function(e) {
+        var $canvas, $this, key, sketch, _i, _len, _ref;
+        $this = $(this);
+        $canvas = $($this.attr('href'));
+        sketch = $canvas.data('sketch');
+        _ref = ['color', 'size', 'tool'];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          key = _ref[_i];
+          var value = $this.attr("data-" + key);
+          if (value) {
+            if(key === "size") {
+              value = +value;
+            }
+            self[key] = value;
+          }
+        }
+        self.updateToolsSelection();
+        return false;
+      });
+    },
+    updateToolsSelection: function() {
+      var self = this;
+      $.each($(".tools a"), function(){
+        var selected = $(this).data('color') === self.color || $(this).data('tool') === self.tool || +$(this).data('size') === self.size;
+        if(selected) {
+          $(this).attr('class', 'selected');
+        } else {
+          $(this).attr('class', '');
+        }
+      });
+    },
     sendData: function() {
       var data = this.canvas[0].toDataURL();
       this.sipStack.sendData(data);
@@ -76,7 +118,11 @@
           y: e.pageY - this.canvas.offset().top,
           event: e.type
         });
-        this.draw(this.action);
+        if(this.tool === 'marker') {
+          this.draw(this.action);
+        } else if(this.tool === 'eraser') {
+          this.erase(this.action);
+        }
       }
       switch (e.type) {
         case 'mouseup':
@@ -90,6 +136,14 @@
       }
       e.preventDefault();
       return false;
+    },
+    erase: function(action) {
+      var oldcomposite;
+      oldcomposite = this.context.globalCompositeOperation;
+      this.context.globalCompositeOperation = "copy";
+      action.color = "rgba(0,0,0,0)";
+      this.draw(action);
+      return this.context.globalCompositeOperation = oldcomposite;
     },
     draw: function(action) {
       var event, previous, _i, _len, _ref;
