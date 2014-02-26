@@ -160,6 +160,12 @@ test('setClientConfigFlags', function() {
 
   client.configuration.setClientConfigFlags(flags);
 });
+test('features url parameter', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "features" ? "524287" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getClientConfigFlags(), 524287);
+  WebRTC.Utils.getSearchVariable = function(name){ return false;}
+});
 
 
 function setClientConfigFlagAndAssert(flagName) {

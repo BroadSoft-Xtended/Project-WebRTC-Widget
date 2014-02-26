@@ -39,7 +39,10 @@
     this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
     this.color = WebRTC.Utils.colorNameToHex(WebRTC.Utils.getSearchVariable("color")) || $.cookie('settingColor');
-
+    var features = WebRTC.Utils.getSearchVariable("features");
+    if(features) {
+      this.setClientConfigFlags(parseInt(features, 10));
+    }
     // Client Variables
     this.timerRunning = false;
     this.disableICE = ClientConfig.disableICE;

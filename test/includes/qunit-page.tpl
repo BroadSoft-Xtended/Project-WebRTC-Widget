@@ -18,8 +18,9 @@
 </head>
 <body>
   <div id="qunit"></div>
-  <div id="qunit-fixture"></div>
-  <!-- Templates -->
-  <% _.each(script.templates, function(template) { %> <%= template.match(/.*<body[^>]*>((.|[\n\r])*)<\/body>.*/im)[1] %> <% }); %>
+  <div id="qunit-fixture">
+    <!-- Templates -->
+    <% _.each(script.templates, function(template) { %> <%= template.match(/.*<body[^>]*>((.|[\n\r])*)<\/body>.*/im)[1] %> <% }); %>
+  </div>
 </body>
 </html>

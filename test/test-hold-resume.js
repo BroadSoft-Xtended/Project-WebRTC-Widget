@@ -24,6 +24,7 @@ test('hold icon on call started with enableHold is false', function() {
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.isVisible(client.hold, false);
 });
+
 test('hold icon on call started with enableHold is true', function() {
   ClientConfig.enableHold = true;
   client = new WebRTC.Client();

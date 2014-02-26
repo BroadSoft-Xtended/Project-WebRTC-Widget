@@ -212,8 +212,8 @@
           var destination = self.historyCallLink.attr("data-destination");
           self.client.destination.val(destination);
           self.client.call();
-          self.callHistoryDetails.hide();
         }
+        self.callHistoryDetails.hide();
       });
 
       this.historyClear.bind('click', function (e) {
