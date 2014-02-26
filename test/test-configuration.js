@@ -150,4 +150,27 @@ test('getExSIPOptions with hd=true', function() {
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
 });
+test('setClientConfigFlags', function() {
+  client = new WebRTC.Client();
+  var flags = client.configuration.getClientConfigFlags();
 
+  for(var flag in WebRTC.Configuration.Flags) {
+    setClientConfigFlagAndAssert(flag);
+  }
+
+  client.configuration.setClientConfigFlags(flags);
+});
+
+
+function setClientConfigFlagAndAssert(flagName) {
+  var flagValue = WebRTC.Configuration.Flags[flagName];
+  client.configuration.setClientConfigFlags(flagValue);
+  assertClientConfigFlags([flagName], true);
+  strictEqual(client.configuration.getClientConfigFlags(), flagValue);
+}
+
+function assertClientConfigFlags(names, enabled) {
+  for(var i=0; i<names.length; i++) {
+    strictEqual(ClientConfig[names[i]], enabled, "Should be "+(enabled ? "enabled" : "disabled")+" : "+names[i]);
+  }
+}

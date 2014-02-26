@@ -4,7 +4,28 @@
 
 (function(WebRTC) {
   var Configuration,
-    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Configuration');
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Configuration'),
+    Flags = {
+      enableHD: 1,
+      enableCallControl: 2,
+      enableCallTimer: 4,
+      enableCallHistory: 8,
+      enableFullScreen: 16,
+      enableSelfView: 32,
+      enableCallStats: 64,
+      enableDialpad: 128,
+      enableMute: 256,
+      enableMessages: 512,
+      enableRegistrationIcon: 1024,
+      enableConnectionIcon: 2048,
+      enableWindowDrag: 4096,
+      enableSettings: 8192,
+      enableAutoAnswer: 16384,
+      enableAutoAcceptReInvite: 32768,
+      enableConnectLocalMedia: 65536,
+      enableTransfer: 131072,
+      enableHold: 262144
+    };
 
   Configuration = function() {
     logger.log('window.location.search : '+window.location.search, this);
@@ -25,6 +46,26 @@
   };
 
   Configuration.prototype = {
+    getClientConfigFlags: function(){
+      var flags = 0;
+      for(var flag in Flags) {
+        var value = Flags[flag];
+        if(ClientConfig[flag]) {
+          flags |= value;
+        }
+      }
+      return flags;
+    },
+    setClientConfigFlags: function(flags){
+      for(var flag in Flags) {
+        var value = Flags[flag];
+        if(flags & value) {
+          ClientConfig[flag] = true;
+        } else {
+          ClientConfig[flag] = false;
+        }
+      }
+    },
     getRegister: function(){
       return WebRTC.Utils.getSearchVariable("register") === "true" || ClientConfig.register;
     },
@@ -144,4 +185,5 @@
     }
   };
   WebRTC.Configuration = Configuration;
+  WebRTC.Configuration.Flags = Flags;
 }(WebRTC));
