@@ -138,7 +138,8 @@
         'uri': sip_uri,
         'ws_servers': ClientConfig.websocketsServers,
         'stun_servers': 'stun:' + ClientConfig.stunServer + ':' + ClientConfig.stunPort,
-        'trace_sip': ClientConfig.debug
+        'trace_sip': ClientConfig.debug,
+        'enable_ims': ClientConfig.enableIms
       };
 
       // Add Display Name if set

@@ -16,6 +16,7 @@ ClientConfig = {
     enableWindowDrag: true,
     enableAutoAcceptReInvite: true,
     enableConnectLocalMedia: true,
+    enableIms: false,
 
     // Client Variables
     allowOutside: true,

@@ -13,9 +13,19 @@ test('websocketsServers', function() {
   ClientConfig.websocketsServers = [
     {'ws_uri':'ws://webrtc-gw1.broadsoft.com:8060', 'weight':0},
     {'ws_uri':'ws://webrtc-gw2.broadsoft.com:8060', 'weight':0},
-    {'ws_uri':'ws://webrtc-gw.broadsoft.com:8060', 'weight':0}]
+    {'ws_uri':'ws://webrtc-gw.broadsoft.com:8060', 'weight':0}];
   client = new WebRTC.Client();
   strictEqual(client.sipStack.ua.configuration.ws_servers.length, 3);
+});
+test('enableIms = true', function() {
+  ClientConfig.enableIms = true;
+  client = new WebRTC.Client();
+  strictEqual(client.sipStack.ua.configuration.enable_ims, true);
+});
+test('enableIms = false', function() {
+  ClientConfig.enableIms = false;
+  client = new WebRTC.Client();
+  strictEqual(client.sipStack.ua.configuration.enable_ims, false);
 });
 test('userid', function() {
   client = new WebRTC.Client();
