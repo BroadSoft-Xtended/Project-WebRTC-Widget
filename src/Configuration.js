@@ -24,7 +24,8 @@
       enableAutoAcceptReInvite: 32768,
       enableConnectLocalMedia: 65536,
       enableTransfer: 131072,
-      enableHold: 262144
+      enableHold: 262144,
+      enableIms: 524288
     };
 
   Configuration = function() {
