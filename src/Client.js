@@ -92,10 +92,7 @@
       $.cookie.raw = true;
 
       window.onbeforeunload = function(e) {
-        if (self.configuration.timerRunning)
-        {
-          self.sipStack.terminateSessions();
-        }
+        self.sipStack.terminateSessions();
         self.endCall();
         return null;
       };

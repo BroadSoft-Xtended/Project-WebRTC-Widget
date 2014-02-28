@@ -221,7 +221,7 @@ body {
   display: none;
   z-index: 10;
   margin: 0px 2.5px;
-  position: absolute;
+  position: relative;
 }
 
 #videoBar .table {
