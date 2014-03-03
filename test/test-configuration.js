@@ -17,6 +17,12 @@ test('websocketsServers', function() {
   client = new WebRTC.Client();
   strictEqual(client.sipStack.ua.configuration.ws_servers.length, 3);
 });
+test('networkUserId set', function() {
+  ClientConfig.networkUserId = '8323303809';
+  client = new WebRTC.Client();
+  strictEqual(client.sipStack.ua.configuration.authorization_user, '8323303809');
+  ClientConfig.networkUserId = undefined;
+});
 test('enableIms = true', function() {
   ClientConfig.enableIms = true;
   client = new WebRTC.Client();

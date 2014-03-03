@@ -27,6 +27,7 @@ ClientConfig = {
       websocketsServers: [{'ws_uri':'ws://websocket.server.fqdn.or.ip.address:8060', 'weight':0}],
       stunServer: 'stun.server.ip.address',
       stunPort: 3478,
+      //networkUserId: 8323303810,
       domainFrom: 'from.domain',
       domainTo: 'to.domain',
     endCallURL: false,
