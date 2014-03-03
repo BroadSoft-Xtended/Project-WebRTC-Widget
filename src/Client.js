@@ -282,18 +282,22 @@
       }
     },
 
+    getRemoteUser: function(rtcSession) {
+      return rtcSession.remote_identity.uri.user || rtcSession.remote_identity.uri.host;
+    },
+
     registerListeners: function() {
       var self = this;
 
       this.eventBus.on("ended", function(e){
         self.sipStack.terminateSession(e.sender);
-        self.message(ClientConfig.messageEnded.replace('{0}', e.sender.remote_identity.uri.user), "normal");
+        self.message(ClientConfig.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
         self.history.persistCall(e.sender);
         self.endCall();
       });
       this.eventBus.on("unholded", function(e){
         self.onSessionStarted(e.sender);
-        self.message(ClientConfig.messageResume.replace('{0}', e.sender.remote_identity.uri.user), "success");
+        self.message(ClientConfig.messageResume.replace('{0}', self.getRemoteUser(e.sender)), "success");
       });
       this.eventBus.on("started", function(e){
         self.onSessionStarted(e.sender);
@@ -303,11 +307,11 @@
           self.sipStack.sendDTMF(dtmfTones);
         }
         if(e.data && !e.data.isReconnect) {
-          self.message(ClientConfig.messageStarted.replace('{0}', e.sender.remote_identity.uri.user), "success");
+          self.message(ClientConfig.messageStarted.replace('{0}', self.getRemoteUser(e.sender)), "success");
         }
       });
       this.eventBus.on("holded", function(e){
-        self.message(ClientConfig.messageHold.replace('{0}', e.sender.remote_identity.uri.user), "success");
+        self.message(ClientConfig.messageHold.replace('{0}', self.getRemoteUser(e.sender)), "success");
       });
       this.eventBus.on("disconnected", function(e){
         if (ClientConfig.enableConnectionIcon)
