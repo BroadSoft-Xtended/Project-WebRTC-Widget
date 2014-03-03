@@ -17,6 +17,8 @@ ClientConfig = {
     enableAutoAcceptReInvite: true,
     enableConnectLocalMedia: true,
     enableIms: false,
+    enableSettings: false,
+    enableAutoAnswer: false,
 
     // Client Variables
     allowOutside: true,
