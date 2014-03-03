@@ -966,9 +966,8 @@ body {
 .enable-transfer.transfer-hidden #transferPopup,
 #client.disconnected #authPopup, #client.auth-hidden #authPopup,
 .reInvite-done #reInvitePopup,
-.incomingCall-done #callPopup,
 #client.held #hold, #client:not(.started) #hold,
-#client:not(.held) #resume, #client:not(.started) #resume,
+#client:not(.held) #resume, #client:not(.started) #resume
 {
     transition: all 1s linear;
     opacity: 0;
