@@ -212,16 +212,16 @@ body {
   color: #EFA233;
 }
 
-#hangup, #dialpad, #fullScreen, #selfView, #muteAudio, #dialpadIcon, #messages {
-  top: 0;
-  left: 0;
-}
+/*#hangup, #fullScreen, #selfView, #muteAudio, #dialpadIcon, #messages {*/
+  /*top: 0;*/
+  /*left: 0;*/
+/*}*/
 
 #videoBar .icon {
   display: none;
   z-index: 10;
   margin: 0px 2.5px;
-  position: relative;
+  position: absolute;
 }
 
 #videoBar .table {
@@ -230,6 +230,8 @@ body {
 }
 #videoBar .cell {
     position:relative;
+    top:0px;
+    left:0px;
     width: 35px;
 }
 
