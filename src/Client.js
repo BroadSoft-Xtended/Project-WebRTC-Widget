@@ -29,8 +29,10 @@
     this.holdAndAnswerButton = $("#holdAndAnswerButton");
     this.dropAndAnswerButton = $("#dropAndAnswerButton");
     this.errorPopup = $( "#errorPopup" );
+    this.shareScreen = $( "#shareScreen" );
+    this.stopShareScreen = $( "#stopShareScreen" );
 
-    this.configuration = new WebRTC.Configuration();
+    this.configuration = new WebRTC.Configuration(this);
     this.eventBus = new WebRTC.EventBus(this.configuration);
     this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
     this.sound = new WebRTC.Sound(this.sipStack);
@@ -46,6 +48,7 @@
     this.resume = new WebRTC.Icon($( "#resume" ), this.sound);
     this.fullScreen = false;
     this.muted = false;
+    this.isScreenSharing = true;
 
     this.configuration.setSettings(this.settings);
 
@@ -429,6 +432,23 @@
       });
 
       // Buttons
+      this.shareScreen.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.isScreenSharing = true;
+        self.updateClientClass();
+        self.sipStack.reconnectUserMedia();
+      });
+      this.stopShareScreen.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.isScreenSharing = false;
+        self.updateClientClass();
+        self.sipStack.reconnectUserMedia();
+      });
+
       this.callButton.bind('click', function(e)
       {
         e.preventDefault();
@@ -670,6 +690,7 @@
         classes.push("enable-hold");
       }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
+      if(this.isScreenSharing) { classes.push("screen-sharing"); } else { classes.push("screen-sharing-off"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }
       if(this.authentication.visible) { classes.push("auth-visible"); } else { classes.push("auth-hidden"); }
       this.client.attr("class", classes.join(" "));

@@ -95,6 +95,20 @@
       }
     },
 
+    reconnectUserMedia: function(){
+      var self = this;
+//      if(this.activeSession) {
+//        this.activeSession.getUserMedia(this.configuration.getMediaConstraints(), function(){
+//          logger.log("reconnect user media successful", self.configuration);
+//        }, function(){
+//          logger.log("reconnect user media failed", self.configuration);
+//        });
+//      }
+      this.updateUserMedia(function(){
+          logger.log("reconnect user media successful", self.configuration);
+      });
+    },
+
     call: function(destination){
       var self = this;
       var session = this.ua.call(destination, this.configuration.getExSIPOptions());

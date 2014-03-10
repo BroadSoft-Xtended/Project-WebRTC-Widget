@@ -6,9 +6,10 @@
   var Configuration,
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Configuration');
 
-  Configuration = function() {
+  Configuration = function(client) {
     logger.log('window.location.search : '+window.location.search, this);
     // Default URL variables
+    this.client = client;
     this.userid = WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
     this.destination = WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
@@ -36,26 +37,27 @@
     },
     getExSIPOptions: function(){
       // Options Passed to ExSIP
-      var options =
-      {
-        mediaConstraints:
-        {
-          audio: true,
-          video: this.getVideoConstraints()
-        },
+      return {
+        mediaConstraints: this.getMediaConstraints(),
         RTCConstraints: {'optional': [],'mandatory': {}},
         createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
       };
+    },
 
-      return options;
+    getMediaConstraints: function(){
+      return { audio: true, video: this.getVideoConstraints() };
     },
 
     getVideoConstraints: function(){
       if (this.audioOnly) {
         return false;
       } else {
-        var constraints = this.getResolutionConstraints();
-        return  constraints ? constraints : true;
+        if(this.client.isScreenSharing) {
+          return { mandatory: { chromeMediaSource: 'screen' }};
+        } else {
+          var constraints = this.getResolutionConstraints();
+          return  constraints ? constraints : true;
+        }
       }
     },
 
