@@ -95,7 +95,7 @@
       }
     },
 
-    reconnectUserMedia: function(){
+    reconnectUserMedia: function(failureCallback){
       var self = this;
 //      if(this.activeSession) {
 //        this.activeSession.getUserMedia(this.configuration.getMediaConstraints(), function(){
@@ -105,7 +105,12 @@
 //        });
 //      }
       this.updateUserMedia(function(){
-          logger.log("reconnect user media successful", self.configuration);
+        logger.log("reconnect user media successful", self.configuration);
+      }, function(){
+        self.client.screenSharingUnsupported.show();
+        if(failureCallback) {
+          failureCallback();
+        }
       });
     },
 
@@ -165,7 +170,7 @@
       }
     },
 
-    updateUserMedia: function(userMediaCallback){
+    updateUserMedia: function(userMediaCallback, failureCallback){
       var self = this;
       if(ClientConfig.enableConnectLocalMedia) {
         // Connect to local stream
@@ -177,6 +182,9 @@
           }
         }, function(){
           self.eventBus.message(ClientConfig.messageGetUserMedia || "Get User Media Failed", "alert");
+          if(failureCallback) {
+            failureCallback();
+          }
         }, true);
       }
     },

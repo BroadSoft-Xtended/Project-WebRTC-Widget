@@ -45,19 +45,19 @@
     },
 
     getMediaConstraints: function(){
-      return { audio: true, video: this.getVideoConstraints() };
+      if(this.client.isScreenSharing) {
+        return { video: { mandatory: { chromeMediaSource: 'screen' }}};
+      } else {
+        return { audio: true, video: this.getVideoConstraints() };
+      }
     },
 
     getVideoConstraints: function(){
       if (this.audioOnly) {
         return false;
       } else {
-        if(this.client.isScreenSharing) {
-          return { mandatory: { chromeMediaSource: 'screen' }};
-        } else {
-          var constraints = this.getResolutionConstraints();
-          return  constraints ? constraints : true;
-        }
+        var constraints = this.getResolutionConstraints();
+        return  constraints ? constraints : true;
       }
     },
 

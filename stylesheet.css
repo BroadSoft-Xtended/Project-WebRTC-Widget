@@ -172,7 +172,7 @@ body {
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume {
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume, .icon-screen-sharing, .icon-screen-sharing-off {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -461,24 +461,46 @@ body {
 
 /* Hold Button */
 .icon-hold:before {
-  content: "\e015";
-  color: #FFFFFF;
+    content: "\e015";
+    color: #FFFFFF;
 }
 
 .icon-hold:hover:before {
-  content: "\e015";
-  color: #EFA233;
+    content: "\e015";
+    color: #EFA233;
 }
 
 /* Resume Button */
 .icon-resume:before {
-  content: "\e016";
-  color: #FFFFFF;
+    content: "\e016";
+    color: #FFFFFF;
 }
 
 .icon-resume:hover:before {
-  content: "\e016";
-  color: #EFA233;
+    content: "\e016";
+    color: #EFA233;
+}
+
+/* Screen Sharing Button */
+.icon-screen-sharing:before {
+    content: "\e604";
+    color: #FFFFFF;
+}
+
+.icon-screen-sharing:hover:before {
+    content: "\e604";
+    color: #EFA233;
+}
+
+/* Stop Screen Sharing Button */
+.icon-screen-sharing-off:before {
+    content: "\e605";
+    color: #FFFFFF;
+}
+
+.icon-screen-sharing-off:hover:before {
+    content: "\e605";
+    color: #EFA233;
 }
 
 .button:active {
@@ -858,6 +880,8 @@ body {
     position:relative;
     top:0px;
     left:0px;
+    margin: 10px;
+    background: red;
 }
 #screen_sharing_unsupported {
     display:none;

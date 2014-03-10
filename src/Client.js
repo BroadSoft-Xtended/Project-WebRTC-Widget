@@ -31,6 +31,7 @@
     this.errorPopup = $( "#errorPopup" );
     this.shareScreen = $( "#shareScreen" );
     this.stopShareScreen = $( "#stopShareScreen" );
+    this.screenSharingUnsupported = $( "#screen_sharing_unsupported" );
 
     this.configuration = new WebRTC.Configuration(this);
     this.eventBus = new WebRTC.EventBus(this.configuration);
@@ -48,7 +49,7 @@
     this.resume = new WebRTC.Icon($( "#resume" ), this.sound);
     this.fullScreen = false;
     this.muted = false;
-    this.isScreenSharing = true;
+    this.isScreenSharing = false;
 
     this.configuration.setSettings(this.settings);
 
@@ -438,7 +439,10 @@
         self.sound.playClick();
         self.isScreenSharing = true;
         self.updateClientClass();
-        self.sipStack.reconnectUserMedia();
+        self.sipStack.reconnectUserMedia(function(){
+          self.isScreenSharing = false;
+          self.updateClientClass();
+        });
       });
       this.stopShareScreen.bind('click', function(e)
       {
