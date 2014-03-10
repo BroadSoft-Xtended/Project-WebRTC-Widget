@@ -854,6 +854,11 @@ body {
   color: white;
   z-index: 10;
 }
+#whiteboard_unsupported {
+    position:relative;
+    top:0px;
+    left:0px;
+}
 
 .stats-table-container, .stats-graph-sub-container {
     display: none;

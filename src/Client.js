@@ -63,6 +63,12 @@
         $('#unsupported').html(unsupported).show();
       }
 
+      var whiteboardUnsupported = WebRTC.Utils.whiteboardCompabilityCheck();
+      if(whiteboardUnsupported)
+      {
+        $('#whiteboard_unsupported').html(whiteboardUnsupported).show();
+      }
+
       // Allow some windows to be draggable, required jQuery.UI
       if (ClientConfig.enableWindowDrag)
       {

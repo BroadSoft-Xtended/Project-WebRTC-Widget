@@ -62,6 +62,24 @@ Utils= {
     return userid;
   },
 
+  whiteboardCompabilityCheck: function()
+  {
+    var isChrome = this.isChrome();
+
+    // Only Chrome 34+
+    if (!isChrome)
+    {
+      return "Chrome is required, please go to:<br>" +
+        "<a href='http://chrome.google.com'>http://chrome.google.com</a>";
+    }
+    var major = this.majorVersion();
+    if (isChrome && major < 34)
+    {
+      return "Your version of Chrome must be upgraded to at least version 34 in order to be able to use the whiteboard<br>" +
+        "Please go to: <a href='http://chrome.google.com'>http://chrome.google.com</a> or <a href='https://www.google.com/intl/en/chrome/browser/canary.html'>https://www.google.com/intl/en/chrome/browser/canary.html</a>";
+    }
+  },
+
   compatibilityCheck: function()
   {
     var isChrome = this.isChrome();
