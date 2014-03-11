@@ -296,6 +296,29 @@
       }
     },
 
+    enableScreenSharing: function(enabled) {
+      var self = this;
+      this.isScreenSharing = enabled;
+      this.updateClientClass();
+      if(enabled) {
+        var onShareScreenSuccess = function(localMedia){
+          localMedia.onended = function(){
+            self.enableScreenSharing(false);
+          };
+        };
+        var onShareScreenFailure = function(e){
+          // no way to distinguish between flag not enabled or simply rejected enabling screen sharing
+          if(e) {
+            self.screenSharingUnsupported.show();
+          }
+          self.enableScreenSharing(false);
+        };
+        self.sipStack.reconnectUserMedia(onShareScreenSuccess, onShareScreenFailure);
+      } else {
+        self.sipStack.reconnectUserMedia();
+      }
+    },
+
     registerListeners: function() {
       var self = this;
 
@@ -437,20 +460,13 @@
       {
         e.preventDefault();
         self.sound.playClick();
-        self.isScreenSharing = true;
-        self.updateClientClass();
-        self.sipStack.reconnectUserMedia(function(){
-          self.isScreenSharing = false;
-          self.updateClientClass();
-        });
+        self.enableScreenSharing(true);
       });
       this.stopShareScreen.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
-        self.isScreenSharing = false;
-        self.updateClientClass();
-        self.sipStack.reconnectUserMedia();
+        self.enableScreenSharing(false);
       });
 
       this.callButton.bind('click', function(e)

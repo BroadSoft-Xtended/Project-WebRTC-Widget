@@ -95,30 +95,20 @@
       }
     },
 
-    reconnectUserMedia: function(failureCallback){
+    reconnectUserMedia: function(successCallback, failureCallback){
       var self = this;
-//      if(this.activeSession) {
-//        this.activeSession.getUserMedia(this.configuration.getMediaConstraints(), function(){
-//          logger.log("reconnect user media successful", self.configuration);
-//        }, function(){
-//          logger.log("reconnect user media failed", self.configuration);
-//        });
-//      }
-      this.updateUserMedia(function(localMedia){
+      var onUserMediaUpdateSuccess = function(localMedia) {
         logger.log("reconnect user media successful", self.configuration);
         if(self.activeSession) {
           self.activeSession.changeSession({localMedia: localMedia}, function(){
             console.log("session changed successfully");
-          }, function(){
-            console.log("session changed failure");
-          });
+            if(successCallback) {
+              successCallback(localMedia);
+            }
+          }, failureCallback);
         }
-      }, function(){
-        self.client.screenSharingUnsupported.show();
-        if(failureCallback) {
-          failureCallback();
-        }
-      });
+      };
+      this.updateUserMedia(onUserMediaUpdateSuccess, failureCallback);
     },
 
     call: function(destination){
@@ -187,10 +177,10 @@
           if(userMediaCallback) {
             userMediaCallback(localStream);
           }
-        }, function(){
+        }, function(e){
           self.eventBus.message(ClientConfig.messageGetUserMedia || "Get User Media Failed", "alert");
           if(failureCallback) {
-            failureCallback();
+            failureCallback(e);
           }
         }, true);
       }
