@@ -966,7 +966,8 @@ body {
 
 .enable-mute.unmuted.started #muteAudio,
 .enable-mute.muted.started #unmuteAudio,
-.screen-sharing-off #shareScreen, .screen-sharing #stopShareScreen,
+.enable-screen-sharing.screen-sharing-off #shareScreen,
+.enable-screen-sharing.screen-sharing #stopShareScreen,
 .started #hangup, .calling #hangup,
 .enable-call-control.connected #call,
 .enable-transfer.started #transfer,
@@ -988,7 +989,7 @@ body {
 .enable-mute.connected #muteAudio, .enable-mute.disconnected #muteAudio,
 .enable-mute.connected #unmuteAudio, .enable-mute.disconnected #unmuteAudio,
 .enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
-.screen-sharing #shareScreen, .screen-sharing-off #stopShareScreen,
+.enable-screen-sharing.screen-sharing #shareScreen, .enable-screen-sharing.screen-sharing-off #stopShareScreen,
 .connected #hangup, .disconnected #hangup,
 #client:not(.connected) #call,
 .enable-transfer.connected #transfer, .enable-transfer.disconnected #transfer,

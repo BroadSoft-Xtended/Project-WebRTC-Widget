@@ -91,6 +91,7 @@ The following options exist
   enableConnectLocalMedia: enables connecting to users local media before the call
   enableTransfer: enables the transfer button
   enableHold: enables the hold/resume button
+  enableScreenSharing: enables the screen sharing button
 
   volumeClick: 0 or 1.  Sets the audio volume for the click tone.
   volumeDTMF: 0 or 1.  Sets the DTMF tone volume.

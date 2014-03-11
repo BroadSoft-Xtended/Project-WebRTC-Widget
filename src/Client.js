@@ -709,6 +709,10 @@
       {
         classes.push("enable-hold");
       }
+      if (ClientConfig.enableScreenSharing)
+      {
+        classes.push("enable-screen-sharing");
+      }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.isScreenSharing) { classes.push("screen-sharing"); } else { classes.push("screen-sharing-off"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }
