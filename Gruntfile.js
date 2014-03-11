@@ -115,7 +115,10 @@ module.exports = function(grunt) {
           "detect": true,
           "ClientConfig": true,
           "addStats": true,
-          "chrome": true
+          "chrome": true,
+          "require": true,
+          "locales": true,
+          "converse": true
         }
       },
       globals: {}
@@ -170,7 +173,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           pageTemplate: "test/includes/qunit-page.tpl",
-          includeFiles: ["js/3rdparty.js", "js/sketch.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          includeFiles: ["js/3rdparty.js", "js/require-2.1.11.js", "js/sketch.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js", "js/converse.js"],
           testFiles: ["test/test-*.js"],
           templateFiles: "index.html",
           qunitCss: "stylesheet.css",

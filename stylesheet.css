@@ -372,6 +372,11 @@ body {
   opacity: .4;
 }
 
+#videoBar #settings {
+    width: auto;
+    background-color: transparent;
+}
+
 /* Settings Button */
 .icon-settings:before {
   content: "\e00c";

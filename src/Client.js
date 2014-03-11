@@ -73,6 +73,8 @@
         $('#whiteboard_unsupported').html(whiteboardUnsupported).show();
       }
 
+      this.initConverse();
+
       // Allow some windows to be draggable, required jQuery.UI
       if (ClientConfig.enableWindowDrag)
       {
@@ -117,6 +119,20 @@
       }
       this.onLoad(this.configuration.userid, this.configuration.getPassword());
     },
+
+    initConverse: function(error) {
+      converse.initialize({
+        auto_list_rooms: false,
+        auto_subscribe: false,
+        bosh_service_url: 'https://bind.opkode.im', // Please use this connection manager only for testing purposes
+        hide_muc_server: false,
+        i18n: locales.en, // Refer to ./locale/locales.js to see which locales are supported
+        prebind: false,
+        show_controlbox_by_default: true,
+        xhr_user_search: false
+      });
+    },
+
 
     showErrorPopup: function(error) {
       window.alert(error);
