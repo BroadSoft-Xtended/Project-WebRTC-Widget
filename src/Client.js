@@ -73,7 +73,9 @@
         $('#whiteboard_unsupported').html(whiteboardUnsupported).show();
       }
 
-      this.initConverse();
+      if(ClientConfig.enableXMPP) {
+        this.initConverse();
+      }
 
       // Allow some windows to be draggable, required jQuery.UI
       if (ClientConfig.enableWindowDrag)

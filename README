@@ -92,6 +92,7 @@ The following options exist
   enableTransfer: enables the transfer button
   enableHold: enables the hold/resume button
   enableScreenSharing: enables the screen sharing button
+  enableXMPP: enables XMPP chat
 
   volumeClick: 0 or 1.  Sets the audio volume for the click tone.
   volumeDTMF: 0 or 1.  Sets the DTMF tone volume.
