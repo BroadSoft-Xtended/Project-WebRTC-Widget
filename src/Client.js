@@ -74,7 +74,11 @@
       }
 
       if(ClientConfig.enableXMPP) {
-        this.initConverse();
+        try{
+          this.initConverse();
+        } catch(e) {
+          logger.error("Could not init XMPP chat : "+e);
+        }
       }
 
       // Allow some windows to be draggable, required jQuery.UI
