@@ -106,6 +106,8 @@
               successCallback(localMedia);
             }
           }, failureCallback);
+        } else if (successCallback) {
+          successCallback();
         }
       };
       this.updateUserMedia(onUserMediaUpdateSuccess, failureCallback);
