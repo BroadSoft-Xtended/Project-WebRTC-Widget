@@ -104,8 +104,15 @@
 //          logger.log("reconnect user media failed", self.configuration);
 //        });
 //      }
-      this.updateUserMedia(function(){
+      this.updateUserMedia(function(localMedia){
         logger.log("reconnect user media successful", self.configuration);
+        if(self.activeSession) {
+          self.activeSession.changeSession({localMedia: localMedia}, function(){
+            console.log("session changed successfully");
+          }, function(){
+            console.log("session changed failure");
+          });
+        }
       }, function(){
         self.client.screenSharingUnsupported.show();
         if(failureCallback) {
@@ -178,7 +185,7 @@
         this.ua.getUserMedia(options, function(localStream){
           self.eventBus.userMediaUpdated(localStream);
           if(userMediaCallback) {
-            userMediaCallback();
+            userMediaCallback(localStream);
           }
         }, function(){
           self.eventBus.message(ClientConfig.messageGetUserMedia || "Get User Media Failed", "alert");
