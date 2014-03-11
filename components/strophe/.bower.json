@@ -1,0 +1,11 @@
+{
+  "name": "strophe",
+  "homepage": "https://github.com/strophe/strophejs",
+  "_release": "8e14efdf01",
+  "_resolution": {
+    "type": "commit",
+    "commit": "8e14efdf01856d184f6ba46b3b82c888beacdd98"
+  },
+  "_source": "git://github.com/strophe/strophejs.git",
+  "_target": "8e14efdf01856d184f6ba46b3b82c888beacdd98"
+}

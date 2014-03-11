@@ -1,0 +1,44 @@
+{
+  "name": "otr",
+  "version": "0.2.7",
+  "description": "Off-the-Record Messaging Protocol",
+  "homepage": "https://github.com/arlolra/otr",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:arlolra/otr.git"
+  },
+  "keywords": [
+    "otr",
+    "off-the-record",
+    "off the record",
+    "crypto",
+    "protocol",
+    "socialist millionaire",
+    "dsa"
+  ],
+  "optionalDependencies": {
+    "webworker-threads": "0.4.x"
+  },
+  "devDependencies": {
+    "mocha": "1.10.x",
+    "simple-xmpp": "0.1.x",
+    "grunt": "0.4.x",
+    "grunt-cli": "0.1.x",
+    "grunt-contrib-clean": "0.4.x",
+    "grunt-contrib-concat": "0.3.x",
+    "grunt-contrib-jshint": "0.6.x",
+    "grunt-contrib-uglify": "0.2.x"
+  },
+  "author": "Arlo Breault <arlolra@gmail.com>",
+  "contributors": [
+    "William Budington <bill.budington@gmail.com>",
+    "Nadim Kobeissi <nadim@nadim.cc>",
+    "Klaus Herberth <github@spam.herberth.eu>",
+    "JC Brand <jc@opkode.com>"
+  ],
+  "license": "MPL v2.0"
+}
