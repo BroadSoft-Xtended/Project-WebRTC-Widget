@@ -101,7 +101,7 @@
       {
         this.configuration.userid = WebRTC.Utils.randomUserid();
       }
-      this.onLoad(this.configuration.userid, this.configuration.getPassword());
+      this.onLoad();
     },
 
     showErrorPopup: function(error) {
@@ -234,11 +234,11 @@
     },
 
     // Initial startup
-    onLoad: function(userid, password) {
+    onLoad: function() {
       var self = this;
       logger.log("onLoad", this.configuration);
 
-      this.sipStack.init(userid, password);
+      this.sipStack.init();
 
       if(!ClientConfig.enableConnectLocalMedia) {
         if (self.configuration.destination !== false) {

@@ -184,9 +184,12 @@
       }
     },
 
-    init: function(userid, password){
+    init: function(){
       var self = this;
       // SIP stack
+      var password = this.configuration.getPassword();
+      var userid = this.configuration.userid;
+
       this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));
 
       this.updateRtcMediaHandlerOptions();
