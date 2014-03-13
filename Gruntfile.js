@@ -20,6 +20,7 @@ module.exports = function(grunt) {
     'src/Icon.js',
     'src/Authentication.js',
     'src/XMPP.js',
+    'src/SMS.js',
     'src/Client.js'
   ];
 
@@ -119,7 +120,8 @@ module.exports = function(grunt) {
           "chrome": true,
           "require": true,
           "locales": true,
-          "converse": true
+          "converse": true,
+          "flensed": true
         }
       },
       globals: {}

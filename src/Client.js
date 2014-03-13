@@ -38,6 +38,7 @@
     this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
     this.sound = new WebRTC.Sound(this.sipStack);
     this.xmpp = new WebRTC.XMPP(this, this.eventBus);
+    this.sms = new WebRTC.SMS(this, this.eventBus);
     this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
     this.stats = new WebRTC.Stats(this.sipStack);
