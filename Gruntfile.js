@@ -19,6 +19,7 @@ module.exports = function(grunt) {
     'src/SIPStack.js',
     'src/Icon.js',
     'src/Authentication.js',
+    'src/XMPP.js',
     'src/Client.js'
   ];
 

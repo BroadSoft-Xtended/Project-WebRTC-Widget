@@ -37,6 +37,7 @@
     this.eventBus = new WebRTC.EventBus(this.configuration);
     this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
     this.sound = new WebRTC.Sound(this.sipStack);
+    this.xmpp = new WebRTC.XMPP(this, this.eventBus);
     this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
     this.stats = new WebRTC.Stats(this.sipStack);
@@ -71,14 +72,6 @@
       if(whiteboardUnsupported)
       {
         $('#whiteboard_unsupported').html(whiteboardUnsupported).show();
-      }
-
-      if(ClientConfig.enableXMPP) {
-        try{
-          this.initConverse();
-        } catch(e) {
-          logger.error("Could not init XMPP chat : "+e);
-        }
       }
 
       // Allow some windows to be draggable, required jQuery.UI
@@ -125,20 +118,6 @@
       }
       this.onLoad(this.configuration.userid, this.configuration.getPassword());
     },
-
-    initConverse: function(error) {
-      converse.initialize({
-        auto_list_rooms: false,
-        auto_subscribe: false,
-        bosh_service_url: 'https://bind.opkode.im', // Please use this connection manager only for testing purposes
-        hide_muc_server: false,
-        i18n: locales.en, // Refer to ./locale/locales.js to see which locales are supported
-        prebind: false,
-        show_controlbox_by_default: true,
-        xhr_user_search: false
-      });
-    },
-
 
     showErrorPopup: function(error) {
       window.alert(error);
