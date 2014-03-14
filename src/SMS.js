@@ -15,11 +15,12 @@
 
   SMS.prototype = {
     sendWithFlxhr: function(options) {
+      var self = this;
       var url     = options['url'];
       var type    = options['type'] || 'GET';
       var success = options['success'];
       var error   = options['error'];
-      var data    = options['data'];
+      var jsonData    = options['jsonData'];
 
       //
       // handles callbacks, just as above
@@ -27,8 +28,13 @@
       function handle_load(XHRobj) {
         if (XHRobj.readyState === 4) {
           if (XHRobj.status === 200 && success) {
-            logger.error("Success sending with flxhr : "+ExSIP.Utils.toString(XHRobj));
-            success(XHRobj.responseText, XHRobj);
+            logger.log("Success sending with flxhr : "+ExSIP.Utils.toString(XHRobj), self.client.configuration);
+            var result = JSON.parse(XHRobj.responseText);
+            if(result.status.code === '0000001') {
+              success(result);
+            } else {
+              error(XHRobj);
+            }
           }
           else {
             logger.error("Error sending with flxhr : "+ExSIP.Utils.toString(XHRobj));
@@ -45,7 +51,7 @@
       });
 
       flproxy.open(type, url, true);
-      flproxy.send(data);
+      flproxy.send(JSON.stringify(jsonData));
     },
     send: function(type, restSuffix, jsonData, successCallback, failureCallback){
       var self = this;
@@ -79,6 +85,30 @@
           self.sendWithFlxhr({url: url, type: 'POST', data: jsonData, success: successCallback, error: failureCallback});
         });
 
+    },
+    sendSMS: function(desttnarray, body){
+      var self = this;
+      var onSuccess = function( msg ) {
+        logger.log( "send msg "+body+" to " + desttnarray, self.client.configuration);
+      };
+      var data = {desttnarray: desttnarray, body: body};
+      this.send("GET", "ua/msg/sms/send", data, onSuccess);
+    },
+    remove: function(mids){
+      var self = this;
+      var onSuccess = function( msg ) {
+        logger.log( "Deleted msgs : " + mids, self.client.configuration);
+      };
+      var data = {mids: mids};
+      this.send("GET", "ua/msg/sms/delete", data, onSuccess);
+    },
+    readAll: function(){
+      var self = this;
+      var onSuccess = function( msg ) {
+        logger.log( "Read all mgs : " + ExSIP.toString(msg.messages), self.client.configuration);
+      };
+      var data = {};
+      this.send("GET", "ua/msg/sms/all", data, onSuccess);
     },
     login: function(name, password){
       var self = this;
