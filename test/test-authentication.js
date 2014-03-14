@@ -6,6 +6,7 @@ module( "Authentication", {
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableRegistrationIcon = true;
     ClientConfig.enableSMS = false;
+    ClientConfig.enableXMPP = false;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
     ClientConfig.register = false;

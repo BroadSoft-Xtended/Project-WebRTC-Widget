@@ -108,6 +108,11 @@ Utils= {
     }
   },
 
+  isValidUsPstn: function(pstn){
+    pstn = pstn.replace(/-/g, '').replace(/\(/g, '').replace(/\)/g, '');
+    return pstn.match(/^1?\d{10}$/) !== null;
+  },
+
   majorVersion: function(){
     return detect.parse(navigator.userAgent).browser.major;
   },

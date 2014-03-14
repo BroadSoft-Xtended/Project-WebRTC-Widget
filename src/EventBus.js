@@ -26,7 +26,10 @@
       'ended',
       'calling',
       'dataSent',
-      'dataReceived'
+      'dataReceived',
+      'smsLoggedIn',
+      'smsReadAll',
+      'smsSent'
     ];
 
     this.initEvents(events);
@@ -84,6 +87,15 @@
   };
   EventBus.prototype.calling = function(sender, data) {
     this.emit("calling", sender, data);
+  };
+  EventBus.prototype.smsLoggedIn = function(sender, data) {
+    this.emit("smsLoggedIn", sender, data);
+  };
+  EventBus.prototype.smsReadAll = function(sender, data) {
+    this.emit("smsReadAll", sender, data);
+  };
+  EventBus.prototype.smsSent = function(sender, data) {
+    this.emit("smsSent", sender, data);
   };
   EventBus.prototype.isDebug = function() {
     return this.configuration.isDebug();

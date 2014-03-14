@@ -38,7 +38,7 @@
     this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
     this.sound = new WebRTC.Sound(this.sipStack);
     this.xmpp = new WebRTC.XMPP(this, this.eventBus);
-    this.sms = new WebRTC.SMS(this, this.eventBus);
+    this.sms = new WebRTC.SMS(this, this.eventBus, this.sound);
     this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
     this.stats = new WebRTC.Stats(this.sipStack);
@@ -610,6 +610,10 @@
         else if (e.charCode === 83)
         {
           self.stats.toggle();
+        }
+        else if (e.charCode === 84)
+        {
+          self.sms.toggle();
         }
         // toggle whiteboard
         else if (e.charCode === 87)
