@@ -15,10 +15,8 @@
 
   SMSProvider.prototype = {
     send: function(type, restSuffix, jsonData, successCallback, failureCallback){
-//      $.flXHRproxy.registerOptions("http://"+ClientConfig.smsHost+"/", {xmlResponseText:false});
-
-      // set flXHR as the default XHR object used in jQuery AJAX requests
-//      $.ajaxSetup({transport:'flXHRproxy'});
+      $.flXHRproxy.registerOptions("http://"+ClientConfig.smsHost+"/", {xmlResponseText:false});
+      $.ajaxSetup({transport:'flXHRproxy'});
 
       var self = this;
       var url = "http://"+ClientConfig.smsHost+"/"+ClientConfig.smsUser+"/"+restSuffix;
@@ -28,6 +26,7 @@
       logger.log("Request to "+url+" : "+ExSIP.Utils.toString(jsonData), this.client.configuration);
       $.ajax({
         crossDomain: true,
+        contentType: "application/json; charset=utf-8",
         dataType: "json",
         type: type,
         url: url,
@@ -40,7 +39,7 @@
               successCallback(msg);
             }
           } else {
-            logger.log("Response failed : "+msg.status.message, self.client.configuration);
+            logger.error("Response failed : "+ExSIP.Utils.toString(msg), self.client.configuration);
             if(failureCallback) {
               failureCallback(msg.status.message);
             }
@@ -55,6 +54,14 @@
 
     },
 
+    getUpdate: function(onFailure){
+      var self = this;
+      var onSuccess = function( msg ) {
+        logger.log( "received notification : "+ExSIP.Utils.toString(msg), self.client.configuration);
+      };
+      var data = {fid: this.name, platform: "fmc"};
+      this.send("GET", "getUpdate", data, onSuccess, onFailure);
+    },
     sendSMS: function(desttnarray, body, onFailure){
       var self = this;
       var onSuccess = function( msg ) {
@@ -62,7 +69,7 @@
         self.eventBus.smsSent(self, {desttnarray: desttnarray, body: body});
       };
       var data = {desttnarray: desttnarray, body: body};
-      this.send("GET", "ua/msg/sms/send", data, onSuccess, onFailure);
+      this.send("POST", "ua/msg/sms/send", data, onSuccess, onFailure);
     },
     remove: function(mids, onFailure){
       var self = this;

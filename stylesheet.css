@@ -1061,7 +1061,11 @@ body {
     width: 250px;
 }
 #smsSendForm {
+    width: 600px;
     display:none;
+}
+#smsSendBody {
+    width:339px
 }
 #smsInbox {
     width: 600px;

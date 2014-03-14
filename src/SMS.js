@@ -107,7 +107,7 @@
 
       this.loginLink.bind('click', function (e) {
         e.preventDefault();
-        self.login();
+        self.login(self.nameInput.val(), self.passwordInput.val());
       });
       this.sendButton.bind('click', function (e) {
         e.preventDefault();
@@ -115,11 +115,11 @@
       });
     },
 
-    login: function () {
+    login: function (name, password) {
       var self = this;
       this.sound.playClick();
       this.info("Logging in...");
-      this.smsProvider.login(this.nameInput.val(), this.passwordInput.val(), function(msg){
+      this.smsProvider.login(name, password, function(msg){
         self.error("Logging failed : "+msg);
       });
     },
