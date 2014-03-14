@@ -3,8 +3,8 @@
  */
 
 (function (WebRTC) {
-  var SMS;
-//    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'SMS');
+  var SMS,
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'SMS');
 
   SMS = function (client, eventBus, sound) {
     this.client = client;
@@ -32,7 +32,8 @@
     this.registerListeners();
   };
 
-  SMS.InboxItem = function (message) {
+  SMS.InboxItem = function (sms, message) {
+    this.sms = sms;
     this.message = message;
     this.cloned = $("#sms-inbox-item-sample").clone(false);
     this.cloned.attr('id', message.mid);
@@ -40,7 +41,10 @@
     this.status = this.cloned.find('.status');
     this.time = this.cloned.find('.time');
     this.body = this.cloned.find('.body');
+    this.remove = this.cloned.find('.icon-trash');
     this.dateFormat = new WebRTC.DateFormat('%m/%d/%y %H:%M:%S');
+
+    this.registerListeners();
 
     this.updateContent(message);
 
@@ -48,6 +52,15 @@
   };
 
   SMS.InboxItem.prototype = {
+    registerListeners: function(){
+      var self = this;
+      this.remove.bind('click', function(){
+        self.sms.remove(self.message, self);
+      });
+    },
+    enableActions: function(enable){
+      this.remove.attr('disabled', !enable);
+    },
     updateContent: function(message){
       this.from.text(message.tn);
       this.status.text(SMS.getStatusAsString(message.status));
@@ -115,6 +128,24 @@
       });
     },
 
+    remove: function (message, inboxItem) {
+      var self = this;
+      this.sound.playClick();
+      if(!window.confirm("Do you really want to delete SMS from "+message.tn+"?")) {
+        return;
+      }
+      this.info("Deleting SMS...");
+      if(inboxItem) {
+        inboxItem.enableActions(false);
+      }
+      this.smsProvider.remove([message.mid], function(){
+        inboxItem.enableActions(true);
+      }, function(msg){
+        self.error("Deleting SMS failed : "+msg);
+        inboxItem.enableActions(true);
+      });
+    },
+
     login: function (name, password) {
       var self = this;
       this.sound.playClick();
@@ -122,6 +153,42 @@
       this.smsProvider.login(name, password, function(msg){
         self.error("Logging failed : "+msg);
       });
+    },
+
+    onNotification: function (notifications) {
+      var needsRead = false, self = this;
+      for(var i=0; i < notifications.length; i++) {
+        if(notifications[i].action === 'new-rec' || notifications[i].action === 'update' || notifications[i].action === 'delete') {
+          needsRead = true;
+          break;
+        }
+      }
+      if(needsRead) {
+        this.smsProvider.readAll(function(msg){
+          self.error("Fetching SMS failed : "+msg);
+        });
+      }
+    },
+
+    enableUpdate: function (enable) {
+      this.enableUpdate = enable;
+      this.triggerUpdate();
+    },
+
+    triggerUpdate: function () {
+      var self = this;
+      if(this.enableUpdate && !this.pendingUpdate) {
+        logger.log('triggering getUpdate', this.client.configuration);
+        this.pendingUpdate = true;
+        this.smsProvider.getUpdate(function(notifications){
+          self.pendingUpdate = false;
+          self.onNotification(notifications);
+          self.triggerUpdate();
+        }, function(){
+          self.pendingUpdate = false;
+          self.triggerUpdate();
+        });
+      }
     },
 
     sendSMS: function () {
@@ -164,6 +231,7 @@
       this.loginForm.hide();
       this.inbox.show();
       this.sendForm.show();
+      this.enableUpdate(true);
       this.smsProvider.readAll(function(msg){
         self.error("Fetching SMS failed : "+msg);
       });
@@ -174,7 +242,7 @@
       this.inboxContent.html('');
       this.inboxItems = [];
       for(var i = 0; i < messages.length; i++) {
-        var inboxItem = new SMS.InboxItem(messages[i]);
+        var inboxItem = new SMS.InboxItem(this, messages[i]);
         inboxItem.appendTo(this.inboxContent);
         this.inboxItems.push(inboxItem);
       }

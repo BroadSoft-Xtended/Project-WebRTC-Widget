@@ -1072,7 +1072,7 @@ body {
     display:none;
 }
 #smsInbox .inner{
-    max-height: 500px;
+    max-height: 250px;
     overflow: auto;
 }
 #smsInbox .cell{
@@ -1089,6 +1089,12 @@ body {
 }
 #smsInbox .body{
     word-wrap: break-word;
+}
+#smsInbox .actions{
+    width:15px;
+}
+#smsInbox .icon-trash{
+    font-size:15px
 }
 #smsStatus {
     display:none;

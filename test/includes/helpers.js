@@ -113,6 +113,7 @@ TestWebrtc.Helpers = {
     WebRTC.SMSProvider.prototype.sendSMS = function(){console.log('sendSMS');}
     WebRTC.SMSProvider.prototype.login = function(){console.log('login');}
     WebRTC.SMSProvider.prototype.readAll = function(){console.log('readAll');}
+    WebRTC.SMSProvider.prototype.getUpdate = function(){console.log('getUpdate');}
   },
 
   mockLocation: function(){

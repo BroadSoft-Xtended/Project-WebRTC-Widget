@@ -26,14 +26,14 @@
       logger.log("Request to "+url+" : "+ExSIP.Utils.toString(jsonData), this.client.configuration);
       $.ajax({
         crossDomain: true,
-        contentType: "application/json; charset=utf-8",
+        contentType: type === "GET" ? "text/plain" : "application/json; charset=utf-8",
         dataType: "json",
         type: type,
         url: url,
-        data: JSON.stringify(jsonData)
+        data: type === "GET" ? jsonData : JSON.stringify(jsonData)
       })
         .done(function(msg){
-          if(msg.status.code === "0000001") {
+          if(msg.status.code === "0000001" || msg.status === "success") {
             logger.log("Response successful : "+ExSIP.Utils.toString(msg), self.client.configuration);
             if(successCallback) {
               successCallback(msg);
@@ -54,10 +54,11 @@
 
     },
 
-    getUpdate: function(onFailure){
+    getUpdate: function(onNotification, onFailure){
       var self = this;
       var onSuccess = function( msg ) {
         logger.log( "received notification : "+ExSIP.Utils.toString(msg), self.client.configuration);
+        onNotification(msg.notifications);
       };
       var data = {fid: this.name, platform: "fmc"};
       this.send("GET", "getUpdate", data, onSuccess, onFailure);
@@ -71,13 +72,15 @@
       var data = {desttnarray: desttnarray, body: body};
       this.send("POST", "ua/msg/sms/send", data, onSuccess, onFailure);
     },
-    remove: function(mids, onFailure){
+    remove: function(mids, onSuccess, onFailure){
       var self = this;
-      var onSuccess = function( msg ) {
-        logger.log( "Deleted msgs : " + mids, self.client.configuration);
-      };
       var data = {mids: mids};
-      this.send("GET", "ua/msg/sms/delete", data, onSuccess, onFailure);
+      this.send("POST", "ua/msg/sms/delete", data, function(){
+        logger.log( "Deleted msgs : " + mids, self.client.configuration);
+        if(onSuccess) {
+          self.onSuccess();
+        }
+      }, onFailure);
     },
     readAll: function(onFailure){
       var self = this;
