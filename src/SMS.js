@@ -33,12 +33,17 @@
             if(result.status.code === '0000001') {
               success(result);
             } else {
-              error(XHRobj);
+              logger.error("Response failed with flxhr : "+result.status.code+" - "+result.status.message);
+              if(error) {
+                error(XHRobj);
+              }
             }
           }
           else {
             logger.error("Error sending with flxhr : "+ExSIP.Utils.toString(XHRobj));
-            error(XHRobj);
+            if(error) {
+              error(XHRobj);
+            }
           }
         }
       }
@@ -54,6 +59,11 @@
       flproxy.send(JSON.stringify(jsonData));
     },
     send: function(type, restSuffix, jsonData, successCallback, failureCallback){
+      $.flXHRproxy.registerOptions("http://"+ClientConfig.smsHost+"/", {xmlResponseText:false});
+
+      // set flXHR as the default XHR object used in jQuery AJAX requests
+      $.ajaxSetup({transport:'flXHRproxy'});
+
       var self = this;
       var url = "http://"+ClientConfig.smsHost+"/"+ClientConfig.smsUser+"/"+restSuffix;
       if(this.jsessionid) {
@@ -122,7 +132,7 @@
     init: function(){
       if(ClientConfig.enableSMS) {
         try{
-          this.login();
+          this.login('4086484778', '4778');
           this.registerListeners();
         } catch(e) {
           logger.error("Could not init SMS : "+e);
