@@ -23,6 +23,13 @@ test('networkUserId set', function() {
   strictEqual(client.sipStack.ua.configuration.authorization_user, '8323303809');
   ClientConfig.networkUserId = undefined;
 });
+test('WEBRTC-41 : networkUserId and userId set', function() {
+  ClientConfig.networkUserId = '8323303809';
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "userid" ? "8323303810" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.sipStack.ua.configuration.authorization_user, '8323303810', "Userid takes precendence over networkUserId");
+  ClientConfig.networkUserId = undefined;
+});
 test('enableIms = true', function() {
   ClientConfig.enableIms = true;
   client = new WebRTC.Client();

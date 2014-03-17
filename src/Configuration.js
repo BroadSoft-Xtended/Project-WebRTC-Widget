@@ -31,7 +31,7 @@
   Configuration = function() {
     logger.log('window.location.search : '+window.location.search, this);
     // Default URL variables
-    this.userid = ClientConfig.networkUserId || WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
+    this.userid = WebRTC.Utils.getSearchVariable("userid") || ClientConfig.networkUserId || $.cookie('settingUserid');
     this.destination = WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
