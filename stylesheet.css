@@ -1090,6 +1090,20 @@ body {
 #smsInbox .body{
     word-wrap: break-word;
 }
+#smsInbox .body > div{
+    display:none;
+}
+#smsInbox .sms-inbox-item.image .body .image span{
+    margin-right: 5px;
+}
+#smsInbox .sms-inbox-item.text .body .text, #smsInbox .sms-inbox-item.image .body .image,
+#smsInbox .sms-inbox-item.video .body .video, #smsInbox .sms-inbox-item.audio .body .audio{
+    display:block;
+}
+#smsInbox .sms-inbox-item.audio .body .audio audio,
+#smsInbox .sms-inbox-item.video .body .video video{
+    width:100%;
+}
 #smsInbox .actions{
     width:15px;
 }

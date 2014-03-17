@@ -14,20 +14,20 @@
   };
 
   SMSProvider.prototype = {
-    send: function(type, restSuffix, jsonData, successCallback, failureCallback){
-      $.flXHRproxy.registerOptions("http://"+ClientConfig.smsHost+"/", {xmlResponseText:false});
-      $.ajaxSetup({transport:'flXHRproxy'});
+    send: function(type, restSuffix, jsonData, successCallback, failureCallback, isJsonp){
+//      $.flXHRproxy.registerOptions("http://"+ClientConfig.smsHost+"/", {xmlResponseText:false});
+//      $.ajaxSetup({transport:'flXHRproxy'});
 
       var self = this;
       var url = "http://"+ClientConfig.smsHost+"/"+ClientConfig.smsUser+"/"+restSuffix;
-      if(this.jsessionid) {
-        url += ";jsessionid="+this.jsessionid;
+      if(this.sessionid) {
+        url += ";jsessionid="+this.sessionid;
       }
       logger.log("Request to "+url+" : "+ExSIP.Utils.toString(jsonData), this.client.configuration);
       $.ajax({
         crossDomain: true,
-        contentType: type === "GET" ? "text/plain" : "application/json; charset=utf-8",
-        dataType: "json",
+        contentType: type === "GET" ? "text/plain" : "text/plain",
+        dataType: isJsonp ? "jsonp" : "json",
         type: type,
         url: url,
         data: type === "GET" ? jsonData : JSON.stringify(jsonData)
@@ -51,7 +51,6 @@
             failureCallback(textStatus);
           }
         });
-
     },
 
     getUpdate: function(onNotification, onFailure){
@@ -61,7 +60,7 @@
         onNotification(msg.notifications);
       };
       var data = {fid: this.name, platform: "fmc"};
-      this.send("GET", "getUpdate", data, onSuccess, onFailure);
+      this.send("GET", "getUpdate", data, onSuccess, onFailure, false);
     },
     sendSMS: function(desttnarray, body, onFailure){
       var self = this;
@@ -88,7 +87,7 @@
         logger.log( "Read all mgs : " + ExSIP.Utils.toString(msg.messages), self.client.configuration);
         self.eventBus.smsReadAll(self, {messages: msg.messages});
       };
-      var data = {};
+      var data = null;
       this.send("GET", "ua/msg/sms/all", data, onSuccess, onFailure);
     },
     login: function(name, password, onFailure){

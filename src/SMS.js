@@ -40,7 +40,12 @@
     this.from = this.cloned.find('.from');
     this.status = this.cloned.find('.status');
     this.time = this.cloned.find('.time');
-    this.body = this.cloned.find('.body');
+    this.bodyText = this.cloned.find('.body .text');
+    this.bodyImageLink = this.cloned.find('.body .image a');
+    this.bodyImageText = this.cloned.find('.body .image span');
+    this.bodyImageThumbnail = this.cloned.find('.body .image img');
+    this.bodyVideo = this.cloned.find('.body .video video');
+    this.bodyAudio = this.cloned.find('.body .audio audio');
     this.remove = this.cloned.find('.icon-trash');
     this.dateFormat = new WebRTC.DateFormat('%m/%d/%y %H:%M:%S');
 
@@ -62,10 +67,46 @@
       this.remove.attr('disabled', !enable);
     },
     updateContent: function(message){
+      var messageType = this.getMessageType(message);
+      this.cloned.addClass(messageType);
+
       this.from.text(message.tn);
       this.status.text(SMS.getStatusAsString(message.status));
       this.time.text(this.dateFormat.format(new Date(message.time)));
-      this.body.text(message.body.trim());
+
+      var body = message.body.trim();
+      if(messageType === 'image') {
+        this.bodyImageLink.attr('href', message.mmscontentlocation);
+        this.bodyImageText.text(body);
+        if(message.mmscontentthumbnail) {
+          this.bodyImageThumbnail.attr('src', 'data:'+message.mmscontentsubtype+';base64,'+message.mmscontentthumbnail);
+        }
+      }
+      else if(messageType === 'video') {
+        this.bodyVideo.attr('src', message.mmscontentlocation);
+        this.bodyVideo.text(body);
+      }
+      else if(messageType === 'audio') {
+        this.bodyAudio.attr('src', message.mmscontentlocation);
+        this.bodyAudio.text(body);
+      }
+      else {
+        this.bodyText.text(body);
+      }
+    },
+    getMessageType: function(message){
+      if(message.mmscontentsubtype && message.mmscontentsubtype.indexOf('image/') !== -1) {
+        return 'image';
+      }
+      else if(message.mmscontentsubtype && message.mmscontentsubtype.indexOf('video/') !== -1) {
+        return 'video';
+      }
+      else if(message.mmscontentsubtype && message.mmscontentsubtype.indexOf('audio/') !== -1) {
+        return 'audio';
+      }
+      else {
+        return 'text';
+      }
     },
     appendTo: function(element) {
       this.cloned.appendTo(element);
@@ -139,6 +180,7 @@
         inboxItem.enableActions(false);
       }
       this.smsProvider.remove([message.mid], function(){
+        self.status.hide();
         inboxItem.enableActions(true);
       }, function(msg){
         self.error("Deleting SMS failed : "+msg);
@@ -231,7 +273,7 @@
       this.loginForm.hide();
       this.inbox.show();
       this.sendForm.show();
-      this.enableUpdate(true);
+//      this.enableUpdate(true);
       this.smsProvider.readAll(function(msg){
         self.error("Fetching SMS failed : "+msg);
       });
