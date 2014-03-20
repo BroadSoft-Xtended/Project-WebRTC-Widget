@@ -227,7 +227,7 @@
       {
         this.timer.stop();
       }
-      if (ClientConfig.endCallURL !== false)
+      if (ClientConfig.endCallURL)
       {
         window.location = ClientConfig.endCallURL;
       }
