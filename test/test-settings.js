@@ -46,6 +46,15 @@ test('persist with userid set', function() {
   strictEqual($.cookie("settingUserid"), "someuserid");
   strictEqual($.cookie("settingPassword"), "");
 });
+test('resolution types with ClientConfig set', function() {
+  ClientConfig.displayResolution = WebRTC.C.R_960x720;
+  ClientConfig.encodingResolution = WebRTC.C.R_320x240;
+  client = new WebRTC.Client();
+  strictEqual(client.settings.getResolutionDisplay(), WebRTC.C.R_960x720);
+  strictEqual(client.settings.getResolutionEncoding(), WebRTC.C.R_320x240);
+  ClientConfig.displayResolution = null;
+  ClientConfig.encodingResolution = null;
+});
 test('persist with resolution set', function() {
   client = new WebRTC.Client();
   client.settings.resolutionType.val(WebRTC.C.STANDARD);

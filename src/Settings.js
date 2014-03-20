@@ -153,8 +153,8 @@
       this.settingBandwidthHigh.val($.cookie('settingBandwidthHigh') || ClientConfig.bandwidthHigh);
       $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
       $("#settingColor").val($.cookie('settingColor') || this.configuration.color || $('body').css('backgroundColor'));
-      this.setResolutionDisplay($.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
-      this.setResolutionEncoding($.cookie('settingResolutionEncoding') || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
+      this.setResolutionDisplay($.cookie('settingResolutionDisplay') || ClientConfig.displayResolution || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+      this.setResolutionEncoding($.cookie('settingResolutionEncoding') || ClientConfig.encodingResolution || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
       $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || ClientConfig.enableAutoAnswer );
       this.updateViewPositions();
     },

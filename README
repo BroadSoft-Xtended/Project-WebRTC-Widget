@@ -109,6 +109,8 @@ The following options exist
   expires: expiry time in days for cookies
   register: register when password is empty
   debug: enable logs in console
+  displayResolution: resolution of the display eg. 960x720
+  encodingResolution: resolution of the video encoding eg. 960x720
 
   messageProgress: message to show on SIP progress,
   messageOutsideDomain: message to show if address is outside domain,
