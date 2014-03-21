@@ -142,6 +142,9 @@
         self.onLoggedIn();
       });
       this.eventBus.on('smsSent', function(e){
+        self.status.hide();
+        self.sendBody.val('');
+        self.sendTo.val('');
         self.sendButton.attr('disabled', false);
       });
       this.eventBus.on('smsReadAll', function(e){

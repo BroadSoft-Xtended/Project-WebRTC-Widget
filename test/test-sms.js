@@ -65,6 +65,7 @@ test('send message', function() {
   client.sms.smsProvider.sendSMS = function(toArray, body) {
     sendToArray = toArray;
     sendBody = body;
+    client.eventBus.smsSent(client.sms);
   };
   client.eventBus.smsLoggedIn(client.sms);
   client.sms.sendButton.trigger('click');
@@ -75,4 +76,7 @@ test('send message', function() {
   client.sms.sendButton.trigger('click');
   deepEqual(sendToArray, ['1234567890']);
   strictEqual(sendBody, 'some text');
+  strictEqual(client.sms.status.is(':visible'), false);
+  strictEqual(client.sms.sendBody.val(), '');
+  strictEqual(client.sms.sendTo.val(), '');
 });
