@@ -46,7 +46,7 @@
     this.bodyImageThumbnail = this.cloned.find('.body .image img');
     this.bodyVideo = this.cloned.find('.body .video video');
     this.bodyAudio = this.cloned.find('.body .audio audio');
-    this.remove = this.cloned.find('.icon-trash');
+    this.removeLink = this.cloned.find('.icon-trash');
     this.dateFormat = new WebRTC.DateFormat('%m/%d/%y %H:%M:%S');
 
     this.registerListeners();
@@ -59,12 +59,12 @@
   SMS.InboxItem.prototype = {
     registerListeners: function(){
       var self = this;
-      this.remove.bind('click', function(){
+      this.removeLink.bind('click', function(){
         self.sms.remove(self.message, self);
       });
     },
     enableActions: function(enable){
-      this.remove.attr('disabled', !enable);
+      this.removeLink.attr('disabled', !enable);
     },
     updateContent: function(message){
       var messageType = this.getMessageType(message);
@@ -107,6 +107,9 @@
       else {
         return 'text';
       }
+    },
+    remove: function() {
+      this.cloned.remove();
     },
     appendTo: function(element) {
       this.cloned.appendTo(element);
@@ -166,9 +169,21 @@
         e.preventDefault();
         self.login(self.nameInput.val(), self.passwordInput.val());
       });
+      this.passwordInput.bind('keypress', function (e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          self.login(self.nameInput.val(), self.passwordInput.val());
+        }
+      });
       this.sendButton.bind('click', function (e) {
         e.preventDefault();
         self.sendSMS();
+      });
+      this.sendBody.bind('keypress', function (e) {
+        if (e.keyCode === 13) {
+          e.preventDefault();
+          self.sendSMS();
+        }
       });
     },
 
@@ -184,7 +199,7 @@
       }
       this.smsProvider.remove([message.mid], function(){
         self.status.hide();
-        inboxItem.enableActions(true);
+        inboxItem.remove();
       }, function(msg){
         self.error("Deleting SMS failed : "+msg);
         inboxItem.enableActions(true);

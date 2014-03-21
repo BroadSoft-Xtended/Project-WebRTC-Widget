@@ -74,7 +74,9 @@ test('delete message', function() {
     {"mid":274910,"type":"sms","time":1394749434005,"stime":1394749434005,"status":"N","body":"BS: Test sending msg to cpa-dev-prod 2","tn":"12403649086","rawtn":"12403649086","name":"","dir":"I"},
     {"mid":274905,"type":"sms","time":1394749314000,"stime":1394749314000,"status":"R","body":"BS: Test sending msg to cca-prod ","tn":"12403649086","rawtn":"12403649086","name":"","dir":"O"}
   ]});
-  client.sms.inboxItems[0].remove.trigger('click');
+  strictEqual($('#274910').length, 1);
+  client.sms.inboxItems[0].removeLink.trigger('click');
+  strictEqual($('#274910').length, 0);
   strictEqual(removeCalled, true);
   strictEqual(client.sms.status.is(':visible'), false);
 });
