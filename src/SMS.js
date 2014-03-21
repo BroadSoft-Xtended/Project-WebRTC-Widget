@@ -246,7 +246,7 @@
           self.triggerUpdate();
         }, function(){
           self.pendingUpdate = false;
-          self.triggerUpdate();
+          self.error("Technical problems connecting to server - auto refresh disabled");
         });
       }
     },
