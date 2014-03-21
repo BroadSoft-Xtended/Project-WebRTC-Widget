@@ -77,7 +77,7 @@
       this.send("POST", "ua/msg/sms/delete", data, function(){
         logger.log( "Deleted msgs : " + mids, self.client.configuration);
         if(onSuccess) {
-          self.onSuccess();
+          onSuccess();
         }
       }, onFailure);
     },

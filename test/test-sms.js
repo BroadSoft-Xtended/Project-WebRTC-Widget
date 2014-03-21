@@ -59,6 +59,26 @@ test('received messages', function() {
   strictEqual(client.sms.inboxItems[1].bodyText.text(), "BS: Test sending msg to cpa-dev-prod");
 });
 
+test('delete message', function() {
+  client = new WebRTC.Client();
+  var removeCalled = false;
+  window.confirm = function(){ return true;}
+  client.sms.smsProvider.remove = function(mids, onSuccess, onFailure) {
+    removeCalled = true;
+    onSuccess();
+  };
+
+  client.eventBus.smsLoggedIn(client.sms);
+  client.eventBus.smsReadAll(client.sms, {messages: [
+    {"mid":274907,"type":"sms","time":1394749434000,"stime":1394749434000,"status":"N","body":"BS: Test sending msg to cpa-dev-prod ","tn":"12403649086","rawtn":"12403649086","name":"","dir":"I"},
+    {"mid":274910,"type":"sms","time":1394749434005,"stime":1394749434005,"status":"N","body":"BS: Test sending msg to cpa-dev-prod 2","tn":"12403649086","rawtn":"12403649086","name":"","dir":"I"},
+    {"mid":274905,"type":"sms","time":1394749314000,"stime":1394749314000,"status":"R","body":"BS: Test sending msg to cca-prod ","tn":"12403649086","rawtn":"12403649086","name":"","dir":"O"}
+  ]});
+  client.sms.inboxItems[0].remove.trigger('click');
+  strictEqual(removeCalled, true);
+  strictEqual(client.sms.status.is(':visible'), false);
+});
+
 test('send message', function() {
   client = new WebRTC.Client();
   var sendToArray = "", sendBody = "";
