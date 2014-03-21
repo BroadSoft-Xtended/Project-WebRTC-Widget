@@ -273,7 +273,7 @@
       this.loginForm.hide();
       this.inbox.show();
       this.sendForm.show();
-//      this.enableUpdate(true);
+      this.enableUpdate(true);
       this.smsProvider.readAll(function(msg){
         self.error("Fetching SMS failed : "+msg);
       });
