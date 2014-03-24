@@ -16,6 +16,8 @@ test('RTCMediaHandlerOptions and bandwidth med change', function() {
   ClientConfig.allowOutside = true;
   client = new WebRTC.Client();
   client.sipStack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
+  client.settings.resolutionType.val(WebRTC.C.STANDARD);
+  client.settings.resolutionEncodingStandard.val(WebRTC.C.R_640x480);
   client.settings.settingBandwidthMed.val("600");
   client.settings.settingBandwidthMed.trigger("blur");
   deepEqual(rtcMediaHandlerOptions, {

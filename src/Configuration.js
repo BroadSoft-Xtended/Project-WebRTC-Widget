@@ -35,7 +35,7 @@
     this.destination = WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
-    this.displayName = $.cookie('settingDisplayName') || WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ");
+    this.displayName =  WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ") || $.cookie('settingDisplayName') || ClientConfig.displayName;
     this.maxCallLength = WebRTC.Utils.getSearchVariable("maxCallLength");
     this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;

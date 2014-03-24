@@ -92,11 +92,11 @@
     <div id="settingsPopup" class="table collapse fixed">
       <span class="row" style="font-size: 22px; font-weight: bold; color: #FFFFFF;">Client Settings</span>
       <div class="row" style="height: 15px;"></div>
-      <div class="row">
+      <div id="settingDisplayNameRow" class="row">
           <span class="cell" style="width:250px">Display Name</span>
           <input class="cell" id="settingDisplayName" type="text" value=""/>
       </div>
-      <div class="row">
+      <div id="settingUseridRow" class="row">
           <span class="cell">User ID</span>
           <input class="cell" id="settingUserid" type="text" value=""/>
       </div>
@@ -104,27 +104,27 @@
           <span class="cell">Password</span>
           <input class="cell" id="settingPassword" type="password" value=""/>
       </div>
-      <div class="row">
+      <div id="settingSelfViewDisableRow" class="row">
           <span class="cell">Disable Self View</span>
           <input class="cell" id="settingSelfViewDisable" type="checkbox"/>
       </div>
-      <div class="row">
+      <div id="settingHDRow" class="row">
           <span class="cell">Start in HD</span>
           <input class="cell" id="settingHD" type="checkbox"/><br>
       </div>
-      <div class="row">
-        <span class="cell">Bandwidth (low / med / high)</span>
+      <div id="settingBandwidthRow" class="row">
+        <span class="cell">Bandwidth</span>
         <span class="cell">
-          <input id="settingBandwidthLow" class="short" type="text" maxlength="4" value=""/>
-          <input id="settingBandwidthMed" class="short" type="text" maxlength="4" value=""/>
-          <input id="settingBandwidthHigh" class="short" type="text" maxlength="4" value=""/>
+          <input id="settingBandwidthLow" class="short" type="text" maxlength="4" value="" placeholder="low"/>
+          <input id="settingBandwidthMed" class="short" type="text" maxlength="4" value="" placeholder="medium"/>
+          <input id="settingBandwidthHigh" class="short" type="text" maxlength="4" value="" placeholder="high"/>
         </span>
       </div>
       <div class="row">
           <span class="cell">Window Zoom</span>
           <input class="cell short" id="settingZoom" type="text" maxlength="4" value=""/>
       </div>
-      <div class="row">
+      <div id="settingAutoAnswerRow" class="row">
           <span class="cell">Auto Answer</span>
           <input class="cell" id="settingAutoAnswer" type="checkbox"/>
       </div>
@@ -153,14 +153,20 @@
           <span class="cell">Page Color</span>
           <input class="cell" id="settingColor" type="color" /><br>
       </div>
-      <div class="row">
+      <div id="settingResolutionRow" class="row">
         <span class="cell">Resolution</span>
         <span class="cell">
-            <select id="resolutionTypeSelect"></select> type<br>
-            <select id="resolutionDisplayStandardSelect" class="resolutionSubType"></select>
-            <select id="resolutionDisplayWidescreenSelect" class="resolutionSubType"></select> display<br>
-            <select id="resolutionEncodingStandardSelect" class="resolutionSubType"></select>
-            <select id="resolutionEncodingWidescreenSelect" class="resolutionSubType"></select> encoding<br>
+            <span id="settingResolutionTypeRow">
+              <select id="resolutionTypeSelect"></select> type<br>
+            </span>
+            <span id="settingResolutionDisplayRow">
+              <select id="resolutionDisplayStandardSelect" class="resolutionSubType"></select>
+              <select id="resolutionDisplayWidescreenSelect" class="resolutionSubType"></select> display<br>
+            </span>
+            <span id="settingResolutionEncodingRow">
+              <select id="resolutionEncodingStandardSelect" class="resolutionSubType"></select>
+              <select id="resolutionEncodingWidescreenSelect" class="resolutionSubType"></select> encoding<br>
+            </span>
         </span>
       </div>
       <div class="row">

@@ -126,6 +126,7 @@ test('register after persist', function() {
   strictEqual(client.sipStack.configuration.getRegister(), false);
 });
 test('getExSIPOptions', function() {
+  delete ClientConfig.encodingResolution;
   client = new WebRTC.Client();
   strictEqual(client.settings.audioOnly, undefined);
 

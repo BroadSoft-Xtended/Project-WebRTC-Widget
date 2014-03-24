@@ -14,6 +14,7 @@
     this.localVideoLeft = $("#settingLocalVideoLeft");
     this.userid = $("#settingUserid");
     this.save = $("#saveSettings");
+    this.displayName = $("#settingDisplayName");
     this.resolutionType = $('#resolutionTypeSelect');
     this.resolutionDisplayWidescreen = $('#resolutionDisplayWidescreenSelect');
     this.resolutionDisplayStandard = $('#resolutionDisplayStandardSelect');
@@ -22,6 +23,17 @@
     this.settingBandwidthLow = $('#settingBandwidthLow');
     this.settingBandwidthMed = $('#settingBandwidthMed');
     this.settingBandwidthHigh = $('#settingBandwidthHigh');
+    this.settingDisplayNameRow = $('#settingDisplayNameRow');
+    this.settingUseridRow = $('#settingUseridRow');
+    this.settingSelfViewDisableRow = $('#settingSelfViewDisableRow');
+    this.settingHDRow = $('#settingHDRow');
+    this.settingAutoAnswerRow = $('#settingAutoAnswerRow');
+    this.settingsIcon = $("#settings");
+    this.settingResolutionTypeRow = $("#settingResolutionTypeRow");
+    this.settingResolutionDisplayRow = $("#settingResolutionDisplayRow");
+    this.settingResolutionEncodingRow = $("#settingResolutionEncodingRow");
+    this.settingResolutionRow = $("#settingResolutionRow");
+    this.settingBandwidthRow = $("#settingBandwidthRow");
 
     this.configuration = configuration;
     this.sound = sound;
@@ -33,6 +45,7 @@
 
     this.registerListeners();
     this.initUi();
+    this.updateRowVisibility();
     this.updatePageColor();
   };
 
@@ -48,7 +61,7 @@
       $('#resolutionTypeSelect').bind('change', function(e){
         self.updateResolutionSelectVisibility();
       });
-      $("#settings").bind('click', function(e)
+      this.settingsIcon.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
@@ -115,6 +128,21 @@
         self.client.sipStack.updateRtcMediaHandlerOptions();
       });
     },
+    updateRowVisibility: function(){
+      this.settingAutoAnswerRow.toggle(!ClientConfig.hasOwnProperty("enableAutoAnswer"));
+      this.settingSelfViewDisableRow.toggle(!ClientConfig.hasOwnProperty("enableSelfView"));
+      this.settingUseridRow.toggle(!ClientConfig.hasOwnProperty("networkUserId"));
+      this.settingHDRow.toggle(!ClientConfig.hasOwnProperty("enableHD"));
+      this.settingResolutionRow.toggle(!ClientConfig.hasOwnProperty("displayResolution") || !ClientConfig.hasOwnProperty("encodingResolution"));
+      this.settingResolutionDisplayRow.toggle(!ClientConfig.hasOwnProperty("displayResolution"));
+      this.settingResolutionEncodingRow.toggle(!ClientConfig.hasOwnProperty("encodingResolution"));
+      this.settingResolutionTypeRow.toggle(!ClientConfig.hasOwnProperty("displayResolution") && !ClientConfig.hasOwnProperty("encodingResolution"));
+      this.settingBandwidthLow.toggle(!ClientConfig.hasOwnProperty("bandwidthLow"));
+      this.settingBandwidthMed.toggle(!ClientConfig.hasOwnProperty("bandwidthMed"));
+      this.settingBandwidthHigh.toggle(!ClientConfig.hasOwnProperty("bandwidthHigh"));
+      this.settingBandwidthRow.toggle(!ClientConfig.hasOwnProperty("bandwidthLow") || !ClientConfig.hasOwnProperty("bandwidthMed") || !ClientConfig.hasOwnProperty("bandwidthHigh"));
+      this.settingDisplayNameRow.toggle(!ClientConfig.hasOwnProperty("displayName"));
+    },
     getBandwidth: function(){
       var height = this.getResolutionEncodingHeight();
       if(height <= 240) {
@@ -140,10 +168,7 @@
       WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, this.resolutionEncodingStandard);
       WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, this.resolutionEncodingWidescreen);
 
-      if ((this.configuration.displayName !== "false"))
-      {
-        $("#settingDisplayName").val(this.configuration.displayName);
-      }
+      this.displayName.val(this.configuration.displayName);
       this.userid.val(this.configuration.userid);
       $("#settingPassword").val(this.configuration.password);
       $("#settingSelfViewDisable").prop('checked', ($.cookie('settingSelfViewDisable') === "true"));
@@ -239,7 +264,7 @@
       }
     },
     persist: function(){
-      $.cookie("settingDisplayName", ($("#settingDisplayName").val()), { expires: ClientConfig.expires });
+      $.cookie("settingDisplayName", (this.displayName.val()), { expires: ClientConfig.expires });
       $.cookie("settingUserid", (this.userid.val()),  { expires: ClientConfig.expires });
       $.cookie("settingPassword", ($("#settingPassword").val()), { expires: ClientConfig.expires });
       $.cookie("settingSelfViewDisable", ($("#settingSelfViewDisable").prop('checked')), { expires: ClientConfig.expires });

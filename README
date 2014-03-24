@@ -102,6 +102,7 @@ The following options exist
   stunPort: port of the STUN server
   websocketsServers: enables specification of the WebSockets server(s) to connect to.  Replace ws_uri and ws with wss_uri and wss respectively for secure WebSockets.
   networkUserId: authorization user eg. 8323303809
+  displayName: SIP display name
   endCallURL: url to send the browser to at the end of a call
   bandwidthLow: bandwidth in kbps to use for low resolution.  Default is 128
   bandwidthMed: bandwidth in kbps to use for medium resolution.  Default is 512
