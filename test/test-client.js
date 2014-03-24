@@ -37,6 +37,8 @@ test('resolution class for hd=true', function() {
   strictEqual(client.client.attr('class').split(" ")[0], "r"+WebRTC.C.R_1280x720);
 });
 test('resolution class for resolution setting', function() {
+  delete ClientConfig.displayResolution;
+  delete ClientConfig.encodingResolution;
   WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "false" : false;}
   $.cookie("settingResolutionDisplay", WebRTC.C.R_960x720);
   $.cookie("settingResolutionEncoding", WebRTC.C.R_320x240);

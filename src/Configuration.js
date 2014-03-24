@@ -31,11 +31,11 @@
   Configuration = function() {
     logger.log('window.location.search : '+window.location.search, this);
     // Default URL variables
-    this.userid = WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid') || ClientConfig.networkUserId;
+    this.userid = ClientConfig.networkUserId || WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
     this.destination = WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
-    this.displayName =  WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ") || $.cookie('settingDisplayName') || ClientConfig.displayName;
+    this.displayName = ClientConfig.displayName|| WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ") || $.cookie('settingDisplayName');
     this.maxCallLength = WebRTC.Utils.getSearchVariable("maxCallLength");
     this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
@@ -71,7 +71,7 @@
       }
     },
     getRegister: function(){
-      return WebRTC.Utils.getSearchVariable("register") === "true" || ClientConfig.register;
+      return ClientConfig.register || WebRTC.Utils.getSearchVariable("register") === "true";
     },
     getPassword: function(){
       return WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');

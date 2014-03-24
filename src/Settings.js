@@ -173,14 +173,14 @@
       $("#settingPassword").val(this.configuration.password);
       $("#settingSelfViewDisable").prop('checked', ($.cookie('settingSelfViewDisable') === "true"));
       $("#settingHD").prop('checked', ($.cookie('settingHD') === "true"));
-      this.settingBandwidthLow.val($.cookie('settingBandwidthLow') || ClientConfig.bandwidthLow);
-      this.settingBandwidthMed.val($.cookie('settingBandwidthMed') || ClientConfig.bandwidthMed);
-      this.settingBandwidthHigh.val($.cookie('settingBandwidthHigh') || ClientConfig.bandwidthHigh);
+      this.settingBandwidthLow.val(ClientConfig.bandwidthLow || $.cookie('settingBandwidthLow'));
+      this.settingBandwidthMed.val(ClientConfig.bandwidthMed || $.cookie('settingBandwidthMed'));
+      this.settingBandwidthHigh.val(ClientConfig.bandwidthHigh || $.cookie('settingBandwidthHigh'));
       $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
       $("#settingColor").val($.cookie('settingColor') || this.configuration.color || $('body').css('backgroundColor'));
-      this.setResolutionDisplay($.cookie('settingResolutionDisplay') || ClientConfig.displayResolution || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
-      this.setResolutionEncoding($.cookie('settingResolutionEncoding') || ClientConfig.encodingResolution || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
-      $("#settingAutoAnswer").prop('checked', ($.cookie('settingAutoAnswer') === "true") || ClientConfig.enableAutoAnswer );
+      this.setResolutionDisplay(ClientConfig.displayResolution || $.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+      this.setResolutionEncoding(ClientConfig.encodingResolution || $.cookie('settingResolutionEncoding') || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
+      $("#settingAutoAnswer").prop('checked', (ClientConfig.enableAutoAnswer || $.cookie('settingAutoAnswer') === "true"));
       this.updateViewPositions();
     },
     updateViewPositions: function(){
