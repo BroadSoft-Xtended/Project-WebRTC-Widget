@@ -30,7 +30,7 @@
     this.dropAndAnswerButton = $("#dropAndAnswerButton");
     this.errorPopup = $( "#errorPopup" );
 
-    this.configuration = new WebRTC.Configuration();
+    this.configuration = new WebRTC.Configuration(this);
     this.eventBus = new WebRTC.EventBus(this.configuration);
     this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
     this.sound = new WebRTC.Sound(this.sipStack);

@@ -190,6 +190,13 @@ test('features url parameter', function() {
   strictEqual(client.configuration.getClientConfigFlags(), 524287);
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
 });
+test('setResolutionDisplay', function() {
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getResolutionDisplay(), WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+  client.configuration.setResolutionDisplay(WebRTC.C.R_1280x720);
+  strictEqual(client.configuration.getResolutionDisplay(), WebRTC.C.R_1280x720);
+  strictEqual(client.client.attr('class').indexOf("r"+WebRTC.C.R_1280x720) !== -1, true, "Should contain new resolution display as class name");
+});
 
 
 function setClientConfigFlagAndAssert(flagName) {

@@ -28,9 +28,10 @@
       enableIms: 524288
     };
 
-  Configuration = function() {
+  Configuration = function(client) {
     logger.log('window.location.search : '+window.location.search, this);
     // Default URL variables
+    this.client = client;
     this.userid = ClientConfig.networkUserId || WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
     this.destination = WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
@@ -183,6 +184,12 @@
 
     isWidescreen: function() {
       return this.isHD() || this.settings.resolutionType.val() === WebRTC.C.WIDESCREEN;
+    },
+
+    setResolutionDisplay: function(resolutionDisplay) {
+      this.hd = false;
+      this.settings.setResolutionDisplay(resolutionDisplay);
+      this.client.updateClientClass();
     },
 
     getResolutionDisplay: function() {
