@@ -190,6 +190,11 @@
       var password = this.configuration.getPassword();
       var userid = this.configuration.userid;
 
+      if(this.ua) {
+        logger.log('stopping existing UA', this.configuration);
+        this.ua.stop();
+      }
+
       this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));
 
       this.updateRtcMediaHandlerOptions();

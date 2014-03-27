@@ -212,10 +212,11 @@ body {
   color: #EFA233;
 }
 
-/*#hangup, #fullScreen, #selfView, #muteAudio, #dialpadIcon, #messages {*/
-  /*top: 0;*/
-  /*left: 0;*/
-/*}*/
+/* needed for wizard integration */
+#hangup, #fullScreen, #selfView, #muteAudio, #dialpadIcon, #messages {
+  top: 0;
+  left: 0;
+}
 
 #videoBar .icon {
   display: none;
