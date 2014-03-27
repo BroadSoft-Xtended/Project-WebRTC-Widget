@@ -211,6 +211,16 @@
       this.sipStack.call(destination);
     },
 
+    setClientConfig: function(clientConfig) {
+      var connectionChanged = window.ClientConfig.websocketsServers[0].ws_uri !== clientConfig.websocketsServers[0].ws_uri;
+      window.ClientConfig = clientConfig;
+      this.guiStart();
+      this.updateClientClass();
+      if(connectionChanged) {
+        this.sipStack.init();
+      }
+    },
+
     endCall: function() {
       this.setEvent(null);
       this.video.updateSessionStreams();
