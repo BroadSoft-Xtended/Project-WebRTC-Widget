@@ -51,6 +51,10 @@
     },
 
     playTone: function(audioSource, media, options){
+      // avoid restarting same playing audio
+      if(audioSource.getAttribute("src") === media && !audioSource.paused) {
+        return;
+      }
       options = options || {};
       audioSource.setAttribute("src", media);
       if(options.loop) {
