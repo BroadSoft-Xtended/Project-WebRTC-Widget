@@ -27,14 +27,15 @@
 
     pause: function(){
       this.soundOut.pause();
+      this.soundOutDTMF.pause();
     },
 
     playDtmfRingback: function(){
-      this.playDtmf("media/dtmf-ringback.ogg");
+      this.playDtmf("media/dtmf-ringback.ogg", {loop: true});
     },
 
     playRingtone: function(){
-      this.play("media/ringtone.ogg");
+      this.play("media/ringtone.ogg", {loop: true});
     },
 
     playDtmfTone: function(tone){
@@ -45,14 +46,23 @@
       this.play("media/click.ogg");
     },
 
-    play: function(media){
-      this.soundOut.setAttribute("src", media);
-      this.soundOut.play();
+    play: function(media, options){
+      this.playTone(this.soundOut, media, options);
     },
 
-    playDtmf: function(media){
-      this.soundOutDTMF.setAttribute("src", media);
-      this.soundOutDTMF.play();
+    playTone: function(audioSource, media, options){
+      options = options || {};
+      audioSource.setAttribute("src", media);
+      if(options.loop) {
+        audioSource.setAttribute("loop", "true");
+      } else {
+        audioSource.removeAttribute("loop");
+      }
+      audioSource.play();
+    },
+
+    playDtmf: function(media, options){
+      this.playTone(this.soundOutDTMF, media, options);
     }
   };
 

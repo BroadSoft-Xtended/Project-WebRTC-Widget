@@ -223,6 +223,7 @@
 
     endCall: function() {
       this.setEvent(null);
+      this.sound.pause();
       this.video.updateSessionStreams();
       // Bring up the main elements
       if (ClientConfig.enableCallControl === true)
