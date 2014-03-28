@@ -32,7 +32,7 @@ var WebRTC = (function() {
         return bg;
       }
       else {
-        bg = bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(,\s*(\d+))?\)$/);
+        bg = bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+).*\)$/);
         var hex = function(x) {
           return ("0" + parseInt(x, 10).toString(16)).slice(-2);
         };
