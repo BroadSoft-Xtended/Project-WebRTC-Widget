@@ -129,10 +129,18 @@
       {
         $("#callControl, #ok").fadeIn(1000);
       }
+      else {
+        $("#callControl, #ok").fadeOut(1000);
+      }
+
       if (ClientConfig.enableDialpad)
       {
         $("#dialpadIconShow").fadeIn(1000);
       }
+      else {
+        $("#dialpadIconShow").fadeOut(1000);
+      }
+
       if (ClientConfig.enableSelfView)
       {
         if ($.cookie('settingSelfViewDisable') === "true")
@@ -146,13 +154,21 @@
           $("#localVideo, #selfViewDisable").fadeIn(1000);
         }
       }
+
       if (ClientConfig.enableSettings)
       {
         $("#settings").fadeIn(1000);
       }
+      else {
+        $("#settings").fadeOut(1000);
+      }
+
       if (ClientConfig.enableFullScreen)
       {
         $("#fullScreenExpand").fadeIn(1000);
+      }
+      else {
+        $("#fullScreenExpand").fadeOut(1000);
       }
     },
 
