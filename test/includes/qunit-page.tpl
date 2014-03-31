@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title><%= title %></title>
+  <link href="js/includes/css/custom.css" rel="stylesheet" />
   <%= style %>
   <script>
   <%= script.header %>

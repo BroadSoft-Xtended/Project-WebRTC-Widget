@@ -127,6 +127,9 @@ module.exports = function(grunt) {
         }
       },
       options: {
+        beautify: true,
+        compress: false,
+        mangle: false,
         banner: '<%= meta.banner %>'
       }
     },
@@ -168,7 +171,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           pageTemplate: "test/includes/qunit-page.tpl",
-          includeFiles: ["js/3rdparty.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          includeFiles: ["css/custom.css", "js/3rdparty.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
           testFiles: ["test/test-*.js"],
           templateFiles: "index.html",
           qunitCss: "stylesheet.css",
@@ -178,7 +181,7 @@ module.exports = function(grunt) {
     },
     watch: {
       develop: {
-        files: ['test/*.js', 'test/includes/*.js', 'src/*.js', 'index.html', 'stylesheet.css', 'js/exsip.js'],
+        files: ['test/*.js', 'test/includes/*.js', 'src/*.js', 'index.html', 'stylesheet.css', 'css/custom.css', 'js/exsip.js'],
         tasks: ['build','test'],
         options: {
           spawn: true
