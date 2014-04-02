@@ -6,6 +6,7 @@ module( "Timer", {
 });
 test('format', function() {
   client = new WebRTC.Client();
+  strictEqual(client.timer.text.text(), '00:00:00');
   var timerFunction = client.timer.runningTimer();
   timerFunction();
   strictEqual(client.timer.text.text(), '00:00:00');
@@ -18,6 +19,7 @@ test('timer on call started with enableCallTimer = true', function() {
   TestWebrtc.Helpers.isVisible(client.timer.text, true);
   TestWebrtc.Helpers.endCall();
   TestWebrtc.Helpers.isVisible(client.timer.text, false);
+  strictEqual(client.timer.text.text(), '00:00:00');
 });
 test('timer on call started with enableCallTimer = false', function() {
   ClientConfig.enableCallTimer = false;
