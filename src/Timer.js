@@ -18,23 +18,16 @@
   Timer.prototype = {
     start: function()
     {
-      if(this.configuration.timerRunning) {
+      if(this.running) {
         return;
       }
 
-      this.configuration.timerRunning = true;
       var timer = this.runningTimer();
       this.callTimer = setInterval(timer, 1000);
-      if (ClientConfig.enableCallTimer)
-      {
-        this.text.fadeIn(100);
-      }
     },
 
     stop: function()
     {
-      this.text.fadeOut(100);
-      this.configuration.timerRunning = false;
       clearInterval(this.callTimer);
     },
 

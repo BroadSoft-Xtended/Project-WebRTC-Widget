@@ -109,6 +109,10 @@
       this.activeSession.sendDTMF(digit, this.configuration.getDTMFOptions());
     },
 
+    isStarted: function() {
+      return this.getCallState() === C.STATE_STARTED;
+    },
+
     transfer: function(transferTarget, isAttended) {
       if(isAttended) {
         this.ua.attendedTransfer(transferTarget, this.activeSession);

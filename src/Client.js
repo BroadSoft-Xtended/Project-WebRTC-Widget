@@ -250,10 +250,7 @@
 
       this.guiStart();
 
-      if (this.configuration.timerRunning === true)
-      {
-        this.timer.stop();
-      }
+      this.timer.stop();
       if (ClientConfig.endCallURL)
       {
         window.location = ClientConfig.endCallURL;
@@ -285,7 +282,7 @@
       {
         return;
       }
-      if (this.configuration.timerRunning === true)
+      if (this.sipStack.isStarted())
       {
         var file = null;
         if (digit === "*")
@@ -302,10 +299,7 @@
         }
         this.sound.playDtmfTone(file);
         this.destination.val(this.destination.val() + digit);
-        if (this.configuration.timerRunning === true)
-        {
-          this.sipStack.sendDTMF(digit);
-        }
+        this.sipStack.sendDTMF(digit);
       }
     },
 
@@ -684,6 +678,10 @@
       if (ClientConfig.enableHold)
       {
         classes.push("enable-hold");
+      }
+      if (ClientConfig.enableCallTimer)
+      {
+        classes.push("enable-timer");
       }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }

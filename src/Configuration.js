@@ -46,7 +46,6 @@
       this.setClientConfigFlags(parseInt(features, 10));
     }
     // Client Variables
-    this.timerRunning = false;
     this.disableICE = ClientConfig.disableICE;
   };
 
