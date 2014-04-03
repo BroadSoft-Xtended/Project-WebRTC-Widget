@@ -340,7 +340,14 @@
           $("#connected").removeClass("success");
           $("#connected").addClass("alert").fadeIn(100);
         }
-        self.message(ClientConfig.messageConnectionFailed, "alert");
+        var msg = ClientConfig.messageConnectionFailed;
+        if(e.data && e.data.reason) {
+          msg = e.data.reason;
+        }
+        if(e.data && e.data.retryAfter) {
+          msg += " - Retrying in "+e.data.retryAfter+" seconds";
+        }
+        self.message(msg, "alert");
         self.endCall();
       });
       this.eventBus.on("failed", function(e){

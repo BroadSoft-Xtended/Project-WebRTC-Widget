@@ -38,6 +38,10 @@ TestWebrtc.Helpers = {
     client.sipStack.ua.emit('connected', client.sipStack.ua);
   },
 
+  disconnect: function(data) {
+    client.sipStack.ua.emit('disconnected', client.sipStack.ua, data);
+  },
+
   registrationFailed: function(statusCode) {
     client.sipStack.ua.emit('registrationFailed', client.sipStack.ua, {response: {status_code: (statusCode || 401)}});
   },

@@ -215,7 +215,7 @@
       this.ua.on('disconnected', function(e)
       {
         self.client.updateClientClass();
-        self.eventBus.disconnected();
+        self.eventBus.disconnected(e.data);
       });
       this.ua.on('onReInvite', function(e) {
         logger.log("incoming onReInvite event", self.configuration);

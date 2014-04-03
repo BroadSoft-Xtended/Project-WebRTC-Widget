@@ -192,3 +192,15 @@ test('getUserMedia failed', function() {
   client.uriCall("1000@webrtc.domain.to");
   strictEqual(alertCalled, true);
 });
+test('on disconnect', function() {
+  ClientConfig.enableMessages = true;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.disconnect();
+  strictEqual(client.messages.text(), 'Connection Failed!');
+});
+test('on disconnect for 503 with retryAfter', function() {
+  ClientConfig.enableMessages = true;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.disconnect({code: 503, reason: 'Service Unavailable', retryAfter: 30});
+  strictEqual(client.messages.text(), 'Service Unavailable - Retrying in 30 seconds');
+});

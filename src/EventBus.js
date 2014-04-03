@@ -53,8 +53,8 @@
   EventBus.prototype.registrationFailed = function(data) {
     this.emit("registrationFailed", this, data);
   };
-  EventBus.prototype.disconnected = function() {
-    this.emit("disconnected", this);
+  EventBus.prototype.disconnected = function(data) {
+    this.emit("disconnected", this, data);
   };
   EventBus.prototype.failed = function(sender, data) {
     this.emit("failed", sender, data);
