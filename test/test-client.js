@@ -50,7 +50,7 @@ test('call if enter pressed on destination input', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.connect();
   client.sipStack.ua.isConnected = function(){return true;};
-  client.call = function(){console.log('call');called = true;};
+  client.callUri = function(){console.log('call');called = true;};
   var event = jQuery.Event("keypress");
   event.keyCode = 13;
   $("#destination").trigger(event);
@@ -96,11 +96,11 @@ test('reInvite popup after incoming reInvite and reject clicked', function() {
 });
 test('muteAudio', function() {
   client = new WebRTC.Client();
-  TestWebrtc.Helpers.isVisible(client.muteAudio, false);
+  TestWebrtc.Helpers.isVisible(client.muteAudioIcon, false);
 });
 test('unmuteAudio', function() {
   client = new WebRTC.Client();
-  TestWebrtc.Helpers.isVisible(client.unmuteAudio, false);
+  TestWebrtc.Helpers.isVisible(client.unmuteAudioIcon, false);
 });
 test('hangup', function() {
   client = new WebRTC.Client();
@@ -109,23 +109,23 @@ test('hangup', function() {
 test('muteAudio on call started', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.muteAudio, true);
+  TestWebrtc.Helpers.isVisible(client.muteAudioIcon, true);
 });
 test('muteAudio on mute triggered', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
-  client.muteAudio.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.muteAudio, false);
-  client.unmuteAudio.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.muteAudio, true);
+  client.muteAudioIcon.trigger("click");
+  TestWebrtc.Helpers.isVisible(client.muteAudioIcon, false);
+  client.unmuteAudioIcon.trigger("click");
+  TestWebrtc.Helpers.isVisible(client.muteAudioIcon, true);
 });
 test('unmuteAudio on mute triggered', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
-  client.muteAudio.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.unmuteAudio, true);
-  client.unmuteAudio.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.unmuteAudio, false);
+  client.muteAudioIcon.trigger("click");
+  TestWebrtc.Helpers.isVisible(client.unmuteAudioIcon, true);
+  client.unmuteAudioIcon.trigger("click");
+  TestWebrtc.Helpers.isVisible(client.unmuteAudioIcon, false);
 });
 test('hangup on call started', function() {
   client = new WebRTC.Client();
@@ -136,26 +136,26 @@ test('muteAudio on call started and disabled muted', function() {
   ClientConfig.enableMute = false;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.muteAudio, false);
+  TestWebrtc.Helpers.isVisible(client.muteAudioIcon, false);
 });
 test('unmuteAudio on call started and disabled muted', function() {
   ClientConfig.enableMute = false;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.unmuteAudio, false);
+  TestWebrtc.Helpers.isVisible(client.unmuteAudioIcon, false);
 });
 test('muteAudio on call ended', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.endCall();
-  TestWebrtc.Helpers.isVisible(client.muteAudio, false);
+  TestWebrtc.Helpers.isVisible(client.muteAudioIcon, false);
 });
 test('unmuteAudio on call ended', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
-  client.muteAudio.trigger("click");
+  client.muteAudioIcon.trigger("click");
   TestWebrtc.Helpers.endCall();
-  TestWebrtc.Helpers.isVisible(client.unmuteAudio, false);
+  TestWebrtc.Helpers.isVisible(client.unmuteAudioIcon, false);
 });
 test('hangup on call ended', function() {
   client = new WebRTC.Client();
@@ -166,7 +166,7 @@ test('hangup on call ended', function() {
 test('hangup on calling', function() {
   client = new WebRTC.Client();
   client.sipStack.ua.isConnected = function(){ return true;}
-  client.uriCall("1000@webrtc.domain.to");
+  client.callUri("1000@webrtc.domain.to");
   TestWebrtc.Helpers.newCall();
   strictEqual(client.sipStack.getCallState(), "calling");
   TestWebrtc.Helpers.isVisible(client.hangup, true);
@@ -188,8 +188,7 @@ test('getUserMedia failed', function() {
     evt.sender.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
   });
   TestWebrtc.Helpers.connect();
-  client.call();
-  client.uriCall("1000@webrtc.domain.to");
+  client.callUri("1000@webrtc.domain.to");
   strictEqual(alertCalled, true);
 });
 test('on disconnect', function() {

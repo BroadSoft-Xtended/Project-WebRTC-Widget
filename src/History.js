@@ -211,7 +211,7 @@
           self.sound.playClick();
           var destination = self.historyCallLink.attr("data-destination");
           self.client.destination.val(destination);
-          self.client.call();
+          self.client.callUri(destination);
         }
         self.callHistoryDetails.hide();
       });
