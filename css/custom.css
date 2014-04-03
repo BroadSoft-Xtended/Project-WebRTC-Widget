@@ -1,0 +1,398 @@
+@font-face {
+    font-family: 'bsl_icons';
+    src:url('../fonts/bsl_icons.eot?1sddz2');
+    src:url('../fonts/bsl_icons.eot?#iefix1sddz2') format('embedded-opentype'),
+    url('../fonts/bsl_icons.woff?1sddz2') format('woff'),
+    url('../fonts/bsl_icons.ttf?1sddz2') format('truetype'),
+    url('../fonts/bsl_icons.svg?1sddz2#bsl_icons') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+body
+{
+    font-family:'Open Sans', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased !important;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+    font-family: 'bsl_icons';
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-dialpad:before {
+    content: "\ed3b";
+}
+.icon-grid3:before {
+    content: "\eeb3";
+}
+.icon-phone:before {
+    content: "\e62c";
+}
+.icon-phone-hang-up:before {
+    content: "\e600";
+}
+.icon-clock:before {
+    content: "\e634";
+}
+.icon-cog:before {
+    content: "\e601";
+}
+.icon-pause2:before {
+    content: "\e6bb";
+}
+.icon-volume-high:before {
+    content: "\e6c0";
+}
+.icon-volume-medium:before {
+    content: "\e6c1";
+}
+.icon-volume-low:before {
+    content: "\e6c2";
+}
+.icon-volume-mute:before {
+    content: "\e6c3";
+}
+.icon-checkbox-checked:before {
+    content: "\e6d8";
+}
+.icon-checkbox-unchecked:before {
+    content: "\e6d9";
+}
+.icon-checkbox-partial:before {
+    content: "\e6da";
+}
+.icon-radio-checked:before {
+    content: "\e6db";
+}
+.icon-radio-unchecked:before {
+    content: "\e6dc";
+}
+.icon-arrow-up-thick:before {
+    content: "\f5a4";
+}
+.icon-arrow-down-thick:before {
+    content: "\f5a5";
+}
+.icon-delete:before {
+    content: "\f5ab";
+}
+.icon-delete-outline:before {
+    content: "\f5ac";
+}
+.icon-checkmark6:before {
+    content: "\f2c7";
+}
+.icon-cancel3:before {
+    content: "\f2c9";
+}
+.icon-notice:before {
+    content: "\f2cf";
+}
+.icon-warning2:before {
+    content: "\f2d4";
+}
+.icon-grid5:before {
+    content: "\f34b";
+}
+.icon-resize4:before {
+    content: "\f371";
+}
+.icon-info8:before {
+    content: "\f3a4";
+}
+.icon-th:before {
+    content: "\e602";
+}
+.icon-signal2:before {
+    content: "\f162";
+}
+.icon-cog4:before {
+    content: "\f163";
+}
+.icon-time:before {
+    content: "\f167";
+}
+.icon-volume-off:before {
+    content: "\f170";
+}
+.icon-volume-down:before {
+    content: "\f171";
+}
+.icon-volume-up:before {
+    content: "\f172";
+}
+.icon-facetime-video:before {
+    content: "\f17f";
+}
+.icon-share5:before {
+    content: "\f186";
+}
+.icon-phone5:before {
+    content: "\f1b9";
+}
+.icon-angle-right:before {
+    content: "\f1fe";
+}
+.icon-logout:before {
+    content: "\f45c";
+}
+.icon-cross4:before {
+    content: "\f465";
+}
+.icon-history2:before {
+    content: "\f477";
+}
+.icon-arrow-right10:before {
+    content: "\f4bb";
+}
+
+
+#remoteVideo
+{
+    border-radius: 0px;
+    border: none;
+    box-shadow: none;
+    background: #000000;
+    background: -moz-linear-gradient(top,  #000000 0%, #210d03 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#000000), color-stop(100%,#210d03));
+    background: -webkit-linear-gradient(top,  #000000 0%,#210d03 100%);
+    background: -o-linear-gradient(top,  #000000 0%,#210d03 100%);
+    background: -ms-linear-gradient(top,  #000000 0%,#210d03 100%);
+    background: linear-gradient(to bottom,  #000000 0%,#210d03 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#210d03',GradientType=0 );
+
+
+    overflow: hidden;
+}
+#videoBar
+{
+    background-image: none;
+    border-radius: 0px;
+    border: none;
+    box-shadow: none;
+    margin-top: 0px;
+}
+#videoBar .table
+{
+    margin: 0;
+}
+#localVideo
+{
+    border-radius: 0;
+    border: 1px solid #000;
+    box-shadow: none;
+    background-color: rgba(0, 0, 0, 0.57);
+}
+#videoBar .icon, #videoBar a
+{
+    font-size: 20px;
+    color: grey;
+    text-decoration: none;
+}
+#videoBar .cell
+{
+    width: 36px;
+    padding-top: 10px;
+}
+.icon
+{
+    cursor: pointer;
+}
+.icon a:hover, .icon span:hover, #videoBar a:hover
+{
+    color:#04AFF0;
+}
+
+#settingsPopup
+{
+    border: 1px solid #000000;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 0px;
+    box-shadow: none;
+    bottom: 40px;
+    right: 0px;
+    top:auto;
+    left: auto;
+    width: 310px;
+    padding: 16px;
+    font-size: 14px;
+}
+#settingsPopup span
+{
+    font-size: 14px;
+}
+#settingsPopup input
+{
+    background: #333;
+    border: 1px solid #414141;
+}
+/*a, .icon span
+{
+  color:#B3B3B3;
+}
+
+#settingsPopup
+{
+  display: block;
+}
+.settings-popover
+{
+  overflow: auto;
+  width: 500px;
+  height: 200px;
+}*/
+#messages {
+    width: auto;
+    background: #000;
+    color: #B3B3B3;
+    font-size: 12px;
+    padding: 8px;
+}
+#videoBar #hangup
+{
+    margin-top: -4px;
+}
+#hangup a.icon-phone-hang-up
+{
+    color: #f90007;
+    font-size: 24px;
+}
+#callControl
+{
+    display: block;
+}
+#dialpad
+{
+    left: 0px;
+    bottom: 40px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    right: auto;
+    z-index: 100;
+}
+#dialpad button
+{
+    color: #B3B3B3;
+    background: none;
+    border-radius: 0;
+    font-weight: normal;
+    padding: 0;
+    margin:0;
+    border: none;
+    width:50px;
+}
+#dialpad button:hover
+{
+    background: #111;
+    box-shadow: none;
+}
+#dialpad button span
+{
+    display: block;
+    font-size: 8px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: -13px;
+    color: #2D7B99;
+}
+#watermark-icon
+{
+    position: absolute;
+    top: 115px;
+    color: rgba(255, 255, 255, 0.03);
+    z-index: 1;
+    font-size: 265px;
+    text-align: center;
+    width: 100%;
+}
+#callHistory, #callStats
+{
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 0;
+    border: 1px solid #000000;
+    box-shadow: none;
+    color: #999999;
+    z-index: 200;
+    padding: 10px;
+    top:0px;
+    right:0px;
+    left:auto;
+    bottom:auto;
+}
+.dialpad-control-bar .main-button
+{
+    background: #04AFF0;
+    border-radius: 14px;
+    width: 70px;
+    padding: 5px;
+    margin: 0 auto;
+}
+.dialpad-control-bar a
+{
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    width: 100%;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1;
+}
+.dialpad-control-bar a span
+{
+    margin-right: 5px;
+}
+.destination-container input
+{
+    background: #000;
+    border: none;
+    color: #04AFF0;
+    font-size: 18px;
+    width: 156px;
+}
+.destination-container hr
+{
+    border: 1px solid #0E0E0E;
+}
+#call {
+    display: block;
+    position: static;
+    top: auto;
+    left: auto;
+}
+#selfViewEnable a, #dialpadIconHide a,#unmuteAudio a,#fullScreenContract a
+{
+    color:#04AFF0;
+}
+#destination::-webkit-input-placeholder {
+    color: #04AFF0;
+    font-size: 12px;
+    font-style: italic;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: rgba(39, 39, 39, 1);
+
+}
+::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(39, 39, 39, 1);
+}

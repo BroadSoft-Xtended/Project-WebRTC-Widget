@@ -157,7 +157,7 @@
       }
       else
       {
-        config.register = true,
+        config.register = true;
         config.password = password;
       }
       return config;
