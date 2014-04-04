@@ -21,8 +21,8 @@
       'progress',
       'failed',
       'started',
-      'holded',
-      'unholded',
+      'held',
+      'resumed',
       'ended',
       'calling',
       'newDTMF'
@@ -66,11 +66,11 @@
   EventBus.prototype.started = function(sender, data) {
     this.emit("started", sender, data);
   };
-  EventBus.prototype.holded = function(sender, data) {
-    this.emit("holded", sender, data);
+  EventBus.prototype.held = function(sender, data) {
+    this.emit("held", sender, data);
   };
-  EventBus.prototype.unholded = function(sender, data) {
-    this.emit("unholded", sender, data);
+  EventBus.prototype.resumed = function(sender, data) {
+    this.emit("resumed", sender, data);
   };
   EventBus.prototype.ended = function(sender, data) {
     this.emit("ended", sender, data);

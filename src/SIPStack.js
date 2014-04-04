@@ -242,11 +242,11 @@
         });
         session.on('unholded', function(e) {
           this.client.updateClientClass();
-          self.eventBus.unholded(e.sender, e.data);
+          self.eventBus.resumed(e.sender, e.data);
         });
         session.on('holded', function(e) {
           this.client.updateClientClass();
-          self.eventBus.holded(e.sender, e.data);
+          self.eventBus.held(e.sender, e.data);
         });
         session.on('ended', function(e)
         {

@@ -387,7 +387,7 @@
         self.history.persistCall(e.sender);
         self.endCall({rtcSession: e.sender});
       });
-      this.eventBus.on("unholded", function(e){
+      this.eventBus.on("resumed", function(e){
         self.onSessionStarted(e.sender);
         self.message(ClientConfig.messageResume.replace('{0}', self.getRemoteUser(e.sender)), "success");
       });
@@ -402,7 +402,7 @@
           self.message(ClientConfig.messageStarted.replace('{0}', self.getRemoteUser(e.sender)), "success");
         }
       });
-      this.eventBus.on("holded", function(e){
+      this.eventBus.on("held", function(e){
         self.message(ClientConfig.messageHold.replace('{0}', self.getRemoteUser(e.sender)), "success");
       });
       this.eventBus.on("disconnected", function(e){
