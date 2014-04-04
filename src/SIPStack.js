@@ -252,6 +252,10 @@
         {
           self.eventBus.ended(e.sender, e.data);
         });
+        session.on('newDTMF', function(e)
+        {
+          self.eventBus.newDTMF(e.sender, e.data);
+        });
         // handle incoming call
         if (e.data.session.direction === "incoming")
         {

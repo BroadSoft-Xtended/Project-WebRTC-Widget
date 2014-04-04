@@ -520,6 +520,10 @@
       {
         self.message();
       });
+      this.eventBus.on('newDTMF', function(e)
+      {
+        logger.log('DTMF sent : '+ e.data.tone, self.configuration);
+      });
 
       // Buttons
       this.callButton.bind('click', function(e)

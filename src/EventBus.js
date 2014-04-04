@@ -24,7 +24,8 @@
       'holded',
       'unholded',
       'ended',
-      'calling'
+      'calling',
+      'newDTMF'
     ];
 
     this.initEvents(events);
@@ -76,6 +77,9 @@
   };
   EventBus.prototype.calling = function(sender, data) {
     this.emit("calling", sender, data);
+  };
+  EventBus.prototype.newDTMF = function(sender, data) {
+    this.emit("newDTMF", sender, data);
   };
   EventBus.prototype.isDebug = function() {
     return this.configuration.isDebug();
