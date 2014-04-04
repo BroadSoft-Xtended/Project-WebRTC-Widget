@@ -72,38 +72,40 @@ of grunt if it doesn't exist already.
 
 The following options exist
 
-  enableHD: permits use of the settingHD cookie or the hd HTTP URI parameter
-  enableCallControl: enables window to enter SIP URI and call button
-  enableCallTimer: enables display of how long the users is on a call
-  enableCallHistory: enables client to maintain call history.  History is shown via <shift> h
-  enableFullScreen: enables button for expanding client to full screen
-  enableSelfView: enables button for enabling/disabling self view
-  enableCallStats: enables display of call statistics via <shift> s.  Stats include Bitrate in/out, Lost packets, and lost percent for audio and video. Video stats also include frame rate in and out and resolution in and out. Audio stats also include audio level in and out. The total jitter of the link is also shown.
-  enableDiaplad: enables display of a dialpad
-  enableMute: enables a mute button
-  enableMessages: enable the message box display, which displays status messages on connection establishment, registration, call progress.  Provide some examples from the file.
-  enableRegistrationIcon: enables an icon that indicates whether user is registered or not.  Fades away under normal operating conditions.  Stays red when there is a problem.
-  enableConnectionIcon: enables an icon that indicates whether the user is connected via WebSockets.  Fades away under normal operating conditions.  Stays red when there is a problem.
-  enableWindowDrag: enables user to drag the self view, statistics, and history window around.
-  enableSettings: enables the user to configure individual user settings that are stored as cookies.
-  enableAutoAnswer: enables automatic answer of incoming calls.
-  enableAutoAcceptReInvite: enables automatic answer of incoming reInvite requests
-  enableConnectLocalMedia: enables connecting to users local media before the call
-  enableTransfer: enables the transfer button
-  enableHold: enables the hold/resume button
-  enableIms: enables 'P-Asserted-Identity' on ExSIP.UA
+  enableHD: This feature enables 720pHD resolution from the client to the WebRTC Server.
+  enableCallControl: This feature enables a window to enter SIP URI and call button.
+  enableCallTimer: This feature enables the display of how long the user is on a call.
+  enableCallHistory: Allows the client to keep call history.  Show the history with <Shift>+H.
+  enableFullScreen: This feature enables the button for expanding the client to full screen.
+  enableSelfView: This feature enables the button for enabling/disabling self-view.
+  enableCallStats: This feature enables the display of call statistics using <Shift>+S.  Statistics include bitrate in/out, lost packets, and lost percent for audio and video.  Video statistics also include frame rate in and out and resolution in and out.  Audio statistics also include audio level in and out.  The total jitter of the link is also shown.
+  enableDiaplad: This feature enables display of a dial pad.
+  enableMute: This feature enables a mute button.
+  enableMessages: This feature enables the status messages for connectivity, registration, and call progress.
+  enableRegistrationIcon: This feature enables an icon that indicates whether user is registered or not.  Fades away under normal operating conditions.  Stays red when there is a problem.
+  enableConnectionIcon: This feature enables an icon that indicates whether the user is connected via WebSockets.  The icon fades away under normal operating conditions and stays red when there is a problem.
+  enableWindowDrag: This feature enables the user to drag the self-view, statistics, and history windows around.
+  enableSettings: This feature enables the user to configure individual user settings that are stored as cookies.
+  enableAutoAnswer: This feature enables automatic answer of incoming calls.
+  enableAutoAcceptReInvite: This feature enables automatic answer of incoming reInvite requests.
+  enableConnectLocalMedia: This feature enables connecting to users local media before the call.
+  enableTransfer: This feature enables the transfer button.
+  enableHold: This feature enables the hold/resume button.
+  enableIms: This feature enables the following for operation in an IMS environment.
+    P-Asserted-Identity:  The user portion is taken from the networkUserId client variable.
+    The “user=phone URI parameter is added to the request-URI, From, To, and P-Asserted-Identity.
 
-  volumeClick: 0 or 1.  Sets the audio volume for the click tone.
-  volumeDTMF: 0 or 1.  Sets the DTMF tone volume.
-  domainFrom: default domain to use in the From header
-  domainTo: default domain to use in the To header
-  allowOutside: allow calls that are destined for a different domain
+  volumeClick: Sets the audio volume for the click tone. Can be any￼value from 0 to 1
+  volumeDTMF: Sets the DTMF tone volume. Can be any value from 0 to 1.
+  domainFrom: The default domain to use in the From header.
+  domainTo: The default domain to use in the To header.
+  allowOutside: Allows calls that are destined for a different domain.
   stunServer: IP address of the STUN server
   stunPort: port of the STUN server
   websocketsServers: enables specification of the WebSockets server(s) to connect to.  Replace ws_uri and ws with wss_uri and wss respectively for secure WebSockets.
-  networkUserId: authorization user eg. 8323303809
+  networkUserId: The phone number to place in the user portion of the From header.
   displayName: SIP display name
-  endCallURL: url to send the browser to at the end of a call
+  endCallURL: Where to send the browser at the end of a call.
   bandwidthLow: bandwidth in kbps to use for low resolution.  Default is 128
   bandwidthMed: bandwidth in kbps to use for medium resolution.  Default is 512
   bandwidthHigh: bandwidth in kbps to use for high resolution.  Default is 2048
