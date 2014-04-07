@@ -942,6 +942,16 @@ body {
 
 .enable-mute.unmuted.started #muteAudio,
 .enable-mute.muted.started #unmuteAudio,
+.enable-full-screen.full-screen-contracted #fullScreenExpand,
+.enable-full-screen.full-screen-expanded #fullScreenContract,
+.enable-self-view.self-view-enabled #selfViewDisable,
+.enable-self-view.self-view-disabled #selfViewEnable,
+.enable-self-view.self-view-enabled #localVideo,
+.enable-settings #settings,
+.enable-settings.settings-shown #settingsPopup,
+.enable-dialpad.dialpad-shown #dialpadIconHide,
+.enable-dialpad.dialpad-hidden #dialpadIconShow,
+.enable-dialpad.dialpad-shown #dialpad,
 .started #hangup, .calling #hangup,
 .enable-call-control.connected #call,
 .enable-transfer.started #transfer,
@@ -964,6 +974,15 @@ body {
 .enable-mute.connected #muteAudio, .enable-mute.disconnected #muteAudio,
 .enable-mute.connected #unmuteAudio, .enable-mute.disconnected #unmuteAudio,
 .enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
+.enable-full-screen.full-screen-expanded #fullScreenExpand,
+.enable-full-screen.full-screen-contracted #fullScreenContract,
+.enable-self-view.self-view-disabled #selfViewDisable,
+.enable-self-view.self-view-enabled #selfViewEnable,
+.enable-self-view.self-view-disabled #localVideo,
+.enable-settings.settings-hidden #settingsPopup,
+.enable-dialpad.dialpad-hidden #dialpadIconHide,
+.enable-dialpad.dialpad-shown #dialpadIconShow,
+.enable-dialpad.dialpad-hidden #dialpad,
 .connected #hangup, .disconnected #hangup,
 #client:not(.connected) #call,
 .enable-transfer.connected #transfer, .enable-transfer.disconnected #transfer,
@@ -977,6 +996,17 @@ body {
     transition: all 1s linear;
     opacity: 0;
     z-index: -1;
+}
+#client:not(.enable-mute) .cell-muteAudio,
+#client:not(.enable-transfer) .cell-transfer,
+#client:not(.enable-hold) .cell-hold,
+#client:not(.enable-timer) .cell-timer,
+#client:not(.enable-full-screen) .cell-fullScreen,
+#client:not(.enable-self-view) .cell-selfView,
+#client:not(.enable-settings) .cell-settings,
+#client:not(.enable-dialpad) .cell-dialpad
+{
+    width: 0;
 }
 #historyRowSample {
     display: none;
@@ -1001,4 +1031,18 @@ body {
 }
 #historyCallLink {
     text-align: left;
+}
+.view-audioOnly #video, .view-audioOnly #fullScreenExpand, .view-audioOnly #fullScreenContract,
+.view-audioOnly #selfViewDisable, .view-audioOnly #selfViewEnable, .view-audioOnly #quality1,
+.view-audioOnly #quality2, .view-audioOnly #quality3, .view-audioOnly #quality4, .view-audioOnly #timer{
+    display:none !important;
+}
+.view-audioOnly .cell-fullScreen, .view-audioOnly .cell-timer, .view-audioOnly .cell-selfView{
+    width:0 !important;
+}
+#client.view-audioOnly{
+    width:200px;
+}
+.view-audioOnly #videoBar .table{
+    table-layout: auto;
 }

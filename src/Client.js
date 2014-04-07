@@ -29,6 +29,14 @@
     this.holdAndAnswerButton = $("#holdAndAnswerButton");
     this.dropAndAnswerButton = $("#dropAndAnswerButton");
     this.errorPopup = $( "#errorPopup" );
+    this.fullScreenExpandIcon = $("#fullScreenExpand");
+    this.fullScreenContractIcon = $("#fullScreenContract");
+    this.dialpadShowIcon = $("#dialpadIconShow");
+    this.dialpadHideIcon = $("#dialpadIconHide");
+    this.dialpad = $("#dialpad");
+    this.selfViewEnableIcon = $("#selfViewEnable");
+    this.selfViewDisableIcon = $("#selfViewDisable");
+
 
     this.configuration = new WebRTC.Configuration(this);
     this.eventBus = new WebRTC.EventBus(this.configuration);
@@ -44,6 +52,8 @@
     this.hold = new WebRTC.Icon($( "#hold" ), this.sound);
     this.resume = new WebRTC.Icon($( "#resume" ), this.sound);
     this.fullScreen = false;
+    this.selfViewEnabled = true;
+    this.dialpadShown = false;
     this.muted = false;
 
     this.configuration.setSettings(this.settings);
@@ -130,44 +140,6 @@
       }
       else {
         $("#callControl, #ok").fadeOut(1000);
-      }
-
-      if (ClientConfig.enableDialpad)
-      {
-        $("#dialpadIconShow").fadeIn(1000);
-      }
-      else {
-        $("#dialpadIconShow").fadeOut(1000);
-      }
-
-      if (ClientConfig.enableSelfView)
-      {
-        if ($.cookie('settingSelfViewDisable') === "true")
-        {
-          $("#localVideo, #selfViewDisable").fadeOut(100);
-          $("#selfViewEnable").fadeIn(1000);
-        }
-        else
-        {
-          $("#selfViewEnable").fadeOut(1000);
-          $("#localVideo, #selfViewDisable").fadeIn(1000);
-        }
-      }
-
-      if (ClientConfig.enableSettings)
-      {
-        $("#settings").fadeIn(1000);
-      }
-      else {
-        $("#settings").fadeOut(1000);
-      }
-
-      if (ClientConfig.enableFullScreen)
-      {
-        $("#fullScreenExpand").fadeIn(1000);
-      }
-      else {
-        $("#fullScreenExpand").fadeOut(1000);
       }
     },
 
@@ -336,25 +308,29 @@
     },
 
     hideSelfView: function() {
-      $("#localVideo, #selfViewDisable").fadeOut(100);
-      $("#selfViewEnable").fadeIn(1000);
+      this.selfViewEnabled = false;
+      this.updateClientClass();
     },
 
     stopFullScreen: function() {
-      document.webkitCancelFullScreen();
+      if(document.webkitCancelFullScreen) {
+        document.webkitCancelFullScreen();
+      }
       this.fullScreen = false;
-      $("#fullScreenContract").fadeOut(100);
-      $("#fullScreenExpand").fadeIn(1000);
+      this.updateClientClass();
     },
 
     showSelfView: function() {
-      $("#selfViewEnable").fadeOut(1000);
-      $("#localVideo, #selfViewDisable").fadeIn(1000);
+      this.selfViewEnabled = true;
+      this.updateClientClass();
     },
 
     showFullScreen: function() {
-      $('#video')[0].webkitRequestFullScreen();
+      if($('#video')[0].webkitRequestFullScreen) {
+        $('#video')[0].webkitRequestFullScreen();
+      }
       this.fullScreen = true;
+      this.updateClientClass();
     },
 
     muteAudio: function() {
@@ -366,13 +342,18 @@
     },
 
     showDialpad: function() {
-      $("#dialIconpadShow").fadeOut(1000);
-      $("#dialpad, #dialpadIconHide").fadeIn(1000);
+      this.dialpadShown = true;
+      this.updateClientClass();
     },
 
     hideDialpad: function() {
-      $("#dialpad, #dialpadIconHide").fadeOut(1000);
-      $("#dialpadIconShow").fadeIn(1000);
+      this.dialpadShown = false;
+      this.updateClientClass();
+    },
+
+    updateFullScreen: function() {
+      this.fullScreen = document.fullscreen || document.mozFullScreen || document.webkitIsFullScreen;
+      this.updateClientClass();
     },
 
     getRemoteUser: function(rtcSession) {
@@ -538,34 +519,38 @@
         e.preventDefault();
         self.sound.playClick();
         self.endCall();
-        if (self.fullScreen === true)
+        if (self.fullScreen)
         {
-          $('#fullScreenContract').click();
+          self.fullScreenContractIcon.click();
         }
       });
 
-      $('#fullScreenExpand').bind('click', function(e)
+      this.fullScreenExpandIcon.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
         self.showFullScreen();
       });
 
-      $('#fullScreenContract').bind('click', function(e)
+      this.fullScreenContractIcon.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
         self.stopFullScreen();
       });
+      $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange', function(e)
+      {
+        self.updateFullScreen();
+      });
 
-      $('#selfViewDisable').bind('click', function(e)
+      this.selfViewDisableIcon.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
         self.hideSelfView();
       });
 
-      $('#selfViewEnable').bind('click', function(e)
+      this.selfViewEnableIcon.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
@@ -598,14 +583,14 @@
         self.unmuteAudio();
       });
 
-      $('#dialpadIconShow').bind('click', function(e)
+      this.dialpadShowIcon.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
         self.showDialpad();
       });
 
-      $('#dialpadIconHide').bind('click', function(e)
+      this.dialpadHideIcon.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
@@ -736,7 +721,31 @@
       {
         classes.push("enable-timer");
       }
+      if (ClientConfig.enableSettings)
+      {
+        classes.push("enable-settings");
+      }
+      if (ClientConfig.enableFullScreen)
+      {
+        classes.push("enable-full-screen");
+      }
+      if (ClientConfig.enableSelfView)
+      {
+        classes.push("enable-self-view");
+      }
+      if (ClientConfig.enableDialpad)
+      {
+        classes.push("enable-dialpad");
+      }
+      if (this.configuration.view)
+      {
+        classes.push("view-"+this.configuration.view);
+      }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
+      if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }
+      if(this.selfViewEnabled) { classes.push("self-view-enabled"); } else { classes.push("self-view-disabled"); }
+      if(this.dialpadShown) { classes.push("dialpad-shown"); } else { classes.push("dialpad-hidden"); }
+      if(this.fullScreen) { classes.push("full-screen-expanded"); } else { classes.push("full-screen-contracted"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }
       if(this.authentication.visible) { classes.push("auth-visible"); } else { classes.push("auth-hidden"); }
       this.client.attr("class", classes.join(" "));

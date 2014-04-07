@@ -127,6 +127,79 @@ test('unmuteAudio on mute triggered', function() {
   client.unmuteAudioIcon.trigger("click");
   TestWebrtc.Helpers.isVisible(client.unmuteAudioIcon, false);
 });
+test('fullScreen icon', function() {
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.isVisible(client.fullScreenExpandIcon, true);
+  TestWebrtc.Helpers.isVisible(client.fullScreenContractIcon, false);
+});
+test('fullScreen icon with enableFullScreen = false', function() {
+  ClientConfig.enableFullScreen = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.isVisible(client.fullScreenExpandIcon, false);
+  TestWebrtc.Helpers.isVisible(client.fullScreenContractIcon, false);
+});
+test('fullScreen icon after click', function() {
+  ClientConfig.enableFullScreen = true;
+  client = new WebRTC.Client();
+  client.fullScreenExpandIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.fullScreenExpandIcon, false);
+  TestWebrtc.Helpers.isVisible(client.fullScreenContractIcon, true);
+  client.fullScreenContractIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.fullScreenExpandIcon, true);
+  TestWebrtc.Helpers.isVisible(client.fullScreenContractIcon, false);
+});
+test('selfView icon', function() {
+  ClientConfig.enableSelfView = true;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.isVisible(client.selfViewEnableIcon, false);
+  TestWebrtc.Helpers.isVisible(client.selfViewDisableIcon, true);
+  TestWebrtc.Helpers.isVisible(client.video.local, true);
+});
+test('selfView icon with enableSelfView = false', function() {
+  ClientConfig.enableSelfView = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.isVisible(client.selfViewEnableIcon, false);
+  TestWebrtc.Helpers.isVisible(client.selfViewDisableIcon, false);
+  TestWebrtc.Helpers.isVisible(client.video.local, false);
+});
+test('selfView icon after click', function() {
+  ClientConfig.enableSelfView = true;
+  client = new WebRTC.Client();
+  client.selfViewDisableIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.selfViewEnableIcon, true);
+  TestWebrtc.Helpers.isVisible(client.selfViewDisableIcon, false);
+  TestWebrtc.Helpers.isVisible(client.video.local, false);
+  client.selfViewEnableIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.selfViewEnableIcon, false);
+  TestWebrtc.Helpers.isVisible(client.selfViewDisableIcon, true);
+  TestWebrtc.Helpers.isVisible(client.video.local, true);
+});
+test('dialpad icon', function() {
+  ClientConfig.enableDialpad = true;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.isVisible(client.dialpadShowIcon, true);
+  TestWebrtc.Helpers.isVisible(client.dialpadHideIcon, false);
+  TestWebrtc.Helpers.isVisible(client.dialpad, false);
+});
+test('dialpad icon with enableDialpad = false', function() {
+  ClientConfig.enableDialpad = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.isVisible(client.dialpadShowIcon, false);
+  TestWebrtc.Helpers.isVisible(client.dialpadHideIcon, false);
+  TestWebrtc.Helpers.isVisible(client.dialpad, false);
+});
+test('dialpad icon after click', function() {
+  ClientConfig.enableDialpad = true;
+  client = new WebRTC.Client();
+  client.dialpadShowIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.dialpadShowIcon, false);
+  TestWebrtc.Helpers.isVisible(client.dialpadHideIcon, true);
+  TestWebrtc.Helpers.isVisible(client.dialpad, true);
+  client.dialpadHideIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.dialpadShowIcon, true);
+  TestWebrtc.Helpers.isVisible(client.dialpadHideIcon, false);
+  TestWebrtc.Helpers.isVisible(client.dialpad, false);
+});
 test('hangup on call started', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();

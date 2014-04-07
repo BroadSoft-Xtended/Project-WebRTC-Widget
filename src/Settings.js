@@ -29,6 +29,7 @@
     this.settingHDRow = $('#settingHDRow');
     this.settingAutoAnswerRow = $('#settingAutoAnswerRow');
     this.settingsIcon = $("#settings");
+    this.popup = $("#settingsPopup");
     this.settingResolutionTypeRow = $("#settingResolutionTypeRow");
     this.settingResolutionDisplayRow = $("#settingResolutionDisplayRow");
     this.settingResolutionEncodingRow = $("#settingResolutionEncodingRow");
@@ -65,15 +66,8 @@
       {
         e.preventDefault();
         self.sound.playClick();
-        if (self.toggled === false)
-        {
-          $("#settingsPopup").fadeIn(1000);
-        }
-        else if (self.toggled === true)
-        {
-          $("#settingsPopup").fadeOut(100);
-        }
         self.toggled = !self.toggled;
+        self.client.updateClientClass();
       });
 
       $("#settingColor").bind('change', function(e){

@@ -8,6 +8,28 @@ module( "Settings", {
   }, teardown: function() {
   }
 });
+test('settings icon', function() {
+  ClientConfig.enableSettings = true;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
+});
+test('settings icon with enableSettings = false', function() {
+  ClientConfig.enableSettings = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, false);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
+});
+test('settings icon after click', function() {
+  ClientConfig.enableSettings = true;
+  client = new WebRTC.Client();
+  client.settings.settingsIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, true);
+  client.settings.settingsIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
+});
 test('without color url param', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.color, undefined);
@@ -71,6 +93,7 @@ test('persist with resolution set', function() {
   $.cookie("settingResolutionEncoding", "");
 });
 test('updates localVideo top and left setting after drag', function() {
+  ClientConfig.enableSelfView = true;
   client = new WebRTC.Client();
   client.video.local.simulate( "drag", {dx: 50, dy: 100 });
   strictEqual(client.settings.localVideoLeft.val(), "56");
