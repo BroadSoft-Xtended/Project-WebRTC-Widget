@@ -210,7 +210,7 @@
       this.ua.on('connected', function(e)
       {
         self.client.updateClientClass();
-        self.eventBus.connected();
+        self.eventBus.connected(e.data);
       });
       this.ua.on('disconnected', function(e)
       {

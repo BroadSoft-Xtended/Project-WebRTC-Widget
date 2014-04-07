@@ -45,11 +45,11 @@
   EventBus.prototype.incomingCall = function(data) {
     this.emit("incomingCall", this, data);
   };
-  EventBus.prototype.connected = function() {
-    this.emit("connected", this);
+  EventBus.prototype.connected = function(data) {
+    this.emit("connected", this, data);
   };
-  EventBus.prototype.registered = function() {
-    this.emit("registered", this);
+  EventBus.prototype.registered = function(data) {
+    this.emit("registered", this, data);
   };
   EventBus.prototype.registrationFailed = function(data) {
     this.emit("registrationFailed", this, data);
