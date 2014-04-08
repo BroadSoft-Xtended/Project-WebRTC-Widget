@@ -1006,7 +1006,7 @@ body {
 #client:not(.enable-settings) .cell-settings,
 #client:not(.enable-dialpad) .cell-dialpad
 {
-    width: 0;
+    display:none !important;
 }
 #historyRowSample {
     display: none;
@@ -1034,11 +1034,9 @@ body {
 }
 .view-audioOnly #video, .view-audioOnly #fullScreenExpand, .view-audioOnly #fullScreenContract,
 .view-audioOnly #selfViewDisable, .view-audioOnly #selfViewEnable, .view-audioOnly #quality1,
-.view-audioOnly #quality2, .view-audioOnly #quality3, .view-audioOnly #quality4, .view-audioOnly #timer{
-    display:none !important;
-}
+.view-audioOnly #quality2, .view-audioOnly #quality3, .view-audioOnly #quality4, .view-audioOnly #timer,
 .view-audioOnly .cell-fullScreen, .view-audioOnly .cell-timer, .view-audioOnly .cell-selfView{
-    width:0 !important;
+    display:none !important;
 }
 #client.view-audioOnly{
     width:auto;
