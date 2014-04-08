@@ -1034,8 +1034,8 @@ body {
 }
 .view-audioOnly #video, .view-audioOnly #fullScreenExpand, .view-audioOnly #fullScreenContract,
 .view-audioOnly #selfViewDisable, .view-audioOnly #selfViewEnable, .view-audioOnly #quality1,
-.view-audioOnly #quality2, .view-audioOnly #quality3, .view-audioOnly #quality4, .view-audioOnly #timer,
-.view-audioOnly .cell-fullScreen, .view-audioOnly .cell-timer, .view-audioOnly .cell-selfView{
+.view-audioOnly #quality2, .view-audioOnly #quality3, .view-audioOnly #quality4,
+.view-audioOnly .cell-fullScreen, .view-audioOnly .cell-selfView{
     display:none !important;
 }
 #client.view-audioOnly{
