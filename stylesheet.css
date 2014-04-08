@@ -1052,3 +1052,11 @@ body {
 .view-audioOnly .cell-hangup {
     width:35px !important;
 }
+.view-audioOnly #timer {
+    position: relative;
+    margin-right: 10px;
+}
+.view-audioOnly #dialpad {
+    top: 60px;
+    left: 0;
+}
