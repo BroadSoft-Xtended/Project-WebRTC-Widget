@@ -1041,8 +1041,16 @@ body {
     width:0 !important;
 }
 #client.view-audioOnly{
-    width:200px;
+    width:auto;
+}
+.view-audioOnly #videoBar {
+    display: inline-block;
+    width: auto;
 }
 .view-audioOnly #videoBar .table{
     table-layout: auto;
+    width: auto;
+}
+.view-audioOnly .cell-hangup {
+    width:35px !important;
 }
