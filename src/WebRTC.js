@@ -28,7 +28,7 @@ var WebRTC = (function() {
         bg = document.defaultView.getComputedStyle(elem,
           null).getPropertyValue("background-color");
       }
-      if (bg.search("rgb") === -1) {
+      if (bg.search("rgb") === -1 || bg === 'transparent') {
         return bg;
       }
       else {

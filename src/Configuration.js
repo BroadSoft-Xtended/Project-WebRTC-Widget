@@ -71,6 +71,9 @@
         }
       }
     },
+    getBackgroundColor: function(){
+      return this.color || $('body').css('backgroundColor');
+    },
     getRegister: function(){
       return ClientConfig.register || WebRTC.Utils.getSearchVariable("register") === "true";
     },

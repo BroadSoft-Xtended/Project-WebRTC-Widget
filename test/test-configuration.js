@@ -197,6 +197,31 @@ test('setResolutionDisplay', function() {
   strictEqual(client.configuration.getResolutionDisplay(), WebRTC.C.R_1280x720);
   strictEqual(client.client.attr('class').indexOf("r"+WebRTC.C.R_1280x720) !== -1, true, "Should contain new resolution display as class name");
 });
+test('without color url param', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getBackgroundColor(), "#ffffff");
+  strictEqual(client.settings.color.val(), '#ffffff');
+  strictEqual($('body').css('backgroundColor'), '#ffffff');
+});
+test('with color url param', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "red" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getBackgroundColor(), '#ff0000');
+  strictEqual($('body').css('backgroundColor'), '#ff0000');
+});
+test('with color url param as hex', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "d0d0d0" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getBackgroundColor(), '#d0d0d0');
+  strictEqual($('body').css('backgroundColor'), '#d0d0d0');
+});
+test('with color url param as transparent', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "transparent" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getBackgroundColor(), 'transparent');
+  strictEqual($('body').css('backgroundColor'), '#000000');
+});
 
 
 function setClientConfigFlagAndAssert(flagName) {
