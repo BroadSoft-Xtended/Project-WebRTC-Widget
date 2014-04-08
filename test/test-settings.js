@@ -45,6 +45,11 @@ test('with color url param as hex', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.color, '#d0d0d0');
 });
+test('with color url param as transparent', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "transparent" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.color, 'transparent');
+});
 test('persist', function() {
   client = new WebRTC.Client();
   client.settings.save.trigger("click");
