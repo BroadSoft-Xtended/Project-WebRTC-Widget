@@ -197,6 +197,18 @@ test('setResolutionDisplay', function() {
   strictEqual(client.configuration.getResolutionDisplay(), WebRTC.C.R_1280x720);
   strictEqual(client.client.attr('class').indexOf("r"+WebRTC.C.R_1280x720) !== -1, true, "Should contain new resolution display as class name");
 });
+test('with view url param', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "view" ? "audioOnly" : false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.view, 'audioOnly');
+});
+test('with ClientConfig.view param', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return false;}
+  ClientConfig.view = 'audioOnly';
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.view, 'audioOnly');
+  delete ClientConfig.view;
+});
 test('without color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
   client = new WebRTC.Client();

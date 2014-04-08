@@ -114,6 +114,7 @@ The following options exist
   debug: enable logs in console
   displayResolution: resolution of the display eg. 960x720
   encodingResolution: resolution of the video encoding eg. 960x720
+  view: view type for the WebRTC Client UI eg. audioOnly
 
   messageProgress: message to show on SIP progress,
   messageOutsideDomain: message to show if address is outside domain,
