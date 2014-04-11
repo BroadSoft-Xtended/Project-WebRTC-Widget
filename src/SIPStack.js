@@ -240,11 +240,11 @@
           self.client.updateClientClass();
           self.eventBus.started(e.sender, e.data);
         });
-        session.on('unholded', function(e) {
+        session.on('resumed', function(e) {
           this.client.updateClientClass();
           self.eventBus.resumed(e.sender, e.data);
         });
-        session.on('holded', function(e) {
+        session.on('held', function(e) {
           this.client.updateClientClass();
           self.eventBus.held(e.sender, e.data);
         });

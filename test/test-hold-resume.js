@@ -43,14 +43,14 @@ test('resume icon on call started with enableHold is true', function() {
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.isVisible(client.resume, false);
 });
-test('hold icon after call holded', function() {
+test('hold icon after call held', function() {
   ClientConfig.enableHold = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
   client.hold.element.trigger("click");
   TestWebrtc.Helpers.isVisible(client.hold, false);
 });
-test('resume icon after call holded', function() {
+test('resume icon after call held', function() {
   ClientConfig.enableHold = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
@@ -58,7 +58,7 @@ test('resume icon after call holded', function() {
   strictEqual(client.hold.disabled, false);
   TestWebrtc.Helpers.isVisible(client.resume, true);
 });
-test('hold icon after call unholded', function() {
+test('hold icon after call resumed', function() {
   ClientConfig.enableHold = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
@@ -67,7 +67,7 @@ test('hold icon after call unholded', function() {
   strictEqual(client.resume.disabled, false);
   TestWebrtc.Helpers.isVisible(client.hold, true);
 });
-test('resume icon after call unholded', function() {
+test('resume icon after call resumed', function() {
   ClientConfig.enableHold = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
