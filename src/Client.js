@@ -37,6 +37,11 @@
     this.selfViewEnableIcon = $("#selfViewEnable");
     this.selfViewDisableIcon = $("#selfViewDisable");
 
+    if(typeof(ClientConfig) === 'undefined') {
+      $('#unsupported').text("Could not read ClientConfig - make sure it is included and properly formatted");
+      $('#unsupported').show();
+      return;
+    }
 
     this.configuration = new WebRTC.Configuration(this);
     this.eventBus = new WebRTC.EventBus(this.configuration);
