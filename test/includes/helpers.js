@@ -38,6 +38,10 @@ TestWebrtc.Helpers = {
     client.sipStack.ua.emit('connected', client.sipStack.ua);
   },
 
+  disconnect: function(data) {
+    client.sipStack.ua.emit('disconnected', client.sipStack.ua, data);
+  },
+
   registrationFailed: function(statusCode) {
     client.sipStack.ua.emit('registrationFailed', client.sipStack.ua, {response: {status_code: (statusCode || 401)}});
   },
@@ -89,8 +93,8 @@ TestWebrtc.Helpers = {
 
   createSession: function(){
     var session = new ExSIP.RTCSession(client.sipStack.ua);
-    session.hold = function(success){console.log("hold"); session.holded(); if(success){success();}}
-    session.unhold = function(success){console.log("unhold"); session.unholded(); if(success){success();}}
+    session.hold = function(success){console.log("hold"); session.held(); if(success){success();}}
+    session.unhold = function(success){console.log("unhold"); session.resumed(); if(success){success();}}
     session.terminate = function(options){console.log("terminate"); session.ended('local');}
     session.answer = function(options){console.log("answer"); answerOptions = options; session.started('local');}
     return session;

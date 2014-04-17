@@ -29,11 +29,13 @@
     this.settingHDRow = $('#settingHDRow');
     this.settingAutoAnswerRow = $('#settingAutoAnswerRow');
     this.settingsIcon = $("#settings");
+    this.popup = $("#settingsPopup");
     this.settingResolutionTypeRow = $("#settingResolutionTypeRow");
     this.settingResolutionDisplayRow = $("#settingResolutionDisplayRow");
     this.settingResolutionEncodingRow = $("#settingResolutionEncodingRow");
     this.settingResolutionRow = $("#settingResolutionRow");
     this.settingBandwidthRow = $("#settingBandwidthRow");
+    this.color = $("#settingColor");
 
     this.configuration = configuration;
     this.sound = sound;
@@ -66,18 +68,11 @@
       {
         e.preventDefault();
         self.sound.playClick();
-        if (self.toggled === false)
-        {
-          $("#settingsPopup").fadeIn(1000);
-        }
-        else if (self.toggled === true)
-        {
-          $("#settingsPopup").fadeOut(100);
-        }
         self.toggled = !self.toggled;
+        self.client.updateClientClass();
       });
 
-      $("#settingColor").bind('change', function(e){
+      this.color.bind('change', function(e){
         self.updatePageColor();
       });
       this.save.bind('click', function(e)
@@ -158,7 +153,7 @@
       location.reload(0);
     },
     updatePageColor: function(){
-      var color = $("#settingColor").val();
+      var color = this.configuration.getBackgroundColor();
       logger.log('updating page color : '+color, this.configuration);
       $('body').css('backgroundColor', color || '');
     },
@@ -178,7 +173,7 @@
       this.settingBandwidthMed.val(ClientConfig.bandwidthMed || $.cookie('settingBandwidthMed'));
       this.settingBandwidthHigh.val(ClientConfig.bandwidthHigh || $.cookie('settingBandwidthHigh'));
       $("#settingSize").val($.cookie('settingSize') || this.configuration.size);
-      $("#settingColor").val($.cookie('settingColor') || this.configuration.color || $('body').css('backgroundColor'));
+      this.color.val(this.configuration.getBackgroundColor());
       this.setResolutionDisplay(ClientConfig.displayResolution || $.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
       this.setResolutionEncoding(ClientConfig.encodingResolution || $.cookie('settingResolutionEncoding') || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
       $("#settingAutoAnswer").prop('checked', (ClientConfig.enableAutoAnswer || $.cookie('settingAutoAnswer') === "true"));
@@ -273,7 +268,7 @@
       $.cookie("settingBandwidthLow", (this.settingBandwidthLow.val()), { expires: ClientConfig.expires });
       $.cookie("settingBandwidthMed", (this.settingBandwidthMed.val()), { expires: ClientConfig.expires });
       $.cookie("settingBandwidthHigh", (this.settingBandwidthHigh.val()), { expires: ClientConfig.expires });
-      $.cookie("settingColor", ($("#settingColor").val()), { expires: ClientConfig.expires });
+      $.cookie("settingColor", (this.color.val()), { expires: ClientConfig.expires });
       $.cookie("settingResolutionDisplay", (this.getResolutionDisplay()), { expires: ClientConfig.expires });
       $.cookie("settingResolutionEncoding", (this.getResolutionEncoding()), { expires: ClientConfig.expires });
       $.cookie("settingSize", ($("#settingSize").val()), { expires: ClientConfig.expires });

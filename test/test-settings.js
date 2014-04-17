@@ -8,20 +8,27 @@ module( "Settings", {
   }, teardown: function() {
   }
 });
-test('without color url param', function() {
+test('settings icon', function() {
+  ClientConfig.enableSettings = true;
   client = new WebRTC.Client();
-  strictEqual(client.configuration.color, undefined);
-  strictEqual($('#settingColor').val(), '#ffffff');
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
 });
-test('with color url param', function() {
-  WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "red" : false;}
+test('settings icon with enableSettings = false', function() {
+  ClientConfig.enableSettings = false;
   client = new WebRTC.Client();
-  strictEqual(client.configuration.color, '#ff0000');
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, false);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
 });
-test('with color url param as hex', function() {
-  WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "d0d0d0" : false;}
+test('settings icon after click', function() {
+  ClientConfig.enableSettings = true;
   client = new WebRTC.Client();
-  strictEqual(client.configuration.color, '#d0d0d0');
+  client.settings.settingsIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, true);
+  client.settings.settingsIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
 });
 test('persist', function() {
   client = new WebRTC.Client();
@@ -71,6 +78,7 @@ test('persist with resolution set', function() {
   $.cookie("settingResolutionEncoding", "");
 });
 test('updates localVideo top and left setting after drag', function() {
+  ClientConfig.enableSelfView = true;
   client = new WebRTC.Client();
   client.video.local.simulate( "drag", {dx: 50, dy: 100 });
   strictEqual(client.settings.localVideoLeft.val(), "56");

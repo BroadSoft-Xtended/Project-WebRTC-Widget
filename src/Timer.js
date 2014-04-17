@@ -13,45 +13,55 @@
     this.stats = stats;
     this.configuration = configuration;
     this.callTimer = null;
+    this.startTime = null;
+
+    this.updateText();
   };
 
   Timer.prototype = {
     start: function()
     {
-      if(this.configuration.timerRunning) {
+      if(this.running) {
         return;
       }
 
-      this.configuration.timerRunning = true;
       var timer = this.runningTimer();
       this.callTimer = setInterval(timer, 1000);
-      if (ClientConfig.enableCallTimer)
-      {
-        this.text.fadeIn(100);
-      }
     },
 
     stop: function()
     {
-      this.text.fadeOut(100);
-      this.configuration.timerRunning = false;
+      this.startTime = null;
       clearInterval(this.callTimer);
+      this.updateText();
+    },
+
+    getSeconds: function()
+    {
+      return Math.round((new Date().getTime() - (this.startTime || new Date().getTime())) / 1000);
+    },
+
+    updateText: function()
+    {
+      var secs = this.getSeconds();
+      this.text.text(WebRTC.Utils.format(secs));
     },
 
 // Display the timer on the screen
     runningTimer: function()
     {
-      var startTime = new Date().getTime(), self = this;
+      var self = this;
+      this.startTime = new Date().getTime();
       return function ()
       {
-        var secs = Math.round((new Date().getTime() - startTime) / 1000);
+        var secs = self.getSeconds();
         if (self.configuration.maxCallLength && secs >= self.configuration.maxCallLength)
         {
           self.client.terminateSessions();
           self.client.endCall();
           return;
         }
-        self.text.text(WebRTC.Utils.format(secs));
+        self.updateText();
         if (ClientConfig.enableCallStats && WebRTC.Utils.isChrome())
         {
           self.stats.processStats();

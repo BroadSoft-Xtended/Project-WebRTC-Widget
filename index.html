@@ -92,7 +92,67 @@
           <button class="button" id="rejectTransfer" type="button">Cancel</button>
       </div>
     </div>
-    <div id="settingsPopup" class="table collapse fixed">
+    <div id="settingsPopup" class="table collapse fixed fadeable popup">
+      <span class="row" style="font-size: 22px; font-weight: bold; color: #FFFFFF;">Client Settings</span>
+      <div class="row" style="height: 15px;"></div>
+      <div id="settingDisplayNameRow" class="row">
+          <span class="cell" style="width:250px">Display Name</span>
+          <input class="cell" id="settingDisplayName" type="text" value=""/>
+      </div>
+      <div id="settingUseridRow" class="row">
+          <span class="cell">User ID</span>
+          <input class="cell" id="settingUserid" type="text" value=""/>
+      </div>
+      <div class="row">
+          <span class="cell">Password</span>
+          <input class="cell" id="settingPassword" type="password" value=""/>
+      </div>
+      <div id="settingSelfViewDisableRow" class="row">
+          <span class="cell">Disable Self View</span>
+          <input class="cell" id="settingSelfViewDisable" type="checkbox"/>
+      </div>
+      <div id="settingHDRow" class="row">
+          <span class="cell">Start in HD</span>
+          <input class="cell" id="settingHD" type="checkbox"/><br>
+      </div>
+      <div id="settingBandwidthRow" class="row">
+        <span class="cell">Bandwidth</span>
+        <span class="cell">
+          <input id="settingBandwidthLow" class="short" type="text" maxlength="4" value="" placeholder="low"/>
+          <input id="settingBandwidthMed" class="short" type="text" maxlength="4" value="" placeholder="medium"/>
+          <input id="settingBandwidthHigh" class="short" type="text" maxlength="4" value="" placeholder="high"/>
+        </span>
+      </div>
+      <div class="row">
+          <span class="cell">Window Zoom</span>
+          <input class="cell short" id="settingZoom" type="text" maxlength="4" value=""/>
+      </div>
+      <div id="settingAutoAnswerRow" class="row">
+          <span class="cell">Auto Answer</span>
+          <input class="cell" id="settingAutoAnswer" type="checkbox"/>
+      </div>
+      <div class="row">
+          <span class="cell">Self View Window</span>
+          <span class="cell">
+              <input id="settingLocalVideoTop" class="short" type="text" maxlength="4" value=""/><span> top </span>
+              <input id="settingLocalVideoLeft" class="short" type="text" maxlength="4" value=""/><span> left </span>
+          </span>
+      </div>
+      <div class="row">
+          <span class="cell">Call History Window</span>
+          <span class="cell">
+              <input id="settingCallHistoryTop" class="short" type="text" maxlength="4" value=""/><span> top </span>
+              <input id="settingCallHistoryLeft" class="short" type="text" maxlength="4" value=""/><span> left </span>
+          </span>
+      </div>
+      <div class="row">
+          <span class="cell">Call Stats Window</span>
+          <span class="cell">
+              <input id="settingCallStatsTop" class="short" type="text" maxlength="4" value=""/><span> top </span>
+              <input id="settingCallStatsLeft" class="short" type="text" maxlength="4" value=""/><span> left </span>
+          </span>
+      </div>
+>>>>>>> master
       <div class="row">
         <ul class='tabs'>
               <li><a href='#tab1'><span class="icon-cog"></span>Configure</a></li>
@@ -192,28 +252,28 @@
     <div id="video">
       <span id="watermark-icon" class="icon-facetime-video"></span>
       <video id="remoteVideo" autoplay="autoplay"></video>
-      <video id="localVideo" autoplay="autoplay" muted="true"></video>
+      <video id="localVideo" autoplay="autoplay" muted="true" class="fadeable"></video>
     </div>
     <div id="videoBar">
         <div class="table fixed collapse">
-          <div class="cell">
-              <div id="selfViewDisable" class="icon">
+          <div class="cell cell-selfView">
+              <div id="selfViewDisable" class="icon fadeable">
                   <a href="" title="Disable Self View" class="icon-facetime-video"></a>
               </div>
-              <div id="selfViewEnable" class="icon">
+              <div id="selfViewEnable" class="icon fadeable">
                   <a href="" title="Enable Self View" class="icon-facetime-video"></a>
               </div>
           </div>
-          <div class="cell">
-              <div id="dialpadIconShow" class="icon">
+          <div class="cell cell-dialpad">
+              <div id="dialpadIconShow" class="icon fadeable">
                   <a href="" title="Show Dialpad" class="icon-dialpad"></a>
               </div>
-              <div id="dialpadIconHide" class="icon">
+              <div id="dialpadIconHide" class="icon fadeable">
                   <a href="" title="Hide Dialpad" class="icon-dialpad"></a>
               </div>
           </div>
          
-          <div class="cell">
+          <div class="cell cell-muteAudio">
               <div id="muteAudio" class="icon fadeable">
                   <a href="" title="Mute Audio" class="icon-volume-mute"></a>
               </div>
@@ -221,7 +281,7 @@
                   <a href="" title="Unmute Audio" class="icon-volume-medium"></a>
               </div>
           </div>
-          <div class="cell">
+          <div class="cell cell-hold">
               <div id="hold" class="icon fadeable">
                   <a href="" title="Hold Call" class="icon-pause2"></a>
               </div>
@@ -229,32 +289,33 @@
                   <a href="" title="Resume Call" class="icon-pause2"></a>
               </div>
           </div>
-          <div class="cell" style="width:42px;">
+          <div class="cell cell-hangup" style="width:42px;">
               <div id="hangup" class="icon fadeable">
                   <a href="" title="Hangup" class="icon-phone-hang-up"></a>
               </div>
           </div>
-            <div class="cell">
+            <div class="cell cell-transfer">
                 <div id="transfer" class="icon fadeable">
                     <a href="" title="Transfer" class="icon-share5"></a>
                 </div>
             </div>
-            <div class="cell" style="position:relative;top:0;left:0;width:auto;">
+            <div class="cell cell-timer" style="position:relative;top:0;left:0;width:auto;">
                 <div id="timer" class="fadeable"></div>
             </div>
-            <div class="cell">
+            <div class="cell cell-settings">
                 <div id="settings" class="icon">
                     <span title="Settings" class="icon-cog"></span>
                 </div>
             </div>
-            <div class="cell">
-                <div id="fullScreenExpand" class="icon">
+            <div class="cell cell-fullScreen">
+                <div id="fullScreenExpand" class="icon fadeable">
                     <a href="" title="Expand Full Screen" class="icon-resize4"></a>
                 </div>
-                <div id="fullScreenContract" class="icon">
+                <div id="fullScreenContract" class="icon fadeable">
                     <a href="" title="Contract Full Screen" class="icon-resize4"></a>
                 </div>
             </div>
+          </div>
         </div>
     </div>
     <div id="connected">
@@ -275,7 +336,7 @@
     <div id="quality4">
       <span title="Call Quality" class="icon-quality4"></span>
     </div>
-    <div id="dialpad">
+    <div id="dialpad" class="fadeable popup">
       <div id="callControl" class="destination-container">
         <input id="destination" type="text" placeholder="# or URI">
         <button class="history-button"><i class="icon-clock"></i></button>

@@ -154,7 +154,7 @@ Utils= {
       "tan":"#d2b48c","teal":"#008080","thistle":"#d8bfd8","tomato":"#ff6347","turquoise":"#40e0d0",
       "violet":"#ee82ee",
       "wheat":"#f5deb3","white":"#ffffff","whitesmoke":"#f5f5f5",
-      "yellow":"#ffff00","yellowgreen":"#9acd32"};
+      "yellow":"#ffff00","yellowgreen":"#9acd32","transparent":"transparent"};
 
     if (typeof colors[color.toLowerCase()] !== 'undefined') {
       return colors[color.toLowerCase()];

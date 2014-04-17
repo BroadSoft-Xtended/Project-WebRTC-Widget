@@ -109,6 +109,10 @@
       this.activeSession.sendDTMF(digit, this.configuration.getDTMFOptions());
     },
 
+    isStarted: function() {
+      return this.getCallState() === C.STATE_STARTED;
+    },
+
     transfer: function(transferTarget, isAttended) {
       if(isAttended) {
         this.ua.attendedTransfer(transferTarget, this.activeSession);
@@ -206,12 +210,12 @@
       this.ua.on('connected', function(e)
       {
         self.client.updateClientClass();
-        self.eventBus.connected();
+        self.eventBus.connected(e.data);
       });
       this.ua.on('disconnected', function(e)
       {
         self.client.updateClientClass();
-        self.eventBus.disconnected();
+        self.eventBus.disconnected(e.data);
       });
       this.ua.on('onReInvite', function(e) {
         logger.log("incoming onReInvite event", self.configuration);
@@ -236,17 +240,21 @@
           self.client.updateClientClass();
           self.eventBus.started(e.sender, e.data);
         });
-        session.on('unholded', function(e) {
+        session.on('resumed', function(e) {
           this.client.updateClientClass();
-          self.eventBus.unholded(e.sender, e.data);
+          self.eventBus.resumed(e.sender, e.data);
         });
-        session.on('holded', function(e) {
+        session.on('held', function(e) {
           this.client.updateClientClass();
-          self.eventBus.holded(e.sender, e.data);
+          self.eventBus.held(e.sender, e.data);
         });
         session.on('ended', function(e)
         {
           self.eventBus.ended(e.sender, e.data);
+        });
+        session.on('newDTMF', function(e)
+        {
+          self.eventBus.newDTMF(e.sender, e.data);
         });
         // handle incoming call
         if (e.data.session.direction === "incoming")

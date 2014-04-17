@@ -21,10 +21,11 @@
       'progress',
       'failed',
       'started',
-      'holded',
-      'unholded',
+      'held',
+      'resumed',
       'ended',
-      'calling'
+      'calling',
+      'newDTMF'
     ];
 
     this.initEvents(events);
@@ -44,17 +45,17 @@
   EventBus.prototype.incomingCall = function(data) {
     this.emit("incomingCall", this, data);
   };
-  EventBus.prototype.connected = function() {
-    this.emit("connected", this);
+  EventBus.prototype.connected = function(data) {
+    this.emit("connected", this, data);
   };
-  EventBus.prototype.registered = function() {
-    this.emit("registered", this);
+  EventBus.prototype.registered = function(data) {
+    this.emit("registered", this, data);
   };
   EventBus.prototype.registrationFailed = function(data) {
     this.emit("registrationFailed", this, data);
   };
-  EventBus.prototype.disconnected = function() {
-    this.emit("disconnected", this);
+  EventBus.prototype.disconnected = function(data) {
+    this.emit("disconnected", this, data);
   };
   EventBus.prototype.failed = function(sender, data) {
     this.emit("failed", sender, data);
@@ -65,17 +66,20 @@
   EventBus.prototype.started = function(sender, data) {
     this.emit("started", sender, data);
   };
-  EventBus.prototype.holded = function(sender, data) {
-    this.emit("holded", sender, data);
+  EventBus.prototype.held = function(sender, data) {
+    this.emit("held", sender, data);
   };
-  EventBus.prototype.unholded = function(sender, data) {
-    this.emit("unholded", sender, data);
+  EventBus.prototype.resumed = function(sender, data) {
+    this.emit("resumed", sender, data);
   };
   EventBus.prototype.ended = function(sender, data) {
     this.emit("ended", sender, data);
   };
   EventBus.prototype.calling = function(sender, data) {
     this.emit("calling", sender, data);
+  };
+  EventBus.prototype.newDTMF = function(sender, data) {
+    this.emit("newDTMF", sender, data);
   };
   EventBus.prototype.isDebug = function() {
     return this.configuration.isDebug();
