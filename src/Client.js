@@ -12,8 +12,8 @@
   Client = function() {
     this.main = $("#main");
     this.client = $("#client");
-    this.muteAudio = $('#muteAudio');
-    this.unmuteAudio = $('#unmuteAudio');
+    this.muteAudioIcon = $('#muteAudio');
+    this.unmuteAudioIcon = $('#unmuteAudio');
     this.hangup = $("#hangup");
     this.destination = $("#callControl input#destination");
     this.callButton = $('#call');
@@ -69,14 +69,18 @@
         {
           self.video.local.draggable({
             snap: "#remoteVideo,#videoBar",
+            containment: "parent",
+            snapTolerance: 200,
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
           $("#callStats").draggable({
             snap: "#remoteVideo,#videoBar",
+            containment: "parent",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
           $("#callHistory").draggable({
             snap: "#remoteVideo,#videoBar",
+            containment: "parent",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
         });
@@ -92,8 +96,7 @@
       $.cookie.raw = true;
 
       window.onbeforeunload = function(e) {
-        self.sipStack.terminateSessions();
-        self.endCall();
+        self.endCall({rtcSession: 'all'});
         return null;
       };
 
@@ -129,10 +132,18 @@
       {
         $("#callControl, #ok").fadeIn(1000);
       }
+      else {
+        $("#callControl, #ok").fadeOut(1000);
+      }
+
       if (ClientConfig.enableDialpad)
       {
         $("#dialpadIconShow").fadeIn(1000);
       }
+      else {
+        $("#dialpadIconShow").fadeOut(1000);
+      }
+
       if (ClientConfig.enableSelfView)
       {
         if ($.cookie('settingSelfViewDisable') === "true")
@@ -146,13 +157,21 @@
           $("#localVideo, #selfViewDisable").fadeIn(1000);
         }
       }
+
       if (ClientConfig.enableSettings)
       {
         $("#settings").fadeIn(1000);
       }
+      else {
+        $("#settings").fadeOut(1000);
+      }
+
       if (ClientConfig.enableFullScreen)
       {
         $("#fullScreenExpand").fadeIn(1000);
+      }
+      else {
+        $("#fullScreenExpand").fadeOut(1000);
       }
     },
 
@@ -194,8 +213,14 @@
     },
 
     // URL call
-    uriCall: function(destinationToValidate)
+    callUri: function(destinationToValidate)
     {
+      if (destinationToValidate === "")
+      {
+        this.message(ClientConfig.messageEmptyDestination, "alert");
+        return;
+      }
+
       var destination = this.validateDestination(destinationToValidate);
       if (destination === false)
       {
@@ -221,7 +246,16 @@
       }
     },
 
-    endCall: function() {
+    endCall: function(options) {
+      options = options || {};
+      var rtcSession = options['rtcSession'];
+      if(rtcSession === 'all') {
+        this.sipStack.terminateSessions();
+      } else if(rtcSession) {
+        this.sipStack.terminateSession(rtcSession);
+      } else {
+        this.sipStack.terminateSession();
+      }
       this.setEvent(null);
       this.sound.pause();
       this.video.updateSessionStreams();
@@ -234,10 +268,7 @@
 
       this.guiStart();
 
-      if (this.configuration.timerRunning === true)
-      {
-        this.timer.stop();
-      }
+      this.timer.stop();
       if (ClientConfig.endCallURL)
       {
         window.location = ClientConfig.endCallURL;
@@ -254,7 +285,7 @@
       if(!ClientConfig.enableConnectLocalMedia) {
         if (self.configuration.destination !== false) {
           // Wait 300 ms for websockets connection then call destination in URL
-          setTimeout(function(){self.uriCall(self.configuration.destination);},300);
+          setTimeout(function(){self.callUri(self.configuration.destination);},300);
         }
       }
 
@@ -269,7 +300,7 @@
       {
         return;
       }
-      if (this.configuration.timerRunning === true)
+      if (this.sipStack.isStarted())
       {
         var file = null;
         if (digit === "*")
@@ -286,11 +317,66 @@
         }
         this.sound.playDtmfTone(file);
         this.destination.val(this.destination.val() + digit);
-        if (this.configuration.timerRunning === true)
-        {
-          this.sipStack.sendDTMF(digit);
-        }
+        this.sipStack.sendDTMF(digit);
       }
+    },
+
+    resumeCall: function() {
+      var self = this;
+      this.resume.disable();
+      var enable = function(){
+        self.resume.enable();
+      };
+      this.sipStack.unhold(enable, enable);
+    },
+
+    holdCall: function() {
+      var self = this;
+      this.hold.disable();
+      var enable = function(){
+        self.hold.enable();
+      };
+      this.sipStack.hold(enable, enable);
+    },
+
+    hideSelfView: function() {
+      $("#localVideo, #selfViewDisable").fadeOut(100);
+      $("#selfViewEnable").fadeIn(1000);
+    },
+
+    stopFullScreen: function() {
+      document.webkitCancelFullScreen();
+      this.fullScreen = false;
+      $("#fullScreenContract").fadeOut(100);
+      $("#fullScreenExpand").fadeIn(1000);
+    },
+
+    showSelfView: function() {
+      $("#selfViewEnable").fadeOut(1000);
+      $("#localVideo, #selfViewDisable").fadeIn(1000);
+    },
+
+    showFullScreen: function() {
+      $('#video')[0].webkitRequestFullScreen();
+      this.fullScreen = true;
+    },
+
+    muteAudio: function() {
+      this.sound.enableLocalAudio(false);
+    },
+
+    unmuteAudio: function() {
+      this.sound.enableLocalAudio(true);
+    },
+
+    showDialpad: function() {
+      $("#dialIconpadShow").fadeOut(1000);
+      $("#dialpad, #dialpadIconHide").fadeIn(1000);
+    },
+
+    hideDialpad: function() {
+      $("#dialpad, #dialpadIconHide").fadeOut(1000);
+      $("#dialpadIconShow").fadeIn(1000);
     },
 
     getRemoteUser: function(rtcSession) {
@@ -301,10 +387,9 @@
       var self = this;
 
       this.eventBus.on("ended", function(e){
-        self.sipStack.terminateSession(e.sender);
         self.message(ClientConfig.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
         self.history.persistCall(e.sender);
-        self.endCall();
+        self.endCall({rtcSession: e.sender});
       });
       this.eventBus.on("unholded", function(e){
         self.onSessionStarted(e.sender);
@@ -330,7 +415,14 @@
           $("#connected").removeClass("success");
           $("#connected").addClass("alert").fadeIn(100);
         }
-        self.message(ClientConfig.messageConnectionFailed, "alert");
+        var msg = ClientConfig.messageConnectionFailed;
+        if(e.data && e.data.reason) {
+          msg = e.data.reason;
+        }
+        if(e.data && e.data.retryAfter) {
+          msg += " - Retrying in "+e.data.retryAfter+" seconds";
+        }
+        self.message(msg, "alert");
         self.endCall();
       });
       this.eventBus.on("failed", function(e){
@@ -345,7 +437,7 @@
           self.setEvent("incomingCall-done");
         }
         self.sound.pause();
-        self.sipStack.terminateSession(e.sender);
+        self.endCall({rtcSession: e.sender});
       });
       this.eventBus.on("progress", function(e){
         self.message(ClientConfig.messageProgress, "normal");
@@ -387,7 +479,7 @@
           // Start a call
           if (self.configuration.destination !== false)
           {
-            self.uriCall(self.configuration.destination);
+            self.callUri(self.configuration.destination);
           }
         });
       });
@@ -438,14 +530,13 @@
       {
         e.preventDefault();
         self.sound.playClick();
-        self.call();
+        self.callUri(self.destination.val());
       });
 
       this.hangup.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
-        self.sipStack.terminateSession();
         self.endCall();
         if (self.fullScreen === true)
         {
@@ -457,84 +548,79 @@
       {
         e.preventDefault();
         self.sound.playClick();
-        $('#video')[0].webkitRequestFullScreen();
-        self.fullScreen = true;
+        self.showFullScreen();
       });
 
       $('#fullScreenContract').bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
-        document.webkitCancelFullScreen();
-        self.fullScreen = false;
-        $("#fullScreenContract").fadeOut(100);
-        $("#fullScreenExpand").fadeIn(1000);
+        self.stopFullScreen();
       });
 
       $('#selfViewDisable').bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
-        $("#localVideo, #selfViewDisable").fadeOut(100);
-        $("#selfViewEnable").fadeIn(1000);
+        self.hideSelfView();
       });
 
       $('#selfViewEnable').bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
-        $("#selfViewEnable").fadeOut(1000);
-        $("#localVideo, #selfViewDisable").fadeIn(1000);
+        self.showSelfView();
+      });
+      $('.history-button').bind('click', function(e)
+      {
+        e.preventDefault();
+        self.history.toggle();
+      });
+      $('.button-row button').bind('click', function(e)
+      {
+        e.preventDefault();
+        var destinationStr = $("#destination").val();
+        $("#destination").val(destinationStr + this.firstChild.nodeValue);
       });
 
       this.hold.onClick(function(e)
       {
-        self.hold.disable();
-        var enable = function(){
-          self.hold.enable();
-        };
-        self.sipStack.hold(enable, enable);
+        self.holdCall();
       });
 
       this.resume.onClick(function(e)
       {
-        self.resume.disable();
-        var enable = function(){
-          self.resume.enable();
-        };
-        self.sipStack.unhold(enable, enable);
+        self.resumeCall();
       });
 
-      this.muteAudio.bind('click', function(e)
+      this.muteAudioIcon.bind('click', function(e)
       {
         self.setMuted(true);
         e.preventDefault();
         self.sound.playClick();
-        self.sound.enableLocalAudio(false);
+        self.muteAudio();
       });
 
-      this.unmuteAudio.bind('click', function(e)
+      this.unmuteAudioIcon.bind('click', function(e)
       {
         self.setMuted(false);
         e.preventDefault();
         self.sound.playClick();
-        self.sound.enableLocalAudio(true);
+        self.unmuteAudio();
       });
 
       $('#dialpadIconShow').bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
-        $("#dialIconpadShow").fadeOut(1000);
-        $("#dialpad, #dialpadIconHide").fadeIn(1000);
+        self.showDialpad();
       });
 
       $('#dialpadIconHide').bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
-        $("#dialpad, #dialpadIconHide").fadeOut(1000);
-        $("#dialpadIconShow").fadeIn(1000);
+        self.hideDialpad();
       });
 
       $("#historyClose").bind('click', function(e)
@@ -553,7 +639,7 @@
       this.destination.keypress(function (e) {
         if (e.keyCode === 13 && self.sipStack.getCallState() === WebRTC.SIPStack.C.STATE_CONNECTED) {
           e.preventDefault();
-          self.call();
+          self.callUri(self.destination.val());
         }
       });
 
@@ -614,18 +700,6 @@
       this.updateClientClass();
     },
 
-    call: function(){
-      var destination = this.destination.val();
-      if (destination === "")
-      {
-        this.message(ClientConfig.messageEmptyDestination, "alert");
-      }
-      else
-      {
-        this.uriCall(destination);
-      }
-    },
-
     validateUserMediaResolution: function(){
       var encodingWidth = this.settings.getResolutionEncodingWidth();
       var encodingHeight = this.settings.getResolutionEncodingHeight();
@@ -668,6 +742,10 @@
       if (ClientConfig.enableHold)
       {
         classes.push("enable-hold");
+      }
+      if (ClientConfig.enableCallTimer)
+      {
+        classes.push("enable-timer");
       }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }

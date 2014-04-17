@@ -15,7 +15,19 @@ Utils= {
     var formatedDuration = (hrs < 10 ? "0" : "") + hrs + ":" + (mns < 10 ? "0" : "") + mns + ":" + (seconds < 10 ? "0" : "") + seconds;
     return(formatedDuration);
   },
-
+  /* format date and time for call history */
+  formatDateTime: function (dateStr){
+    var date = new Date(dateStr);
+    var strDate = date.getDate() + "/" + (date.getMonth() + 1);
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; 
+    minutes = minutes < 10 ? '0'+minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strDate + " - " + strTime;
+  },
   /* Pull the URL variables out of URL */
   getSearchVariable: function(variable)
   {

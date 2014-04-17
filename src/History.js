@@ -144,14 +144,15 @@
         row.bind("click", this.callDetailsHandler(call));
         row.find(".historyCall").text((this.pageNumber * 10) + i + 1);
         row.find(".historyDestination").text(call.destinationWithoutSip());
-        row.find(".historyDirection").text(call.direction);
-        row.find(".historyDate").text(call.startDate());
+        //row.find(".historyDirection").text(call.direction);
+        row.find(".historyDirection").append("<i class='icon-arrow-"+call.direction+"-thick'></i>");
+        //row.find(".historyDate").text(call.startDate());
+        row.find(".historyDate").text(WebRTC.Utils.formatDateTime(call.startDate()));
         row.find(".historyLength").text(call.length);
         this.rows.push(row);
         row.appendTo(this.content);
       }
     },
-
     getAllCalls:function () {
       var pages = this.pages();
       var calls = [];
@@ -211,7 +212,7 @@
           self.sound.playClick();
           var destination = self.historyCallLink.attr("data-destination");
           self.client.destination.val(destination);
-          self.client.call();
+          self.client.callUri(destination);
         }
         self.callHistoryDetails.hide();
       });
@@ -275,10 +276,10 @@
       call.startTime = new Date(start).getTime();
       call.destination = rtcSession.remote_identity.uri;
       if (rtcSession.direction === "outgoing") {
-        call.direction = "------>";
+        call.direction = "up";
       }
       else {
-        call.direction = "<------";
+         call.direction = "down";
       }
       call.resolutionIn = this.stats.getValue("video", "googFrameWidthReceived")+"x"+this.stats.getValue("video", "googFrameHeightReceived");
       call.resolutionOut = this.stats.getValue("video", "googFrameWidthSent")+"x"+this.stats.getValue("video", "googFrameHeightSent");
