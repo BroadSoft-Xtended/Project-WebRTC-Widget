@@ -307,15 +307,6 @@
       this.sipStack.unhold(enable, enable);
     },
 
-    holdCall: function() {
-      var self = this;
-      this.hold.disable();
-      var enable = function(){
-        self.hold.enable();
-      };
-      this.sipStack.hold(enable, enable);
-    },
-
     hideSelfView: function() {
       this.selfViewEnabled = false;
       this.updateClientClass();
@@ -365,15 +356,6 @@
       this.updateClientClass();
     },
 
-    resumeCall: function() {
-      var self = this;
-      this.resume.disable();
-      var enable = function(){
-        self.resume.enable();
-      };
-      this.sipStack.unhold(enable, enable);
-    },
-
     holdCall: function() {
       var self = this;
       this.hold.disable();
@@ -381,46 +363,6 @@
         self.hold.enable();
       };
       this.sipStack.hold(enable, enable);
-    },
-
-    hideSelfView: function() {
-      $("#localVideo, #selfViewDisable").fadeOut(100);
-      $("#selfViewEnable").fadeIn(1000);
-    },
-
-    stopFullScreen: function() {
-      document.webkitCancelFullScreen();
-      this.fullScreen = false;
-      $("#fullScreenContract").fadeOut(100);
-      $("#fullScreenExpand").fadeIn(1000);
-    },
-
-    showSelfView: function() {
-      $("#selfViewEnable").fadeOut(1000);
-      $("#localVideo, #selfViewDisable").fadeIn(1000);
-    },
-
-    showFullScreen: function() {
-      $('#video')[0].webkitRequestFullScreen();
-      this.fullScreen = true;
-    },
-
-    muteAudio: function() {
-      this.sound.enableLocalAudio(false);
-    },
-
-    unmuteAudio: function() {
-      this.sound.enableLocalAudio(true);
-    },
-
-    showDialpad: function() {
-      $("#dialIconpadShow").fadeOut(1000);
-      $("#dialpad, #dialpadIconHide").fadeIn(1000);
-    },
-
-    hideDialpad: function() {
-      $("#dialpad, #dialpadIconHide").fadeOut(1000);
-      $("#dialpadIconShow").fadeIn(1000);
     },
 
     getRemoteUser: function(rtcSession) {
