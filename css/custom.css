@@ -1,10 +1,10 @@
 @font-face {
     font-family: 'bsl_icons';
-    src:url('../fonts/bsl_icons.eot?1sddz2');
-    src:url('../fonts/bsl_icons.eot?#iefix1sddz2') format('embedded-opentype'),
-    url('../fonts/bsl_icons.woff?1sddz2') format('woff'),
-    url('../fonts/bsl_icons.ttf?1sddz2') format('truetype'),
-    url('../fonts/bsl_icons.svg?1sddz2#bsl_icons') format('svg');
+    src:url('fonts/bsl_icons.eot?1sddz2');
+    src:url('fonts/bsl_icons.eot?#iefix1sddz2') format('embedded-opentype'),
+    url('fonts/bsl_icons.woff?1sddz2') format('woff'),
+    url('fonts/bsl_icons.ttf?1sddz2') format('truetype'),
+    url('fonts/bsl_icons.svg?1sddz2#bsl_icons') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -14,7 +14,7 @@ body
     -webkit-font-smoothing: antialiased !important;
 }
 
-[class^="icon-"], [class*=" icon-"] {
+#client [class^="icon-"], #client [class*=" icon-"] {
     font-family: 'bsl_icons';
     speak: none;
     font-style: normal;
@@ -43,7 +43,7 @@ body
 .icon-clock:before {
     content: "\e634";
 }
-.icon-cog:before {
+#client .icon-cog:before {
     content: "\e601";
 }
 .icon-pause2:before {
@@ -115,7 +115,7 @@ body
 .icon-signal2:before {
     content: "\f162";
 }
-.icon-cog4:before {
+#client .icon-cog4:before {
     content: "\f163";
 }
 .icon-time:before {
@@ -215,7 +215,7 @@ body
 #settingsPopup
 {
     border: 1px solid #000000;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.9);
     border-radius: 0px;
     box-shadow: none;
     bottom: 40px;
@@ -223,7 +223,7 @@ body
     top:auto;
     left: auto;
     width: 310px;
-    padding: 16px;
+    /*padding: 16px;*/
     font-size: 14px;
 }
 #settingsPopup span
@@ -253,13 +253,28 @@ body
 #messages {
     width: auto;
     background: #000;
-    color: #B3B3B3;
+    /*color: #B3B3B3;*/
     font-size: 12px;
     padding: 8px;
+    bottom:auto;
+    top:10px;
+    left: 10px;
 }
 #videoBar #hangup
 {
-    margin-top: -4px;
+    margin-top: 6px;
+}
+#videoBar #muteAudio
+{
+    margin-top: 9px;
+}
+#videoBar #unmuteAudio
+{
+    margin-top: -1px;
+}
+#videoBar #hold, #videoBar #resume
+{
+    margin-top: -1px;
 }
 #hangup a.icon-phone-hang-up
 {
@@ -274,7 +289,7 @@ body
 {
     left: 0px;
     bottom: 40px;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     padding: 15px;
     right: auto;
     z-index: 100;
@@ -316,21 +331,60 @@ body
 }
 #callHistory, #callStats
 {
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.9);
     border-radius: 0;
     border: 1px solid #000000;
     box-shadow: none;
     color: #999999;
     z-index: 200;
     padding: 10px;
-    top:0px;
-    right:0px;
-    left:auto;
-    bottom:auto;
+}
+#callHistory
+{
+    width: 176px;
+    height: 269px;
+    right: auto;
+    left: 198px;
+    bottom: 40px;
+    top: auto;
+}
+#callStats
+{
+    top: auto;
+    bottom: 40px;
+    right: 0;
+    left: auto;
+}
+.stats-container
+{
+    margin-bottom: 18px;
+}
+#historyCallLink
+{
+    background: #04AFF0;
+    float: left;
+    padding: 6px 10px 6px 10px;
+    text-decoration: none;
+    font-weight: bold;
+    color: #FFF;
+    border-radius: 50px;
+}
+#historyDetailsClose
+{
+    text-align: right;
+    margin-top: 10px;
+    display: block;
+    height: 26px;
+}
+#historyDetailsClose a
+{
+    text-decoration: none;
+    outline-color: rgba(0, 0, 0, 0);
+    color: #333;
 }
 .dialpad-control-bar .main-button
 {
-    background: #04AFF0;
+    background: #3DA005;
     border-radius: 14px;
     width: 70px;
     padding: 5px;
@@ -351,13 +405,23 @@ body
 {
     margin-right: 5px;
 }
-.destination-container input
+#callControl
+{
+    height:auto;
+}
+#callControl input
 {
     background: #000;
     border: none;
     color: #04AFF0;
     font-size: 18px;
-    width: 156px;
+    width:109;
+    padding: 0;
+    border-radius: 0;
+}
+#callControl input:focus
+{
+    outline: none;
 }
 .destination-container hr
 {
@@ -373,11 +437,138 @@ body
 {
     color:#04AFF0;
 }
+#destination
+{
+
+}
+#dialpad .history-button
+{
+    font-size: 16px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    outline: none;
+}
 #destination::-webkit-input-placeholder {
     color: #04AFF0;
-    font-size: 12px;
     font-style: italic;
+    padding-left: 5px;
+    font-weight: 400;
 }
+#callHistory .historyDirection {
+    position: absolute;
+    color: #3DA005;
+    left: 0px;
+    font-family: arial;
+    font-size: 18px;
+    top: 28px;
+}
+#callHistory .actions
+{
+    margin-top: 28px;
+}
+.historyDirection .icon-arrow-down-thick
+{
+    color: #E9651D;
+}
+#callHistory .historyDestination {
+    position: absolute;
+    color: #B3B3B3;
+    left: 25px;
+    font-family: arial;
+    font-size: 18px;
+    text-decoration: none;
+    top: 27px;
+}
+#callHistory .historyDate {
+    position: absolute;
+    color: #B3B3B3;
+    left: 26px;
+    font-family: arial;
+    font-size: 10px;
+    top: 50px;
+}
+#callHistory .historyLength {
+    position: absolute;
+    color: #B3B3B3;
+    left: 104px;
+    font-family: arial;
+    font-size: 10px;
+    top: 50px;
+}
+.history-row
+{
+    height: 60px;
+    position: relative;
+}
+.history-details-arrow
+{
+    position: absolute;
+    right: 2px;
+    font-size: 16px;
+    top: 36px;
+}
+#callHistoryDetails
+{
+    width: 194px;
+    height: auto;
+    background: rgba(0, 0, 0, 0.9);
+    border: none;
+    clear:both;
+    top: 0;
+    bottom: -1;
+    left: 197px;
+    right: auto;
+    box-shadow: none;
+    border-radius: 0;
+
+}
+#callStats a
+{
+    color:#2BA6CB;
+}
+.default-color
+{
+    color:#2BA6CB;
+}
+ul.tabs
+{
+    width: 250px;
+    padding-left: 0;
+}
+.tabs~div p, .tabs~div h3 {
+    margin-bottom:15px;
+    color:#999;
+    font-size: 14px;
+}
+.tabs ~ div {
+    padding:10px;
+}
+.tabs li {
+    list-style:none;
+    display:inline;
+}
+.tabs a {
+    padding:5px 10px;
+    display:inline-block;
+    background:#494949;
+    color:#fff;
+    text-decoration:none;
+}
+.tabs a.active {
+    background:#04AFF0;
+    color:#fff;
+}
+#settingsPopup .tabs span
+{
+    margin-right: 5px;
+    color:#fff;
+}
+#timer
+{
+    top: 11px;
+}
+
+
 
 ::-webkit-scrollbar {
     width: 8px;
