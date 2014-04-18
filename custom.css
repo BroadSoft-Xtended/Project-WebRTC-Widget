@@ -28,7 +28,7 @@ body
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-dialpad:before {
+.icon-dialpad:before, .icon-dialpadShow:before, .icon-dialpadShow:hover:before, .icon-dialpadHide:before, .icon-dialpadHide:hover:before {
   content: "\ed3b";
 }
 .icon-grid3:before {
@@ -37,28 +37,28 @@ body
 .icon-phone:before {
   content: "\e62c";
 }
-.icon-phone-hang-up:before {
+.icon-phone-hang-up:before, .icon-hangup:before, .icon-hangup:hover:before {
   content: "\e600";
 }
 .icon-clock:before {
   content: "\e634";
 }
-#client .icon-cog:before {
+#client .icon-cog:before, .icon-settings:before, .icon-settings:hover:before {
   content: "\e601";
 }
-.icon-pause2:before {
+.icon-pause2:before, .icon-resume:before, .icon-resume:hover:before, .icon-hold:before, .icon-hold:hover:before {
   content: "\e6bb";
 }
 .icon-volume-high:before {
   content: "\e6c0";
 }
-.icon-volume-medium:before {
+.icon-volume-medium:before, .icon-unmuteAudio:before, .icon-unmuteAudio:hover:before {
   content: "\e6c1";
 }
 .icon-volume-low:before {
   content: "\e6c2";
 }
-.icon-volume-mute:before {
+.icon-volume-mute:before, .icon-muteAudio:before, .icon-muteAudio:hover:before {
   content: "\e6c3";
 }
 .icon-checkbox-checked:before {
@@ -103,7 +103,7 @@ body
 .icon-grid5:before {
   content: "\f34b";
 }
-.icon-resize4:before {
+.icon-resize4:before, .icon-fullScreenContract:before, .icon-fullScreenContract:hover:before, .icon-fullScreenExpand:before, .icon-fullScreenExpand:hover:before {
   content: "\f371";
 }
 .icon-info8:before {
@@ -130,10 +130,10 @@ body
 .icon-volume-up:before {
   content: "\f172";
 }
-.icon-facetime-video:before {
+.icon-facetime-video:before, .icon-selfViewEnable:before, .icon-selfViewEnable:hover:before, .icon-selfViewDisable:before, .icon-selfViewDisable:hover:before {
   content: "\f17f";
 }
-.icon-share5:before {
+.icon-share5:before, .icon-transfer:before, .icon-transfer:hover:before {
   content: "\f186";
 }
 .icon-phone5:before {
@@ -259,14 +259,6 @@ body
   bottom:auto;
   top:10px;
   left: 10px;
-}
-#videoBar #hangup
-{
-  margin-top: 6px;
-}
-#videoBar #muteAudio
-{
-  margin-top: 9px;
 }
 #videoBar #unmuteAudio
 {
