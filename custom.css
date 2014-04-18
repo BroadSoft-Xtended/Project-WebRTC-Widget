@@ -14,7 +14,7 @@ body
   -webkit-font-smoothing: antialiased !important;
 }
 
-[class^="icon-"], [class*=" icon-"] {
+#client [class^="icon-"], #client [class*=" icon-"] {
   font-family: 'bsl_icons';
   speak: none;
   font-style: normal;
@@ -43,7 +43,7 @@ body
 .icon-clock:before {
   content: "\e634";
 }
-.icon-cog:before {
+#client .icon-cog:before {
   content: "\e601";
 }
 .icon-pause2:before {
@@ -115,7 +115,7 @@ body
 .icon-signal2:before {
   content: "\f162";
 }
-.icon-cog4:before {
+#client .icon-cog4:before {
   content: "\f163";
 }
 .icon-time:before {
