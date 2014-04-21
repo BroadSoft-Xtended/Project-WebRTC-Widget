@@ -275,21 +275,8 @@
       }
       if (this.sipStack.isStarted())
       {
-        var file = null;
-        if (digit === "*")
-        {
-          file = "star";
-        }
-        else if (digit === "#")
-        {
-          file = "pound";
-        }
-        else
-        {
-          file = digit;
-        }
-        this.sound.playDtmfTone(file);
         this.destination.val(this.destination.val() + digit);
+        this.sound.playClick();
         this.sipStack.sendDTMF(digit);
       }
     },
@@ -386,6 +373,7 @@
         }
         if(e.data && !e.data.isReconnect) {
           self.message(ClientConfig.messageStarted.replace('{0}', self.getRemoteUser(e.sender)), "success");
+          self.timer.start();
         }
       });
       this.eventBus.on("held", function(e){
@@ -508,7 +496,22 @@
       });
       this.eventBus.on('newDTMF', function(e)
       {
-        logger.log('DTMF sent : '+ e.data.tone, self.configuration);
+        var digit = e.data.tone;
+        logger.log('DTMF sent : '+ digit, self.configuration);
+        var file = null;
+        if (digit === "*")
+        {
+          file = "star";
+        }
+        else if (digit === "#")
+        {
+          file = "pound";
+        }
+        else
+        {
+          file = digit;
+        }
+        self.sound.playDtmfTone(file);
       });
 
       // Buttons
@@ -652,7 +655,6 @@
       this.video.updateSessionStreams(sender);
       $('.stats-container').attr('id', this.sipStack.getSessionId()+'-1');
       this.sound.pause();
-      this.timer.start();
     },
 
     incomingCallHandler: function(source, session){

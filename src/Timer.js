@@ -3,8 +3,8 @@
  */
 
 (function(WebRTC) {
-  var Timer;
-//    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
+  var Timer,
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Timer');
 
   Timer = function(client, stats, configuration) {
     this.text = $("#timer");
@@ -27,12 +27,14 @@
 
       var timer = this.runningTimer();
       this.callTimer = setInterval(timer, 1000);
+      logger.log("started timer interval : "+this.callTimer, this.configuration);
     },
 
     stop: function()
     {
       this.startTime = null;
       clearInterval(this.callTimer);
+      logger.log("cleared timer interval : "+this.callTimer, this.configuration);
       this.updateText();
     },
 
