@@ -40,7 +40,6 @@
     this.maxCallLength = WebRTC.Utils.getSearchVariable("maxCallLength");
     this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
-    this.view = ClientConfig.view || WebRTC.Utils.getSearchVariable("view");
     this.color = WebRTC.Utils.colorNameToHex(WebRTC.Utils.getSearchVariable("color")) || $.cookie('settingColor');
     var features = WebRTC.Utils.getSearchVariable("features");
     if(features) {
@@ -70,6 +69,9 @@
           ClientConfig[flag] = false;
         }
       }
+    },
+    getView: function(){
+      return ClientConfig.view || WebRTC.Utils.getSearchVariable("view");
     },
     getBackgroundColor: function(){
       return this.color || $('body').css('backgroundColor');
