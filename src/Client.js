@@ -744,9 +744,9 @@
       {
         classes.push("enable-dialpad");
       }
-      if (this.configuration.view)
+      if (this.configuration.getView())
       {
-        classes.push("view-"+this.configuration.view);
+        classes.push("view-"+this.configuration.getView());
       }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }
