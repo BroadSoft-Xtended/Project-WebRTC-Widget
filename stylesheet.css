@@ -911,6 +911,9 @@ body {
 #client .row {
     display: table-row;
 }
+#client .row:before, #client .row:after {
+    display: none;
+}
 
 #client .group {
     display: table-row-group;
