@@ -246,13 +246,17 @@
       this.guiStart();
 
       this.timer.stop();
+      this.checkEndCallURL();
+    },
+
+    // Initial startup
+    checkEndCallURL: function() {
       if (ClientConfig.endCallURL)
       {
         window.location = ClientConfig.endCallURL;
       }
     },
 
-    // Initial startup
     onLoad: function() {
       var self = this;
       logger.log("onLoad", this.configuration);

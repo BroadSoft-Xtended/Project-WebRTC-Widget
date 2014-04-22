@@ -887,31 +887,34 @@ body {
     display: block;
 }
 
-.table {
+#client .table {
     display: table;
     width:100%;
 }
-.fixed {
+#client .fixed {
     table-layout: fixed;
 }
-.collapse {
+#client .collapse {
     border-collapse: collapse;
 }
 
-.cell {
+#client .cell {
     display: table-cell;
 }
 
-.heading {
+#client .heading {
     display: table-row;
     font-weight: bold;
 }
 
-.row {
+#client .row {
     display: table-row;
 }
+#client .row:before, #client .row:after {
+    display: none;
+}
 
-.group {
+#client .group {
     display: table-row-group;
 }
 

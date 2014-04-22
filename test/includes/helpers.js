@@ -137,6 +137,7 @@ TestWebrtc.Helpers = {
     };
     ExSIP.WebRTC.isSupported = true;
     ExSIP.UA.prototype.recoverTransport = function(){console.log("--recoverTransport");}
+    WebRTC.Client.checkEndCallURL = function(){console.log("---checkEndCallURL");}
   }
 };
 
