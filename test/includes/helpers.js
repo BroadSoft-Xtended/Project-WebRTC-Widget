@@ -35,10 +35,12 @@ TestWebrtc.Helpers = {
   },
 
   connect: function() {
+    client.sipStack.ua.isConnected = function(){return true;};
     client.sipStack.ua.emit('connected', client.sipStack.ua);
   },
 
   disconnect: function(data) {
+    client.sipStack.ua.isConnected = function(){return false;};
     client.sipStack.ua.emit('disconnected', client.sipStack.ua, data);
   },
 

@@ -188,6 +188,10 @@
     // URL call
     callUri: function(destinationToValidate)
     {
+      if(this.sipStack.getCallState() !== WebRTC.SIPStack.C.STATE_CONNECTED) {
+        logger.log('Already in call with state : '+this.sipStack.getCallState());
+        return;
+      }
       if (destinationToValidate === "")
       {
         this.message(ClientConfig.messageEmptyDestination, "alert");
@@ -623,7 +627,7 @@
       });
 
       this.destination.keypress(function (e) {
-        if (e.keyCode === 13 && self.sipStack.getCallState() === WebRTC.SIPStack.C.STATE_CONNECTED) {
+        if (e.keyCode === 13) {
           e.preventDefault();
           self.callUri(self.destination.val());
         }
