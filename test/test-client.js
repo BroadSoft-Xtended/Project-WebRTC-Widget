@@ -68,6 +68,25 @@ test('call and press enter on destination input', function() {
   client.destination.trigger(event);
   ok(!called);
 });
+test('click callButton twice', function() {
+  var called = false;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.connect();
+
+  client.sipStack.ua.call = function(destination){
+    console.log('call');
+    called = true;
+    var session = TestWebrtc.Helpers.outgoingSession();
+    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
+    return session;
+  };
+  client.destination.val("1000@domain.to");
+  client.callButton.trigger("click");
+  ok(called);
+  called = false;
+  client.callButton.trigger("click");
+  ok(!called);
+});
 test('reInvite popup', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.isVisible(client.reInvitePopup, false);
