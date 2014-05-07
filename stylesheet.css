@@ -910,6 +910,7 @@ body {
 
 #client .row {
     display: table-row;
+    margin: 0;
 }
 #client .row:before, #client .row:after {
     display: none;
