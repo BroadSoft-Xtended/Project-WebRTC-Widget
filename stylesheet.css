@@ -117,8 +117,10 @@ body {
 #localVideo {
   display: none;
   position: absolute;
-  top: 73%;
+  top: auto;
   left: 1%;
+  right: auto;
+  bottom: 1%;
   width: 25%;
   height: 25%;
   background-color: #241D1D;
