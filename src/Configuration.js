@@ -131,6 +131,7 @@
     getExSIPConfig: function(userid, password){
       var sip_uri = null;
       // Config settings
+      userid = encodeURI(userid);
       if ((userid.indexOf("@") === -1))
       {
         sip_uri = (userid + "@" + ClientConfig.domainFrom);

@@ -44,6 +44,10 @@ test('userid', function() {
   client = new WebRTC.Client();
   ok("chooses random userid", client.configuration.userid !== undefined);
 });
+test('getExSIPConfig() with userid with empty spaces', function() {
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getExSIPConfig('my user id').uri, "my%20user%20id@domain.from");
+});
 test('destination', function() {
   ClientConfig.enableConnectLocalMedia = true;
   ClientConfig.domainTo = "domain.to";
