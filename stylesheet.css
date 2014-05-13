@@ -1046,10 +1046,7 @@ body {
 .view-audioOnly .cell-fullScreen, .view-audioOnly .cell-selfView{
     display:none !important;
 }
-#client.view-audioOnly{
-    width:auto;
-}
-.view-audioOnly #videoBar {
+#client.view-audioOnly, .view-audioOnly #videoBar {
     display: inline-block;
     width: auto;
 }
