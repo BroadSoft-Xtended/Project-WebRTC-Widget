@@ -30,8 +30,9 @@
       var self = this;
       this.eventBus.on("dataReceived", function(e){
         var data = e.data.data;
-        if(data.match(/^whiteboard:/)) {
-          data = data.replace(/^whiteboard:/,'');
+        var regex = /^whiteboard:/;
+        if(data.match(regex)) {
+          data = data.replace(regex,'');
           var img = new Image();
           img.onload = function(){
             self.clear();

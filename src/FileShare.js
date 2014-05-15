@@ -26,11 +26,12 @@
 
       this.eventBus.on("dataReceived", function(e){
         var data = e.data.data, match;
-        if(match = data.match(/^fileshare:(.*):/)) {
+        var regex = /^fileshare:([^:]*?):/;
+        if(match = data.match(regex)) {
           var fileName = match.pop();
           logger.log("received file : "+fileName, this.client.configuration);
           self.status.text("received file : "+fileName);
-          data = data.replace(/^fileshare:(.*):/,'');
+          data = data.replace(regex,'');
           self.saveToDisk(data, match.pop());
         }
       });
