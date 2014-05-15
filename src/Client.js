@@ -45,6 +45,7 @@
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack);
     this.whiteboard = new WebRTC.Whiteboard(this, this.eventBus, this.sipStack);
+    this.fileShare = new WebRTC.FileShare(this, this.eventBus, this.sipStack);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack);
     this.authentication = new WebRTC.Authentication(this, this.configuration, this.eventBus);
     this.hold = new WebRTC.Icon($( "#hold" ), this.sound);

@@ -59,12 +59,24 @@
     <button class="button" id="authPopupButton" type="button">Sign in</button>
   </div>
 
-  <div id="callControl">
-    <span>Enter Destination URI:</span><br>
-    <input id="destination" type=text value=""/>
-    <div id="call" class="fadeable">
-      <a href="" title="Call" class="icon-call"></a>
+  <div class="table">
+    <div class="cell">
+      <div id="callControl">
+        <span>Enter Destination URI:</span><br>
+        <input id="destination" type=text value=""/>
+        <div id="call" class="fadeable" >
+          <a href="" title="Call" class="icon-call"></a>
+        </div>
+      </div>
     </div>
+    <div class="cell">
+      <div id="file_share" class="fadeable">
+        <span>Share File:</span><br>
+        <input type="file" />
+        <div class="status"></div>
+      </div>
+    </div>
+
   </div>
 
   <div id="main">

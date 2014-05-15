@@ -30,12 +30,15 @@
       var self = this;
       this.eventBus.on("dataReceived", function(e){
         var data = e.data.data;
-        var img = new Image();
-        img.onload = function(){
-          self.clear();
-          self.context.drawImage(img,0,0); // Or at whatever offset you like
-        };
-        img.src = data;
+        if(data.startsWith('whiteboard:')) {
+          data = data.replace('whiteboard:','');
+          var img = new Image();
+          img.onload = function(){
+            self.clear();
+            self.context.drawImage(img,0,0); // Or at whatever offset you like
+          };
+          img.src = data;
+        }
       });
     },
     initCanvas: function() {
@@ -82,7 +85,7 @@
     },
     sendData: function() {
       var data = this.canvas[0].toDataURL();
-      this.sipStack.sendData(data);
+      this.sipStack.sendData("whiteboard:"+data);
     },
     clear: function() {
       // Store the current transformation matrix

@@ -12,6 +12,7 @@ module.exports = function(grunt) {
     'src/Transfer.js',
     'src/Constants.js',
     'src/Timer.js',
+    'src/FileShare.js',
     'src/Whiteboard.js',
     'src/Stats.js',
     'src/Utils.js',
@@ -81,14 +82,12 @@ module.exports = function(grunt) {
     },
     includereplace: {
       dist: {
-        files: {
-          'dist': 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
-        }
+        src:'dist/<%= pkg.name %>-<%= pkg.version %>.js',
+        dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
       },
       devel: {
-        files: {
-          'dist': 'dist/<%= pkg.name %>-devel.js'
-        }
+        src: 'dist/<%= pkg.name %>-devel.js',
+        dest: 'dist/<%= pkg.name %>-devel.js'
       }
     },
     jshint: {
