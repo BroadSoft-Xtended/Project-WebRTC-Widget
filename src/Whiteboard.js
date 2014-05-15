@@ -30,8 +30,8 @@
       var self = this;
       this.eventBus.on("dataReceived", function(e){
         var data = e.data.data;
-        if(data.startsWith('whiteboard:')) {
-          data = data.replace('whiteboard:','');
+        if(data.match(/^whiteboard:/)) {
+          data = data.replace(/^whiteboard:/,'');
           var img = new Image();
           img.onload = function(){
             self.clear();
