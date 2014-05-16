@@ -65,7 +65,7 @@
       if (file) {
         var reader = new FileReader();
         reader.onload = $.proxy(this.sendFile, this);
-        reader.readAsText(file);
+        reader.readAsDataURL(file);
       } else {
         alert("Failed to load file");
       }
