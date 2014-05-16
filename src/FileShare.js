@@ -43,11 +43,12 @@
           }
           else if(action === C.ACTION_REPLY) {
             if(data === 'true') {
-              var fileData = this.requests[fileName];
+              var fileData = self.requests[fileName];
               self.sendFile(fileData, fileName);
             } else {
               self.updateStatus("rejected request for "+fileName);
             }
+            delete self.requests[fileName];
           }
           else if(action === C.ACTION_SEND) {
             self.updateStatus("received file "+fileName);
