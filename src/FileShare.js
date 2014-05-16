@@ -98,7 +98,7 @@
     },
     sendFile: function(data, fileName) {
       this.updateStatus("sending file "+fileName+" ...");
-      this.send(C.ACTION_SEND, fileName);
+      this.send(C.ACTION_SEND, fileName, data);
     },
     send: function(action, fileName, data) {
       var dataString = "fileshare:"+action+":"+fileName;
