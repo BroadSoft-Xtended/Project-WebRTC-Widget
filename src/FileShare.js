@@ -4,13 +4,19 @@
 
 (function (WebRTC) {
   var FileShare,
-    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'FileShare');
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'FileShare'),
+    C = {
+      ACTION_REQUEST: 'request',
+      ACTION_REPLY: 'reply',
+      ACTION_SEND: 'send'
+    };
 
   FileShare = function (client, eventBus, sipStack) {
     this.ui = $('#file_share');
     this.fileInput = this.ui.find('input[type="file"]');
     this.status = this.ui.find('.status');
 
+    this.requests = {};
     this.toggled = false;
     this.client = client;
     this.sipStack = sipStack;
@@ -26,14 +32,25 @@
 
       this.eventBus.on("dataReceived", function(e){
         var data = e.data.data, match;
-        var regex = /^fileshare:([^:]*?):/;
+        var regex = /^fileshare:([^:]*):([^:]*):?/;
         if(match = data.match(regex)) {
           var fileName = match.pop();
-          var accept = window.confirm("User wants to share the file "+fileName+" with you. Do you want to receive it?");
-          if(accept) {
-            logger.log("received file : "+fileName, this.client.configuration);
-            self.status.text("received file : "+fileName);
-            data = data.replace(regex,'');
+          var action = match.pop();
+          data = data.replace(regex,'');
+          if(action === C.ACTION_REQUEST) {
+            var accept = window.confirm("User wants to share the file "+fileName+" with you. Do you want to receive it?");
+            self.replyRequest(accept, fileName);
+          }
+          else if(action === C.ACTION_REPLY) {
+            if(data === 'true') {
+              var fileData = this.requests[fileName];
+              self.sendFile(fileData, fileName);
+            } else {
+              self.updateStatus("rejected request for "+fileName);
+            }
+          }
+          else if(action === C.ACTION_SEND) {
+            self.updateStatus("received file "+fileName);
             var blob = WebRTC.Utils.dataURItoBlob(data);
             window.saveAs(blob, fileName);
           }
@@ -45,18 +62,34 @@
 
       if (file) {
         var reader = new FileReader();
-        reader.onload = $.proxy(this.sendFile, this);
+        reader.onload = $.proxy(this.requestSend, this);
         reader.readAsDataURL(file);
       } else {
         alert("Failed to load file");
       }
     },
-    sendFile: function(e) {
+    requestSend: function(e) {
       var data = e.target.result;
-      var fileName = this.fileInput.val().split('\\').pop();
-      logger.log("send file : "+fileName, this.client.configuration);
-      this.status.text("send file : "+fileName);
-      this.sipStack.sendData("fileshare:"+fileName+":"+data);
+      var file = this.fileInput.val();
+      var fileName = this.fileName(file);
+      this.requests[fileName] = data;
+
+      this.updateStatus("requesting sending file "+fileName+" ...");
+      this.sipStack.sendData("fileshare:"+C.ACTION_REQUEST+":"+fileName);
+    },
+    replyRequest: function(accept, fileName) {
+      this.sipStack.sendData("fileshare:"+C.ACTION_REPLY+":"+fileName+":"+accept);
+    },
+    sendFile: function(data, fileName) {
+      this.updateStatus("sending file "+fileName+" ...");
+      this.sipStack.sendData("fileshare:"+C.ACTION_SEND+":"+fileName+":"+data);
+    },
+    updateStatus: function(status) {
+      logger.log(status, this.client.configuration);
+      this.status.text(status);
+    },
+    fileName: function(file) {
+      return file.split('\\').pop();
     }
   };
 
