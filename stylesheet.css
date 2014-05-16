@@ -75,23 +75,14 @@ body {
     top: 0px;
     left: 0px;
     width: 100%;
-    height: 480px;
+    height: auto;
 }
 
-.r1280x720 #video, .r960x720 #video {
-    height:720px;
+.widescreen #video {
+    padding-bottom:56.25%;
 }
-.r640x480 #video{
-    height:480px;
-}
-.r640x360 #video{
-    height:360px;
-}
-.r320x240 #video{
-    height:240px;
-}
-.r320x180 #video{
-    height:180px;
+.standard #video {
+    padding-bottom:75%;
 }
 
 #video:-webkit-full-screen {

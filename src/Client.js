@@ -709,6 +709,7 @@
     updateClientClass: function(){
       var classes = [];
       classes.push("r"+this.configuration.getResolutionDisplay());
+      classes.push(this.configuration.isWidescreen() ? "widescreen" : "standard");
       var callState = this.sipStack.getCallState();
       if(callState) {
         classes.push(callState);
