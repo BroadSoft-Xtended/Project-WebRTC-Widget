@@ -8,7 +8,8 @@
     C = {
       ACTION_REQUEST: 'request',
       ACTION_REPLY: 'reply',
-      ACTION_SEND: 'send'
+      ACTION_SEND: 'send',
+      ACTION_RECEIVED: 'received'
     };
 
   FileShare = function (client, eventBus, sipStack) {
@@ -37,26 +38,31 @@
           var fileName = match.pop();
           var action = match.pop();
           data = data.replace(regex,'');
-          if(action === C.ACTION_REQUEST) {
-            var accept = window.confirm("User wants to share the file "+fileName+" with you. Do you want to receive it?");
-            self.replyRequest(accept, fileName);
-          }
-          else if(action === C.ACTION_REPLY) {
-            if(data === 'true') {
-              var fileData = self.requests[fileName];
-              self.sendFile(fileData, fileName);
-            } else {
-              self.updateStatus("rejected request for "+fileName);
-            }
-            delete self.requests[fileName];
-          }
-          else if(action === C.ACTION_SEND) {
-            self.updateStatus("received file "+fileName);
-            var blob = WebRTC.Utils.dataURItoBlob(data);
-            window.saveAs(blob, fileName);
-          }
+          self.process(action, fileName, data);
         }
       });
+    },
+    process: function(action, fileName, data) {
+      if(action === C.ACTION_REQUEST) {
+        var accept = window.confirm("User wants to share the file "+fileName+" with you. Do you want to receive it?");
+        this.replyRequest(accept, fileName);
+      }
+      else if(action === C.ACTION_REPLY) {
+        if(data === 'true') {
+          var fileData = this.requests[fileName];
+          this.sendFile(fileData, fileName);
+        } else {
+          this.updateStatus("rejected request for "+fileName);
+          delete this.requests[fileName];
+        }
+      }
+      else if(action === C.ACTION_SEND) {
+        this.receivedFile(data, fileName);
+      }
+      else if(action === C.ACTION_RECEIVED) {
+        this.updateStatus(fileName+" transferred successfully");
+        delete this.requests[fileName];
+      }
     },
     handleFileSelect: function(evt) {
       var file = evt.target.files[0];
@@ -76,14 +82,30 @@
       this.requests[fileName] = data;
 
       this.updateStatus("requesting sending file "+fileName+" ...");
-      this.sipStack.sendData("fileshare:"+C.ACTION_REQUEST+":"+fileName);
+      this.send(C.ACTION_REQUEST, fileName);
     },
     replyRequest: function(accept, fileName) {
-      this.sipStack.sendData("fileshare:"+C.ACTION_REPLY+":"+fileName+":"+accept);
+      if(accept) {
+        this.updateStatus("receiving file "+fileName+" ...");
+      }
+      this.send(C.ACTION_REPLY, fileName, accept);
+    },
+    receivedFile: function(data, fileName) {
+      this.updateStatus("received file "+fileName);
+      var blob = WebRTC.Utils.dataURItoBlob(data);
+      window.saveAs(blob, fileName);
+      this.send(C.ACTION_RECEIVED, fileName);
     },
     sendFile: function(data, fileName) {
       this.updateStatus("sending file "+fileName+" ...");
-      this.sipStack.sendData("fileshare:"+C.ACTION_SEND+":"+fileName+":"+data);
+      this.send(C.ACTION_SEND, fileName);
+    },
+    send: function(action, fileName, data) {
+      var dataString = "fileshare:"+action+":"+fileName;
+      if(data) {
+        dataString += ":"+data;
+      }
+      this.sipStack.sendData(dataString);
     },
     updateStatus: function(status) {
       logger.log(status, this.client.configuration);
