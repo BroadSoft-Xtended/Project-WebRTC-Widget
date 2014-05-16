@@ -334,10 +334,12 @@
     },
 
     muteAudio: function() {
+      this.setMuted(true);
       this.sound.enableLocalAudio(false);
     },
 
     unmuteAudio: function() {
+      this.setMuted(false);
       this.sound.enableLocalAudio(true);
     },
 
@@ -585,7 +587,6 @@
 
       this.muteAudioIcon.bind('click', function(e)
       {
-        self.setMuted(true);
         e.preventDefault();
         self.sound.playClick();
         self.muteAudio();
@@ -593,7 +594,6 @@
 
       this.unmuteAudioIcon.bind('click', function(e)
       {
-        self.setMuted(false);
         e.preventDefault();
         self.sound.playClick();
         self.unmuteAudio();
