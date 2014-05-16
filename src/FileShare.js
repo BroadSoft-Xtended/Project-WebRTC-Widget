@@ -29,35 +29,16 @@
         var regex = /^fileshare:([^:]*?):/;
         if(match = data.match(regex)) {
           var fileName = match.pop();
-          logger.log("received file : "+fileName, this.client.configuration);
-          self.status.text("received file : "+fileName);
-          data = data.replace(regex,'');
-          self.saveToDisk(data, match.pop());
+          var accept = window.confirm("User wants to share the file "+fileName+" with you. Do you want to receive it?");
+          if(accept) {
+            logger.log("received file : "+fileName, this.client.configuration);
+            self.status.text("received file : "+fileName);
+            data = data.replace(regex,'');
+            var blob = WebRTC.Utils.dataURItoBlob(data);
+            window.saveAs(blob, fileName);
+          }
         }
       });
-    },
-    saveToDisk: function(fileURL, fileName) {
-      // for non-IE
-      if (!window.ActiveXObject) {
-        var save = document.createElement('a');
-        save.href = fileURL;
-        save.target = '_blank';
-        save.download = fileName || 'unknown';
-
-        var event = document.createEvent('Event');
-        event.initEvent('click', true, true);
-        save.dispatchEvent(event);
-        (window.URL || window.webkitURL).revokeObjectURL(save.href);
-      }
-
-      // for IE
-      else if ( !! window.ActiveXObject && document.execCommand)
-      {
-        var _window = window.open(fileURL, '_blank');
-        _window.document.close();
-        _window.document.execCommand('SaveAs', true, fileName || fileURL);
-        _window.close();
-      }
     },
     handleFileSelect: function(evt) {
       var file = evt.target.files[0];
