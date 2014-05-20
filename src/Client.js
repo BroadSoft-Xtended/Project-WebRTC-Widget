@@ -706,6 +706,11 @@
       }
     },
 
+    setAudioOnly: function(audioOnly){
+      this.configuration.audioOnly = audioOnly;
+      this.sipStack.updateUserMedia();
+    },
+
     updateClientClass: function(){
       var classes = [];
       classes.push("r"+this.configuration.getResolutionDisplay());

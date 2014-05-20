@@ -101,8 +101,8 @@
       this.resolutionType.bind('change', function(e)
       {
         self.client.updateClientClass();
-        self.client.sipStack.updateUserMedia();
         self.client.sipStack.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateUserMedia();
       });
       this.resolutionDisplayWidescreen.bind('change', function(e)
       {
@@ -114,13 +114,13 @@
       });
       this.resolutionEncodingWidescreen.bind('change', function(e)
       {
-        self.client.sipStack.updateUserMedia();
         self.client.sipStack.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateUserMedia();
       });
       this.resolutionEncodingStandard.bind('change', function(e)
       {
-        self.client.sipStack.updateUserMedia();
         self.client.sipStack.updateRtcMediaHandlerOptions();
+        self.client.sipStack.updateUserMedia();
       });
     },
     updateRowVisibility: function(){
