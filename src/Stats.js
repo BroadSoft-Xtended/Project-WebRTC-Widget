@@ -81,8 +81,8 @@
       });
     },
 
-    getStat: function(label) {
-      var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), label);
+    getStat: function(type, label) {
+      var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), type, label);
       return dataSeries;
     },
 

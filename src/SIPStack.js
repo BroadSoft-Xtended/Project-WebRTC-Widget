@@ -159,7 +159,7 @@
           self.eventBus.userMediaUpdated(localStream);
           if(self.activeSession) {
             logger.log("changing active session ...", self.configuration);
-            self.activeSession.changeSession({localMedia: localStream}, function(){
+            self.activeSession.changeSession({localMedia: localStream, createOfferConstraints: options.createOfferConstraints}, function(){
               logger.log('change session succeeded', self.configuration);
             }, function(){
               logger.log('change session failed', self.configuration);

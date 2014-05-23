@@ -901,12 +901,13 @@ function getDataSeries(peerConnectionId, reportType, reportId, label) {
   return dataSeries[dataSeriesId];
 }
 
-function getDataSeriesByLabel(peerConnectionId, label) {
+function getDataSeriesByLabel(peerConnectionId, type, label) {
   var keys = Object.keys(dataSeries);
   var results = [];
+  var regex = new RegExp(peerConnectionId+".*"+type+".*"+label);
   for(i = 0; i < keys.length; i++) {
     var key = keys[i];
-    if(key.indexOf(peerConnectionId) !== -1 && key.indexOf(label) !== -1) {
+    if(regex.test(key)) {
       var obj = {};
       obj[key] = dataSeries[key].dataPoints_[dataSeries[key].dataPoints_.length-1].value;
       results.push(obj);

@@ -706,8 +706,15 @@
       }
     },
 
+    setAudioOnlyOfferAndRec: function(audioOnly){
+      this.configuration.audioOnly = audioOnly;
+      this.configuration.offerToReceiveVideo = !audioOnly;
+      this.sipStack.updateUserMedia();
+    },
+
     setAudioOnly: function(audioOnly){
       this.configuration.audioOnly = audioOnly;
+      this.configuration.offerToReceiveVideo = true;
       this.sipStack.updateUserMedia();
     },
 
