@@ -136,7 +136,6 @@ test('getExSIPOptions', function() {
 
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 640, maxHeight: 480 }}},
-    RTCConstraints: {'optional': [],'mandatory': {}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
@@ -148,7 +147,6 @@ test('getExSIPOptions with resolution', function() {
   client.settings.setResolutionEncoding('320x240');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 320, maxHeight: 240 }}},
-    RTCConstraints: {'optional': [],'mandatory': {}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
@@ -160,7 +158,6 @@ test('getExSIPOptions with resolution 960x720', function() {
   client.settings.setResolutionEncoding('960x720');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 960, minHeight: 720 }}},
-    RTCConstraints: {'optional': [],'mandatory': {}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
@@ -173,7 +170,6 @@ test('getExSIPOptions with hd=true', function() {
   client.settings.setResolutionEncoding('960x720');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 1280, minHeight: 720 }}},
-    RTCConstraints: {'optional': [],'mandatory': {}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
   };
   deepEqual(client.configuration.getExSIPOptions(), options);

@@ -95,7 +95,6 @@
           audio: true,
           video: this.getVideoConstraints()
         },
-        RTCConstraints: {'optional': [],'mandatory': {}},
         createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:this.offerToReceiveVideo}}
       };
 
@@ -171,9 +170,12 @@
     },
 
     getRtcMediaHandlerOptions: function(){
-      var options = {reuseLocalMedia: ClientConfig.enableConnectLocalMedia};
-      options["videoBandwidth"] = this.settings.getBandwidth();
-      options["disableICE"] = this.disableICE;
+      var options = {
+        reuseLocalMedia: ClientConfig.enableConnectLocalMedia,
+        videoBandwidth: this.settings.getBandwidth(),
+        disableICE: this.disableICE,
+        RTCConstraints: {'optional': [],'mandatory': {}}
+      };
       return options;
     },
 
