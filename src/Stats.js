@@ -81,6 +81,11 @@
       });
     },
 
+    getStat: function(label) {
+      var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), label);
+      return dataSeries;
+    },
+
     setSelected: function(id, parentSelector, selected) {
       if (arguments.length === 2) {
         selected = true;

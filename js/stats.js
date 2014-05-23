@@ -901,6 +901,20 @@ function getDataSeries(peerConnectionId, reportType, reportId, label) {
   return dataSeries[dataSeriesId];
 }
 
+function getDataSeriesByLabel(peerConnectionId, label) {
+  var keys = Object.keys(dataSeries);
+  var results = [];
+  for(i = 0; i < keys.length; i++) {
+    var key = keys[i];
+    if(key.indexOf(peerConnectionId) !== -1 && key.indexOf(label) !== -1) {
+      var obj = {};
+      obj[key] = dataSeries[key].dataPoints_[dataSeries[key].dataPoints_.length-1].value;
+      results.push(obj);
+    }
+  }
+  return results;
+}
+
 function getValueBefore(peerConnectionElement, reportType, reportId, label, timestamp) {
     var dataSeriesId = this.dataSeriesId(peerConnectionElement.id, reportType, reportId, label);
     var srcDataSeries = dataSeries[dataSeriesId];

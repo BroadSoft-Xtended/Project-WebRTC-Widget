@@ -111,7 +111,8 @@ module.exports = function(grunt) {
           "ExSIP": true,
           "detect": true,
           "ClientConfig": true,
-          "addStats": true
+          "addStats": true,
+          "getDataSeriesByLabel": true
         }
       },
       globals: {}
