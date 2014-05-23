@@ -4553,8 +4553,7 @@ function getDataSeriesByLabel(peerConnectionId, type, label) {
         var key = keys[i];
         if (regex.test(key)) {
             var obj = {};
-            obj[key] = dataSeries[key].dataPoints_[dataSeries[key].dataPoints_.length - 1].value;
-            results.push(obj);
+            results.push(dataSeries[key]);
         }
     }
     return results;

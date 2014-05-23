@@ -81,9 +81,9 @@
       });
     },
 
-    getStat: function(type, label) {
+    getStatAvg: function(type, label) {
       var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), type, label);
-      return dataSeries;
+      return dataSeries.pop().getAvg();
     },
 
     setSelected: function(id, parentSelector, selected) {
