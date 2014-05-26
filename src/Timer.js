@@ -7,7 +7,7 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Timer');
 
   Timer = function(client, stats, configuration) {
-    this.text = $("#timer");
+    this.text = client.find(".timer");
 
     this.client = client;
     this.stats = stats;
@@ -21,7 +21,8 @@
   Timer.prototype = {
     start: function()
     {
-      if(this.running) {
+      if(this.callTimer) {
+        logger.log('timer '+this.callTimer+' already running', this.configuration);
         return;
       }
 
@@ -35,6 +36,7 @@
       this.startTime = null;
       clearInterval(this.callTimer);
       logger.log("cleared timer interval : "+this.callTimer, this.configuration);
+      this.callTimer = null;
       this.updateText();
     },
 

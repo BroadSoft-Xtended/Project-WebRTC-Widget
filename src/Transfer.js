@@ -6,12 +6,12 @@
   var Transfer;
 
   Transfer = function (client, sound, sipStack) {
-    this.icon = $("#transfer");
-    this.popup = $("#transferPopup");
-    this.accept = $("#acceptTransfer");
-    this.reject = $("#rejectTransfer");
-    this.targetInput = $("#transferTarget");
-    this.typeAttended = $("#transferTypeAttended");
+    this.icon = client.find(".transfer");
+    this.popup = client.find(".transferPopup");
+    this.accept = this.popup.find(".acceptTransfer");
+    this.reject = this.popup.find(".rejectTransfer");
+    this.targetInput = this.popup.find(".transferTarget");
+    this.typeAttended = this.popup.find(".transferTypeAttended");
 
     this.visible = false;
     this.client = client;

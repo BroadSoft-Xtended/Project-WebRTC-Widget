@@ -6,11 +6,12 @@
   var Authentication;
 
   Authentication = function (client, configuration, eventBus) {
-    this.popup = $( "#authPopup" );
-    this.okButton = $('#authPopupButton');
-    this.userid = $('#authPopup input#username');
-    this.password = $('#authPopup input#password');
-    this.displayName = $('#authPopup input#displayName');
+    this.popup = client.find(".authPopup");
+    this.okButton = this.popup.find('.authPopupButton');
+    this.userid = this.popup.find('input.username');
+    this.password = this.popup.find('input.password');
+    this.displayName = this.popup.find('input.displayName');
+    this.alert = this.popup.find('.alert');
 
     this.visible = false;
     this.client = client;
@@ -41,7 +42,7 @@
         }
         if (userid === "")
         {
-          $("#alert").text("Invalid Username").fadeIn(10).fadeOut(4000);
+          self.alert.text("Invalid Username").fadeIn(10).fadeOut(4000);
           return;
         }
         self.setVisible(false);

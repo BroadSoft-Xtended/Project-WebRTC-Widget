@@ -6,23 +6,23 @@
   var History;
 
   History = function (client, sound, stats, sipStack) {
-    this.callHistory = $('#callHistory');
-    this.content = $('#callHistory .content');
-    this.historyForward = $('#historyForward');
-    this.historyBack = $('#historyBack');
-    this.callHistoryDetails = $('#callHistoryDetails');
-    this.historyDetailsClose = $('#historyDetailsClose');
-    this.resolutionIn = $('#resolutionIn');
-    this.resolutionOut = $('#resolutionOut');
-    this.bitrateIn = $('#bitrateIn');
-    this.bitrateOut = $('#bitrateOut');
-    this.frameRateIn = $('#frameRateIn');
-    this.frameRateOut = $('#frameRateOut');
-    this.audioLostPer = $('#audioLostPer');
-    this.videoLostPer = $('#videoLostPer');
-    this.jitter = $('#jitter');
-    this.historyClear = $("#historyClear");
-    this.historyCallLink = $("#historyCallLink");
+    this.callHistory = client.find('.callHistory');
+    this.content = this.callHistory.find('.content');
+    this.historyForward = this.callHistory.find('.historyForward');
+    this.historyBack = this.callHistory.find('.historyBack');
+    this.callHistoryDetails = this.callHistory.find('.callHistoryDetails');
+    this.historyDetailsClose = this.callHistory.find('.historyDetailsClose');
+    this.resolutionIn = this.callHistory.find('.resolutionIn');
+    this.resolutionOut = this.callHistory.find('.resolutionOut');
+    this.bitrateIn = this.callHistory.find('.bitrateIn');
+    this.bitrateOut = this.callHistory.find('.bitrateOut');
+    this.frameRateIn = this.callHistory.find('.frameRateIn');
+    this.frameRateOut = this.callHistory.find('.frameRateOut');
+    this.audioLostPer = this.callHistory.find('.audioLostPer');
+    this.videoLostPer = this.callHistory.find('.videoLostPer');
+    this.jitter = this.callHistory.find('.jitter');
+    this.historyClear = this.callHistory.find(".historyClear");
+    this.historyCallLink = this.callHistory.find(".historyCallLink");
 
     this.pageNumber = 0;
     this.historyToggled = false;
@@ -137,7 +137,7 @@
       var calls = this.getAllCalls();
       var startPos = this.callsPerPage * this.pageNumber;
       for (var i = startPos; i < startPos + this.callsPerPage && i < calls.length; i++) {
-        var row = $('#historyRowSample').clone();
+        var row = this.client.find('.historyRowSample').clone();
         row.attr('id', '');
         row.attr('class', 'history-row');
         var call = calls[i];
@@ -297,10 +297,12 @@
     toggle:function () {
       if (ClientConfig.enableCallHistory === true) {
         if (this.historyToggled === false) {
-          $("#callHistory, #historyClear").fadeIn(100);
+          this.callHistory.fadeIn(100);
+          this.historyClear.fadeIn(100);
         }
         else if (this.historyToggled === true) {
-          $("#callHistory, #historyClear").fadeOut(100);
+          this.callHistory.fadeOut(100);
+          this.historyClear.fadeOut(100);
         }
       }
       this.historyToggled = !this.historyToggled;

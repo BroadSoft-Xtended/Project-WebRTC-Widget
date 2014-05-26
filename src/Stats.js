@@ -1,8 +1,9 @@
 (function(WebRTC) {
   var Stats;
-//    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
-  Stats = function(sipStack) {
+  Stats = function(client, sipStack) {
+    this.ui = client.find('.callStats');
+
     this.statsToggled = false;
     this.sipStack = sipStack;
 
@@ -16,11 +17,11 @@
       {
         if (this.statsToggled === false)
         {
-          $("#callStats").fadeIn(100);
+          this.ui.fadeIn(100);
         }
         else if (this.statsToggled === true)
         {
-          $("#callStats").fadeOut(100);
+          this.ui.fadeOut(100);
         }
       }
       this.statsToggled = !this.statsToggled;
@@ -40,6 +41,7 @@
 
     processStats: function() {
       var self = this;
+
       var peerConnection = this.sipStack.activeSession.rtcMediaHandler.peerConnection;
 
       peerConnection.getStats(function (stats)
@@ -81,6 +83,16 @@
       });
     },
 
+    getStatAvg: function(type, label) {
+      var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), type, label);
+      var avg = 0;
+      for(var i = 0; i < dataSeries.length; i++) {
+        var dataSerie = dataSeries[i];
+        avg = Math.max(avg, dataSerie.getAvg());
+      }
+      return avg;
+    },
+
     setSelected: function(id, parentSelector, selected) {
       if (arguments.length === 2) {
         selected = true;
@@ -112,7 +124,7 @@
       var self = this;
       $("a.stats-var").click(function(){
         var index = $(".stats-var").index($(this)[0]);
-        self.setSelected("stats"+index, "#callStats");
+        self.setSelected("stats"+index, this.callStats);
       });
     }
   };

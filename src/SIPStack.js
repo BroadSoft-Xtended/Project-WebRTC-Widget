@@ -151,13 +151,23 @@
 
     updateUserMedia: function(userMediaCallback){
       var self = this;
-      if(ClientConfig.enableConnectLocalMedia) {
+      if(ClientConfig.enableConnectLocalMedia || this.activeSession) {
         // Connect to local stream
         var options = this.configuration.getExSIPOptions();
+        logger.log("updating user media ...", self.configuration);
         this.ua.getUserMedia(options, function(localStream){
           self.eventBus.userMediaUpdated(localStream);
+          if(self.activeSession) {
+            logger.log("changing active session ...", self.configuration);
+            self.activeSession.changeSession({localMedia: localStream, createOfferConstraints: options.createOfferConstraints}, function(){
+              logger.log('change session succeeded', self.configuration);
+            }, function(){
+              logger.log('change session failed', self.configuration);
+            });
+          }
+
           if(userMediaCallback) {
-            userMediaCallback();
+            userMediaCallback(localStream);
           }
         }, function(){
           self.eventBus.message(ClientConfig.messageGetUserMedia || "Get User Media Failed", "alert");
@@ -262,6 +272,7 @@
           self.incomingCall(e);
         } else {
           if(!self.activeSession) {
+            logger.log('new active session : '+session.id);
             self.activeSession = session;
           }
         }

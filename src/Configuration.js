@@ -41,6 +41,7 @@
     this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
     this.color = WebRTC.Utils.colorNameToHex(WebRTC.Utils.getSearchVariable("color")) || $.cookie('settingColor');
+    this.offerToReceiveVideo = true;
     var features = WebRTC.Utils.getSearchVariable("features");
     if(features) {
       this.setClientConfigFlags(parseInt(features, 10));
@@ -94,8 +95,7 @@
           audio: true,
           video: this.getVideoConstraints()
         },
-        RTCConstraints: {'optional': [],'mandatory': {}},
-        createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
+        createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:this.offerToReceiveVideo}}
       };
 
       return options;
@@ -131,6 +131,7 @@
     getExSIPConfig: function(userid, password){
       var sip_uri = null;
       // Config settings
+      userid = encodeURI(userid);
       if ((userid.indexOf("@") === -1))
       {
         sip_uri = (userid + "@" + ClientConfig.domainFrom);
@@ -169,9 +170,12 @@
     },
 
     getRtcMediaHandlerOptions: function(){
-      var options = {reuseLocalMedia: ClientConfig.enableConnectLocalMedia};
-      options["videoBandwidth"] = this.settings.getBandwidth();
-      options["disableICE"] = this.disableICE;
+      var options = {
+        reuseLocalMedia: ClientConfig.enableConnectLocalMedia,
+        videoBandwidth: this.settings.getBandwidth(),
+        disableICE: this.disableICE,
+        RTCConstraints: {'optional': [],'mandatory': {}}
+      };
       return options;
     },
 

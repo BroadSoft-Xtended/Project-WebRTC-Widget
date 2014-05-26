@@ -7,8 +7,9 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Video');
 
   Video = function(client, sipStack, eventBus) {
-    this.local = $('#localVideo');
-    this.remote = $('#remoteVideo');
+    this.ui = client.find('.video');
+    this.local = this.ui.find('.localVideo');
+    this.remote = this.ui.find('.remoteVideo');
     this.eventBus = eventBus;
 
     this.client = client;
@@ -47,14 +48,14 @@
 
     setVideoStream: function(video, streams) {
       var hasStream = streams && streams.length > 0 && typeof(streams[0]) !== 'undefined' && !streams[0].ended;
-      if (video.mozSrcObject !== undefined) {
+      if (video && video.mozSrcObject !== undefined) {
         if(hasStream) {
           video.mozSrcObject = streams[0];
           video.play();
         }  else {
           video.mozSrcObject = null;
         }
-      } else {
+      } else if(video) {
         if(hasStream) {
           video.src = (window.URL && window.URL.createObjectURL(streams[0])) || streams[0];
         }

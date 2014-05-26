@@ -9,33 +9,39 @@
   var Client,
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client');
 
-  Client = function() {
-    this.main = $("#main");
-    this.client = $("#client");
-    this.muteAudioIcon = $('#muteAudio');
-    this.unmuteAudioIcon = $('#unmuteAudio');
-    this.hangup = $("#hangup");
-    this.destination = $("#callControl input#destination");
-    this.callButton = $('#call');
-    this.reInvitePopup = $('#reInvitePopup');
-    this.acceptReInviteCall = $("#acceptReInviteCall");
-    this.rejectReInviteCall = $("#rejectReInviteCall");
-    this.messages = $("#messages");
-    this.callPopup = $("#callPopup");
-    this.incomingCallName = $("#callPopup .incomingCallName");
-    this.incomingCallUser = $("#callPopup .incomingCallUser");
-    this.acceptIncomingCall = $("#acceptIncomingCall");
-    this.rejectIncomingCall = $("#rejectIncomingCall");
-    this.holdAndAnswerButton = $("#holdAndAnswerButton");
-    this.dropAndAnswerButton = $("#dropAndAnswerButton");
-    this.errorPopup = $( "#errorPopup" );
-    this.fullScreenExpandIcon = $("#fullScreenExpand");
-    this.fullScreenContractIcon = $("#fullScreenContract");
-    this.dialpadShowIcon = $("#dialpadIconShow");
-    this.dialpadHideIcon = $("#dialpadIconHide");
-    this.dialpad = $("#dialpad");
-    this.selfViewEnableIcon = $("#selfViewEnable");
-    this.selfViewDisableIcon = $("#selfViewDisable");
+  Client = function(clientSelector) {
+    this.client = $(clientSelector || "#client");
+    this.main = this.client.find(".main");
+    this.muteAudioIcon = this.client.find('.muteAudio');
+    this.unmuteAudioIcon = this.client.find('.unmuteAudio');
+    this.hangup = this.client.find(".hangup");
+    this.callControl = this.client.find(".callControl");
+    this.destination = this.callControl.find("input.destination");
+    this.callButton = this.client.find('.call');
+    this.reInvitePopup = this.client.find('.reInvitePopup');
+    this.acceptReInviteCall = this.client.find(".acceptReInviteCall");
+    this.rejectReInviteCall = this.client.find(".rejectReInviteCall");
+    this.messages = this.client.find(".messages");
+    this.callPopup = this.client.find(".callPopup");
+    this.incomingCallName = this.callPopup.find(".incomingCallName");
+    this.incomingCallUser = this.callPopup.find(".incomingCallUser");
+    this.acceptIncomingCall = this.callPopup.find(".acceptIncomingCall");
+    this.rejectIncomingCall = this.callPopup.find(".rejectIncomingCall");
+    this.holdAndAnswerButton = this.callPopup.find(".holdAndAnswerButton");
+    this.dropAndAnswerButton = this.callPopup.find(".dropAndAnswerButton");
+    this.errorPopup = this.client.find( ".errorPopup" );
+    this.fullScreenExpandIcon = this.client.find(".fullScreenExpand");
+    this.fullScreenContractIcon = this.client.find(".fullScreenContract");
+    this.dialpadShowIcon = this.client.find(".dialpadIconShow");
+    this.dialpadHideIcon = this.client.find(".dialpadIconHide");
+    this.dialpad = this.client.find(".dialpad");
+    this.selfViewEnableIcon = this.client.find(".selfViewEnable");
+    this.selfViewDisableIcon = this.client.find(".selfViewDisable");
+    this.connected = this.client.find(".connected-icon");
+    this.registered = this.client.find(".registered-icon");
+    this.historyClose = this.client.find(".historyClose");
+    this.callHistory = this.client.find(".callHistory");
+    this.callStats = this.client.find(".callStats");
 
     if(typeof(ClientConfig) === 'undefined') {
       $('#unsupported').text("Could not read ClientConfig - make sure it is included and properly formatted");
@@ -49,13 +55,13 @@
     this.sound = new WebRTC.Sound(this.sipStack);
     this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
-    this.stats = new WebRTC.Stats(this.sipStack);
+    this.stats = new WebRTC.Stats(this, this.sipStack);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack);
     this.authentication = new WebRTC.Authentication(this, this.configuration, this.eventBus);
-    this.hold = new WebRTC.Icon($( "#hold" ), this.sound);
-    this.resume = new WebRTC.Icon($( "#resume" ), this.sound);
+    this.hold = new WebRTC.Icon(this.client.find( ".hold" ), this.sound);
+    this.resume = new WebRTC.Icon(this.client.find( ".resume" ), this.sound);
     this.fullScreen = false;
     this.selfViewEnabled = true;
     this.dialpadShown = false;
@@ -83,18 +89,18 @@
         $(function()
         {
           self.video.local.draggable({
-            snap: "#remoteVideo,#videoBar",
+            snap: ".remoteVideo,.videoBar",
             containment: "parent",
             snapTolerance: 200,
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
-          $("#callStats").draggable({
-            snap: "#remoteVideo,#videoBar",
+          self.callStats.draggable({
+            snap: ".remoteVideo,.videoBar",
             containment: "parent",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
-          $("#callHistory").draggable({
-            snap: "#remoteVideo,#videoBar",
+          self.callHistory.draggable({
+            snap: ".remoteVideo,.videoBar",
             containment: "parent",
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
@@ -129,27 +135,31 @@
     // Setup the GUI
     guiStart: function() {
       // Set size for Chrome and Firefox
-      $("#main").css("zoom", this.configuration.size);
-      $("#main").css("-moz-transform", "scale(" + this.configuration.size +")");
+      this.main.css("zoom", this.configuration.size);
+      this.main.css("-moz-transform", "scale(" + this.configuration.size +")");
       if (($.cookie("settingWindowPosition")))
       {
         var windowPositions = $.cookie("settingWindowPosition").split('|');
         for (var i = 0; i < windowPositions.length; ++i)
         {
           var elementPosition = windowPositions[i].split('-');
-          $(elementPosition[0]).css("top", elementPosition[1]);
-          $(elementPosition[0]).css("left", elementPosition[2]);
+          this.client.find(elementPosition[0]).css("top", elementPosition[1]);
+          this.client.find(elementPosition[0]).css("left", elementPosition[2]);
         }
       }
       // Fade in UI elements
-      $("#remoteVideo, #videoBar").fadeIn(1000);
+      this.client.find(".remoteVideo, .videoBar").fadeIn(1000);
       if (ClientConfig.enableCallControl && !this.configuration.hideCallControl)
       {
-        $("#callControl, #ok").fadeIn(1000);
+        this.callControl.fadeIn(1000);
       }
       else {
-        $("#callControl, #ok").fadeOut(1000);
+        this.callControl.fadeOut(1000);
       }
+    },
+
+    find: function(selector) {
+      return this.client.find(selector);
     },
 
     // Display status messages
@@ -192,6 +202,10 @@
     // URL call
     callUri: function(destinationToValidate)
     {
+      if(this.sipStack.getCallState() !== WebRTC.SIPStack.C.STATE_CONNECTED) {
+        logger.log('Already in call with state : '+this.sipStack.getCallState());
+        return;
+      }
       if (destinationToValidate === "")
       {
         this.message(ClientConfig.messageEmptyDestination, "alert");
@@ -317,18 +331,20 @@
     },
 
     showFullScreen: function() {
-      if($('#video')[0].webkitRequestFullScreen) {
-        $('#video')[0].webkitRequestFullScreen();
+      if(this.client.find('.video')[0].webkitRequestFullScreen) {
+        this.client.find('.video')[0].webkitRequestFullScreen();
       }
       this.fullScreen = true;
       this.updateClientClass();
     },
 
     muteAudio: function() {
+      this.setMuted(true);
       this.sound.enableLocalAudio(false);
     },
 
     unmuteAudio: function() {
+      this.setMuted(false);
       this.sound.enableLocalAudio(true);
     },
 
@@ -390,8 +406,8 @@
       this.eventBus.on("disconnected", function(e){
         if (ClientConfig.enableConnectionIcon)
         {
-          $("#connected").removeClass("success");
-          $("#connected").addClass("alert").fadeIn(100);
+          self.connected.removeClass("success");
+          self.connected.addClass("alert").fadeIn(100);
         }
         var msg = ClientConfig.messageConnectionFailed;
         if(e.data && e.data.reason) {
@@ -428,7 +444,7 @@
         if (ClientConfig.enableRegistrationIcon)
         {
           //$("#registered").removeClass("success");
-          $("#registered").addClass("alert").fadeIn(100);
+          self.registered.addClass("alert").fadeIn(100);
         }
         var statusCode = e.data.response.status_code;
         var msg = statusCode;
@@ -440,16 +456,16 @@
       this.eventBus.on("registered", function(e){
         if (ClientConfig.enableRegistrationIcon)
         {
-          $("#registered").removeClass("alert");
-          $("#registered").addClass("success").fadeIn(10).fadeOut(3000);
+          self.registered.removeClass("alert");
+          self.registered.addClass("success").fadeIn(10).fadeOut(3000);
         }
         self.message(ClientConfig.messageRegistered, "success");
       });
       this.eventBus.on("connected", function(e){
         if (ClientConfig.enableConnectionIcon)
         {
-          $("#connected").removeClass("alert");
-          $("#connected").addClass("success").fadeIn(10).fadeOut(3000);
+          self.connected.removeClass("alert");
+          self.connected.addClass("success").fadeIn(10).fadeOut(3000);
         }
         self.message(ClientConfig.messageConnected, "success");
 
@@ -483,10 +499,9 @@
         var incomingCallUser = e.data.request.from.uri.user;
         var title = e.data.audioAdd ? "Adding Audio" : "Adding Video";
         self.message(title, "success");
-        $("#reInvitePopup").fadeIn(100);
-        $("#reInvitePopup .incomingCallName").text(incomingCallName);
-        $("#reInvitePopup .incomingCallUser").text(incomingCallUser);
-        $("#reInvitePopup .title").text(title);
+        self.reInvitePopup.find(".incomingCallName").text(incomingCallName);
+        self.reInvitePopup.find(".incomingCallUser").text(incomingCallUser);
+        self.reInvitePopup.find(".title").text(title);
         self.acceptReInviteCall.off("click");
         self.acceptReInviteCall.on("click", function(){
           self.setEvent("reInvite-done");
@@ -596,7 +611,6 @@
 
       this.muteAudioIcon.bind('click', function(e)
       {
-        self.setMuted(true);
         e.preventDefault();
         self.sound.playClick();
         self.muteAudio();
@@ -604,7 +618,6 @@
 
       this.unmuteAudioIcon.bind('click', function(e)
       {
-        self.setMuted(false);
         e.preventDefault();
         self.sound.playClick();
         self.unmuteAudio();
@@ -624,7 +637,7 @@
         self.hideDialpad();
       });
 
-      $("#historyClose").bind('click', function(e)
+      this.historyClose.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
@@ -632,13 +645,13 @@
       });
 
       // Dialpad digits
-      $("#dialpad").bind('click', function(e)
+      this.dialpad.bind('click', function(e)
       {
         self.pressDTMF(e.target.textContent);
       });
 
       this.destination.keypress(function (e) {
-        if (e.keyCode === 13 && self.sipStack.getCallState() === WebRTC.SIPStack.C.STATE_CONNECTED) {
+        if (e.keyCode === 13) {
           e.preventDefault();
           self.callUri(self.destination.val());
         }
@@ -672,7 +685,7 @@
       logger.log("setting active session to "+ sender.id, this.configuration);
       this.sipStack.activeSession = sender;
       this.video.updateSessionStreams(sender);
-      $('.stats-container').attr('id', this.sipStack.getSessionId()+'-1');
+      this.client.find('.stats-container').attr('id', this.sipStack.getSessionId()+'-1');
       this.sound.pause();
     },
 
@@ -717,9 +730,22 @@
       }
     },
 
+    setAudioOnlyOfferAndRec: function(audioOnly){
+      this.configuration.audioOnly = audioOnly;
+      this.configuration.offerToReceiveVideo = !audioOnly;
+      this.sipStack.updateUserMedia();
+    },
+
+    setAudioOnly: function(audioOnly){
+      this.configuration.audioOnly = audioOnly;
+      this.configuration.offerToReceiveVideo = true;
+      this.sipStack.updateUserMedia();
+    },
+
     updateClientClass: function(){
-      var classes = [];
+      var classes = ["client"];
       classes.push("r"+this.configuration.getResolutionDisplay());
+      classes.push(this.configuration.isWidescreen() ? "widescreen" : "standard");
       var callState = this.sipStack.getCallState();
       if(callState) {
         classes.push(callState);
