@@ -15,7 +15,7 @@ body {
   background-color: #FFFFFF;
 }
 
-#callControl {
+.callControl {
   display: none;
   position: relative;
   left: 0px;
@@ -27,7 +27,7 @@ body {
   font-weight: bold;
 }
 
-#callControl input {
+.callControl input {
   background: #666666; 
   border-bottom: 1px solid #333;
   border-left: 1px solid #000;
@@ -41,26 +41,26 @@ body {
   width: 250px;
 }
 
-#main {
+.main {
   position: relative;
   top: 0px;
   left: 0px;
   width:100%;
 }
-#client.r1280x720 {
+.client.r1280x720 {
     width:1280px;
 }
-#client.r960x720 {
+.client.r960x720 {
     width:960px;
 }
-#client.r640x360, #client.r640x480 {
+.client.r640x360, .client.r640x480 {
     width:640px;
 }
-#client.r320x180, #client.r320x240 {
+.client.r320x180, .client.r320x240 {
     width:320px;
 }
 
-#main:-webkit-full-screen-ancestor:not(iframe) {
+.main:-webkit-full-screen-ancestor:not(iframe) {
     position:absolute !important;
     top:0px;
     left:0px;
@@ -70,7 +70,7 @@ body {
     height:100%;
 }
 
-#video {
+.video {
     position:relative;
     top: 0px;
     left: 0px;
@@ -78,21 +78,21 @@ body {
     height: auto;
 }
 
-.widescreen #video {
+.widescreen .video {
     padding-bottom:56.25%;
 }
-.standard #video {
+.standard .video {
     padding-bottom:75%;
 }
 
-#video:-webkit-full-screen {
+.video:-webkit-full-screen {
     position: absolute;
     height: 100%;
     border: none;
     z-index: 1;
 }
 
-#remoteVideo {
+.remoteVideo {
   display: none;
   position: absolute;
   top: 0%;
@@ -105,7 +105,7 @@ body {
   box-shadow: 0px 0px 10px #000000;
 }
 
-#localVideo {
+.localVideo {
   display: none;
   position: absolute;
   top: auto;
@@ -121,18 +121,18 @@ body {
   z-index: 99;
 }
 
-:-webkit-full-screen #remoteVideo {
+:-webkit-full-screen .remoteVideo {
     z-index: 1;
 }
-:-webkit-full-screen #localVideo {
+:-webkit-full-screen .localVideo {
   z-index: 2;
 }
-:-webkit-full-screen #remoteVideo, :-webkit-full-screen #localVideo {
+:-webkit-full-screen .remoteVideo, :-webkit-full-screen .localVideo {
     border: none;
     border-radius: 0;
 }
 
-#videoBar {
+.videoBar {
   display: none;
   position: relative;
   top: 0px;
@@ -151,7 +151,7 @@ body {
   margin-top:5px;
 }
 
-:-webkit-full-screen #videoBar {
+:-webkit-full-screen .videoBar {
   position: absolute;
   z-index: 5;
   top:auto;
@@ -176,7 +176,7 @@ body {
 
 /* Call Button */
 
-#call {
+.call {
   display: none;
   position: absolute;
   z-index: 10;
@@ -206,23 +206,23 @@ body {
 }
 
 /* needed for wizard integration */
-#hangup, #fullScreen, #selfView, #muteAudio, #dialpadIcon, #messages {
+.hangup, .fullScreen, .selfView, .muteAudio, .dialpadIcon, .messages {
   top: 0;
   left: 0;
 }
 
-#videoBar .icon {
+.videoBar .icon {
   display: none;
   z-index: 10;
   margin: 0px 2.5px;
   position: absolute;
 }
 
-#videoBar .table {
+.videoBar .table {
     height:100%;
     margin: 6px;
 }
-#videoBar .cell {
+.videoBar .cell {
     position:relative;
     top:0px;
     left:0px;
@@ -317,7 +317,7 @@ body {
 }
 
 /* Dialpad Hide Button */
-#quality1 {
+.quality1 {
   display: none;
   position: absolute;
   z-index: 10;
@@ -331,7 +331,7 @@ body {
   opacity: .4;
 }
 
-#quality2 {
+.quality2 {
   display: none;
   position: absolute;
   z-index: 10;
@@ -345,7 +345,7 @@ body {
   opacity: .4;
 }
 
-#quality3 {
+.quality3 {
   display: none;
   position: absolute;
   z-index: 10;
@@ -359,7 +359,7 @@ body {
   opacity: .4;
 }
 
-#quality4 {
+.quality4 {
   display: none;
   position: absolute;
   z-index: 10;
@@ -397,7 +397,7 @@ body {
 }
 
 /* History Button */
-#history {
+.history {
   display: none;
   position: absolute;
   z-index: 10;
@@ -496,11 +496,11 @@ body {
   content: "\e00b";
 }
 
-/* Incoming Call Pupup */
-#callPopup, #reInvitePopup, #transferPopup, #callHistoryDetails {
+/* Incoming Call Popup */
+.callPopup, .reInvitePopup, .transferPopup, .callHistoryDetails {
   display: none;
   background: #333333;
-  padding: 10px; 	
+  padding: 10px;
   border: 2px solid #DDDDDD;
   float: left;
   position: absolute;
@@ -511,22 +511,22 @@ body {
   margin: auto;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
-  font-size: 14px; 
+  font-size: 14px;
   line-height: 18px;
   z-index: 100;
 }
 
-#callPopup, #reInvitePopup {
+.callPopup, .reInvitePopup {
     width:170px;
     height:137px;
 }
-#transferPopup {
+.transferPopup {
     color: white;
     width:280px;
     height:60px;
 }
 
-#transferTarget {
+.transferTarget {
     width: 200px;
 }
 
@@ -538,9 +538,9 @@ body {
     font-size: 16px;
     color: white;
 }
-#callPopup span {
-  color: #999999; 
-  font-size: 22px; 
+.callPopup span {
+  color: #999999;
+  font-size: 22px;
 }
 
 .ui-widget-content.ui-dialog {
@@ -548,7 +548,7 @@ body {
   color: #999999;
   font-size: 22px;
   background: #333333;
-  padding: 10px; 	
+  padding: 10px;
   border: 2px solid #DDDDDD;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
@@ -559,13 +559,13 @@ body {
   display: none;
 }
 
-#settingsPopup {
+.settingsPopup {
   display: none;
   background: #333333;
-  padding: 2px; 	
+  padding: 2px;
   border: 2px solid #DDDDDD;
   position: absolute;
-  top: 5px; 
+  top: 5px;
   left: 5px;
   overflow-x: hidden;
   overflow-y: scroll;
@@ -579,48 +579,48 @@ body {
 }
 
 /* Settings Popup */
-#settingsPopup span {
-  color: #999999; 
-  font-size: 20px; 
+.settingsPopup span {
+  color: #999999;
+  font-size: 20px;
 }
 
-#settingsPopup [type="checkbox"] {
+.settingsPopup [type="checkbox"] {
   width: 18;
   height: 18;
 }
 
-#settingsPopup .short {
+.settingsPopup .short {
     width: 36px;
 }
 /* Auth Button */
-#authPopup {
+.authPopup {
   display: none;
   background: #333333;
-  padding: 10px; 	
+  padding: 10px;
   border: 2px solid #DDDDDD;
   float: left;
   position: fixed;
-  top: 50%; 
+  top: 50%;
   left: 50%;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
-  font-size: 14px; 
+  font-size: 14px;
   line-height: 18px;
 }
 
-#authPopup span {
-  color: #999999; 
-  font-size: 14px; 
+.authPopup span {
+  color: #999999;
+  font-size: 14px;
   line-height: 18px;
 }
 
-#authPopup input {
-  background: #666666; 
+.authPopup input {
+  background: #666666;
   border-bottom: 1px solid #333333;
   border-left: 1px solid #000000;
   border-right: 1px solid #333333;
   border-top: 1px solid #000000;
-  color: #FFFFFF; 
+  color: #FFFFFF;
   border-radius: 3px;
   font-family: arial;
   font-size: 16px;
@@ -628,25 +628,25 @@ body {
   width: 200px;
 }
 
-#authPopup button {
-  border-color: #999999; 
+.authPopup button {
+  border-color: #999999;
   border-width: 1px;
   border-radius: 4px;
   color: #333333;
   cursor: pointer;
   padding: 6px 6px 4px;
   margin-top: 10px;
-  font-size: 12px; 
+  font-size: 12px;
   width: 214px;
 }
 
-#authPopup #alert {
+.authPopup .alert {
   font-size: 20px;
   text-align: center;
   color: #FF0000;
 }
 
-#dialpad {
+.dialpad {
   display: none;
   position: absolute;
   z-index: 20;
@@ -657,13 +657,13 @@ body {
   letter-spacing: 5px;
 }
 
-#dialpad button {
+.dialpad button {
   color: #333333;
   opacity: 0.8;
   font-family:arial;
   font-size: 20px;
   width: 30px;
-  border-color: #000000; 
+  border-color: #000000;
   border-width: 1px;
   border-radius: 4px;
   border-spacing: 5em;
@@ -674,31 +674,31 @@ body {
   cursor: pointer;
 }
 
-#dialpad button:active {
+.dialpad button:active {
   color: #EFA233;
   background: -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A));
   background: linear-gradient(to left bottom, #F47A20, #FAA51A);
 }
 
-#dialpad button:hover {
+.dialpad button:hover {
   box-shadow: 1px 1px 20px #999999;
 }
 
-#connected {
+.connected-icon {
   display: none;
   position: absolute;
   top: 13px;
   right: 5px;
 }
 
-#registered {
+.registered-icon {
   display: none;
   position: absolute;
   top: 13px;
   right: 40px;
 }
 
-#timer {
+.timer {
   display: none;
   position:absolute;
   top: 3px;
@@ -710,14 +710,14 @@ body {
   color: #FFFFFF;
 }
 
-#messages {
+.messages {
   position: absolute;
   bottom: 55px;
   left:0px;
   width: 100%;
   text-align: center;
   font-family:arial;
-  font-size: 20px; 
+  font-size: 20px;
 }
 
 .normal {
@@ -736,7 +736,7 @@ body {
   color: #FF0000;
 }
 
-#callHistory {
+.callHistory {
   display: none;
   position: absolute;
   top: 88px;
@@ -749,7 +749,7 @@ body {
   box-shadow: 0px 0px 10px #999999;
 }
 
-#callHistory .historyDestination {
+.callHistory .historyDestination {
   position: absolute;
   color: #0082FF;
   left: 10px;
@@ -758,74 +758,74 @@ body {
   text-decoration: none;
 }
 
-#callHistory .historyDirection {
+.callHistory .historyDirection {
   position: absolute;
   color: #0082FF;
   left: 205px;
   font-family:arial;
-  font-size: 18px; 
+  font-size: 18px;
 }
 
-#callHistory .historyDate {
+.callHistory .historyDate {
   position: absolute;
   color: #0082FF;
   left: 20px;
   font-family:arial;
-  font-size: 10px; 
+  font-size: 10px;
 }
 
-#callHistory .historyLength {
+.callHistory .historyLength {
   position: absolute;
   color: #0082FF;
   left: 205px;
   font-family:arial;
-  font-size: 10px; 
+  font-size: 10px;
 }
 
-#callHistory .rowSpace {
+.callHistory .rowSpace {
   padding: .5em;
 }
 
-#historyBack {
+.historyBack {
   display: none;
   position: absolute;
   top: 385;
   left: 5px;
 }
 
-#historyClose {
+.historyClose {
   position: absolute;
   top: 385;
   left: 80px;
 }
 
-#historyClear {
+.historyClear {
   position: absolute;
   top: 385;
   left: 155px;
 }
 
-#historyForward {
+.historyForward {
   display: none;
   position: absolute;
   top: 385;
   right: 5px;
 }
 
-#callStats {
+.callStats {
   display: none;
   position: absolute;
 	top: 10px;
   color: #666666;
 	left: 660px;
 	width: 400px;
-  padding: 2px; 	
+  padding: 2px;
 	border-radius: 4px;
 	border: 2px solid #DDDDDD;
 	box-shadow: 0px 0px 10px #999999;
 }
 
-#callStats .statsVideo {
+.callStats .statsVideo {
   position: absolute;
   white-space: pre-wrap;
   color: #0082FF;
@@ -835,7 +835,7 @@ body {
   text-decoration: none;
 }
 
-#callStats .statsAudio {
+.callStats .statsAudio {
   position: absolute;
   white-space: pre-wrap;
   color: #0082FF;
@@ -883,35 +883,35 @@ body {
     display: block;
 }
 
-#client .table {
+.client .table {
     display: table;
     width:100%;
 }
-#client .fixed {
+.client .fixed {
     table-layout: fixed;
 }
-#client .collapse {
+.client .collapse {
     border-collapse: collapse;
 }
 
-#client .cell {
+.client .cell {
     display: table-cell;
 }
 
-#client .heading {
+.client .heading {
     display: table-row;
     font-weight: bold;
 }
 
-#client .row {
+.client .row {
     display: table-row;
     margin: 0;
 }
-#client .row:before, #client .row:after {
+.client .row:before, .client .row:after {
     display: none;
 }
 
-#client .group {
+.client .group {
     display: table-row-group;
 }
 
@@ -923,136 +923,136 @@ body {
     display:none;
 }
 
-#client .fadeable{
+.client .fadeable{
     opacity: 0;
     display: block;
     z-index: -1;
 }
 
-#holdAndAnswerButton, #dropAndAnswerButton, #acceptIncomingCall {
+.holdAndAnswerButton, .dropAndAnswerButton, .acceptIncomingCall {
     display:none;
 }
 
-.started #holdAndAnswerButton,
-.started #dropAndAnswerButton,
-#client:not(.started) #acceptIncomingCall {
+.started .holdAndAnswerButton,
+.started .dropAndAnswerButton,
+.client:not(.started) .acceptIncomingCall {
     display:inline-block;
 }
 
-.enable-mute.unmuted.started #muteAudio,
-.enable-mute.muted.started #unmuteAudio,
-.enable-full-screen.full-screen-contracted #fullScreenExpand,
-.enable-full-screen.full-screen-expanded #fullScreenContract,
-.enable-self-view.self-view-enabled #selfViewDisable,
-.enable-self-view.self-view-disabled #selfViewEnable,
-.enable-self-view.self-view-enabled #localVideo,
-.enable-settings #settings,
-.enable-dialpad.dialpad-shown #dialpadIconHide,
-.enable-dialpad.dialpad-hidden #dialpadIconShow,
-.started #hangup, .calling #hangup,
-.enable-call-control.connected #call,
-.enable-transfer.started #transfer,
-.enable-timer.started #timer,
-#client:not(.held).enable-hold.started #hold,
-.enable-hold.started.held #resume
+.enable-mute.unmuted.started .muteAudio,
+.enable-mute.muted.started .unmuteAudio,
+.enable-full-screen.full-screen-contracted .fullScreenExpand,
+.enable-full-screen.full-screen-expanded .fullScreenContract,
+.enable-self-view.self-view-enabled .selfViewDisable,
+.enable-self-view.self-view-disabled .selfViewEnable,
+.enable-self-view.self-view-enabled .localVideo,
+.enable-settings .settings,
+.enable-dialpad.dialpad-shown .dialpadIconHide,
+.enable-dialpad.dialpad-hidden .dialpadIconShow,
+.started .hangup, .calling .hangup,
+.enable-call-control.connected .call,
+.enable-transfer.started .transfer,
+.enable-timer.started .timer,
+.client:not(.held).enable-hold.started .hold,
+.enable-hold.started.held .resume
 {
     transition: all 1s linear;
     opacity: 1;
     z-index: 20;
 }
-.enable-transfer.started.transfer-visible #transferPopup,
-#client:not(.disconnected).auth-visible #authPopup,
-.reInvite #reInvitePopup,
-.enable-dialpad.dialpad-shown #dialpad,
-.enable-settings.settings-shown #settingsPopup,
-.incomingCall #callPopup{
+.enable-transfer.started.transfer-visible .transferPopup,
+.client:not(.disconnected).auth-visible .authPopup,
+.reInvite .reInvitePopup,
+.enable-dialpad.dialpad-shown .dialpad,
+.enable-settings.settings-shown .settingsPopup,
+.incomingCall .callPopup{
     transition: all 1s linear;
     opacity: 1;
     z-index: 100;
 }
-.enable-mute.connected #muteAudio, .enable-mute.disconnected #muteAudio,
-.enable-mute.connected #unmuteAudio, .enable-mute.disconnected #unmuteAudio,
-.enable-mute.muted #muteAudio, .enable-mute.unmuted #unmuteAudio,
-.enable-full-screen.full-screen-expanded #fullScreenExpand,
-.enable-full-screen.full-screen-contracted #fullScreenContract,
-.enable-self-view.self-view-disabled #selfViewDisable,
-.enable-self-view.self-view-enabled #selfViewEnable,
-.enable-self-view.self-view-disabled #localVideo,
-.enable-settings.settings-hidden #settingsPopup,
-.enable-dialpad.dialpad-hidden #dialpadIconHide,
-.enable-dialpad.dialpad-shown #dialpadIconShow,
-.enable-dialpad.dialpad-hidden #dialpad,
-.connected #hangup, .disconnected #hangup,
-#client:not(.connected) #call,
-.enable-transfer.connected #transfer, .enable-transfer.disconnected #transfer,
-.enable-transfer.transfer-hidden #transferPopup,
-#client.disconnected #authPopup, #client.auth-hidden #authPopup,
-.reInvite-done #reInvitePopup,
-#client.held #hold, #client:not(.started) #hold,
-#client:not(.held) #resume, #client:not(.started) #resume,
-#client:not(.started) #timer
+.enable-mute.connected .muteAudio, .enable-mute.disconnected .muteAudio,
+.enable-mute.connected .unmuteAudio, .enable-mute.disconnected .unmuteAudio,
+.enable-mute.muted .muteAudio, .enable-mute.unmuted .unmuteAudio,
+.enable-full-screen.full-screen-expanded .fullScreenExpand,
+.enable-full-screen.full-screen-contracted .fullScreenContract,
+.enable-self-view.self-view-disabled .selfViewDisable,
+.enable-self-view.self-view-enabled .selfViewEnable,
+.enable-self-view.self-view-disabled .localVideo,
+.enable-settings.settings-hidden .settingsPopup,
+.enable-dialpad.dialpad-hidden .dialpadIconHide,
+.enable-dialpad.dialpad-shown .dialpadIconShow,
+.enable-dialpad.dialpad-hidden .dialpad,
+.connected .hangup, .disconnected .hangup,
+.client:not(.connected) .call,
+.enable-transfer.connected .transfer, .enable-transfer.disconnected .transfer,
+.enable-transfer.transfer-hidden .transferPopup,
+.client.disconnected .authPopup, .client.auth-hidden .authPopup,
+.reInvite-done .reInvitePopup,
+.client.held .hold, .client:not(.started) .hold,
+.client:not(.held) .resume, .client:not(.started) .resume,
+.client:not(.started) .timer
 {
     transition: all 1s linear;
     opacity: 0;
     z-index: -1;
 }
-#client:not(.enable-mute) .cell-muteAudio,
-#client:not(.enable-transfer) .cell-transfer,
-#client:not(.enable-hold) .cell-hold,
-#client:not(.enable-timer) .cell-timer,
-#client:not(.enable-full-screen) .cell-fullScreen,
-#client:not(.enable-self-view) .cell-selfView,
-#client:not(.enable-settings) .cell-settings,
-#client:not(.enable-dialpad) .cell-dialpad
+.client:not(.enable-mute) .cell-muteAudio,
+.client:not(.enable-transfer) .cell-transfer,
+.client:not(.enable-hold) .cell-hold,
+.client:not(.enable-timer) .cell-timer,
+.client:not(.enable-full-screen) .cell-fullScreen,
+.client:not(.enable-self-view) .cell-selfView,
+.client:not(.enable-settings) .cell-settings,
+.client:not(.enable-dialpad) .cell-dialpad
 {
     display:none !important;
 }
-#historyRowSample {
+.historyRowSample {
     display: none;
 }
-#callHistoryDetails {
+.callHistoryDetails {
     width: 150px;
     height: 190px;
     background: white;
 }
-#historyDetailsClose {
+.historyDetailsClose {
     text-align: right;
     margin-top: 10px;
 }
-#historyDetailsClose .icon-ok{
+.historyDetailsClose .icon-ok{
     margin:0px;
 }
-#callHistory .actions {
+.callHistory .actions {
     margin-top:10px;
 }
 .history-row {
     cursor: pointer;
 }
-#historyCallLink {
+.historyCallLink {
     text-align: left;
 }
-.view-audioOnly #video, .view-audioOnly #fullScreenExpand, .view-audioOnly #fullScreenContract,
-.view-audioOnly #selfViewDisable, .view-audioOnly #selfViewEnable, .view-audioOnly #quality1,
-.view-audioOnly #quality2, .view-audioOnly #quality3, .view-audioOnly #quality4,
+.view-audioOnly .video, .view-audioOnly .fullScreenExpand, .view-audioOnly .fullScreenContract,
+.view-audioOnly .selfViewDisable, .view-audioOnly .selfViewEnable, .view-audioOnly .quality1,
+.view-audioOnly .quality2, .view-audioOnly .quality3, .view-audioOnly .quality4,
 .view-audioOnly .cell-fullScreen, .view-audioOnly .cell-selfView{
     display:none !important;
 }
-#client.view-audioOnly, .view-audioOnly #videoBar {
+.client.view-audioOnly, .view-audioOnly .videoBar {
     display: inline-block;
     width: auto;
 }
-.view-audioOnly #videoBar .table{
+.view-audioOnly .videoBar .table{
     table-layout: auto;
     width: auto;
 }
 .view-audioOnly .cell-hangup {
     width:35px !important;
 }
-.view-audioOnly #timer {
+.view-audioOnly .timer {
     position: relative;
     margin-right: 10px;
 }
-.view-audioOnly #dialpad {
+.view-audioOnly .dialpad {
     top: 60px;
     left: 0;
 }

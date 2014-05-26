@@ -7,7 +7,7 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Timer');
 
   Timer = function(client, stats, configuration) {
-    this.text = $("#timer");
+    this.text = client.find(".timer");
 
     this.client = client;
     this.stats = stats;

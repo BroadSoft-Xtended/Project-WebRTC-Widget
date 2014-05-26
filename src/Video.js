@@ -7,8 +7,9 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Video');
 
   Video = function(client, sipStack, eventBus) {
-    this.local = $('#localVideo');
-    this.remote = $('#remoteVideo');
+    this.ui = client.find('.video');
+    this.local = this.ui.find('.localVideo');
+    this.remote = this.ui.find('.remoteVideo');
     this.eventBus = eventBus;
 
     this.client = client;

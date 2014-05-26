@@ -79,6 +79,7 @@ test('2nd incoming call and hold+answer click', function() {
   var outgoingSession = TestWebrtc.Helpers.outgoingSession();
   TestWebrtc.Helpers.startCall(outgoingSession);
   var incomingSession = TestWebrtc.Helpers.incomingSession();
+  var answerOptions = "";
   incomingSession.answer = function(options){console.log("answer"); answerOptions = options; incomingSession.started('local');}
   TestWebrtc.Helpers.incomingCall(incomingSession);
 
