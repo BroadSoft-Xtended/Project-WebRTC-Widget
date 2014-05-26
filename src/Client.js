@@ -9,9 +9,9 @@
   var Client,
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client');
 
-  Client = function() {
-    this.main = $("#main");
-    this.client = $("#client");
+  Client = function(clientSelector) {
+    this.client = $(clientSelector || "#client");
+    this.main = this.client.find("#main");
     this.muteAudioIcon = $('#muteAudio');
     this.unmuteAudioIcon = $('#unmuteAudio');
     this.hangup = $("#hangup");
@@ -661,7 +661,7 @@
       logger.log("setting active session to "+ sender.id, this.configuration);
       this.sipStack.activeSession = sender;
       this.video.updateSessionStreams(sender);
-      $('.stats-container').attr('id', this.sipStack.getSessionId()+'-1');
+      this.client.find('.stats-container').attr('id', this.sipStack.getSessionId()+'-1');
       this.sound.pause();
     },
 

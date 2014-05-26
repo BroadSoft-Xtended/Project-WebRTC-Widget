@@ -174,7 +174,7 @@
         reuseLocalMedia: ClientConfig.enableConnectLocalMedia,
         videoBandwidth: this.settings.getBandwidth(),
         disableICE: this.disableICE,
-        RTCConstraints: {'optional': [],'mandatory': {}}
+        RTCConstraints: {'optional': [{'DtlsSrtpKeyAgreement': 'false'}],'mandatory': {}}
       };
       return options;
     },

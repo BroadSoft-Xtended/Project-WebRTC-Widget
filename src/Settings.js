@@ -179,20 +179,23 @@
       this.updateViewPositions();
     },
     updateViewPositions: function(){
-      if (this.client.video.local.position().top !== 0 && this.client.video.local.position().left !== 0)
+      var localVideoPosition = this.client.video.local.position();
+      if (localVideoPosition && localVideoPosition.top !== 0 && localVideoPosition.left !== 0)
       {
-        this.localVideoTop.val(this.client.video.local.position().top);
-        this.localVideoLeft.val(this.client.video.local.position().left);
+        this.localVideoTop.val(localVideoPosition.top);
+        this.localVideoLeft.val(localVideoPosition.left);
       }
-      if ($("#callHistory").position().top !== 0 && $("#callHistory").position().left !== 0)
+      var callHistoryPosition = $("#callHistory").position();
+      if (callHistoryPosition && callHistoryPosition.top !== 0 && callHistoryPosition.left !== 0)
       {
-        $("#settingCallHistoryTop").val($("#callHistory").position().top);
-        $("#settingCallHistoryLeft").val($("#callHistory").position().left);
+        $("#settingCallHistoryTop").val(callHistoryPosition.top);
+        $("#settingCallHistoryLeft").val(callHistoryPosition.left);
       }
-      if ($("#callStats").position().top !== 0 && $("#callStats").position().left !== 0)
+      var callStatsPosition = $("#callStats").position();
+      if (callStatsPosition && callStatsPosition.top !== 0 && callStatsPosition.left !== 0)
       {
-        $("#settingCallStatsTop").val($("#callStats").position().top);
-        $("#settingCallStatsLeft").val($("#callStats").position().left);
+        $("#settingCallStatsTop").val(callStatsPosition.top);
+        $("#settingCallStatsLeft").val(callStatsPosition.left);
       }
     },
     updateResolutionSelectVisibility: function(){

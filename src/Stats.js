@@ -1,6 +1,5 @@
 (function(WebRTC) {
   var Stats;
-//    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
   Stats = function(sipStack) {
     this.statsToggled = false;
@@ -40,6 +39,7 @@
 
     processStats: function() {
       var self = this;
+
       var peerConnection = this.sipStack.activeSession.rtcMediaHandler.peerConnection;
 
       peerConnection.getStats(function (stats)
@@ -83,7 +83,12 @@
 
     getStatAvg: function(type, label) {
       var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), type, label);
-      return dataSeries.pop().getAvg();
+      var avg = 0;
+      for(var i = 0; i < dataSeries.length; i++) {
+        var dataSerie = dataSeries[i];
+        avg = Math.max(avg, dataSerie.getAvg());
+      }
+      return avg;
     },
 
     setSelected: function(id, parentSelector, selected) {

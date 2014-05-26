@@ -272,6 +272,7 @@
           self.incomingCall(e);
         } else {
           if(!self.activeSession) {
+            logger.log('new active session : '+session.id);
             self.activeSession = session;
           }
         }
