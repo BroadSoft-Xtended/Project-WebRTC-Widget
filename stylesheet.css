@@ -206,7 +206,7 @@ body {
 }
 
 /* needed for wizard integration */
-.hangup, .fullScreen, .selfView, .muteAudio, .dialpadIcon, .messages {
+.hangup, .fullScreen, .selfView, .muteAudioIcon, .dialpadIcon, .messages {
   top: 0;
   left: 0;
 }
@@ -939,8 +939,8 @@ body {
     display:inline-block;
 }
 
-.enable-mute.unmuted.started .muteAudio,
-.enable-mute.muted.started .unmuteAudio,
+.enable-mute.unmuted.started .muteAudioIcon,
+.enable-mute.muted.started .unmuteAudioIcon,
 .enable-full-screen.full-screen-contracted .fullScreenExpand,
 .enable-full-screen.full-screen-expanded .fullScreenContract,
 .enable-self-view.self-view-enabled .selfViewDisable,
@@ -970,9 +970,9 @@ body {
     opacity: 1;
     z-index: 100;
 }
-.enable-mute.connected .muteAudio, .enable-mute.disconnected .muteAudio,
-.enable-mute.connected .unmuteAudio, .enable-mute.disconnected .unmuteAudio,
-.enable-mute.muted .muteAudio, .enable-mute.unmuted .unmuteAudio,
+.enable-mute.connected .muteAudioIcon, .enable-mute.disconnected .muteAudioIcon,
+.enable-mute.connected .unmuteAudioIcon, .enable-mute.disconnected .unmuteAudioIcon,
+.enable-mute.muted .muteAudioIcon, .enable-mute.unmuted .unmuteAudioIcon,
 .enable-full-screen.full-screen-expanded .fullScreenExpand,
 .enable-full-screen.full-screen-contracted .fullScreenContract,
 .enable-self-view.self-view-disabled .selfViewDisable,
