@@ -12,8 +12,8 @@
   Client = function(clientSelector) {
     this.client = $(clientSelector || "#client");
     this.main = this.client.find(".main");
-    this.muteAudioIcon = this.client.find('.muteAudio');
-    this.unmuteAudioIcon = this.client.find('.unmuteAudio');
+    this.muteAudioIcon = this.client.find('.muteAudioIcon');
+    this.unmuteAudioIcon = this.client.find('.unmuteAudioIcon');
     this.hangup = this.client.find(".hangup");
     this.callControl = this.client.find(".callControl");
     this.destination = this.callControl.find("input.destination");
