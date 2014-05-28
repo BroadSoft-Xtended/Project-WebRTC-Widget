@@ -151,6 +151,16 @@ test('getExSIPOptions with resolution', function() {
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
 });
+test('getExSIPOptions with view = audioOnly', function() {
+  ClientConfig.view = 'audioOnly';
+  client = new WebRTC.Client();
+  var options = {
+    mediaConstraints: { audio: true, video: false},
+    createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}}
+  };
+  deepEqual(client.configuration.getExSIPOptions(), options);
+  delete ClientConfig.view;
+});
 test('getExSIPOptions with resolution 960x720', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.audioOnly, false);

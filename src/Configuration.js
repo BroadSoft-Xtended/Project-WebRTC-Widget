@@ -71,6 +71,10 @@
         }
       }
     },
+    isAudioOnlyView: function(){
+      var view = this.getView();
+      return view === 'audioOnly';
+    },
     getView: function(){
       return ClientConfig.view || WebRTC.Utils.getSearchVariable("view");
     },
@@ -95,14 +99,17 @@
           audio: true,
           video: this.getVideoConstraints()
         },
-        createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:this.offerToReceiveVideo}}
+        createOfferConstraints: {mandatory:{
+          OfferToReceiveAudio:true,
+          OfferToReceiveVideo: !this.isAudioOnlyView() && this.offerToReceiveVideo
+        }}
       };
 
       return options;
     },
 
     getVideoConstraints: function(){
-      if (this.audioOnly) {
+      if (this.isAudioOnlyView() || this.audioOnly) {
         return false;
       } else {
         var constraints = this.getResolutionConstraints();
