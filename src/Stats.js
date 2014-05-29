@@ -84,14 +84,26 @@
       });
     },
 
-    getStatAvg: function(type, label) {
+    getDataSerie: function(type, label) {
       var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), type, label);
-      var avg = 0;
+      var result;
       for(var i = 0; i < dataSeries.length; i++) {
         var dataSerie = dataSeries[i];
-        avg = Math.max(avg, dataSerie.getAvg());
+        if(!result || dataSerie.getAvg() > result.getAvg()) {
+          result = dataSerie;
+        }
       }
-      return avg;
+      return result;
+    },
+
+    getStatValues: function(type, label) {
+      var dataSerie = this.getDataSerie(type, label);
+      return dataSerie ? dataSerie.dataPoints_.map(function(e){return e.value;}) : null;
+    },
+
+    getStatAvg: function(type, label) {
+      var dataSerie = this.getDataSerie(type, label);
+      return dataSerie ? dataSerie.getAvg() : null;
     },
 
     setSelected: function(id, parentSelector, selected) {
