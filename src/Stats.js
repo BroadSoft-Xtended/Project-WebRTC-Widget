@@ -84,8 +84,8 @@
       });
     },
 
-    getDataSerie: function(type, label) {
-      var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), type, label);
+    getDataSerie: function(type, label, sessionId) {
+      var dataSeries = getDataSeriesByLabel(sessionId || this.sipStack.getSessionId(), type, label);
       var result;
       for(var i = 0; i < dataSeries.length; i++) {
         var dataSerie = dataSeries[i];
@@ -96,13 +96,13 @@
       return result;
     },
 
-    getStatValues: function(type, label) {
-      var dataSerie = this.getDataSerie(type, label);
+    getStatValues: function(type, label, sessionId) {
+      var dataSerie = this.getDataSerie(type, label, sessionId);
       return dataSerie ? dataSerie.dataPoints_.map(function(e){return e.value;}) : null;
     },
 
-    getStatAvg: function(type, label) {
-      var dataSerie = this.getDataSerie(type, label);
+    getStatAvg: function(type, label, sessionId) {
+      var dataSerie = this.getDataSerie(type, label, sessionId);
       return dataSerie ? dataSerie.getAvg() : null;
     },
 
