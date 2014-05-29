@@ -255,6 +255,6 @@ function setClientConfigFlagAndAssert(flagName) {
 
 function assertClientConfigFlags(names, enabled) {
   for(var i=0; i<names.length; i++) {
-    strictEqual(ClientConfig[names[i]], enabled, "Should be "+(enabled ? "enabled" : "disabled")+" : "+names[i]);
+    strictEqual(client.configuration[names[i]], enabled, "Should be "+(enabled ? "enabled" : "disabled")+" : "+names[i]);
   }
 }

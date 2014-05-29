@@ -1,11 +1,12 @@
 (function(WebRTC) {
   var Stats;
 
-  Stats = function(client, sipStack) {
+  Stats = function(client, sipStack, configuration) {
     this.ui = client.find('.callStats');
 
     this.statsToggled = false;
     this.sipStack = sipStack;
+    this.configuration = configuration;
 
     this.initialize();
   };
@@ -13,7 +14,7 @@
   Stats.prototype = {
     toggle: function()
     {
-      if (ClientConfig.enableCallStats)
+      if (this.configuration.enableCallStats)
       {
         if (this.statsToggled === false)
         {

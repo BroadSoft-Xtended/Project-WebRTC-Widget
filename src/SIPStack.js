@@ -151,7 +151,7 @@
 
     updateUserMedia: function(userMediaCallback){
       var self = this;
-      if(ClientConfig.enableConnectLocalMedia || this.activeSession) {
+      if(this.configuration.enableConnectLocalMedia || this.activeSession) {
         // Connect to local stream
         var options = this.configuration.getExSIPOptions();
         logger.log("updating user media ...", self.configuration);
@@ -170,14 +170,14 @@
             userMediaCallback(localStream);
           }
         }, function(){
-          self.eventBus.message(ClientConfig.messageGetUserMedia || "Get User Media Failed", "alert");
+          self.eventBus.message(this.configuration.messageGetUserMedia || "Get User Media Failed", "alert");
         }, true);
       }
     },
 
     // Incoming reinvite function
     incomingReInvite: function(e) {
-      if (ClientConfig.enableAutoAcceptReInvite) {
+      if (this.configuration.enableAutoAcceptReInvite) {
         logger.log("auto accepting reInvite", this.configuration);
         e.data.session.acceptReInvite();
       } else {
@@ -188,7 +188,7 @@
     incomingCall: function(evt)
     {
       var session = evt.data.session;
-      if (!this.activeSession && ClientConfig.enableAutoAnswer)
+      if (!this.activeSession && this.configuration.enableAutoAnswer)
       {
         session.answer(this.configuration.getExSIPOptions());
       }

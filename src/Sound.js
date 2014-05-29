@@ -6,12 +6,12 @@
   var Sound;
 //    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
-  Sound = function(sipStack) {
+  Sound = function(sipStack, configuration) {
     this.sipStack = sipStack;
     this.soundOut = document.createElement("audio");
-    this.soundOut.volume = ClientConfig.volumeClick;
+    this.soundOut.volume = configuration.volumeClick;
     this.soundOutDTMF = document.createElement("audio");
-    this.soundOutDTMF.volume = ClientConfig.volumeDTMF;
+    this.soundOutDTMF.volume = configuration.volumeDTMF;
   };
 
   Sound.prototype = {

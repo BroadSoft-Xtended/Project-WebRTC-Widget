@@ -62,7 +62,7 @@ Utils= {
     return userid;
   },
 
-  compatibilityCheck: function()
+  compatibilityCheck: function(client)
   {
     var isChrome = this.isChrome();
     var isFirefox = this.isFirefox();
@@ -86,7 +86,7 @@ Utils= {
         return "Your version of Firefox must be upgraded to at least version 22y<br>" +
           "Please go to: <a href='http://www.mozilla.org'>http://www.mozilla.org</a>";
       }
-      ClientConfig.enableStats = false;
+      client.configuration.enableStats = false;
     }
   },
 

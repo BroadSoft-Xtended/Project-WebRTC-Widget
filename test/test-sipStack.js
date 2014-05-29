@@ -21,7 +21,7 @@ test('RTCMediaHandlerOptions and bandwidth med change', function() {
   client.settings.settingBandwidthMed.val("600");
   client.settings.settingBandwidthMed.trigger("blur");
   deepEqual(rtcMediaHandlerOptions, {
-    RTCConstraints: {'optional': [],'mandatory': {}},
+    RTCConstraints: {'optional': [{'DtlsSrtpKeyAgreement': 'false'}],'mandatory': {}},
     "disableICE": true,
     "reuseLocalMedia": true,
     "videoBandwidth": "600"
@@ -37,7 +37,7 @@ test('RTCMediaHandlerOptions and bandwidth low change for resolution 180', funct
   client.settings.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
   client.settings.resolutionEncodingStandard.trigger("change");
   deepEqual(rtcMediaHandlerOptions, {
-    RTCConstraints: {'optional': [],'mandatory': {}},
+    RTCConstraints: {'optional': [{'DtlsSrtpKeyAgreement': 'false'}],'mandatory': {}},
     "disableICE": true,
     "reuseLocalMedia": true,
     "videoBandwidth": "200"

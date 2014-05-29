@@ -66,7 +66,7 @@
           return;
         }
         self.updateText();
-        if (ClientConfig.enableCallStats && WebRTC.Utils.isChrome())
+        if (self.configuration.enableCallStats && WebRTC.Utils.isChrome())
         {
           self.stats.processStats();
         }

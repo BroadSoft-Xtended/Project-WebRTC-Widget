@@ -16,7 +16,7 @@ module( "Client", {
 
 test('validateDestination', function() {
   client = new WebRTC.Client();
-  ClientConfig.allowOutside = true;
+  client.configuration.allowOutside = true;
   strictEqual(client.validateDestination("1000"), "sip:1000@domain.to");
   strictEqual(client.validateDestination("1000@webrtc"), "sip:1000@webrtc.domain.to");
   strictEqual(client.validateDestination("1000@webrtc.domain.to"), "sip:1000@webrtc.domain.to");
@@ -24,7 +24,7 @@ test('validateDestination', function() {
 });
 test('validateDestination with allowOutside = false', function() {
   client = new WebRTC.Client();
-  ClientConfig.allowOutside = false;
+  client.configuration.allowOutside = false;
   strictEqual(client.validateDestination("1000"), false);
   strictEqual(client.validateDestination("1000@webrtc"), false);
   strictEqual(client.validateDestination("1000@webrtc.domain.to"), "sip:1000@webrtc.domain.to");
