@@ -36,7 +36,7 @@
     // Default URL variables
     this.client = client;
     this.userid = this.networkUserId || WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
-    this.destination = WebRTC.Utils.getSearchVariable("destination");
+    this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
     this.sipDisplayName = this.displayName || WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ") || $.cookie('settingDisplayName');
