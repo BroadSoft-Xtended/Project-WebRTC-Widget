@@ -4082,6 +4082,945 @@
     };
 })(jQuery);
 
+var peerConnectionsListElem = null;
+
+var ssrcInfoManager = null;
+
+var peerConnectionUpdateTable = null;
+
+var statsTable = null;
+
+var dumpCreator = null;
+
+var SsrcInfoManager = function() {
+    "use strict";
+    function SsrcInfoManager() {
+        this.streamInfoContainer_ = {};
+        this.ATTRIBUTE_SEPARATOR_ = /[\r,\n]/;
+        this.FIELD_SEPARATOR_REGEX_ = / .*:/;
+        this.SSRC_ATTRIBUTE_PREFIX_ = "a=ssrc:";
+        this.SSRC_INFO_BLOCK_CLASS_ = "ssrc-info-block";
+    }
+    SsrcInfoManager.prototype = {
+        addSsrcStreamInfo: function(sdp) {
+            var attributes = sdp.split(this.ATTRIBUTE_SEPARATOR_);
+            for (var i = 0; i < attributes.length; ++i) {
+                if (attributes[i].indexOf(this.SSRC_ATTRIBUTE_PREFIX_) != 0) continue;
+                var nextFieldIndex = attributes[i].search(this.FIELD_SEPARATOR_REGEX_);
+                if (nextFieldIndex == -1) continue;
+                var ssrc = attributes[i].substring(this.SSRC_ATTRIBUTE_PREFIX_.length, nextFieldIndex);
+                if (!this.streamInfoContainer_[ssrc]) this.streamInfoContainer_[ssrc] = {};
+                var rest = attributes[i].substring(nextFieldIndex + 1);
+                var name, value;
+                while (rest.length > 0) {
+                    nextFieldIndex = rest.search(this.FIELD_SEPARATOR_REGEX_);
+                    if (nextFieldIndex == -1) nextFieldIndex = rest.length;
+                    name = rest.substring(0, rest.indexOf(":"));
+                    value = rest.substring(rest.indexOf(":") + 1, nextFieldIndex);
+                    this.streamInfoContainer_[ssrc][name] = value;
+                    rest = rest.substring(nextFieldIndex + 1);
+                }
+            }
+        },
+        getStreamInfo: function(ssrc) {
+            return this.streamInfoContainer_[ssrc];
+        },
+        populateSsrcInfo: function(parentElement, ssrc) {
+            if (!this.streamInfoContainer_[ssrc]) return;
+            parentElement.className = this.SSRC_INFO_BLOCK_CLASS_;
+            var fieldElement;
+            for (var property in this.streamInfoContainer_[ssrc]) {
+                fieldElement = document.createElement("div");
+                parentElement.appendChild(fieldElement);
+                fieldElement.textContent = property + ":" + this.streamInfoContainer_[ssrc][property];
+            }
+        }
+    };
+    return SsrcInfoManager;
+}();
+
+var TimelineDataSeries = function() {
+    "use strict";
+    function TimelineDataSeries() {
+        this.dataPoints_ = [];
+        this.color_ = "red";
+        this.isVisible_ = true;
+        this.cacheStartTime_ = null;
+        this.cacheStepSize_ = 0;
+        this.cacheValues_ = [];
+    }
+    TimelineDataSeries.prototype = {
+        addPoint: function(timeTicks, value) {
+            var time = new Date(timeTicks);
+            this.dataPoints_.push(new DataPoint(time, value));
+        },
+        isVisible: function() {
+            return this.isVisible_;
+        },
+        show: function(isVisible) {
+            this.isVisible_ = isVisible;
+        },
+        getColor: function() {
+            return this.color_;
+        },
+        setColor: function(color) {
+            this.color_ = color;
+        },
+        getAvg: function() {
+            var sum = 0;
+            for (var i = 0; i < this.dataPoints_.length; i++) {
+                sum += this.dataPoints_[i].value;
+            }
+            return sum / this.dataPoints_.length;
+        },
+        getValues: function(startTime, stepSize, count) {
+            if (this.cacheStartTime_ == startTime && this.cacheStepSize_ == stepSize && this.cacheValues_.length == count) {
+                return this.cacheValues_;
+            }
+            this.cacheValues_ = this.getValuesInternal_(startTime, stepSize, count);
+            this.cacheStartTime_ = startTime;
+            this.cacheStepSize_ = stepSize;
+            return this.cacheValues_;
+        },
+        getValuesInternal_: function(startTime, stepSize, count) {
+            var values = [];
+            var nextPoint = 0;
+            var currentValue = 0;
+            var time = startTime;
+            for (var i = 0; i < count; ++i) {
+                while (nextPoint < this.dataPoints_.length && this.dataPoints_[nextPoint].time < time) {
+                    currentValue = this.dataPoints_[nextPoint].value;
+                    ++nextPoint;
+                }
+                values[i] = currentValue;
+                time += stepSize;
+            }
+            return values;
+        }
+    };
+    function DataPoint(time, value) {
+        this.time = time;
+        this.value = value;
+    }
+    return TimelineDataSeries;
+}();
+
+var TimelineGraphView = function() {
+    "use strict";
+    var DEFAULT_SCALE = 2e3;
+    var MAX_VERTICAL_LABELS = 6;
+    var LABEL_VERTICAL_SPACING = 4;
+    var LABEL_HORIZONTAL_SPACING = 3;
+    var LABEL_LABEL_HORIZONTAL_SPACING = 25;
+    var Y_AXIS_TICK_LENGTH = 10;
+    var GRID_COLOR = "#CCC";
+    var TEXT_COLOR = "#000";
+    var BACKGROUND_COLOR = "#FFF";
+    function TimelineGraphView(divId, canvasId) {
+        this.scrollbar_ = {
+            position_: 0,
+            range_: 0
+        };
+        this.graphDiv_ = $('[id="' + divId + '"]')[0];
+        this.canvas_ = $('[id="' + canvasId + '"]')[0];
+        this.startTime_ = 0;
+        this.endTime_ = 1;
+        this.graph_ = null;
+        this.updateScrollbarRange_(true);
+    }
+    TimelineGraphView.prototype = {
+        getLength_: function() {
+            var timeRange = this.endTime_ - this.startTime_;
+            return Math.floor(timeRange / DEFAULT_SCALE);
+        },
+        graphScrolledToRightEdge_: function() {
+            return this.scrollbar_.position_ == this.scrollbar_.range_;
+        },
+        updateScrollbarRange_: function(resetPosition) {
+            var scrollbarRange = this.getLength_() - this.canvas_.width;
+            if (scrollbarRange < 0) scrollbarRange = 0;
+            if (this.scrollbar_.position_ > scrollbarRange) resetPosition = true;
+            this.scrollbar_.range_ = scrollbarRange;
+            if (resetPosition) {
+                this.scrollbar_.position_ = scrollbarRange;
+                this.repaint();
+            }
+        },
+        setDateRange: function(startDate, endDate) {
+            this.startTime_ = startDate.getTime();
+            this.endTime_ = endDate.getTime();
+            if (this.endTime_ <= this.startTime_) this.startTime_ = this.endTime_ - 1;
+            this.updateScrollbarRange_(true);
+        },
+        updateEndDate: function() {
+            this.endTime_ = new Date().getTime();
+            this.updateScrollbarRange_(this.graphScrolledToRightEdge_());
+        },
+        getStartDate: function() {
+            return new Date(this.startTime_);
+        },
+        setDataSeries: function(dataSeries) {
+            this.graph_ = new Graph();
+            for (var i = 0; i < dataSeries.length; ++i) this.graph_.addDataSeries(dataSeries[i]);
+            this.repaint();
+        },
+        addDataSeries: function(dataSeries) {
+            if (!this.graph_) this.graph_ = new Graph();
+            this.graph_.addDataSeries(dataSeries);
+            this.repaint();
+        },
+        repaint: function() {
+            this.repaintTimerRunning_ = false;
+            var width = this.canvas_.width;
+            var height = this.canvas_.height;
+            var context = this.canvas_.getContext("2d");
+            context.fillStyle = BACKGROUND_COLOR;
+            context.fillRect(0, 0, width, height);
+            var fontHeightString = context.font.match(/([0-9]+)px/)[1];
+            var fontHeight = parseInt(fontHeightString);
+            if (fontHeightString.length == 0 || fontHeight <= 0 || fontHeight * 4 > height || width < 50) {
+                return;
+            }
+            context.save();
+            context.translate(.5, .5);
+            var position = this.scrollbar_.position_;
+            if (this.scrollbar_.range_ == 0) position = this.getLength_() - this.canvas_.width;
+            var visibleStartTime = this.startTime_ + position * DEFAULT_SCALE;
+            var textHeight = height;
+            height -= fontHeight + LABEL_VERTICAL_SPACING;
+            this.drawTimeLabels(context, width, height, textHeight, visibleStartTime);
+            context.strokeStyle = GRID_COLOR;
+            context.strokeRect(0, 0, width - 1, height - 1);
+            if (this.graph_) {
+                this.graph_.layout(width, height, fontHeight, visibleStartTime, DEFAULT_SCALE);
+                this.graph_.drawTicks(context);
+                this.graph_.drawLines(context);
+                this.graph_.drawLabels(context);
+            }
+            context.restore();
+        },
+        drawTimeLabels: function(context, width, height, textHeight, startTime) {
+            var sampleText = new Date(startTime).toLocaleTimeString();
+            var targetSpacing = context.measureText(sampleText).width + LABEL_LABEL_HORIZONTAL_SPACING;
+            var timeStepValues = [ 1e3, 1e3 * 5, 1e3 * 30, 1e3 * 60, 1e3 * 60 * 5, 1e3 * 60 * 30, 1e3 * 60 * 60, 1e3 * 60 * 60 * 5 ];
+            var timeStep = null;
+            for (var i = 0; i < timeStepValues.length; ++i) {
+                if (timeStepValues[i] / DEFAULT_SCALE >= targetSpacing) {
+                    timeStep = timeStepValues[i];
+                    break;
+                }
+            }
+            if (!timeStep) return;
+            var time = Math.ceil(startTime / timeStep) * timeStep;
+            context.textBaseline = "bottom";
+            context.textAlign = "center";
+            context.fillStyle = TEXT_COLOR;
+            context.strokeStyle = GRID_COLOR;
+            while (true) {
+                var x = Math.round((time - startTime) / DEFAULT_SCALE);
+                if (x >= width) break;
+                var text = new Date(time).toLocaleTimeString();
+                context.fillText(text, x, textHeight);
+                context.beginPath();
+                context.lineTo(x, 0);
+                context.lineTo(x, height);
+                context.stroke();
+                time += timeStep;
+            }
+        },
+        getDataSeriesCount: function() {
+            if (this.graph_) return this.graph_.dataSeries_.length;
+            return 0;
+        },
+        hasDataSeries: function(dataSeries) {
+            if (this.graph_) return this.graph_.hasDataSeries(dataSeries);
+            return false;
+        }
+    };
+    var Graph = function() {
+        function Graph() {
+            this.dataSeries_ = [];
+            this.width_ = 0;
+            this.height_ = 0;
+            this.fontHeight_ = 0;
+            this.startTime_ = 0;
+            this.scale_ = 0;
+            this.max_ = 0;
+            this.labels_ = [];
+        }
+        function Label(height, text) {
+            this.height = height;
+            this.text = text;
+        }
+        Graph.prototype = {
+            addDataSeries: function(dataSeries) {
+                this.dataSeries_.push(dataSeries);
+            },
+            hasDataSeries: function(dataSeries) {
+                for (var i = 0; i < this.dataSeries_.length; ++i) {
+                    if (this.dataSeries_[i] == dataSeries) return true;
+                }
+                return false;
+            },
+            getValues: function(dataSeries) {
+                if (!dataSeries.isVisible()) return null;
+                return dataSeries.getValues(this.startTime_, this.scale_, this.width_);
+            },
+            layout: function(width, height, fontHeight, startTime, scale) {
+                this.width_ = width;
+                this.height_ = height;
+                this.fontHeight_ = fontHeight;
+                this.startTime_ = startTime;
+                this.scale_ = scale;
+                var max = 0;
+                for (var i = 0; i < this.dataSeries_.length; ++i) {
+                    var values = this.getValues(this.dataSeries_[i]);
+                    if (!values) continue;
+                    for (var j = 0; j < values.length; ++j) {
+                        if (values[j] > max) max = values[j];
+                    }
+                }
+                this.layoutLabels_(max);
+            },
+            layoutLabels_: function(maxValue) {
+                if (maxValue < 1024) {
+                    this.layoutLabelsBasic_(maxValue, 0);
+                    return;
+                }
+                var units = [ "", "m", "M", "G", "T", "P" ];
+                var unit = 1;
+                maxValue /= 1024;
+                while (units[unit + 1] && maxValue >= 1024) {
+                    maxValue /= 1024;
+                    ++unit;
+                }
+                this.layoutLabelsBasic_(maxValue, 1);
+                for (var i = 0; i < this.labels_.length; ++i) this.labels_[i] += " " + units[unit];
+                this.max_ *= Math.pow(1024, unit);
+            },
+            layoutLabelsBasic_: function(maxValue, maxDecimalDigits) {
+                this.labels_ = [];
+                if (maxValue == 0) {
+                    this.max_ = maxValue;
+                    return;
+                }
+                var minLabelSpacing = 2 * this.fontHeight_ + LABEL_VERTICAL_SPACING;
+                var maxLabels = 1 + this.height_ / minLabelSpacing;
+                if (maxLabels < 2) {
+                    maxLabels = 2;
+                } else if (maxLabels > MAX_VERTICAL_LABELS) {
+                    maxLabels = MAX_VERTICAL_LABELS;
+                }
+                var stepSize = Math.pow(10, -maxDecimalDigits);
+                var stepSizeDecimalDigits = maxDecimalDigits;
+                while (true) {
+                    if (Math.ceil(maxValue / stepSize) + 1 <= maxLabels) break;
+                    if (Math.ceil(maxValue / (stepSize * 2)) + 1 <= maxLabels) {
+                        stepSize *= 2;
+                        break;
+                    }
+                    if (Math.ceil(maxValue / (stepSize * 5)) + 1 <= maxLabels) {
+                        stepSize *= 5;
+                        break;
+                    }
+                    stepSize *= 10;
+                    if (stepSizeDecimalDigits > 0) --stepSizeDecimalDigits;
+                }
+                this.max_ = Math.ceil(maxValue / stepSize) * stepSize;
+                for (var label = this.max_; label >= 0; label -= stepSize) this.labels_.push(label.toFixed(stepSizeDecimalDigits));
+            },
+            drawTicks: function(context) {
+                var x1;
+                var x2;
+                x1 = this.width_ - 1;
+                x2 = this.width_ - 1 - Y_AXIS_TICK_LENGTH;
+                context.fillStyle = GRID_COLOR;
+                context.beginPath();
+                for (var i = 1; i < this.labels_.length - 1; ++i) {
+                    var y = Math.round(this.height_ * i / (this.labels_.length - 1));
+                    context.moveTo(x1, y);
+                    context.lineTo(x2, y);
+                }
+                context.stroke();
+            },
+            drawLines: function(context) {
+                var scale = 0;
+                var bottom = this.height_ - 1;
+                if (this.max_) scale = bottom / this.max_;
+                for (var i = this.dataSeries_.length - 1; i >= 0; --i) {
+                    var values = this.getValues(this.dataSeries_[i]);
+                    if (!values) continue;
+                    context.strokeStyle = this.dataSeries_[i].getColor();
+                    context.beginPath();
+                    for (var x = 0; x < values.length; ++x) {
+                        context.lineTo(x, bottom - Math.round(values[x] * scale));
+                    }
+                    context.stroke();
+                }
+            },
+            drawLabels: function(context) {
+                if (this.labels_.length == 0) return;
+                var x = this.width_ - LABEL_HORIZONTAL_SPACING;
+                context.fillStyle = TEXT_COLOR;
+                context.textAlign = "right";
+                context.textBaseline = "top";
+                context.fillText(this.labels_[0], x, 0);
+                context.textBaseline = "bottom";
+                var step = (this.height_ - 1) / (this.labels_.length - 1);
+                for (var i = 1; i < this.labels_.length; ++i) context.fillText(this.labels_[i], x, step * i);
+            }
+        };
+        return Graph;
+    }();
+    return TimelineGraphView;
+}();
+
+var STATS_GRAPH_CONTAINER_HEADING_CLASS = "stats-graph-container-heading";
+
+var bweCompoundGraphConfig = {
+    googAvailableSendBandwidth: {
+        color: "red"
+    },
+    googTargetEncBitrateCorrected: {
+        color: "purple"
+    },
+    googActualEncBitrate: {
+        color: "orange"
+    },
+    googRetransmitBitrate: {
+        color: "blue"
+    },
+    googTransmitBitrate: {
+        color: "green"
+    }
+};
+
+var totalToPerSecond = function(srcDataSeries) {
+    var length = srcDataSeries.dataPoints_.length;
+    if (length >= 2) {
+        var lastDataPoint = srcDataSeries.dataPoints_[length - 1];
+        var secondLastDataPoint = srcDataSeries.dataPoints_[length - 2];
+        return Math.round((lastDataPoint.value - secondLastDataPoint.value) * 1e3 / (lastDataPoint.time - secondLastDataPoint.time));
+    }
+    return 0;
+};
+
+var totalBytesToBitsPerSecond = function(srcDataSeries) {
+    return totalToPerSecond(srcDataSeries) * 8;
+};
+
+var totalKiloBytesToBitsPerSecond = function(srcDataSeries) {
+    return totalBytesToBitsPerSecond(srcDataSeries) / 1e3;
+};
+
+var packetsLostPercentage = function(srcDataSeries, peerConnectionElement, reportType, reportId) {
+    var packetsLost = getLastValue(peerConnectionElement, reportType, reportId, "packetsLost");
+    var packetsReceived = getLastValue(peerConnectionElement, reportType, reportId, "packetsReceived");
+    if (packetsLost != null && packetsReceived != null) {
+        return Math.round(packetsLost * 100 / (packetsReceived + packetsLost) * 100) / 100;
+    } else {
+        return null;
+    }
+};
+
+function getLastValue(peerConnectionElement, reportType, reportId, label) {
+    return getLastValueAt(peerConnectionElement, reportType, reportId, label, 1);
+}
+
+function getLastValueAt(peerConnectionElement, reportType, reportId, label, index) {
+    var srcDataSeries = getDataSeries(peerConnectionElement.id, reportType, reportId, label);
+    if (srcDataSeries) {
+        return srcDataSeries.dataPoints_[srcDataSeries.dataPoints_.length - index].value;
+    }
+    return null;
+}
+
+function getAvgValue(peerConnectionElement, reportType, reportId, label) {
+    var srcDataSeries = getDataSeries(peerConnectionElement.id, reportType, reportId, label);
+    return srcDataSeries ? srcDataSeries.getAvg() : null;
+}
+
+function getDataSeries(peerConnectionId, reportType, reportId, label) {
+    var dataSeriesId = this.dataSeriesId(peerConnectionId, reportType, reportId, label);
+    return dataSeries[dataSeriesId];
+}
+
+function getDataSeriesByLabel(peerConnectionId, type, label) {
+    var keys = Object.keys(dataSeries);
+    var results = [];
+    var regex = new RegExp(peerConnectionId + ".*" + type + ".*" + label);
+    for (i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        if (regex.test(key)) {
+            var obj = {};
+            results.push(dataSeries[key]);
+        }
+    }
+    return results;
+}
+
+function getValueBefore(peerConnectionElement, reportType, reportId, label, timestamp) {
+    var dataSeriesId = this.dataSeriesId(peerConnectionElement.id, reportType, reportId, label);
+    var srcDataSeries = dataSeries[dataSeriesId];
+    if (srcDataSeries) {
+        for (i = srcDataSeries.dataPoints_.length - 1; i >= 0; i--) {
+            if (srcDataSeries.dataPoints_[i].time < timestamp) {
+                return srcDataSeries.dataPoints_[i].value;
+            }
+        }
+        return srcDataSeries.dataPoints_[0].value;
+    }
+    return null;
+}
+
+function dataSeriesId(peerConnectionId, reportType, reportId, label) {
+    return peerConnectionId + "-" + reportType + "-" + reportId + "-" + label;
+}
+
+function graphViewId(peerConnectionElement, reportType, reportId, graphType) {
+    return peerConnectionElement.id + "-" + reportType + "-" + reportId + "-" + graphType;
+}
+
+function matchesType(label, type, statsData) {
+    if (type == "video" && isVideoStats(statsData)) {
+        return true;
+    } else if (type == "audio" && isAudioStats(statsData)) {
+        if (label == "googJitterReceived" && !containsLabel(statsData, "audioOutputLevel")) {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+function isVideoStats(statsData) {
+    return containsLabel(statsData, "googFrameHeightSent") || containsLabel(statsData, "googFrameHeightReceived");
+}
+
+function isAudioStats(statsData) {
+    return containsLabel(statsData, "audioInputLevel") || containsLabel(statsData, "audioOutputLevel");
+}
+
+function getStatsDataType(label, statsData) {
+    if (isVideoStats(statsData)) {
+        return "video";
+    } else if (isAudioStats(statsData)) {
+        if (label == "googJitterReceived" && !containsLabel(statsData, "audioOutputLevel")) {
+            return null;
+        }
+        return "audio";
+    }
+    return null;
+}
+
+function containsLabel(statsData, label) {
+    for (var i = 0; i < statsData.length - 1; i = i + 2) {
+        if (statsData[i] == label) {
+            return true;
+        }
+    }
+    return false;
+}
+
+var dataConversionConfig = {
+    packetsSent: {
+        convertedName: "packetsSentPerSecond",
+        convertFunction: totalToPerSecond
+    },
+    bytesSent: {
+        convertedName: "kiloBitsSentPerSecond",
+        convertFunction: totalKiloBytesToBitsPerSecond
+    },
+    packetsReceived: {
+        convertedName: "packetsReceivedPerSecond",
+        convertFunction: totalToPerSecond
+    },
+    bytesReceived: {
+        convertedName: "kiloBitsReceivedPerSecond",
+        convertFunction: totalKiloBytesToBitsPerSecond
+    },
+    packetsLost: {
+        convertedName: "packetsLostPer",
+        convertFunction: packetsLostPercentage
+    },
+    googTargetEncBitrate: {
+        convertedName: "googTargetEncBitrateCorrected",
+        convertFunction: function(srcDataSeries) {
+            var length = srcDataSeries.dataPoints_.length;
+            var lastDataPoint = srcDataSeries.dataPoints_[length - 1];
+            if (lastDataPoint.value < 5e3) return lastDataPoint.value * 1e3;
+            return lastDataPoint.value;
+        }
+    }
+};
+
+var graphViews = {};
+
+var dataSeries = {};
+
+function updateGraph(peerConnectionElement, reportType, reportId, singleReport, label) {
+    var graphType = bweCompoundGraphConfig[label] ? "bweCompound" : label;
+    var graphViewId = this.graphViewId(peerConnectionElement, reportType, reportId, graphType);
+    if (!graphViews[graphViewId]) {
+        var statsType = getStatsDataType(label, singleReport.values);
+        graphViews[graphViewId] = createStatsGraphView(peerConnectionElement, reportType, reportId, graphType, statsType);
+        var date = new Date(singleReport.timestamp);
+        graphViews[graphViewId].setDateRange(date, date);
+    }
+    var dataSeriesId = this.dataSeriesId(peerConnectionElement.id, reportType, reportId, label);
+    if (!graphViews[graphViewId].hasDataSeries(dataSeries[dataSeriesId])) graphViews[graphViewId].addDataSeries(dataSeries[dataSeriesId]);
+    graphViews[graphViewId].updateEndDate();
+}
+
+function drawSingleReport(peerConnectionElement, reportType, reportId, singleReport) {
+    if (!singleReport || !singleReport.values) return;
+    for (var i = 0; i < singleReport.values.length - 1; i = i + 2) {
+        var rawLabel = singleReport.values[i];
+        var rawValue = parseInt(singleReport.values[i + 1]);
+        if (isNaN(rawValue)) continue;
+        var rawDataSeriesId = dataSeriesId(peerConnectionElement.id, reportType, reportId, rawLabel);
+        var finalDataSeriesId = rawDataSeriesId;
+        var finalLabel = rawLabel;
+        var finalValue = rawValue;
+        if (dataConversionConfig[rawLabel]) {
+            addDataSeriesPoint(rawDataSeriesId, singleReport.timestamp, rawLabel, rawValue);
+            finalValue = dataConversionConfig[rawLabel].convertFunction(dataSeries[rawDataSeriesId], peerConnectionElement, reportType, reportId);
+            finalLabel = dataConversionConfig[rawLabel].convertedName;
+            finalDataSeriesId = dataSeriesId(peerConnectionElement.id, reportType, reportId, finalLabel);
+        }
+        addDataSeriesPoint(finalDataSeriesId, singleReport.timestamp, finalLabel, finalValue);
+        updateGraph(peerConnectionElement, reportType, reportId, singleReport, rawLabel);
+        if (finalLabel != rawLabel) {
+            updateGraph(peerConnectionElement, reportType, reportId, singleReport, finalLabel);
+        }
+    }
+}
+
+function addDataSeriesPoint(dataSeriesId, time, label, value) {
+    if (!dataSeries[dataSeriesId]) {
+        dataSeries[dataSeriesId] = new TimelineDataSeries();
+        if (bweCompoundGraphConfig[label]) {
+            dataSeries[dataSeriesId].setColor(bweCompoundGraphConfig[label].color);
+        }
+    }
+    if (label == "packetsLost" && value < 0) {
+        value = 0;
+    }
+    dataSeries[dataSeriesId].addPoint(time, value);
+}
+
+function ensureStatsGraphTopContainer(peerConnectionElement, reportType, reportId) {
+    var containerId = peerConnectionElement.id + "-" + reportType + "-" + reportId + "-graph-container";
+    var container = $('[id="' + containerId + '"]')[0];
+    if (!container) {
+        container = document.createElement("div");
+        container.id = containerId;
+        container.className = "stats-graph-container";
+        peerConnectionElement.appendChild(container);
+    }
+    return container;
+}
+
+function createStatsGraphView(peerConnectionElement, reportType, reportId, statsName, statsType) {
+    var topContainer = ensureStatsGraphTopContainer(peerConnectionElement, reportType, reportId);
+    var graphViewId = peerConnectionElement.id + "-" + reportType + "-" + reportId + "-" + statsName;
+    var divId = graphViewId + "-div";
+    var canvasId = graphViewId + "-canvas";
+    var container = document.createElement("div");
+    container.className = "stats-graph-sub-container " + statsName + "-" + statsType;
+    topContainer.appendChild(container);
+    container.innerHTML = "<div>" + statsName + "</div>" + "<div id=" + divId + "><canvas id=" + canvasId + "></canvas></div>";
+    if (statsName == "bweCompound") {
+        container.insertBefore(createBweCompoundLegend(peerConnectionElement, reportType + "-" + reportId), $('[id="' + divId + '"]')[0]);
+    }
+    return new TimelineGraphView(divId, canvasId);
+}
+
+function createBweCompoundLegend(peerConnectionElement, reportName) {
+    var legend = document.createElement("div");
+    for (var prop in bweCompoundGraphConfig) {
+        var div = document.createElement("div");
+        legend.appendChild(div);
+        div.innerHTML = "<input type=checkbox checked></input>" + prop;
+        div.style.color = bweCompoundGraphConfig[prop].color;
+        div.dataSeriesId = peerConnectionElement.id + "-" + reportName + "-" + prop;
+        div.graphViewId = peerConnectionElement.id + "-" + reportName + "-bweCompound";
+        div.firstChild.addEventListener("click", function(event) {
+            var target = dataSeries[event.target.parentNode.dataSeriesId];
+            target.show(event.target.checked);
+            graphViews[event.target.parentNode.graphViewId].repaint();
+        });
+    }
+    return legend;
+}
+
+var StatsTable = function(ssrcInfoManager) {
+    "use strict";
+    function StatsTable(ssrcInfoManager) {
+        this.ssrcInfoManager_ = ssrcInfoManager;
+    }
+    StatsTable.prototype = {
+        addStatsReport: function(peerConnectionElement, reportType, reportId, report) {
+            var statsTable = this.ensureStatsTable_(peerConnectionElement, report);
+            if (report.stats) {
+                this.addStatsToTable_(peerConnectionElement, reportType, reportId, statsTable, report.stats.timestamp, report.stats.values);
+            }
+        },
+        ensureStatsTableContainer_: function(peerConnectionElement) {
+            var containerId = peerConnectionElement.id + "-table-container";
+            var container = $('[id="' + containerId + '"]')[0];
+            if (!container) {
+                container = document.createElement("div");
+                container.id = containerId;
+                container.className = "stats-table-container";
+                peerConnectionElement.appendChild(container);
+            }
+            return container;
+        },
+        ensureStatsTable_: function(peerConnectionElement, report) {
+            var tableId = peerConnectionElement.id + "-table-" + report.type + "-" + report.id;
+            var table = $(document.getElementById(tableId))[0];
+            if (!table) {
+                var container = this.ensureStatsTableContainer_(peerConnectionElement);
+                table = document.createElement("table");
+                container.appendChild(table);
+                table.id = tableId;
+                table.border = 1;
+                table.innerHTML = "<tr><th colspan=2></th></tr>";
+                table.rows[0].cells[0].textContent = "Statistics " + report.type + "-" + report.id;
+                if (report.type == "ssrc") {
+                    table.insertRow(1);
+                    table.rows[1].innerHTML = "<td colspan=2></td>";
+                    this.ssrcInfoManager_.populateSsrcInfo(table.rows[1].cells[0], report.id);
+                }
+            }
+            return table;
+        },
+        addStatsToTable_: function(peerConnectionElement, reportType, reportId, statsTable, time, statsData) {
+            var date = Date(time);
+            $(".stats-var").each(function() {
+                var label = $(this).data("var");
+                var type = $(this).data("type");
+                if (matchesType(label, type, statsData)) {
+                    var value = getLastValue(peerConnectionElement, reportType, reportId, label);
+                    if (value != null) {
+                        $(this).html(value);
+                        $(this).attr("data-avg", getAvgValue(peerConnectionElement, reportType, reportId, label));
+                    } else {}
+                }
+            });
+        },
+        updateStatsTableRow_: function(statsTable, rowName, value) {
+            var trId = statsTable.id + "-" + rowName;
+            var trElement = $('[id="' + trId + '"]')[0];
+            if (!trElement) {
+                trElement = document.createElement("tr");
+                trElement.id = trId;
+                statsTable.firstChild.appendChild(trElement);
+                trElement.innerHTML = "<td>" + rowName + "</td><td></td>";
+            }
+            trElement.cells[1].textContent = value;
+        }
+    };
+    return StatsTable;
+}();
+
+var PeerConnectionUpdateEntry = function(pid, lid, type, value) {
+    this.pid = pid;
+    this.lid = lid;
+    this.type = type;
+    this.value = value;
+};
+
+var PeerConnectionUpdateTable = function() {
+    "use strict";
+    function PeerConnectionUpdateTable() {
+        this.UPDATE_LOG_ID_SUFFIX_ = "-update-log";
+        this.UPDATE_LOG_CONTAINER_CLASS_ = "update-log-container";
+        this.UPDATE_LOG_TABLE_CLASS_ = "update-log-table";
+    }
+    PeerConnectionUpdateTable.prototype = {
+        addPeerConnectionUpdate: function(peerConnectionElement, update) {
+            var tableElement = this.ensureUpdateContainer_(peerConnectionElement);
+            var row = document.createElement("tr");
+            tableElement.firstChild.appendChild(row);
+            row.innerHTML = "<td>" + new Date().toLocaleString() + "</td>";
+            if (update.value.length == 0) {
+                row.innerHTML += "<td>" + update.type + "</td>";
+                return;
+            }
+            row.innerHTML += "<td><details><summary>" + update.type + "</summary></details></td>";
+            var valueContainer = document.createElement("pre");
+            var details = row.cells[1].childNodes[0];
+            details.appendChild(valueContainer);
+            valueContainer.textContent = update.value;
+        },
+        ensureUpdateContainer_: function(peerConnectionElement) {
+            var tableId = peerConnectionElement.id + this.UPDATE_LOG_ID_SUFFIX_;
+            var tableElement = $('[id="' + tableId + '"]')[0];
+            if (!tableElement) {
+                var tableContainer = document.createElement("div");
+                tableContainer.className = this.UPDATE_LOG_CONTAINER_CLASS_;
+                peerConnectionElement.appendChild(tableContainer);
+                tableElement = document.createElement("table");
+                tableElement.className = this.UPDATE_LOG_TABLE_CLASS_;
+                tableElement.id = tableId;
+                tableElement.border = 1;
+                tableContainer.appendChild(tableElement);
+                tableElement.innerHTML = "<tr><th>Time</th>" + '<th class="update-log-header-event">Event</th></tr>';
+            }
+            return tableElement;
+        }
+    };
+    return PeerConnectionUpdateTable;
+}();
+
+var DumpCreator = function() {
+    function DumpCreator(containerElement) {
+        this.recording_ = false;
+        this.StatusStrings_ = {
+            NOT_STARTED: "not started.",
+            RECORDING: "recording..."
+        }, this.status_ = this.StatusStrings_.NOT_STARTED;
+        this.root_ = document.createElement("details");
+        this.root_.className = "peer-connection-dump-root";
+        containerElement.appendChild(this.root_);
+        var summary = document.createElement("summary");
+        this.root_.appendChild(summary);
+        summary.textContent = "Create Dump";
+        var content = document.createElement("pre");
+        this.root_.appendChild(content);
+        content.innerHTML = "<button></button> Status: <span></span>";
+        content.getElementsByTagName("button")[0].addEventListener("click", this.onToggled_.bind(this));
+        this.updateDisplay_();
+    }
+    DumpCreator.prototype = {
+        onToggled_: function() {
+            if (this.recording_) {
+                this.recording_ = false;
+                this.status_ = this.StatusStrings_.NOT_STARTED;
+                chrome.send("stopRtpRecording");
+            } else {
+                this.recording_ = true;
+                this.status_ = this.StatusStrings_.RECORDING;
+                chrome.send("startRtpRecording");
+            }
+            this.updateDisplay_();
+        },
+        updateDisplay_: function() {
+            if (this.recording_) {
+                this.root_.getElementsByTagName("button")[0].textContent = "Stop Recording RTP Packets";
+            } else {
+                this.root_.getElementsByTagName("button")[0].textContent = "Start Recording RTP Packets";
+            }
+            this.root_.getElementsByTagName("span")[0].textContent = this.status_;
+        },
+        onUpdate: function(update) {
+            if (this.recording_) {
+                this.status_ = JSON.stringify(update);
+                this.updateDisplay_();
+            }
+        }
+    };
+    return DumpCreator;
+}();
+
+function initialize() {
+    ssrcInfoManager = new SsrcInfoManager();
+    peerConnectionUpdateTable = new PeerConnectionUpdateTable();
+    statsTable = new StatsTable(ssrcInfoManager);
+}
+
+document.addEventListener("DOMContentLoaded", initialize);
+
+function getPeerConnectionId(data) {
+    return data.pid + "-" + data.lid;
+}
+
+function extractSsrcInfo(data) {
+    if (data.type == "setLocalDescription" || data.type == "setRemoteDescription") {
+        ssrcInfoManager.addSsrcStreamInfo(data.value);
+    }
+}
+
+function removePeerConnection(data) {
+    var element = $('[id="' + getPeerConnectionId(data) + '"]')[0];
+    if (element) peerConnectionsListElem.removeChild(element);
+}
+
+function addPeerConnection(data) {
+    var peerConnectionElement = $('[id="' + getPeerConnectionId(data) + '"]')[0];
+    if (!peerConnectionElement) {
+        peerConnectionElement = document.createElement("li");
+        peerConnectionsListElem.appendChild(peerConnectionElement);
+        peerConnectionElement.id = getPeerConnectionId(data);
+    }
+    peerConnectionElement.innerHTML = "<h3>PeerConnection " + peerConnectionElement.id + "</h3>" + "<div>" + data.url + " " + data.servers + " " + data.constraints + "</div>";
+    peerConnectionElement.firstChild.title = "Click to collapse or expand";
+    peerConnectionElement.firstChild.addEventListener("click", function(e) {
+        if (e.target.parentElement.className == "") e.target.parentElement.className = "peer-connection-hidden"; else e.target.parentElement.className = "";
+    });
+    return peerConnectionElement;
+}
+
+function updatePeerConnection(data) {
+    var peerConnectionElement = $('[id="' + getPeerConnectionId(data) + '"]')[0];
+    peerConnectionUpdateTable.addPeerConnectionUpdate(peerConnectionElement, data);
+    extractSsrcInfo(data);
+}
+
+function updateAllPeerConnections(data) {
+    for (var i = 0; i < data.length; ++i) {
+        var peerConnection = addPeerConnection(data[i]);
+        var log = data[i].log;
+        for (var j = 0; j < log.length; ++j) {
+            peerConnectionUpdateTable.addPeerConnectionUpdate(peerConnection, log[j]);
+            extractSsrcInfo(log[j]);
+        }
+    }
+}
+
+function addStats(data) {
+    var peerConnectionElement = getPeerConnectionElement(data);
+    if (!peerConnectionElement) return;
+    for (var i = 0; i < data.reports.length; ++i) {
+        var report = data.reports[i];
+        drawSingleReport(peerConnectionElement, report.type, report.id, report.stats);
+        statsTable.addStatsReport(peerConnectionElement, report.type, report.id, report);
+        if (isVideoStats(report.stats.values)) {
+            var oneMinAgo = new Date(new Date().getTime() - 1e3 * 60);
+            var videoPacketsLost = getLastValue(peerConnectionElement, report.type, report.id, "packetsLost");
+            var packetsSent = getLastValue(peerConnectionElement, report.type, report.id, "packetsReceived");
+            if (videoPacketsLost != null && packetsSent != null) {
+                var videoPacketsLostOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsLost", oneMinAgo);
+                var packetsSentOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsReceived", oneMinAgo);
+                var quality = (videoPacketsLost - videoPacketsLostOneMinAgo) / (packetsSent - packetsSentOneMinAgo) * 100;
+                if (quality < 10) {
+                    $("#quality1").fadeIn(10);
+                    $("#quality2, #quality3, #quality4").fadeOut(10);
+                } else if (quality > 10 && quality < 20) {
+                    $("#quality2").fadeIn(10);
+                    $("#quality1, #quality3, #quality4").fadeOut(10);
+                } else if (quality > 20 && quality < 100) {
+                    $("#quality3").fadeIn(10);
+                    $("#quality1, #quality2, #quality4").fadeOut(10);
+                } else if (quality > 100 && quality < 1e3) {
+                    $("#quality4").fadeIn(10);
+                    $("#quality1, #quality2, #quality3").fadeOut(10);
+                }
+            }
+        }
+    }
+}
+
+function getPeerConnectionElement(data) {
+    return $('[id="' + getPeerConnectionId(data) + '"]')[0];
+}
+
+function updateDumpStatus(update) {
+    dumpCreator.onUpdate(update);
+}
+
 (function(root, undefined) {
     var detect = root.detect = function() {
         var _this = function() {};
