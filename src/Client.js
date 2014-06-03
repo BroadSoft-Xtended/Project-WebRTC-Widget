@@ -273,11 +273,10 @@
 
       this.sipStack.init();
 
-      if(!this.configuration.enableConnectLocalMedia) {
-        if (self.configuration.destination !== false) {
-          // Wait 300 ms for websockets connection then call destination in URL
-          setTimeout(function(){self.callUri(self.configuration.destination);},300);
-        }
+      if(!this.configuration.enableConnectLocalMedia && this.configuration.destination) {
+        this.eventBus.once("connected", function(e){
+          self.callUri(self.configuration.destination);
+        });
       }
 
       // Start the GUI
@@ -391,6 +390,8 @@
           logger.log("DTMF tones found in destination - sending DTMF tones : "+dtmfTones);
           self.sipStack.sendDTMF(dtmfTones);
         }
+        //remove configuration.destination to avoid multiple calls
+        delete self.configuration.destination;
         if(e.data && !e.data.isReconnect) {
           self.message(self.configuration.messageStarted.replace('{0}', self.getRemoteUser(e.sender)), "success");
           self.timer.start();
@@ -466,8 +467,7 @@
         self.message(self.configuration.messageConnected, "success");
 
         self.sipStack.updateUserMedia(function(){
-          // Start a call
-          if (self.configuration.destination !== false)
+          if (self.configuration.destination)
           {
             self.callUri(self.configuration.destination);
           }
