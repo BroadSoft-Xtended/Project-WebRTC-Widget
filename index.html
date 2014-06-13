@@ -99,7 +99,7 @@
             </ul>
             <div id='tab1'>
               <div class="settingDisplayNameRow row">
-              <span class="cell" style="width:250px">Display Name</span>
+              <span class="cell" style="width:110px">Display Name</span>
               <input class="settingDisplayName cell" type="text" value=""/>
               </div>
               <div class="settingUseridRow row">
@@ -133,7 +133,7 @@
                     <input class="settingSelfViewDisable cell" type="checkbox"/>
                 </div>
 
-                <div class="row">
+                <!-- <div class="row">
                     <span class="cell">Window Zoom</span>
                     <input class="settingZoom cell short" type="text" maxlength="4" value=""/>
                 </div>
@@ -162,20 +162,20 @@
                 <div class="row">
                     <span class="cell">Page Color</span>
                     <input class="settingColor cell" type="color" /><br>
-                </div>
+                </div> -->
                 <div class="settingResolutionRow row">
-                  <span class="cell">Resolution</span>
+                  <!-- <span class="cell">Resolution</span> -->
                   <span class="cell">
                       <span class="settingResolutionTypeRow">
-                        <select class="resolutionTypeSelect"></select> type<br>
+                       Mode <select class="resolutionTypeSelect"></select><br>
                       </span>
                       <span class="settingResolutionDisplayRow">
-                        <select class="resolutionDisplayStandardSelect resolutionSubType"></select>
-                        <select class="resolutionDisplayWidescreenSelect resolutionSubType"></select> display<br>
+                        Resolution<select class="resolutionDisplayStandardSelect resolutionSubType"></select>
+                        <select class="resolutionDisplayWidescreenSelect resolutionSubType"></select> <br>
                       </span>
                       <span class="settingResolutionEncodingRow">
-                        <select class="resolutionEncodingStandardSelect resolutionSubType"></select>
-                        <select class="resolutionEncodingWidescreenSelect resolutionSubType"></select> encoding<br>
+                        Encoding<select class="resolutionEncodingStandardSelect resolutionSubType"></select>
+                        <select class="resolutionEncodingWidescreenSelect resolutionSubType"></select><br>
                       </span>
                   </span>
                 </div>
@@ -189,12 +189,14 @@
       </div>
     </div>
     <div class="video">
-      <span id="watermark-icon" class="icon-facetime-video"></span>
+      <span class="icon-facetime-video watermark-icon"></span>
       <video class="remoteVideo" autoplay="autoplay"></video>
       <video autoplay="autoplay" muted="true" class="localVideo fadeable"></video>
     </div>
     <div class="videoBar">
       <div class="table fixed collapse">
+        <div class="cell" style="width:8px">
+        </div>
         <div class="cell cell-selfView">
             <div class="selfViewDisable icon fadeable">
                 <a href="" title="Disable Self View" class="icon-selfViewDisable"></a>
@@ -243,7 +245,7 @@
           </div>
           <div class="cell cell-settings">
               <div class="settings icon fadeable">
-                  <span title="Settings" class="icon-settings"></span>
+                <a href="" title="Settings" class="icon-settings"></a>
               </div>
           </div>
           <div class="cell cell-fullScreen">
@@ -253,6 +255,8 @@
               <div class="fullScreenContract icon fadeable">
                   <a href="" title="Contract Full Screen" class="icon-fullScreenContract"></a>
               </div>
+          </div>
+          <div class="cell" style="width:8px">
           </div>
         </div>
       </div>

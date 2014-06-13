@@ -178,6 +178,7 @@
         self.historyCallLink.attr("data-destination", call.destination);
         self.historyCallLink.text("Call "+call.destinationWithoutSip());
         self.callHistoryDetails.fadeIn(100);
+        self.callHistory.css({width:"416px"});
       };
     },
 
@@ -204,6 +205,7 @@
       this.historyDetailsClose.bind('click', function (e) {
         e.preventDefault();
         self.callHistoryDetails.fadeOut(100);
+        self.callHistory.css({width:"200px"});
       });
 
       this.historyCallLink.bind('click', function (e) {
@@ -213,6 +215,8 @@
           var destination = self.historyCallLink.attr("data-destination");
           self.client.destination.val(destination);
           self.client.callUri(destination);
+          self.callHistory.css({width:"200px"});
+          self.callHistory.fadeOut(100);
         }
         self.callHistoryDetails.hide();
       });

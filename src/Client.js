@@ -49,6 +49,7 @@
       return;
     }
 
+
     this.configuration = new WebRTC.Configuration(this);
     this.eventBus = new WebRTC.EventBus(this.configuration);
     this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
@@ -94,16 +95,16 @@
             snapTolerance: 200,
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
-          self.callStats.draggable({
-            snap: ".remoteVideo,.videoBar",
-            containment: "parent",
-            stop: function( event, ui ) {self.settings.updateViewPositions();}
-          });
-          self.callHistory.draggable({
-            snap: ".remoteVideo,.videoBar",
-            containment: "parent",
-            stop: function( event, ui ) {self.settings.updateViewPositions();}
-          });
+          // self.callStats.draggable({
+          //   snap: ".remoteVideo,.videoBar",
+          //   containment: "parent",
+          //   stop: function( event, ui ) {self.settings.updateViewPositions();}
+          // });
+          // self.callHistory.draggable({
+          //   snap: ".remoteVideo,.videoBar",
+          //   containment: "parent",
+          //   stop: function( event, ui ) {self.settings.updateViewPositions();}
+          // });
         });
       }
 
@@ -331,8 +332,8 @@
     },
 
     showFullScreen: function() {
-      if(this.client.find('.video')[0].webkitRequestFullScreen) {
-        this.client.find('.video')[0].webkitRequestFullScreen();
+      if(this.client[0].webkitRequestFullScreen) {
+        this.client[0].webkitRequestFullScreen();
       }
       this.fullScreen = true;
       this.updateClientClass();
@@ -654,6 +655,18 @@
         if (e.keyCode === 13) {
           e.preventDefault();
           self.callUri(self.destination.val());
+        }
+      });
+      $(".video").bind("click",function(e){
+        var $target = $(e.target);
+        var dialpad = $target.closest(".dialpad").length;
+        var history = $target.closest(".callHistory").length;
+        var details = $target.closest(".callHistoryDetails").length;
+        if(dialpad === 0 || history === 0 || details === 0)
+        {
+            //$(".callHistory").fadeOut(100);
+            self.history.historyToggled = true;
+            self.history.toggle();
         }
       });
 

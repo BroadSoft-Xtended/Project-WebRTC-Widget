@@ -14,7 +14,7 @@ body
   -webkit-font-smoothing: antialiased !important;
 }
 
-#client [class^="icon-"], #client [class*=" icon-"] {
+.client [class^="icon-"], .client [class*=" icon-"] {
   font-family: 'bsl_icons';
   speak: none;
   font-style: normal;
@@ -43,7 +43,7 @@ body
 .icon-clock:before {
   content: "\e634";
 }
-#client .icon-cog:before, .icon-settings:before, .icon-settings:hover:before {
+.client .icon-cog:before, .icon-settings:before, .icon-settings:hover:before {
   content: "\e601";
 }
 .icon-pause2:before, .icon-resume:before, .icon-resume:hover:before, .icon-hold:before, .icon-hold:hover:before {
@@ -115,7 +115,7 @@ body
 .icon-signal2:before {
   content: "\f162";
 }
-#client .icon-cog4:before {
+.client .icon-cog4:before {
   content: "\f163";
 }
 .icon-time:before {
@@ -156,7 +156,7 @@ body
 }
 
 
-#remoteVideo
+.remoteVideo
 {
   border-radius: 0px;
   border: none;
@@ -168,51 +168,71 @@ body
   background: -o-linear-gradient(top,  #000000 0%,#210d03 100%);
   background: -ms-linear-gradient(top,  #000000 0%,#210d03 100%);
   background: linear-gradient(to bottom,  #000000 0%,#210d03 100%);
+  /*background: linear-gradient(to top, #525252 0%,#818181 100%);*/
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#210d03',GradientType=0 );
 
 
   overflow: hidden;
 }
-#videoBar
+.videoBar
 {
   background-image: none;
   border-radius: 0px;
   border: none;
   box-shadow: none;
   margin-top: 0px;
+  background: #141414;
+  border-top: 1px solid #252525;
 }
-#videoBar .table
+.videoBar .table
 {
   margin: 0;
 }
-#localVideo
+.localVideo
 {
   border-radius: 0;
-  border: 1px solid #000;
   box-shadow: none;
-  background-color: rgba(0, 0, 0, 0.57);
+  background: #141414;
+  border: 1px solid #252525;
+  cursor: move;
 }
-#videoBar .icon, #videoBar a
+.videoBar .icon, .videoBar a
 {
   font-size: 20px;
   color: grey;
   text-decoration: none;
 }
-#videoBar .cell
+.videoBar span
+{
+  color: grey;
+}
+.videoBar .cell
 {
   width: 36px;
-  padding-top: 10px;
+  /*padding-top: 10px;*/
+}
+.videoBar .cell .icon
+{
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+  margin-right: 0;
+  margin-left: 0;
+}
+.videoBar .cell .icon a
+{
+  margin: 0;
 }
 .icon
 {
   cursor: pointer;
 }
-.icon a:hover, .icon span:hover, #videoBar a:hover
+.icon a:hover, .icon span:hover, .videoBar a:hover
 {
   color:#04AFF0;
 }
 
-#settingsPopup
+.settingsPopup
 {
   border: 1px solid #000000;
   background: rgba(0, 0, 0, 0.9);
@@ -222,15 +242,16 @@ body
   right: 0px;
   top:auto;
   left: auto;
-  width: 310px;
+  width: 290px !important;
   /*padding: 16px;*/
   font-size: 14px;
+  height: 181px;
 }
-#settingsPopup span
+.settingsPopup span
 {
   font-size: 14px;
 }
-#settingsPopup input
+.settingsPopup input
 {
   background: #333;
   border: 1px solid #414141;
@@ -250,7 +271,7 @@ body
   width: 500px;
   height: 200px;
 }*/
-#messages {
+.messages {
   width: auto;
   background: #000;
   /*color: #B3B3B3;*/
@@ -260,33 +281,34 @@ body
   top:10px;
   left: 10px;
 }
-#videoBar #unmuteAudio
+.videoBar .unmuteAudio
 {
   margin-top: -1px;
 }
-#videoBar #hold, #videoBar #resume
+.videoBar .hold, .videoBar .resume
 {
   margin-top: -1px;
 }
-#hangup a.icon-phone-hang-up
+.hangup a.icon-phone-hang-up
 {
   color: #f90007;
   font-size: 24px;
 }
-#callControl
+.callControl
 {
   display: block;
 }
-#dialpad
+.dialpad
 {
   left: 0px;
   bottom: 40px;
-  background: rgba(0, 0, 0, 0.9);
+  background: #141414;
+  border: 1px solid #252525;
   padding: 15px;
   right: auto;
   z-index: 100;
 }
-#dialpad button
+.dialpad button
 {
   color: #B3B3B3;
   background: none;
@@ -297,12 +319,12 @@ body
   border: none;
   width:50px;
 }
-#dialpad button:hover
+.dialpad button:hover
 {
   background: #111;
   box-shadow: none;
 }
-#dialpad button span
+.dialpad button span
 {
   display: block;
   font-size: 8px;
@@ -311,7 +333,7 @@ body
   margin-top: -13px;
   color: #2D7B99;
 }
-#watermark-icon
+.watermark-icon
 {
   position: absolute;
   top: 115px;
@@ -321,7 +343,7 @@ body
   text-align: center;
   width: 100%;
 }
-#callHistory, #callStats
+.callHistory, .callStats
 {
   background-color: rgba(0, 0, 0, 0.9);
   border-radius: 0;
@@ -331,16 +353,30 @@ body
   z-index: 200;
   padding: 10px;
 }
-#callHistory
+.callHistory
 {
-  width: 176px;
-  height: 269px;
+  width: 200px;
+  height: 292px;
   right: auto;
-  left: 198px;
+  left: 200px;
   bottom: 40px;
   top: auto;
+  background: #141414;
+  border: 1px solid #252525;
+  overflow: hidden;
+  padding: 0;
 }
-#callStats
+.callHistory .content
+{
+  padding: 10px;
+  height:92.9%;
+  width: 180px;
+}
+.callHistory .content, .callHistory .callHistoryDetails
+{
+  overflow: auto;
+}
+.callStats
 {
   top: auto;
   bottom: 40px;
@@ -351,7 +387,7 @@ body
 {
   margin-bottom: 18px;
 }
-#historyCallLink
+.historyCallLink
 {
   background: #04AFF0;
   float: left;
@@ -361,18 +397,20 @@ body
   color: #FFF;
   border-radius: 50px;
 }
-#historyDetailsClose
+.historyDetailsClose
 {
   text-align: right;
   margin-top: 10px;
-  display: block;
+  display: inline-block !important;
   height: 26px;
+  margin-top: 0;
 }
-#historyDetailsClose a
+.historyDetailsClose a
 {
   text-decoration: none;
   outline-color: rgba(0, 0, 0, 0);
-  color: #333;
+  color: #aaa;
+  font-size: 18px;
 }
 .dialpad-control-bar .main-button
 {
@@ -397,13 +435,13 @@ body
 {
   margin-right: 5px;
 }
-#callControl
+.callControl
 {
   height:auto;
 }
-#callControl input
+.callControl input
 {
-  background: #000;
+  background: #141414;
   border: none;
   color: #04AFF0;
   font-size: 18px;
@@ -411,7 +449,7 @@ body
   padding: 0;
   border-radius: 0;
 }
-#callControl input:focus
+.callControl input:focus
 {
   outline: none;
 }
@@ -419,34 +457,34 @@ body
 {
   border: 1px solid #0E0E0E;
 }
-#call {
+.call {
   display: block;
   position: static;
   top: auto;
   left: auto;
 }
-#selfViewEnable a, #dialpadIconHide a,#unmuteAudio a,#fullScreenContract a
+.selfViewEnable a, .dialpadIconHide a,.unmuteAudio a,.fullScreenContract a
 {
-  color:#04AFF0;
+  color:#04AFF0 !important;
 }
-#destination
+.destination
 {
   
 }
-#dialpad .history-button
+.dialpad .history-button
 {
   font-size: 16px;
   padding-top: 5px;
   padding-bottom: 5px;
   outline: none;
 }
-#destination::-webkit-input-placeholder {
+.destination::-webkit-input-placeholder {
    color: #04AFF0;
    font-style: italic;
    padding-left: 5px;
    font-weight: 400;
 }
-#callHistory .historyDirection {
+.callHistory .historyDirection {
   position: absolute;
   color: #3DA005;
   left: 0px;
@@ -454,7 +492,7 @@ body
   font-size: 18px;
   top: 28px;
 }
-#callHistory .actions
+.callHistory .actions
 {
   margin-top: 28px;
 }
@@ -462,7 +500,7 @@ body
 {
   color: #E9651D;
 }
-#callHistory .historyDestination {
+.callHistory .historyDestination {
 position: absolute;
 color: #B3B3B3;
 left: 25px;
@@ -471,7 +509,7 @@ font-size: 18px;
 text-decoration: none;
 top: 27px;
 }
-#callHistory .historyDate {
+.callHistory .historyDate {
 position: absolute;
 color: #B3B3B3;
 left: 26px;
@@ -479,7 +517,7 @@ font-family: arial;
 font-size: 10px;
 top: 50px;
 }
-#callHistory .historyLength {
+.callHistory .historyLength {
 position: absolute;
 color: #B3B3B3;
 left: 104px;
@@ -499,22 +537,23 @@ top: 50px;
   font-size: 16px;
   top: 36px;
 }
-#callHistoryDetails
+.callHistoryDetails
 {
   width: 194px;
   height: auto;
-  background: rgba(0, 0, 0, 0.9);
   border: none;
   clear:both;
   top: 0;
   bottom: -1;
-  left: 197px;
+  left: 201px;
   right: auto;
   box-shadow: none;
   border-radius: 0;
+  background: #141414;
+  border: 1px solid #252525;
 
 }
-#callStats a
+.callStats a
 {
   color:#2BA6CB;
 }
@@ -550,17 +589,60 @@ ul.tabs
   background:#04AFF0;
   color:#fff;
 }
-#settingsPopup .tabs span
+.settingsPopup .tabs span
 {
   margin-right: 5px;
   color:#fff;
 }
-#timer
+.timer
 {
   top: 11px;
 }
-
-
+#history-dt-close-container
+{
+  text-align: right;
+}
+.resolutionTypeSelect
+{
+  margin-left: 42px;
+  width: 170px;
+}
+.resolutionDisplayStandardSelect
+{
+  margin-left: 13px;
+  width: 170px;
+}
+.resolutionEncodingStandardSelect
+{
+  margin-left: 22px;
+  width: 170px;
+}
+.cell-selfView
+{
+  /*padding-left: 12px;*/
+}
+.settings
+{
+  margin-top: 12px !important;
+}
+.settings .icon-settings
+{
+  margin: 0;
+  font-size: 18px;
+  color: #FFF;
+}
+.videoBar .cell:first-child
+{
+  padding
+}
+.icon-settings:before
+{
+  opacity: 1;
+}
+#client
+{
+  margin: 0 auto;
+}
 
 ::-webkit-scrollbar {
     width: 8px;

@@ -149,7 +149,7 @@ body {
     margin-top:5px;
 }
 
-:-webkit-full-screen .videoBar {
+/*:-webkit-full-screen .videoBar {
     position: absolute;
     z-index: 5;
     top:auto;
@@ -160,7 +160,7 @@ body {
     border-radius: 4px;
     border: 2px solid #DDDDDD;
     box-shadow: 0px 0px 10px #999999;
-}
+}*/
 
 /* Default size for all icons */
 
@@ -189,18 +189,18 @@ body {
 
 .icon-call:hover:before {
     content: "\e00e";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Hangup Button */
 .icon-hangup:before {
     content: "\e00f";
-    color: #FF0000;
+    color: #04AFF0;
 }
 
 .icon-hangup:hover:before {
     content: "\e00f";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 .videoBar .icon {
@@ -234,7 +234,7 @@ body {
 
 .icon-fullScreenExpand:hover:before {
     content: "\e002";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* FullScreen Contract Button */
@@ -245,7 +245,7 @@ body {
 
 .icon-fullScreenContract:hover:before {
     content: "\e003";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Self View Disable Button */
@@ -256,18 +256,18 @@ body {
 
 .icon-selfViewDisable:hover:before {
     content: "\e00a";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Self View Enable Button */
 .icon-selfViewEnable:before {
     content: "\e00d";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 .icon-selfViewEnable:hover:before {
     content: "\e00d";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Mute Audio Button */
@@ -278,18 +278,18 @@ body {
 
 .icon-muteAudio:hover:before {
     content: "\e008";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Unmute Audio Button */
 .icon-unmuteAudio:before {
     content: "\e009";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 .icon-unmuteAudio:hover:before {
     content: "\e009";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Dialpad Show Button */
@@ -300,18 +300,18 @@ body {
 
 .icon-dialpadShow:hover:before {
     content: "\e010";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Dialpad Hide Button */
 .icon-dialpadHide:before {
     content: "\e010";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 .icon-dialpadHide:hover:before {
     content: "\e010";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Dialpad Hide Button */
@@ -380,7 +380,7 @@ body {
 
 .icon-settings:hover:before {
     content: "\e00c";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Ok Button */
@@ -391,7 +391,7 @@ body {
 
 .icon-ok:hover:before {
     content: "\e011";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* History Button */
@@ -411,7 +411,7 @@ body {
 
 .icon-history:hover:before {
     content: "\e012";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Trash Button */
@@ -422,7 +422,7 @@ body {
 
 .icon-trash:hover:before {
     content: "\e013";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Left Button */
@@ -433,7 +433,7 @@ body {
 
 .icon-left:hover:before {
     content: "\e000";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Right Button */
@@ -444,7 +444,7 @@ body {
 
 .icon-right:hover:before {
     content: "\e001";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Transfer Button */
@@ -455,7 +455,7 @@ body {
 
 .icon-transfer:hover:before {
     content: "\e014";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Hold Button */
@@ -466,7 +466,7 @@ body {
 
 .icon-hold:hover:before {
     content: "\e015";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 /* Resume Button */
@@ -477,11 +477,11 @@ body {
 
 .icon-resume:hover:before {
     content: "\e016";
-    color: #EFA233;
+    color: #04AFF0;
 }
 
 .button:active {
-    color: #EFA233;
+    color: #04AFF0;
     background: -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A));
     background: linear-gradient(to bottom left, #7CDD07, #FAA51A);
 }
@@ -671,7 +671,7 @@ body {
 }
 
 .dialpad button:active {
-    color: #EFA233;
+    color: #04AFF0;
     background: -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A));
     background: linear-gradient(to left bottom, #F47A20, #FAA51A);
 }
