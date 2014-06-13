@@ -28,15 +28,18 @@
       enableIms: 524288
     };
 
-  Configuration = function(client) {
+  Configuration = function(client, configObj) {
     logger.log('window.location.search : '+window.location.search, this);
+    logger.log('configuration options : '+ExSIP.Utils.toString(configObj), this);
+    jQuery.extend(this, configObj);
+
     // Default URL variables
     this.client = client;
-    this.userid = ClientConfig.networkUserId || WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
-    this.destination = WebRTC.Utils.getSearchVariable("destination");
+    this.userid = this.networkUserId || WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
+    this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
-    this.displayName = ClientConfig.displayName|| WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ") || $.cookie('settingDisplayName');
+    this.sipDisplayName = this.displayName || WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ") || $.cookie('settingDisplayName');
     this.maxCallLength = WebRTC.Utils.getSearchVariable("maxCallLength");
     this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
@@ -46,8 +49,6 @@
     if(features) {
       this.setClientConfigFlags(parseInt(features, 10));
     }
-    // Client Variables
-    this.disableICE = ClientConfig.disableICE;
   };
 
   Configuration.prototype = {
@@ -55,7 +56,7 @@
       var flags = 0;
       for(var flag in Flags) {
         var value = Flags[flag];
-        if(ClientConfig[flag]) {
+        if(this[flag]) {
           flags |= value;
         }
       }
@@ -65,20 +66,24 @@
       for(var flag in Flags) {
         var value = Flags[flag];
         if(flags & value) {
-          ClientConfig[flag] = true;
+          this[flag] = true;
         } else {
-          ClientConfig[flag] = false;
+          this[flag] = false;
         }
       }
     },
+    isAudioOnlyView: function(){
+      var view = this.getView();
+      return view === 'audioOnly';
+    },
     getView: function(){
-      return ClientConfig.view || WebRTC.Utils.getSearchVariable("view");
+      return this.view || WebRTC.Utils.getSearchVariable("view");
     },
     getBackgroundColor: function(){
       return this.color || $('body').css('backgroundColor');
     },
     getRegister: function(){
-      return ClientConfig.register || WebRTC.Utils.getSearchVariable("register") === "true";
+      return this.register || WebRTC.Utils.getSearchVariable("register") === "true";
     },
     getPassword: function(){
       return WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');
@@ -95,14 +100,17 @@
           audio: true,
           video: this.getVideoConstraints()
         },
-        createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:this.offerToReceiveVideo}}
+        createOfferConstraints: {mandatory:{
+          OfferToReceiveAudio:true,
+          OfferToReceiveVideo: !this.isAudioOnlyView() && this.offerToReceiveVideo
+        }}
       };
 
       return options;
     },
 
     getVideoConstraints: function(){
-      if (this.audioOnly) {
+      if (this.isAudioOnlyView() || this.audioOnly) {
         return false;
       } else {
         var constraints = this.getResolutionConstraints();
@@ -134,7 +142,7 @@
       userid = encodeURI(userid);
       if ((userid.indexOf("@") === -1))
       {
-        sip_uri = (userid + "@" + ClientConfig.domainFrom);
+        sip_uri = (userid + "@" + this.domainFrom);
       }
       else
       {
@@ -144,16 +152,16 @@
       var config  =
       {
         'uri': sip_uri,
-        'ws_servers': ClientConfig.websocketsServers,
-        'stun_servers': 'stun:' + ClientConfig.stunServer + ':' + ClientConfig.stunPort,
-        'trace_sip': ClientConfig.debug,
-        'enable_ims': ClientConfig.enableIms
+        'ws_servers': this.websocketsServers,
+        'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
+        'trace_sip': this.debug,
+        'enable_ims': this.enableIms
       };
 
       // Add Display Name if set
-      if (this.displayName.indexOf("false") === -1)
+      if (this.sipDisplayName.indexOf("false") === -1)
       {
-        config.display_name = this.displayName;
+        config.display_name = this.sipDisplayName;
       }
 
       // Modify config object based password
@@ -171,7 +179,7 @@
 
     getRtcMediaHandlerOptions: function(){
       var options = {
-        reuseLocalMedia: ClientConfig.enableConnectLocalMedia,
+        reuseLocalMedia: this.enableConnectLocalMedia,
         videoBandwidth: this.settings.getBandwidth(),
         disableICE: this.disableICE,
         RTCConstraints: {'optional': [],'mandatory': {}}
@@ -184,11 +192,11 @@
     },
 
     isDebug: function(){
-      return ClientConfig.debug === true;
+      return this.debug === true;
     },
 
     isHD: function(){
-      return ClientConfig.enableHD === true && this.hd === true;
+      return this.enableHD === true && this.hd === true;
     },
 
     isWidescreen: function() {

@@ -9,11 +9,11 @@
   var Client,
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client');
 
-  Client = function(clientSelector) {
-    this.client = $(clientSelector || "#client");
+  Client = function(selector, config) {
+    this.client = $(selector || "#client");
     this.main = this.client.find(".main");
-    this.muteAudioIcon = this.client.find('.muteAudio');
-    this.unmuteAudioIcon = this.client.find('.unmuteAudio');
+    this.muteAudioIcon = this.client.find('.muteAudioIcon');
+    this.unmuteAudioIcon = this.client.find('.unmuteAudioIcon');
     this.hangup = this.client.find(".hangup");
     this.callControl = this.client.find(".callControl");
     this.destination = this.callControl.find("input.destination");
@@ -43,23 +43,23 @@
     this.callHistory = this.client.find(".callHistory");
     this.callStats = this.client.find(".callStats");
 
-    if(typeof(ClientConfig) === 'undefined') {
+    if(!config && typeof(ClientConfig) === 'undefined') {
       $('#unsupported').text("Could not read ClientConfig - make sure it is included and properly formatted");
       $('#unsupported').show();
       return;
     }
 
-
     this.configuration = new WebRTC.Configuration(this);
+    this.configuration = new WebRTC.Configuration(this, (config || ClientConfig));
     this.eventBus = new WebRTC.EventBus(this.configuration);
     this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
-    this.sound = new WebRTC.Sound(this.sipStack);
+    this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
     this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
-    this.stats = new WebRTC.Stats(this, this.sipStack);
+    this.stats = new WebRTC.Stats(this, this.sipStack, this.configuration);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
-    this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack);
-    this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack);
+    this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack, this.configuration);
+    this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack, this.configuration);
     this.authentication = new WebRTC.Authentication(this, this.configuration, this.eventBus);
     this.hold = new WebRTC.Icon(this.client.find( ".hold" ), this.sound);
     this.resume = new WebRTC.Icon(this.client.find( ".resume" ), this.sound);
@@ -78,14 +78,14 @@
   Client.prototype = {
     init: function() {
       var self = this;
-      var unsupported = WebRTC.Utils.compatibilityCheck();
+      var unsupported = WebRTC.Utils.compatibilityCheck(this);
       if(unsupported)
       {
         $('#unsupported').html(unsupported).show();
       }
 
       // Allow some windows to be draggable, required jQuery.UI
-      if (ClientConfig.enableWindowDrag)
+      if (this.configuration.enableWindowDrag)
       {
         $(function()
         {
@@ -150,7 +150,7 @@
       }
       // Fade in UI elements
       this.client.find(".remoteVideo, .videoBar").fadeIn(1000);
-      if (ClientConfig.enableCallControl && !this.configuration.hideCallControl)
+      if (this.configuration.enableCallControl && !this.configuration.hideCallControl)
       {
         this.callControl.fadeIn(1000);
       }
@@ -166,7 +166,7 @@
     // Display status messages
     message: function(text, level)
     {
-      if(!ClientConfig.enableMessages)
+      if(!this.configuration.enableMessages)
       {
         return;
       }
@@ -182,18 +182,18 @@
       {
         destination = ("sip:" + destination);
       }
-      if (!ClientConfig.allowOutside && !new RegExp("[.||@]"+ClientConfig.domainTo).test(destination) )
+      if (!this.configuration.allowOutside && !new RegExp("[.||@]"+this.configuration.domainTo).test(destination) )
       {
-        this.message(ClientConfig.messageOutsideDomain, "alert");
+        this.message(this.configuration.messageOutsideDomain, "alert");
         return(false);
       }
       if ((destination.indexOf("@") === -1))
       {
-        destination = (destination + "@" + ClientConfig.domainTo);
+        destination = (destination + "@" + this.configuration.domainTo);
       }
       var domain = destination.substring(destination.indexOf("@"));
       if(domain.indexOf(".") === -1) {
-        destination = destination + "." + ClientConfig.domainTo;
+        destination = destination + "." + this.configuration.domainTo;
       }
 
       // WEBRTC-35 : filter out dtmf tones from destination
@@ -209,7 +209,7 @@
       }
       if (destinationToValidate === "")
       {
-        this.message(ClientConfig.messageEmptyDestination, "alert");
+        this.message(this.configuration.messageEmptyDestination, "alert");
         return;
       }
 
@@ -222,15 +222,15 @@
 
       logger.log("calling destination : "+destination, this.configuration);
 
-      this.message(ClientConfig.messageCall, "success");
+      this.message(this.configuration.messageCall, "success");
 
       // Start the Call
       this.sipStack.call(destination);
     },
 
     setClientConfig: function(clientConfig) {
-      var connectionChanged = window.ClientConfig.websocketsServers[0].ws_uri !== clientConfig.websocketsServers[0].ws_uri;
-      window.ClientConfig = clientConfig;
+      var connectionChanged = this.configuration.websocketsServers[0].ws_uri !== clientConfig.websocketsServers[0].ws_uri;
+      jQuery.extend(this.configuration, clientConfig);
       this.guiStart();
       this.updateClientClass();
       if(connectionChanged) {
@@ -252,7 +252,7 @@
       this.sound.pause();
       this.video.updateSessionStreams();
       // Bring up the main elements
-      if (ClientConfig.enableCallControl === true)
+      if (this.configuration.enableCallControl === true)
       {
         this.configuration.hideCallControl = false;
         this.updateClientClass();
@@ -266,9 +266,9 @@
 
     // Initial startup
     checkEndCallURL: function() {
-      if (ClientConfig.endCallURL)
+      if (this.configuration.endCallURL)
       {
-        window.location = ClientConfig.endCallURL;
+        window.location = this.configuration.endCallURL;
       }
     },
 
@@ -278,11 +278,10 @@
 
       this.sipStack.init();
 
-      if(!ClientConfig.enableConnectLocalMedia) {
-        if (self.configuration.destination !== false) {
-          // Wait 300 ms for websockets connection then call destination in URL
-          setTimeout(function(){self.callUri(self.configuration.destination);},300);
-        }
+      if(!this.configuration.enableConnectLocalMedia && this.configuration.destination) {
+        this.eventBus.once("connected", function(e){
+          self.callUri(self.configuration.destination);
+        });
       }
 
       // Start the GUI
@@ -381,13 +380,13 @@
       var self = this;
 
       this.eventBus.on("ended", function(e){
-        self.message(ClientConfig.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
+        self.message(self.configuration.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
         self.history.persistCall(e.sender);
         self.endCall({rtcSession: e.sender});
       });
       this.eventBus.on("resumed", function(e){
         self.onSessionStarted(e.sender);
-        self.message(ClientConfig.messageResume.replace('{0}', self.getRemoteUser(e.sender)), "success");
+        self.message(self.configuration.messageResume.replace('{0}', self.getRemoteUser(e.sender)), "success");
       });
       this.eventBus.on("started", function(e){
         self.onSessionStarted(e.sender);
@@ -396,21 +395,23 @@
           logger.log("DTMF tones found in destination - sending DTMF tones : "+dtmfTones);
           self.sipStack.sendDTMF(dtmfTones);
         }
+        //remove configuration.destination to avoid multiple calls
+        delete self.configuration.destination;
         if(e.data && !e.data.isReconnect) {
-          self.message(ClientConfig.messageStarted.replace('{0}', self.getRemoteUser(e.sender)), "success");
+          self.message(self.configuration.messageStarted.replace('{0}', self.getRemoteUser(e.sender)), "success");
           self.timer.start();
         }
       });
       this.eventBus.on("held", function(e){
-        self.message(ClientConfig.messageHold.replace('{0}', self.getRemoteUser(e.sender)), "success");
+        self.message(self.configuration.messageHold.replace('{0}', self.getRemoteUser(e.sender)), "success");
       });
       this.eventBus.on("disconnected", function(e){
-        if (ClientConfig.enableConnectionIcon)
+        if (self.configuration.enableConnectionIcon)
         {
           self.connected.removeClass("success");
           self.connected.addClass("alert").fadeIn(100);
         }
-        var msg = ClientConfig.messageConnectionFailed;
+        var msg = self.configuration.messageConnectionFailed;
         if(e.data && e.data.reason) {
           msg = e.data.reason;
         }
@@ -435,14 +436,14 @@
         self.endCall({rtcSession: e.sender});
       });
       this.eventBus.on("progress", function(e){
-        self.message(ClientConfig.messageProgress, "normal");
+        self.message(self.configuration.messageProgress, "normal");
         self.sound.playDtmfRingback();
       });
       this.eventBus.on("message", function(e){
         self.message(e.data.text, e.data.level);
       });
       this.eventBus.on("registrationFailed", function(e){
-        if (ClientConfig.enableRegistrationIcon)
+        if (self.configuration.enableRegistrationIcon)
         {
           //$("#registered").removeClass("success");
           self.registered.addClass("alert").fadeIn(100);
@@ -452,27 +453,26 @@
         if(statusCode === 403) {
           msg = "403 Authentication Failure";
         }
-        self.message(ClientConfig.messageRegistrationFailed.replace('{0}', msg), "alert");
+        self.message(self.configuration.messageRegistrationFailed.replace('{0}', msg), "alert");
       });
       this.eventBus.on("registered", function(e){
-        if (ClientConfig.enableRegistrationIcon)
+        if (self.configuration.enableRegistrationIcon)
         {
           self.registered.removeClass("alert");
           self.registered.addClass("success").fadeIn(10).fadeOut(3000);
         }
-        self.message(ClientConfig.messageRegistered, "success");
+        self.message(self.configuration.messageRegistered, "success");
       });
       this.eventBus.on("connected", function(e){
-        if (ClientConfig.enableConnectionIcon)
+        if (self.configuration.enableConnectionIcon)
         {
           self.connected.removeClass("alert");
           self.connected.addClass("success").fadeIn(10).fadeOut(3000);
         }
-        self.message(ClientConfig.messageConnected, "success");
+        self.message(self.configuration.messageConnected, "success");
 
         self.sipStack.updateUserMedia(function(){
-          // Start a call
-          if (self.configuration.destination !== false)
+          if (self.configuration.destination)
           {
             self.callUri(self.configuration.destination);
           }
@@ -766,39 +766,39 @@
       if(this.event) {
         classes.push(this.event);
       }
-      if (ClientConfig.enableMute)
+      if (this.configuration.enableMute)
       {
         classes.push("enable-mute");
       }
-      if (ClientConfig.enableCallControl && !this.configuration.hideCallControl)
+      if (this.configuration.enableCallControl && !this.configuration.hideCallControl)
       {
         classes.push("enable-call-control");
       }
-      if (ClientConfig.enableTransfer)
+      if (this.configuration.enableTransfer)
       {
         classes.push("enable-transfer");
       }
-      if (ClientConfig.enableHold)
+      if (this.configuration.enableHold)
       {
         classes.push("enable-hold");
       }
-      if (ClientConfig.enableCallTimer)
+      if (this.configuration.enableCallTimer)
       {
         classes.push("enable-timer");
       }
-      if (ClientConfig.enableSettings)
+      if (this.configuration.enableSettings)
       {
         classes.push("enable-settings");
       }
-      if (ClientConfig.enableFullScreen)
+      if (this.configuration.enableFullScreen)
       {
         classes.push("enable-full-screen");
       }
-      if (ClientConfig.enableSelfView)
+      if (this.configuration.enableSelfView)
       {
         classes.push("enable-self-view");
       }
-      if (ClientConfig.enableDialpad)
+      if (this.configuration.enableDialpad)
       {
         classes.push("enable-dialpad");
       }

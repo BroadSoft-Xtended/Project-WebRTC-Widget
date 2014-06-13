@@ -170,7 +170,7 @@ function getCall(session) {
 }
 function getCallCookieValue(session) {
   session = session || rtcSession;
-  return session.start_time.getTime()+"|"+session.remote_identity.uri+"|------>|" + getStatsCookieValue()+ "|00:00:00"
+  return session.start_time.getTime()+"|"+session.remote_identity.uri+"|up|" + getStatsCookieValue()+ "|00:00:00"
 }
 function getStatsCookieValue() {
   return "test-video-googFrameWidthReceivedxtest-video-googFrameHeightReceived|" +

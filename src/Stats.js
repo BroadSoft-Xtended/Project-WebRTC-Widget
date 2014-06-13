@@ -1,11 +1,12 @@
 (function(WebRTC) {
   var Stats;
 
-  Stats = function(client, sipStack) {
+  Stats = function(client, sipStack, configuration) {
     this.ui = client.find('.callStats');
 
     this.statsToggled = false;
     this.sipStack = sipStack;
+    this.configuration = configuration;
 
     this.initialize();
   };
@@ -13,7 +14,7 @@
   Stats.prototype = {
     toggle: function()
     {
-      if (ClientConfig.enableCallStats)
+      if (this.configuration.enableCallStats)
       {
         if (this.statsToggled === false)
         {
@@ -83,14 +84,26 @@
       });
     },
 
-    getStatAvg: function(type, label) {
-      var dataSeries = getDataSeriesByLabel(this.sipStack.getSessionId(), type, label);
-      var avg = 0;
+    getDataSerie: function(type, label, sessionId) {
+      var dataSeries = getDataSeriesByLabel(sessionId || this.sipStack.getSessionId(), type, label);
+      var result;
       for(var i = 0; i < dataSeries.length; i++) {
         var dataSerie = dataSeries[i];
-        avg = Math.max(avg, dataSerie.getAvg());
+        if(!result || dataSerie.getAvg() > result.getAvg()) {
+          result = dataSerie;
+        }
       }
-      return avg;
+      return result;
+    },
+
+    getStatValues: function(type, label, sessionId) {
+      var dataSerie = this.getDataSerie(type, label, sessionId);
+      return dataSerie ? dataSerie.dataPoints_.map(function(e){return e.value;}) : null;
+    },
+
+    getStatAvg: function(type, label, sessionId) {
+      var dataSerie = this.getDataSerie(type, label, sessionId);
+      return dataSerie ? dataSerie.getAvg() : null;
     },
 
     setSelected: function(id, parentSelector, selected) {

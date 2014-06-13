@@ -38,7 +38,7 @@
         var password = self.password.val();
         if (self.displayName.val())
         {
-          self.configuration.displayName = self.displayName.val();
+          self.configuration.sipDisplayName = self.displayName.val();
         }
         if (userid === "")
         {

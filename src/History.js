@@ -5,7 +5,7 @@
 (function (WebRTC) {
   var History;
 
-  History = function (client, sound, stats, sipStack) {
+  History = function (client, sound, stats, sipStack, configuration) {
     this.callHistory = client.find('.callHistory');
     this.content = this.callHistory.find('.content');
     this.historyForward = this.callHistory.find('.historyForward');
@@ -26,6 +26,7 @@
 
     this.pageNumber = 0;
     this.historyToggled = false;
+    this.configuration = configuration;
     this.client = client;
     this.sound = sound;
     this.stats = stats;
@@ -239,7 +240,7 @@
     },
 
     persistCall:function (rtcSession) {
-      if (!ClientConfig.enableCallHistory) {
+      if (!this.configuration.enableCallHistory) {
         return;
       }
       // Get latest cookie
@@ -299,7 +300,7 @@
     },
 
     toggle:function () {
-      if (ClientConfig.enableCallHistory === true) {
+      if (this.configuration.enableCallHistory === true) {
         if (this.historyToggled === false) {
           this.callHistory.fadeIn(100);
           this.historyClear.fadeIn(100);

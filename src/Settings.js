@@ -47,6 +47,8 @@
     this.settingSize = this.settingsUi.find(".settingSize");
     this.settingAutoAnswer = this.settingsUi.find(".settingAutoAnswer");
     this.color = this.settingsUi.find(".settingColor");
+    this.tabConfigureLink = this.settingsUi.find("[href='#tab1']");
+    this.tabLayoutLink = this.settingsUi.find("[href='#tab2']");
 
     this.configuration = configuration;
     this.sound = sound;
@@ -136,19 +138,19 @@
       });
     },
     updateRowVisibility: function(){
-      this.settingAutoAnswerRow.toggle(!ClientConfig.hasOwnProperty("enableAutoAnswer"));
-      this.settingSelfViewDisableRow.toggle(!ClientConfig.hasOwnProperty("enableSelfView"));
-      this.settingUseridRow.toggle(!ClientConfig.hasOwnProperty("networkUserId"));
-      this.settingHDRow.toggle(!ClientConfig.hasOwnProperty("enableHD"));
-      this.settingResolutionRow.toggle(!ClientConfig.hasOwnProperty("displayResolution") || !ClientConfig.hasOwnProperty("encodingResolution"));
-      this.settingResolutionDisplayRow.toggle(!ClientConfig.hasOwnProperty("displayResolution"));
-      this.settingResolutionEncodingRow.toggle(!ClientConfig.hasOwnProperty("encodingResolution"));
-      this.settingResolutionTypeRow.toggle(!ClientConfig.hasOwnProperty("displayResolution") && !ClientConfig.hasOwnProperty("encodingResolution"));
-      this.settingBandwidthLow.toggle(!ClientConfig.hasOwnProperty("bandwidthLow"));
-      this.settingBandwidthMed.toggle(!ClientConfig.hasOwnProperty("bandwidthMed"));
-      this.settingBandwidthHigh.toggle(!ClientConfig.hasOwnProperty("bandwidthHigh"));
-      this.settingBandwidthRow.toggle(!ClientConfig.hasOwnProperty("bandwidthLow") || !ClientConfig.hasOwnProperty("bandwidthMed") || !ClientConfig.hasOwnProperty("bandwidthHigh"));
-      this.settingDisplayNameRow.toggle(!ClientConfig.hasOwnProperty("displayName"));
+      this.settingAutoAnswerRow.toggle(!this.configuration.hasOwnProperty("enableAutoAnswer"));
+      this.settingSelfViewDisableRow.toggle(!this.configuration.hasOwnProperty("enableSelfView"));
+      this.settingUseridRow.toggle(!this.configuration.hasOwnProperty("networkUserId"));
+      this.settingHDRow.toggle(!this.configuration.hasOwnProperty("enableHD"));
+      this.settingResolutionRow.toggle(!this.configuration.hasOwnProperty("displayResolution") || !this.configuration.hasOwnProperty("encodingResolution"));
+      this.settingResolutionDisplayRow.toggle(!this.configuration.hasOwnProperty("displayResolution"));
+      this.settingResolutionEncodingRow.toggle(!this.configuration.hasOwnProperty("encodingResolution"));
+      this.settingResolutionTypeRow.toggle(!this.configuration.hasOwnProperty("displayResolution") && !this.configuration.hasOwnProperty("encodingResolution"));
+      this.settingBandwidthLow.toggle(!this.configuration.hasOwnProperty("bandwidthLow"));
+      this.settingBandwidthMed.toggle(!this.configuration.hasOwnProperty("bandwidthMed"));
+      this.settingBandwidthHigh.toggle(!this.configuration.hasOwnProperty("bandwidthHigh"));
+      this.settingBandwidthRow.toggle(!this.configuration.hasOwnProperty("bandwidthLow") || !this.configuration.hasOwnProperty("bandwidthMed") || !this.configuration.hasOwnProperty("bandwidthHigh"));
+      this.settingDisplayNameRow.toggle(!this.configuration.hasOwnProperty("displayName"));
     },
     getBandwidth: function(){
       var height = this.getResolutionEncodingHeight();
@@ -175,19 +177,19 @@
       WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, this.resolutionEncodingStandard);
       WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, this.resolutionEncodingWidescreen);
 
-      this.displayName.val(this.configuration.displayName);
+      this.displayName.val(this.configuration.sipDisplayName);
       this.userid.val(this.configuration.userid);
       this.settingPassword.val(this.configuration.password);
       this.settingSelfViewDisable.prop('checked', ($.cookie('settingSelfViewDisable') === "true"));
       this.settingHD.prop('checked', ($.cookie('settingHD') === "true"));
-      this.settingBandwidthLow.val(ClientConfig.bandwidthLow || $.cookie('settingBandwidthLow'));
-      this.settingBandwidthMed.val(ClientConfig.bandwidthMed || $.cookie('settingBandwidthMed'));
-      this.settingBandwidthHigh.val(ClientConfig.bandwidthHigh || $.cookie('settingBandwidthHigh'));
+      this.settingBandwidthLow.val(this.configuration.bandwidthLow || $.cookie('settingBandwidthLow'));
+      this.settingBandwidthMed.val(this.configuration.bandwidthMed || $.cookie('settingBandwidthMed'));
+      this.settingBandwidthHigh.val(this.configuration.bandwidthHigh || $.cookie('settingBandwidthHigh'));
       this.settingSize.val($.cookie('settingSize') || this.configuration.size);
       this.color.val(this.configuration.getBackgroundColor());
-      this.setResolutionDisplay(ClientConfig.displayResolution || $.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
-      this.setResolutionEncoding(ClientConfig.encodingResolution || $.cookie('settingResolutionEncoding') || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
-      this.settingAutoAnswer.prop('checked', (ClientConfig.enableAutoAnswer || $.cookie('settingAutoAnswer') === "true"));
+      this.setResolutionDisplay(this.configuration.displayResolution || $.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+      this.setResolutionEncoding(this.configuration.encodingResolution || $.cookie('settingResolutionEncoding') || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
+      this.settingAutoAnswer.prop('checked', (this.configuration.enableAutoAnswer || $.cookie('settingAutoAnswer') === "true"));
       this.updateViewPositions();
     },
     updateViewPositions: function(){

@@ -16,7 +16,7 @@ module( "Client", {
 
 test('validateDestination', function() {
   client = new WebRTC.Client();
-  ClientConfig.allowOutside = true;
+  client.configuration.allowOutside = true;
   strictEqual(client.validateDestination("1000"), "sip:1000@domain.to");
   strictEqual(client.validateDestination("1000@webrtc"), "sip:1000@webrtc.domain.to");
   strictEqual(client.validateDestination("1000@webrtc.domain.to"), "sip:1000@webrtc.domain.to");
@@ -24,7 +24,7 @@ test('validateDestination', function() {
 });
 test('validateDestination with allowOutside = false', function() {
   client = new WebRTC.Client();
-  ClientConfig.allowOutside = false;
+  client.configuration.allowOutside = false;
   strictEqual(client.validateDestination("1000"), false);
   strictEqual(client.validateDestination("1000@webrtc"), false);
   strictEqual(client.validateDestination("1000@webrtc.domain.to"), "sip:1000@webrtc.domain.to");
@@ -44,6 +44,43 @@ test('resolution class for resolution setting', function() {
   $.cookie("settingResolutionEncoding", WebRTC.C.R_320x240);
   client = new WebRTC.Client();
   strictEqual(client.client.attr('class').split(" ")[1], "r"+WebRTC.C.R_960x720);
+});
+test('destination configuration and enableConnectLocalMedia = false', function() {
+  var destinationCalled = '';
+  ClientConfig.destination = '12345';
+  ClientConfig.enableConnectLocalMedia = false;
+  client = new WebRTC.Client();
+  client.callUri = function(destination){destinationCalled = destination;};
+  TestWebrtc.Helpers.connect();
+  TestWebrtc.Helpers.startCall();
+  client.sipStack.ua.isConnected = function(){return true;};
+  strictEqual(destinationCalled, '12345');
+  TestWebrtc.Helpers.endCall();
+
+  // trigger connect again to verify destination is only called once
+  destinationCalled = '';
+  TestWebrtc.Helpers.connect();
+  strictEqual(destinationCalled, '');
+  delete ClientConfig.destination;
+  ClientConfig.enableConnectLocalMedia = true;
+});
+test('destination configuration and enableConnectLocalMedia = true', function() {
+  var destinationCalled = '';
+  ClientConfig.destination = '12345';
+  ClientConfig.enableConnectLocalMedia = true;
+  client = new WebRTC.Client();
+  client.callUri = function(destination){destinationCalled = destination;};
+  TestWebrtc.Helpers.connect();
+  TestWebrtc.Helpers.startCall();
+  client.sipStack.ua.isConnected = function(){return true;};
+  strictEqual(destinationCalled, '12345');
+  TestWebrtc.Helpers.endCall();
+
+  // trigger connect again to verify destination is only called once
+  destinationCalled = '';
+  TestWebrtc.Helpers.connect();
+  strictEqual(destinationCalled, '');
+  delete ClientConfig.destination;
 });
 test('call if enter pressed on destination input', function() {
   var called = false;

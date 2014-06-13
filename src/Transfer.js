@@ -5,7 +5,7 @@
 (function (WebRTC) {
   var Transfer;
 
-  Transfer = function (client, sound, sipStack) {
+  Transfer = function (client, sound, sipStack, configuration) {
     this.icon = client.find(".transfer");
     this.popup = client.find(".transferPopup");
     this.accept = this.popup.find(".acceptTransfer");
@@ -17,6 +17,7 @@
     this.client = client;
     this.sound = sound;
     this.sipStack = sipStack;
+    this.configuration = configuration;
 
     this.registerListeners();
   };
@@ -40,7 +41,7 @@
         self.sound.playClick();
         var targetInput = self.targetInput.val();
         if($.isBlank(targetInput)) {
-          self.client.message(ClientConfig.messageOutsideDomain, "alert");
+          self.client.message(self.configuration.messageOutsideDomain, "alert");
           return;
         }
         targetInput = self.client.validateDestination(targetInput);

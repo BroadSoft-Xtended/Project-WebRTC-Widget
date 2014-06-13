@@ -151,6 +151,16 @@ test('getExSIPOptions with resolution', function() {
   };
   deepEqual(client.configuration.getExSIPOptions(), options);
 });
+test('getExSIPOptions with view = audioOnly', function() {
+  ClientConfig.view = 'audioOnly';
+  client = new WebRTC.Client();
+  var options = {
+    mediaConstraints: { audio: true, video: false},
+    createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}}
+  };
+  deepEqual(client.configuration.getExSIPOptions(), options);
+  delete ClientConfig.view;
+});
 test('getExSIPOptions with resolution 960x720', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.audioOnly, false);
@@ -213,7 +223,7 @@ test('without color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
   client = new WebRTC.Client();
   strictEqual(client.configuration.getBackgroundColor(), "#ffffff");
-  strictEqual(client.settings.color.val(), '#ffffff');
+//  strictEqual(client.settings.color.val(), '#ffffff');
   strictEqual($('body').css('backgroundColor'), '#ffffff');
 });
 test('with color url param', function() {
@@ -245,6 +255,6 @@ function setClientConfigFlagAndAssert(flagName) {
 
 function assertClientConfigFlags(names, enabled) {
   for(var i=0; i<names.length; i++) {
-    strictEqual(ClientConfig[names[i]], enabled, "Should be "+(enabled ? "enabled" : "disabled")+" : "+names[i]);
+    strictEqual(client.configuration[names[i]], enabled, "Should be "+(enabled ? "enabled" : "disabled")+" : "+names[i]);
   }
 }
