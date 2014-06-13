@@ -299,7 +299,7 @@ test('hangup on calling', function() {
   TestWebrtc.Helpers.newCall();
   strictEqual(client.sipStack.getCallState(), "calling");
   TestWebrtc.Helpers.isVisible(client.hangup, true);
-  TestWebrtc.Helpers.isVisible(client.callButton, false);
+  strictEqual(client.callButton.css('opacity'), "0");
 });
 test('hangup on failed', function() {
   client = new WebRTC.Client();
@@ -307,7 +307,7 @@ test('hangup on failed', function() {
   TestWebrtc.Helpers.failCall();
   strictEqual(client.sipStack.getCallState(), "connected");
   TestWebrtc.Helpers.isVisible(client.hangup, false);
-  TestWebrtc.Helpers.isVisible(client.callButton, true);
+  strictEqual(client.callButton.css('opacity'), "1");
 });
 test('getUserMedia failed', function() {
   var alertCalled = false;
