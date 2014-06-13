@@ -182,7 +182,7 @@
         reuseLocalMedia: this.enableConnectLocalMedia,
         videoBandwidth: this.settings.getBandwidth(),
         disableICE: this.disableICE,
-        RTCConstraints: {'optional': [{'DtlsSrtpKeyAgreement': 'false'}],'mandatory': {}}
+        RTCConstraints: {'optional': [],'mandatory': {}}
       };
       return options;
     },
