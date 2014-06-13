@@ -108,8 +108,10 @@ body {
 .localVideo {
     display: none;
     position: absolute;
-    top: 73%;
+    top: auto;
     left: 1%;
+    bottom: 1%;
+    right: auto;
     width: 25%;
     height: 25%;
     background-color: #241D1D;
@@ -650,6 +652,8 @@ body {
     z-index: 20;
     bottom: 50px;
     right: 5px;
+    top: auto;
+    left: auto;
     letter-spacing: 5px;
 }
 
