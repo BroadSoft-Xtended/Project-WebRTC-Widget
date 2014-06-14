@@ -59,6 +59,9 @@ body {
 .client.r320x180, .client.r320x240 {
     width:320px;
 }
+.full-screen-expanded.client{
+    width:100%;
+}
 
 .main:-webkit-full-screen-ancestor:not(iframe) {
     position:absolute !important;
@@ -83,6 +86,19 @@ body {
 }
 .standard .video {
     padding-bottom:75%;
+}
+.full-screen-expanded .video {
+    padding-bottom:0;
+    bottom:40px;
+    position:absolute;
+}
+.full-screen-expanded .videoBar {
+    top:auto;
+    bottom:0px;
+    position:absolute;
+}
+.full-screen-expanded .main {
+    height:100%;
 }
 
 .video:-webkit-full-screen {
@@ -710,16 +726,6 @@ body {
     color: #FFFFFF;
 }
 
-.messages {
-    position: absolute;
-    bottom: 55px;
-    left:0px;
-    width: 100%;
-    text-align: center;
-    font-family:arial;
-    font-size: 20px;
-}
-
 .normal {
     color: #999999;
 }
@@ -1004,6 +1010,7 @@ body {
 .client:not(.enable-self-view) .cell-selfView,
 .client:not(.enable-settings) .cell-settings,
 .client:not(.enable-dialpad) .cell-dialpad
+.client:not(.enable-call-control) .callControl
 {
     display:none !important;
 }
@@ -1333,6 +1340,9 @@ body
   height: 200px;
 }*/
 .messages {
+    position:absolute;
+    font-family: arial;
+    text-align: left;
     width: auto;
     background: #000;
     /*color: #B3B3B3;*/

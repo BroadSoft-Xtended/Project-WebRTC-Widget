@@ -41,7 +41,6 @@
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
     this.sipDisplayName = this.displayName || WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ") || $.cookie('settingDisplayName');
     this.maxCallLength = WebRTC.Utils.getSearchVariable("maxCallLength");
-    this.hideCallControl = (WebRTC.Utils.getSearchVariable("hide") === "true");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
     this.color = WebRTC.Utils.colorNameToHex(WebRTC.Utils.getSearchVariable("color")) || $.cookie('settingColor');
     this.offerToReceiveVideo = true;

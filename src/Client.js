@@ -35,6 +35,7 @@
     this.dialpadShowIcon = this.client.find(".dialpadIconShow");
     this.dialpadHideIcon = this.client.find(".dialpadIconHide");
     this.dialpad = this.client.find(".dialpad");
+    this.dialpadButtons = this.client.find(".dialpad button");
     this.selfViewEnableIcon = this.client.find(".selfViewEnable");
     this.selfViewDisableIcon = this.client.find(".selfViewDisable");
     this.connected = this.client.find(".connected-icon");
@@ -108,11 +109,6 @@
         });
       }
 
-      if (this.configuration.destination)
-      {
-        this.configuration.hideCallControl = true;
-      }
-
       this.updateClientClass();
 
       $.cookie.raw = true;
@@ -150,7 +146,7 @@
       }
       // Fade in UI elements
       this.client.find(".remoteVideo, .videoBar").fadeIn(1000);
-      if (this.configuration.enableCallControl && !this.configuration.hideCallControl)
+      if (this.configuration.enableCallControl)
       {
         this.callControl.fadeIn(1000);
       }
@@ -170,9 +166,9 @@
       {
         return;
       }
-      this.messages.stop(true, true).fadeOut();
-      this.messages.removeClass("normal success warning alert");
-      this.messages.addClass(level).text(text).fadeIn(10).fadeOut(10000);
+      var messageEl = this.messages.find("."+level);
+      messageEl.stop(true, true).fadeOut();
+      messageEl.text(text).fadeIn(10).fadeOut(10000);
     },
 
     // Make sure destination allowed and in proper format
@@ -251,12 +247,6 @@
       this.setEvent(null);
       this.sound.pause();
       this.video.updateSessionStreams();
-      // Bring up the main elements
-      if (this.configuration.enableCallControl === true)
-      {
-        this.configuration.hideCallControl = false;
-        this.updateClientClass();
-      }
 
       this.guiStart();
 
@@ -646,9 +636,9 @@
       });
 
       // Dialpad digits
-      this.dialpad.bind('click', function(e)
+      this.dialpadButtons.bind('click', function(e)
       {
-        self.pressDTMF(e.target.textContent);
+        self.processDigitInput(e.target.textContent);
       });
 
       this.destination.keypress(function (e) {
@@ -670,7 +660,7 @@
         }
       });
 
-  // Digits from keyboard
+      // Digits from keyboard
       document.onkeypress=function(e)
       {
         e = e || window.event;
@@ -678,20 +668,57 @@
           return;
         }
 
-        if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode === 35 || e.charCode === 42)
-        {
-          var digit = String.fromCharCode(e.charCode);
-          self.pressDTMF(digit);
-        }
-        else if (e.charCode === 83)
+        if (e.charCode === 83)
         {
           self.stats.toggle();
         }
         else if (e.charCode === 72)
         {
           self.history.toggle();
+        } else {
+          var digit = String.fromCharCode(e.charCode);
+          self.processDigitInput(digit, e);
         }
       };
+
+      // Prevent the backspace key from navigating back if dialpad is shown
+      $(document).unbind('keydown').bind('keydown', function (event) {
+        if(self.dialpadShown) {
+          var doPrevent = false;
+          if (event.keyCode === 8) {
+            var d = event.srcElement || event.target;
+            if ((d.tagName.toUpperCase() === 'INPUT' && (d.type.toUpperCase() === 'TEXT' ||
+              d.type.toUpperCase() === 'PASSWORD' || d.type.toUpperCase() === 'FILE' ||
+              d.type.toUpperCase() === 'EMAIL' )) || d.tagName.toUpperCase() === 'TEXTAREA') {
+              doPrevent = d.readOnly || d.disabled;
+            }
+            else {
+              doPrevent = true;
+              self.destination.trigger('keydown', event);
+              this.destination.putCursorAtEnd();
+            }
+          }
+
+          if (doPrevent) {
+            event.preventDefault();
+          }
+        }
+      });
+    },
+
+    processDigitInput: function(digit, event){
+      if(!this.sipStack.isStarted() && this.dialpadShown) {
+        // ignore if event happened on destination input itself
+        if(event && this.destination.is(event.srcElement)) {
+          return;
+        }
+        this.destination.val(this.destination.val() + digit);
+        this.destination.putCursorAtEnd();
+      }
+      else if (digit.match(/^[0-9A-D#*,]+$/i))
+      {
+        this.pressDTMF(digit);
+      }
     },
 
     onSessionStarted: function(sender){
@@ -770,7 +797,7 @@
       {
         classes.push("enable-mute");
       }
-      if (this.configuration.enableCallControl && !this.configuration.hideCallControl)
+      if (this.configuration.enableCallControl)
       {
         classes.push("enable-call-control");
       }

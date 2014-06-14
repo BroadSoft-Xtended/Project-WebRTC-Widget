@@ -256,6 +256,16 @@ test('dialpad icon after click', function() {
   TestWebrtc.Helpers.isVisible(client.dialpadHideIcon, false);
   TestWebrtc.Helpers.isVisible(client.dialpad, false);
 });
+test('dialpad icon after click and in call', function() {
+  ClientConfig.enableDialpad = true;
+  client = new WebRTC.Client();
+  TestWebrtc.Helpers.startCall();
+  TestWebrtc.Helpers.isVisible(client.hangup, true);
+  client.dialpadShowIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.hangup, true);
+  client.dialpadHideIcon.trigger('click');
+  TestWebrtc.Helpers.isVisible(client.hangup, true);
+});
 test('hangup on call started', function() {
   client = new WebRTC.Client();
   TestWebrtc.Helpers.startCall();
@@ -324,11 +334,21 @@ test('on disconnect', function() {
   ClientConfig.enableMessages = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.disconnect();
-  strictEqual(client.messages.text(), 'Connection Failed!');
+  strictEqual(client.messages.text().trim(), 'Connection Failed!');
+});
+test('on invalid destination and connected', function() {
+  var config = {};
+  ClientConfig.enableMessages = true;
+  jQuery.extend(config, ClientConfig);
+  config.destination = '12345';
+  config.allowOutside = false;
+  client = new WebRTC.Client("#client", config);
+  TestWebrtc.Helpers.connect();
+  strictEqual(client.messages.text().trim(), 'Invalid Destination\n      Connected');
 });
 test('on disconnect for 503 with retryAfter', function() {
   ClientConfig.enableMessages = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.disconnect({code: 503, reason: 'Service Unavailable', retryAfter: 30});
-  strictEqual(client.messages.text(), 'Service Unavailable - Retrying in 30 seconds');
+  strictEqual(client.messages.text().trim(), 'Service Unavailable - Retrying in 30 seconds');
 });
