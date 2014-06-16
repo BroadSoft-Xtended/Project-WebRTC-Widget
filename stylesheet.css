@@ -1379,6 +1379,9 @@ body
     right: auto;
     z-index: 100;
 }
+.view-audioOnly .dialpad {
+    bottom: auto;
+}
 .dialpad button
 {
     color: #B3B3B3;
