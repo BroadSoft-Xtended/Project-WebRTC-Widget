@@ -1379,7 +1379,7 @@ body
     z-index: 100;
 }
 .view-audioOnly .dialpad {
-    bottom: auto;
+    bottom: auto !important;
 }
 .dialpad button
 {
