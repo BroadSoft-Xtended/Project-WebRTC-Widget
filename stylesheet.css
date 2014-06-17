@@ -94,7 +94,7 @@ body {
     position:absolute;
 }
 .full-screen-expanded .videoBar {
-    top:auto;
+    top:auto !important;
     bottom:0px;
     position:absolute;
 }
