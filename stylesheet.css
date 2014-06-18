@@ -1698,10 +1698,6 @@ ul.tabs
 {
     opacity: 1;
 }
-#client
-{
-    margin: 0 auto;
-}
 
 ::-webkit-scrollbar {
     width: 8px;
