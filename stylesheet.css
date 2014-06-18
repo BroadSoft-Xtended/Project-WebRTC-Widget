@@ -669,6 +669,7 @@ body {
     z-index: 20;
     bottom: 50px;
     right: 5px;
+    width:170px;
     top: auto;
     left: auto;
     letter-spacing: 5px;
@@ -1060,9 +1061,15 @@ body {
     position: relative;
     margin-right: 10px;
 }
-.view-audioOnly .dialpad {
+.view-audioOnly .dialpad, .view-audioOnly .settingsPopup {
     top: 60px;
+    bottom: auto !important;
+}
+.view-audioOnly .dialpad {
     left: 0;
+}
+.view-audioOnly .settingsPopup {
+    left: 80%;
 }
 
 
@@ -1377,9 +1384,6 @@ body
     padding: 15px;
     right: auto;
     z-index: 100;
-}
-.view-audioOnly .dialpad {
-    bottom: auto !important;
 }
 .dialpad button
 {
