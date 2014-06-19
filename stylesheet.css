@@ -1699,20 +1699,20 @@ ul.tabs
     opacity: 1;
 }
 
-::-webkit-scrollbar {
+#client::-webkit-scrollbar {
     width: 8px;
 }
 
 /* Track */
-::-webkit-scrollbar-track {
+#client::-webkit-scrollbar-track {
 
 }
 
 /* Handle */
-::-webkit-scrollbar-thumb {
+#client::-webkit-scrollbar-thumb {
     background: rgba(39, 39, 39, 1);
 
 }
-::-webkit-scrollbar-thumb:window-inactive {
+#client::-webkit-scrollbar-thumb:window-inactive {
     background: rgba(39, 39, 39, 1);
 }
