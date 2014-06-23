@@ -174,9 +174,9 @@
       WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, this.resolutionEncodingStandard);
       WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, this.resolutionEncodingWidescreen);
 
-      this.displayName.val(this.configuration.sipDisplayName);
+      this.displayName.val(this.configuration.sipDisplayName || $.cookie('settingDisplayName'));
       this.userid.val(this.configuration.userid);
-      this.settingPassword.val(this.configuration.password);
+      this.settingPassword.val(this.configuration.getPassword() || '');
       this.settingSelfViewDisable.prop('checked', ($.cookie('settingSelfViewDisable') === "true"));
       this.settingHD.prop('checked', ($.cookie('settingHD') === "true"));
       this.settingBandwidthLow.val(this.configuration.bandwidthLow || $.cookie('settingBandwidthLow'));

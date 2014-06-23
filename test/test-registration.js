@@ -6,8 +6,10 @@ module( "Registration", {
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableRegistrationIcon = true;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
+    initalGetPassword = WebRTC.Configuration.prototype.getPassword;
   }, teardown: function() {
     ClientConfig.register = false;
+    WebRTC.Configuration.prototype.getPassword = initalGetPassword;
   }
 });
 
