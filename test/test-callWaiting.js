@@ -45,6 +45,7 @@ test('incoming call and cancel', function() {
 test('1st incoming call with enableAutoAnswer', function() {
   ClientConfig.enableAutoAnswer = true;
   client = new WebRTC.Client();
+  client.settings.settingAutoAnswer.prop('checked', true);
   TestWebrtc.Helpers.connect();
   var session = TestWebrtc.Helpers.incomingSession();
   var answerOptions = "";

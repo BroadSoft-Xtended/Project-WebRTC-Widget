@@ -138,7 +138,7 @@
       });
     },
     updateRowVisibility: function(){
-      this.settingAutoAnswerRow.toggle(!this.configuration.hasOwnProperty("enableAutoAnswer"));
+      this.settingAutoAnswerRow.toggle(this.configuration.enableAutoAnswer);
       this.settingSelfViewDisableRow.toggle(!this.configuration.hasOwnProperty("enableSelfView"));
       this.settingUseridRow.toggle(!this.configuration.hasOwnProperty("networkUserId"));
       this.settingHDRow.toggle(!this.configuration.hasOwnProperty("enableHD"));
@@ -177,9 +177,9 @@
       WebRTC.Utils.addSelectOptions(WebRTC.C.STANDARD_RESOLUTIONS, this.resolutionEncodingStandard);
       WebRTC.Utils.addSelectOptions(WebRTC.C.WIDESCREEN_RESOLUTIONS, this.resolutionEncodingWidescreen);
 
-      this.displayName.val(this.configuration.sipDisplayName);
+      this.displayName.val(this.configuration.sipDisplayName || $.cookie('settingDisplayName'));
       this.userid.val(this.configuration.userid);
-      this.settingPassword.val(this.configuration.password);
+      this.settingPassword.val(this.configuration.getPassword() || '');
       this.settingSelfViewDisable.prop('checked', ($.cookie('settingSelfViewDisable') === "true"));
       this.settingHD.prop('checked', ($.cookie('settingHD') === "true"));
       this.settingBandwidthLow.val(this.configuration.bandwidthLow || $.cookie('settingBandwidthLow'));
@@ -189,7 +189,7 @@
       this.color.val(this.configuration.getBackgroundColor());
       this.setResolutionDisplay(this.configuration.displayResolution || $.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
       this.setResolutionEncoding(this.configuration.encodingResolution || $.cookie('settingResolutionEncoding') || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
-      this.settingAutoAnswer.prop('checked', (this.configuration.enableAutoAnswer || $.cookie('settingAutoAnswer') === "true"));
+      this.settingAutoAnswer.prop('checked', ($.cookie('settingAutoAnswer') === "true"));
       this.updateViewPositions();
     },
     updateViewPositions: function(){

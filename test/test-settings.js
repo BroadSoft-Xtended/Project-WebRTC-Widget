@@ -5,6 +5,7 @@ module( "Settings", {
     TestWebrtc.Helpers.deleteAllCookies();
     ClientConfig.enableCallStats = false;
     ClientConfig.register = false;
+    $.cookie("settingPassword", "");
   }, teardown: function() {
   }
 });
@@ -53,6 +54,15 @@ test('persist with userid set', function() {
   strictEqual($.cookie("settingUserid"), "someuserid");
   strictEqual($.cookie("settingPassword"), "");
 });
+test('persist with display name set', function() {
+  client = new WebRTC.Client();
+  strictEqual(client.settings.displayName.val(), "");
+  client.settings.displayName.val('somedisplayname');
+  client.settings.save.trigger("click");
+  strictEqual($.cookie("settingDisplayName"), "somedisplayname");
+  client = new WebRTC.Client();
+  strictEqual(client.settings.displayName.val(), "somedisplayname");
+});
 test('resolution types with ClientConfig set', function() {
   ClientConfig.displayResolution = WebRTC.C.R_960x720;
   ClientConfig.encodingResolution = WebRTC.C.R_320x240;
@@ -77,13 +87,18 @@ test('persist with resolution set', function() {
   $.cookie("settingResolutionDisplay", "");
   $.cookie("settingResolutionEncoding", "");
 });
-//test('updates localVideo top and left setting after drag', function() {
-//  ClientConfig.enableSelfView = true;
-//  client = new WebRTC.Client();
-//  client.video.local.simulate( "drag", {dx: 50, dy: 100 });
-//  strictEqual(client.settings.localVideoLeft.val(), "56");
-//  strictEqual(client.settings.localVideoTop.val(), "484");
-//});
+test('persist with password set', function() {
+  client = new WebRTC.Client();
+  client.settings.settingPassword.val('121212');
+  client.settings.save.trigger("click");
+  strictEqual($.cookie("settingPassword"), '121212');
+  strictEqual(WebRTC.Utils.getSearchVariable("password"), false);
+  strictEqual(client.configuration.getPassword(), '121212');
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getPassword(), '121212');
+  strictEqual(client.settings.settingPassword.val(), '121212');
+  $.cookie("settingPassword", "");
+});
 test('setResolution with standard resolution', function() {
   client = new WebRTC.Client();
   client.settings.setResolutionDisplay(WebRTC.C.R_320x240);
@@ -123,7 +138,7 @@ test('change encoding resolution with different video resolution', function() {
   strictEqual(client.messages.text().trim(), "Video resolution 640,480 does not match selected encoding 960,720");
 });
 test('hide or disable settings when ClientConfig has corresponding attributes set', function() {
-  delete ClientConfig.enableAutoAnswer;
+  ClientConfig.enableAutoAnswer = true;
   delete ClientConfig.enableSelfView;
   delete ClientConfig.networkUserId;
   delete ClientConfig.enableHD;

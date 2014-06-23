@@ -41,7 +41,7 @@ Utils= {
         return pair[1];
       }
     }
-    return(false);
+    return false;
   },
 
   containsKey: function(object, value) {

@@ -39,7 +39,10 @@
     this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
-    this.sipDisplayName = this.displayName || WebRTC.Utils.getSearchVariable("name").toString().replace("%20"," ") || $.cookie('settingDisplayName');
+    this.sipDisplayName = this.displayName || WebRTC.Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
+    if(this.sipDisplayName) {
+      this.sipDisplayName = this.sipDisplayName.replace(/%20/g," ");
+    }
     this.maxCallLength = WebRTC.Utils.getSearchVariable("maxCallLength");
     this.size = WebRTC.Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
     this.color = WebRTC.Utils.colorNameToHex(WebRTC.Utils.getSearchVariable("color")) || $.cookie('settingColor');
@@ -86,6 +89,9 @@
     },
     getPassword: function(){
       return WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');
+    },
+    isAutoAnswer: function(){
+      return this.settings.settingAutoAnswer.is(':checked');
     },
     getDTMFOptions: function(){
       return {duration: WebRTC.C.DEFAULT_DURATION, interToneGap: WebRTC.C.DEFAULT_INTER_TONE_GAP};
@@ -158,7 +164,7 @@
       };
 
       // Add Display Name if set
-      if (this.sipDisplayName.indexOf("false") === -1)
+      if (this.sipDisplayName)
       {
         config.display_name = this.sipDisplayName;
       }

@@ -46,7 +46,10 @@
           return;
         }
         self.setVisible(false);
-        self.client.onLoad(userid, password);
+        self.configuration.userid = userid;
+        $.cookie('settingUserid', userid);
+        $.cookie('settingPassword', password);
+        self.client.onLoad();
       });
 
       this.popup.bind('keypress', function(e)
@@ -59,16 +62,16 @@
     },
 
     show: function(){
-      if (this.configuration.userid !== false)
-      {
-        this.userid.val(this.configuration.userid);
-      }
-
       this.setVisible(true);
     },
 
     setVisible: function(visible){
       this.visible = visible;
+
+      this.userid.val(this.configuration.userid || '');
+      this.password.val(this.configuration.getPassword() || '');
+      this.displayName.val(this.configuration.sipDisplayName || '');
+
       this.client.updateClientClass();
     }
   };

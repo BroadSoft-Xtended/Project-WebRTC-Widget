@@ -188,7 +188,7 @@
     incomingCall: function(evt)
     {
       var session = evt.data.session;
-      if (!this.activeSession && this.configuration.enableAutoAnswer)
+      if (!this.activeSession && this.configuration.isAutoAnswer())
       {
         session.answer(this.configuration.getExSIPOptions());
       }

@@ -86,7 +86,7 @@ The following options exist
   enableConnectionIcon: This feature enables an icon that indicates whether the user is connected via WebSockets.  The icon fades away under normal operating conditions and stays red when there is a problem.
   enableWindowDrag: This feature enables the user to drag the self-view, statistics, and history windows around.
   enableSettings: This feature enables the user to configure individual user settings that are stored as cookies.
-  enableAutoAnswer: This feature enables automatic answer of incoming calls.
+  enableAutoAnswer: This feature enables being able to set auto answer in settings.
   enableAutoAcceptReInvite: This feature enables automatic answer of incoming reInvite requests.
   enableConnectLocalMedia: This feature enables connecting to users local media before the call.
   enableTransfer: This feature enables the transfer button.
