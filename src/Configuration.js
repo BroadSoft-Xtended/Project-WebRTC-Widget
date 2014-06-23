@@ -91,6 +91,9 @@
     getPassword: function(){
       return WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');
     },
+    isAutoAnswer: function(){
+      return this.settings.settingAutoAnswer.is(':checked');
+    },
     getDTMFOptions: function(){
       return {duration: WebRTC.C.DEFAULT_DURATION, interToneGap: WebRTC.C.DEFAULT_INTER_TONE_GAP};
     },

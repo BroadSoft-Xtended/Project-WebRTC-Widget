@@ -135,7 +135,7 @@
       });
     },
     updateRowVisibility: function(){
-      this.settingAutoAnswerRow.toggle(!this.configuration.hasOwnProperty("enableAutoAnswer"));
+      this.settingAutoAnswerRow.toggle(this.configuration.enableAutoAnswer);
       this.settingSelfViewDisableRow.toggle(!this.configuration.hasOwnProperty("enableSelfView"));
       this.settingUseridRow.toggle(!this.configuration.hasOwnProperty("networkUserId"));
       this.settingHDRow.toggle(!this.configuration.hasOwnProperty("enableHD"));
@@ -186,7 +186,7 @@
       this.color.val(this.configuration.getBackgroundColor());
       this.setResolutionDisplay(this.configuration.displayResolution || $.cookie('settingResolutionDisplay') || WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
       this.setResolutionEncoding(this.configuration.encodingResolution || $.cookie('settingResolutionEncoding') || WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
-      this.settingAutoAnswer.prop('checked', (this.configuration.enableAutoAnswer || $.cookie('settingAutoAnswer') === "true"));
+      this.settingAutoAnswer.prop('checked', ($.cookie('settingAutoAnswer') === "true"));
       this.updateViewPositions();
     },
     updateViewPositions: function(){

@@ -145,7 +145,7 @@ test('change encoding resolution with different video resolution', function() {
   strictEqual(client.messages.text(), "Video resolution 640,480 does not match selected encoding 960,720");
 });
 test('hide or disable settings when ClientConfig has corresponding attributes set', function() {
-  delete ClientConfig.enableAutoAnswer;
+  ClientConfig.enableAutoAnswer = true;
   delete ClientConfig.enableSelfView;
   delete ClientConfig.networkUserId;
   delete ClientConfig.enableHD;
