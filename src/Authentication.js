@@ -65,7 +65,7 @@
     setVisible: function(visible){
       this.visible = visible;
 
-      this.userIdInput.val(this.options.settingsUserId());
+      this.userIdInput.val(this.options.settingsAuthenticationUserId() || this.options.settingsUserId());
 
       this.eventBus.viewChanged(this);
     }
