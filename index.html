@@ -35,8 +35,6 @@
 
 <div id="client" class="client">
   <div class="authPopup fadeable popup">
-    <span>Display Name</span><br>
-    <input class="displayName" type=text value=""/><br>
     <span>Username</span><br>
     <input class="username" type=text value=""/><br>
     <span>Password</span><br>
@@ -99,6 +97,10 @@
       <div class="settingUseridRow row">
           <span class="cell">User ID</span>
           <input class="settingUserid cell" type="text" value=""/>
+      </div>
+      <div class="settingAuthenticationUseridRow row">
+          <span class="cell">Authentication User ID</span>
+          <input class="settingAuthenticationUserid cell" type="text" value=""/>
       </div>
       <div class="settingPasswordRow row">
           <span class="cell">Password</span>
@@ -171,7 +173,10 @@
       </div>
       <div class="row">
           <span class="cell"></span>
-          <a href="" title="Save Settings" class="saveSettings cell icon-ok" style="text-align: right;"></a>
+          <span class="cell">
+            <a href="" title="Save Settings" class="saveSettings icon-ok"></a>
+            <a href="" title="Clear Settings" class="clear">Clear Settings</a>
+          </span>
       </div>
     </div>
     <div class="video">

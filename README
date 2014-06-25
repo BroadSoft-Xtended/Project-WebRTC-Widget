@@ -110,7 +110,6 @@ The following options exist
   bandwidthMed: bandwidth in kbps to use for medium resolution.  Default is 512
   bandwidthHigh: bandwidth in kbps to use for high resolution.  Default is 2048
   expires: expiry time in days for cookies
-  register: register when password is empty
   debug: enable logs in console
   displayResolution: resolution of the display eg. 960x720
   encodingResolution: resolution of the video encoding eg. 960x720

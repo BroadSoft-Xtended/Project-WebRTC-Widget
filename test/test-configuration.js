@@ -7,6 +7,7 @@ module( "Configuration", {
     $.cookie("settingResolutionEncoding", "");
     ClientConfig.enableCallStats = false;
   }, teardown: function() {
+    client.settings.clear();
   }
 });
 test('websocketsServers', function() {
@@ -21,6 +22,7 @@ test('networkUserId set', function() {
   ClientConfig.networkUserId = '8323303809';
   client = new WebRTC.Client();
   strictEqual(client.sipStack.ua.configuration.authorization_user, '8323303809');
+  strictEqual(client.sipStack.ua.configuration.uri.toString(), 'sip:8323303809@'+ClientConfig.domainFrom);
   ClientConfig.networkUserId = undefined;
 });
 test('WEBRTC-41 : networkUserId and userId set', function() {
@@ -46,7 +48,8 @@ test('userid', function() {
 });
 test('getExSIPConfig() with userid with empty spaces', function() {
   client = new WebRTC.Client();
-  strictEqual(client.configuration.getExSIPConfig('my user id').uri, "my%20user%20id@domain.from");
+  client.settings.userId('my user id');
+  strictEqual(client.configuration.getExSIPConfig().uri, "my%20user%20id@domain.from");
 });
 test('destination', function() {
   ClientConfig.enableConnectLocalMedia = true;
@@ -117,18 +120,6 @@ test('WEBRTC-35 : destination with dtmf tones and domain', function() {
   TestWebrtc.Helpers.startCall();
   strictEqual(sentTones, ",,123132");
 });
-test('register', function() {
-  client = new WebRTC.Client();
-  strictEqual(client.sipStack.configuration.getRegister(), false);
-});
-test('register after persist', function() {
-  client = new WebRTC.Client();
-  strictEqual(client.sipStack.configuration.getRegister(), false);
-  client.settings.save.trigger("click");
-  client.timer.stop();
-  client = new WebRTC.Client();
-  strictEqual(client.sipStack.configuration.getRegister(), false);
-});
 test('getExSIPOptions', function() {
   delete ClientConfig.encodingResolution;
   client = new WebRTC.Client();
@@ -143,7 +134,7 @@ test('getExSIPOptions', function() {
 test('getExSIPOptions with resolution', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.audioOnly, false);
-  strictEqual(client.configuration.hd, "false");
+  strictEqual(client.configuration.hd, undefined);
   client.settings.setResolutionEncoding('320x240');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 320, maxHeight: 240 }}},
@@ -164,7 +155,7 @@ test('getExSIPOptions with view = audioOnly', function() {
 test('getExSIPOptions with resolution 960x720', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.audioOnly, false);
-  strictEqual(client.configuration.hd, "false");
+  strictEqual(client.configuration.hd, undefined);
   client.settings.setResolutionEncoding('960x720');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 960, minHeight: 720 }}},
@@ -223,7 +214,7 @@ test('without color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
   client = new WebRTC.Client();
   strictEqual(client.configuration.getBackgroundColor(), "#ffffff");
-  strictEqual(client.settings.color.val(), '#ffffff');
+  strictEqual(client.settings.colorInput.val(), '#ffffff');
   strictEqual($('body').css('backgroundColor'), '#ffffff');
 });
 test('with color url param', function() {

@@ -6,8 +6,8 @@
   var EventBus;
 //    LOG_PREFIX = WebRTC.name +' | '+ 'EventBus' +' | ';
 
-  EventBus = function(configuration) {
-    this.configuration = configuration;
+  EventBus = function(options) {
+    this.options = options || {};
 
     var events = [
       'message',
@@ -25,7 +25,8 @@
       'resumed',
       'ended',
       'calling',
-      'newDTMF'
+      'newDTMF',
+      'viewChanged'
     ];
 
     this.initEvents(events);
@@ -33,6 +34,12 @@
 
   EventBus.prototype = new ExSIP.EventEmitter();
 
+  EventBus.prototype.viewChanged = function(sender, data) {
+    this.emit("viewChanged", sender, data);
+  };
+  EventBus.prototype.message = function(text, level) {
+    this.emit("message", this, {text: text, level: level});
+  };
   EventBus.prototype.message = function(text, level) {
     this.emit("message", this, {text: text, level: level});
   };
@@ -82,7 +89,7 @@
     this.emit("newDTMF", sender, data);
   };
   EventBus.prototype.isDebug = function() {
-    return this.configuration.isDebug();
+    return this.options.isDebug();
   };
 
   WebRTC.EventBus = EventBus;

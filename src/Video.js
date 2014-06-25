@@ -6,13 +6,13 @@
   var Video,
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Video');
 
-  Video = function(client, sipStack, eventBus) {
-    this.ui = client.find('.video');
+  Video = function(element, sipStack, eventBus, options) {
+    this.ui = element;
     this.local = this.ui.find('.localVideo');
     this.remote = this.ui.find('.remoteVideo');
     this.eventBus = eventBus;
 
-    this.client = client;
+    this.options = options || {};
     this.sipStack = sipStack;
     this.registerListeners();
   };
@@ -21,7 +21,7 @@
     registerListeners: function(){
       var self = this;
       this.local.bind("playing", function(){
-        self.client.validateUserMediaResolution();
+        self.options.onPlaying();
       });
       this.eventBus.on("userMediaUpdated", function(e){
         self.updateStreams([e.data.localStream], []);
@@ -33,7 +33,7 @@
     },
 
     updateStreams: function(localStreams, remoteStreams) {
-      logger.log("updating video streams", this.client.configuration);
+      logger.log("updating video streams", this.eventBus);
       this.setVideoStream(this.local[0], localStreams);
       this.setVideoStream(this.remote[0], remoteStreams);
     },

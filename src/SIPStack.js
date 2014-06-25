@@ -14,8 +14,7 @@
       STATE_HELD:         "held"
     };
 
-  SIPStack = function(client, configuration, eventBus) {
-    this.client = client;
+  SIPStack = function(configuration, eventBus) {
     this.configuration = configuration;
     this.eventBus = eventBus;
     this.ua = null;
@@ -52,7 +51,7 @@
         logger.log("clearing active session", this.configuration);
         this.activeSession = null;
       }
-      this.client.updateClientClass();
+      this.eventBus.viewChanged(this);
     },
 
     terminateSessions: function(){
@@ -198,11 +197,8 @@
       }
     },
 
-    init: function(){
+    init: function(userid, password){
       var self = this;
-      // SIP stack
-      var password = this.configuration.getPassword();
-      var userid = this.configuration.userid;
 
       if(this.ua) {
         logger.log('stopping existing UA', this.configuration);
@@ -219,12 +215,12 @@
       // sipStack callbacks
       this.ua.on('connected', function(e)
       {
-        self.client.updateClientClass();
+        self.eventBus.viewChanged(self);
         self.eventBus.connected(e.data);
       });
       this.ua.on('disconnected', function(e)
       {
-        self.client.updateClientClass();
+        self.eventBus.viewChanged(self);
         self.eventBus.disconnected(e.data);
       });
       this.ua.on('onReInvite', function(e) {
@@ -235,7 +231,7 @@
       {
         var session = e.data.session;
         self.sessions.push(session);
-        self.client.updateClientClass();
+        self.eventBus.viewChanged(self);
 
         // call event handlers
         session.on('progress', function(e)
@@ -247,15 +243,15 @@
           self.eventBus.failed(e.sender, e.data);
         });
         session.on('started', function(e) {
-          self.client.updateClientClass();
+          self.eventBus.viewChanged(self);
           self.eventBus.started(e.sender, e.data);
         });
         session.on('resumed', function(e) {
-          this.client.updateClientClass();
+          self.eventBus.viewChanged(self);
           self.eventBus.resumed(e.sender, e.data);
         });
         session.on('held', function(e) {
-          this.client.updateClientClass();
+          self.eventBus.viewChanged(self);
           self.eventBus.held(e.sender, e.data);
         });
         session.on('ended', function(e)

@@ -10,6 +10,7 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client');
 
   Client = function(selector, config) {
+    var self = this;
     this.client = $(selector || "#client");
     this.main = this.client.find(".main");
     this.muteAudioIcon = this.client.find('.muteAudioIcon');
@@ -49,17 +50,33 @@
       return;
     }
 
-    this.configuration = new WebRTC.Configuration(this, (config || ClientConfig));
-    this.eventBus = new WebRTC.EventBus(this.configuration);
-    this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
+    config = config || ClientConfig;
+    this.eventBus = new WebRTC.EventBus({
+      isDebug: function(){
+        return config.debug === true;
+      }
+    });
+    this.configuration = new WebRTC.Configuration(this.eventBus, config);
+    this.sipStack = new WebRTC.SIPStack(this.configuration, this.eventBus);
     this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
-    this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
+    this.video = new WebRTC.Video(this.client.find('.video'), this.sipStack, this.eventBus, {
+      onPlaying: function(){
+        self.validateUserMediaResolution();
+      }
+    });
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
     this.stats = new WebRTC.Stats(this, this.sipStack, this.configuration);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack, this.configuration);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack, this.configuration);
-    this.authentication = new WebRTC.Authentication(this, this.configuration, this.eventBus);
+    this.authentication = new WebRTC.Authentication(this.client.find(".authPopup"), this.eventBus, {
+      onAuthenticate: function(data) {
+        self.sipStack.init(data.userId, data.password);
+      },
+      settingsUserId: self.settings.userId,
+      settingsAuthenticationUserId: self.settings.authenticationUserId,
+      settingsPassword: self.settings.password
+    });
     this.hold = new WebRTC.Icon(this.client.find( ".hold" ), this.sound);
     this.resume = new WebRTC.Icon(this.client.find( ".resume" ), this.sound);
     this.fullScreen = false;
@@ -117,10 +134,6 @@
         return null;
       };
 
-      if (!this.configuration.userid)
-      {
-        this.configuration.userid = WebRTC.Utils.randomUserid();
-      }
       this.onLoad();
     },
 
@@ -374,6 +387,9 @@
     registerListeners: function() {
       var self = this;
 
+      this.eventBus.on("viewChanged", function(e){
+        self.updateClientClass();
+      });
       this.eventBus.on("ended", function(e){
         self.message(self.configuration.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
         self.history.persistCall(e.sender);

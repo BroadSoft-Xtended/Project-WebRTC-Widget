@@ -4,7 +4,6 @@ module( "Settings", {
     TestWebrtc.Helpers.mockLocation();
     TestWebrtc.Helpers.deleteAllCookies();
     ClientConfig.enableCallStats = false;
-    ClientConfig.register = false;
     $.cookie("settingPassword", "");
   }, teardown: function() {
   }
@@ -34,7 +33,7 @@ test('settings icon after click', function() {
 test('persist', function() {
   client = new WebRTC.Client();
   client.settings.save.trigger("click");
-  strictEqual($.cookie("settingUserid"), "");
+  strictEqual($.cookie("settingUserId"), "");
   strictEqual($.cookie("settingPassword"), "");
 });
 test('persist with active call', function() {
@@ -49,19 +48,19 @@ test('persist with active call', function() {
 });
 test('persist with userid set', function() {
   client = new WebRTC.Client();
-  client.settings.userid.val('someuserid');
+  client.settings.userId('someuserid');
   client.settings.save.trigger("click");
-  strictEqual($.cookie("settingUserid"), "someuserid");
+  strictEqual($.cookie("settingUserId"), "someuserid");
   strictEqual($.cookie("settingPassword"), "");
 });
 test('persist with display name set', function() {
   client = new WebRTC.Client();
-  strictEqual(client.settings.displayName.val(), "");
-  client.settings.displayName.val('somedisplayname');
+  strictEqual(client.settings.displayName(), "");
+  client.settings.displayName('somedisplayname');
   client.settings.save.trigger("click");
   strictEqual($.cookie("settingDisplayName"), "somedisplayname");
   client = new WebRTC.Client();
-  strictEqual(client.settings.displayName.val(), "somedisplayname");
+  strictEqual(client.settings.displayName(), "somedisplayname");
 });
 test('resolution types with ClientConfig set', function() {
   ClientConfig.displayResolution = WebRTC.C.R_960x720;
@@ -89,14 +88,14 @@ test('persist with resolution set', function() {
 });
 test('persist with password set', function() {
   client = new WebRTC.Client();
-  client.settings.settingPassword.val('121212');
+  client.settings.password('121212');
   client.settings.save.trigger("click");
   strictEqual($.cookie("settingPassword"), '121212');
   strictEqual(WebRTC.Utils.getSearchVariable("password"), false);
   strictEqual(client.configuration.getPassword(), '121212');
   client = new WebRTC.Client();
   strictEqual(client.configuration.getPassword(), '121212');
-  strictEqual(client.settings.settingPassword.val(), '121212');
+  strictEqual(client.settings.password(), '121212');
   $.cookie("settingPassword", "");
 });
 test('updates localVideo top and left setting after drag', function() {
@@ -165,9 +164,9 @@ test('hide or disable settings when ClientConfig has corresponding attributes se
   strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), true);
   strictEqual(client.settings.settingResolutionDisplayRow.is(":visible"), true);
   strictEqual(client.settings.settingResolutionEncodingRow.is(":visible"), true);
-  strictEqual(client.settings.settingBandwidthLow.is(":visible"), true);
-  strictEqual(client.settings.settingBandwidthMed.is(":visible"), true);
-  strictEqual(client.settings.settingBandwidthHigh.is(":visible"), true);
+  strictEqual(client.settings.bandwidthLowInput.is(":visible"), true);
+  strictEqual(client.settings.bandwidthMedInput.is(":visible"), true);
+  strictEqual(client.settings.bandwidthHighInput.is(":visible"), true);
   strictEqual(client.settings.settingBandwidthRow.is(":visible"), true);
   strictEqual(client.settings.settingDisplayNameRow.is(":visible"), true);
 
@@ -191,9 +190,9 @@ test('hide or disable settings when ClientConfig has corresponding attributes se
   strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), false);
   strictEqual(client.settings.settingResolutionDisplayRow.is(":visible"), false);
   strictEqual(client.settings.settingResolutionEncodingRow.is(":visible"), false);
-  strictEqual(client.settings.settingBandwidthLow.is(":visible"), false);
-  strictEqual(client.settings.settingBandwidthMed.is(":visible"), false);
-  strictEqual(client.settings.settingBandwidthHigh.is(":visible"), false);
+  strictEqual(client.settings.bandwidthLowInput.is(":visible"), false);
+  strictEqual(client.settings.bandwidthMedInput.is(":visible"), false);
+  strictEqual(client.settings.bandwidthHighInput.is(":visible"), false);
   strictEqual(client.settings.settingBandwidthRow.is(":visible"), false);
   strictEqual(client.settings.settingDisplayNameRow.is(":visible"), false);
 

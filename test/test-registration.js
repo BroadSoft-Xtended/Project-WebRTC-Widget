@@ -8,44 +8,16 @@ module( "Registration", {
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
     initalGetPassword = WebRTC.Configuration.prototype.getPassword;
   }, teardown: function() {
-    ClientConfig.register = false;
+    $.cookie('settingUserId', '');
     WebRTC.Configuration.prototype.getPassword = initalGetPassword;
   }
 });
 
-test('ExSipConfig without password and register=false', function() {
-  ClientConfig.register = false;
-  WebRTC.Configuration.prototype.getPassword = function(){return false;}
-  client = new WebRTC.Client();
-  strictEqual(client.configuration.getExSIPConfig("1509", false).register, false);
-});
-test('ExSipConfig without password and register=true', function() {
-  ClientConfig.register = true;
+test('with settingUserID', function() {
+  $.cookie('settingUserId', '12345')
   WebRTC.Configuration.prototype.getPassword = function(){return false;}
   client = new WebRTC.Client();
   strictEqual(client.configuration.getExSIPConfig("1509", false).register, true);
-});
-test('ExSipConfig with password', function() {
-  WebRTC.Configuration.prototype.getPassword = function(){return false;}
-  client = new WebRTC.Client();
-  strictEqual(client.configuration.getExSIPConfig("1509", "4009").register, true);
-});
-
-test('Register with password', function() {
-  WebRTC.Configuration.prototype.getPassword = function(){return "4009";}
-  client = new WebRTC.Client();
-  TestWebrtc.Helpers.connect();
-  var registered = false;
-  client.eventBus.on("registered", function(e){
-    registered = true;
-  });
-  client.sipStack.ua.emit('registered', client.sipStack.ua);
-  strictEqual(registered, true);
-});
-
-test('Register without password', function() {
-  WebRTC.Configuration.prototype.getPassword = function(){return false;}
-  client = new WebRTC.Client();
   TestWebrtc.Helpers.connect();
   var registered = false;
   client.eventBus.on("registered", function(e){
@@ -53,4 +25,9 @@ test('Register without password', function() {
   });
   client.sipStack.ua.emit('registered', client.sipStack.ua);
   strictEqual(registered, true, "should have received registered from UA");
+});
+test('without settingUserID', function() {
+  WebRTC.Configuration.prototype.getPassword = function(){return false;}
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getExSIPConfig("1509", "4009").register, false);
 });
