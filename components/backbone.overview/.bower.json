@@ -1,0 +1,13 @@
+{
+  "name": "backbone.overview",
+  "homepage": "https://github.com/jcbrand/Backbone.Overview",
+  "_release": "a3be42c559",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "a3be42c5594ee6f8e4645d160ffd695edf9fe5e4"
+  },
+  "_source": "git://github.com/jcbrand/Backbone.Overview.git",
+  "_target": "*",
+  "_originalSource": "backbone.overview"
+}

@@ -140,8 +140,9 @@ module.exports = function(grunt) {
           'components/otr/build/dep/eventemitter.js', 'components/otr/build/otr.js', 'components/strophe/strophe.js',
           'components/strophe.roster/index.js', 'components/strophe.muc/index.js', 'components/strophe.vcard/index.js',
           'components/strophe.disco/index.js', 'components/underscore/underscore.js', 'components/backbone/backbone.js',
-          'components/backbone.localStorage/backbone.localStorage.js', 'components/tinysort/src/jquery.tinysort.js',
-          'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/converse.js', 'js/FileSaver.js']
+          'components/backbone.localStorage/backbone.localStorage.js', 'components/backbone.overview/backbone.overview.js',
+          'components/tinysort/src/jquery.tinysort.js',
+          'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/FileSaver.js']
         }
       },
       options: {

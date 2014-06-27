@@ -23,6 +23,7 @@
   // diffie-hellman modulus
   // see group 5, RFC 3526
   var N = BigInt.str2bigInt(CONST.N, 16)
+  var N_MINUS_2 = BigInt.sub(N, BigInt.str2bigInt('2', 10))
 
   function hMac(gx, gy, pk, kid, m) {
     var pass = CryptoJS.enc.Latin1.parse(m)
@@ -54,7 +55,6 @@
     this.ssid = null
     this.transmittedRS = false
     this.r = null
-    this.priv = otr.priv
 
     // bind methods
     var self = this
@@ -103,13 +103,13 @@
     },
 
     makeM: function (their_y, m1, c, m2) {
-      var pk = this.priv.packPublic()
+      var pk = this.otr.priv.packPublic()
       var kid = HLP.packINT(this.our_keyid)
       var m = hMac(this.our_dh.publicKey, their_y, pk, kid, m1)
-      m = this.priv.sign(m)
+      m = this.otr.priv.sign(m)
       var msg = pk + kid
-      msg += HLP.bigInt2bits(m[0], 20)  // pad to 20 bytes
-      msg += HLP.bigInt2bits(m[1], 20)
+      msg += BigInt.bigInt2bits(m[0], 20)  // pad to 20 bytes
+      msg += BigInt.bigInt2bits(m[1], 20)
       msg = CryptoJS.enc.Latin1.parse(msg)
       var aesctr = HLP.packData(HLP.encryptAes(msg, c, HLP.packCtr(0)))
       var mac = HLP.makeMac(aesctr, m2)
@@ -122,17 +122,19 @@
       if (BigInt.equals(this.their_y, this.our_dh.publicKey))
         return this.otr.error('equal keys - we have a problem.', true)
 
-      if ( this.their_keyid !== this.otr.their_keyid &&
-           this.their_keyid !== (this.otr.their_keyid - 1) ) {
+      this.otr.our_old_dh = this.our_dh
+      this.otr.their_priv_pk = this.their_priv_pk
 
-        // our keys
-        this.otr.our_old_dh = this.our_dh
+      if (!(
+        (this.their_keyid === this.otr.their_keyid &&
+         BigInt.equals(this.their_y, this.otr.their_y)) ||
+        (this.their_keyid === (this.otr.their_keyid - 1) &&
+         BigInt.equals(this.their_y, this.otr.their_old_y))
+      )) {
 
-        // their keys
         this.otr.their_y = this.their_y
         this.otr.their_old_y = null
         this.otr.their_keyid = this.their_keyid
-        this.otr.their_priv_pk = this.their_priv_pk
 
         // rotate keys
         this.otr.sessKeys[0] = [ new this.otr.DHSession(
@@ -224,7 +226,7 @@
           this.their_y = HLP.readMPI(msg[0])
 
           // verify gy is legal 2 <= gy <= N-2
-          if (!HLP.checkGroup(this.their_y, N))
+          if (!HLP.checkGroup(this.their_y, N_MINUS_2))
             return this.otr.error('Illegal g^y.', true)
 
           this.createKeys(this.their_y)
@@ -264,7 +266,7 @@
             return this.otr.error('Hashed g^x does not match.', true)
 
           // verify gx is legal 2 <= g^x <= N-2
-          if (!HLP.checkGroup(this.their_y, N))
+          if (!HLP.checkGroup(this.their_y, N_MINUS_2))
             return this.otr.error('Illegal g^x.', true)
 
           this.createKeys(this.their_y)
@@ -366,7 +368,7 @@
       )
       if (send[0]) return this.otr.error(send[0])
 
-      this.otr._sendMsg(send[1], true)
+      this.otr.io(send[1])
     },
 
     initiateAKE: function (version) {

@@ -9,5 +9,6 @@
   "_release": "e-tag:0611a296f",
   "main": "index.js",
   "_source": "https://raw.github.com/strophe/strophejs-plugins/02310ad1b8da2962cd05b0f4bceaecca134efed4/muc/strophe.muc.js",
-  "_target": "*"
+  "_target": "*",
+  "_originalSource": "https://raw.github.com/strophe/strophejs-plugins/02310ad1b8da2962cd05b0f4bceaecca134efed4/muc/strophe.muc.js"
 }

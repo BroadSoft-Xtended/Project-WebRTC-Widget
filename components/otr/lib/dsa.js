@@ -3,11 +3,12 @@
 
   var root = this
 
-  var CryptoJS, BigInt, HLP
+  var CryptoJS, BigInt, Worker, WWPath, HLP
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = DSA
     CryptoJS = require('../vendor/crypto.js')
     BigInt = require('../vendor/bigint.js')
+    WWPath = require('path').join(__dirname, '/dsa-webworker.js')
     HLP = require('./helpers.js')
   } else {
     // copy over and expose internals
@@ -17,6 +18,8 @@
     root.DSA = DSA
     CryptoJS = root.CryptoJS
     BigInt = root.BigInt
+    Worker = root.Worker
+    WWPath = 'dsa-webworker.js'
     HLP = DSA.HLP
   }
 
@@ -90,7 +93,7 @@
 
     var N = bit_lengths[bit_length].N
 
-    var LM1 = HLP.twotothe(bit_length - 1)
+    var LM1 = BigInt.twoToThe(bit_length - 1)
     var bl4 = 4 * bit_length
     var brk = false
 
@@ -206,8 +209,8 @@
 
     // http://www.imperialviolet.org/2013/06/15/suddendeathentropy.html
     generateNonce: function (m) {
-      var priv = HLP.bigInt2bits(BigInt.trim(this.x, 0))
-      var rand = HLP.bigInt2bits(BigInt.randBigInt(256))
+      var priv = BigInt.bigInt2bits(BigInt.trim(this.x, 0))
+      var rand = BigInt.bigInt2bits(BigInt.randBigInt(256))
 
       var sha256 = CryptoJS.algo.SHA256.create()
       sha256.update(CryptoJS.enc.Latin1.parse(priv))
@@ -360,6 +363,43 @@
     var v = BigInt.mod(BigInt.multMod(u1, u2, key.p), key.q)
 
     return BigInt.equals(v, r)
+  }
+
+  DSA.createInWebWorker = function (options, cb) {
+    var opts = {
+        path: WWPath
+      , seed: BigInt.getSeed
+    }
+    if (options && typeof options === 'object')
+      Object.keys(options).forEach(function (k) {
+        opts[k] = options[k]
+      })
+
+    // load optional dep. in node
+    if (typeof module !== 'undefined' && module.exports)
+      Worker = require('webworker-threads').Worker
+
+    var worker = new Worker(opts.path)
+    worker.onmessage = function (e) {
+      var data = e.data
+      switch (data.type) {
+        case "debug":
+          if (!DEBUG || typeof console === 'undefined') return
+          console.log(data.val)
+          break;
+        case "data":
+          worker.terminate()
+          cb(DSA.parsePrivate(data.val))
+          break;
+        default:
+          throw new Error("Unrecognized type.")
+      }
+    }
+    worker.postMessage({
+        seed: opts.seed()
+      , imports: opts.imports
+      , debug: DEBUG
+    })
   }
 
 }).call(this)

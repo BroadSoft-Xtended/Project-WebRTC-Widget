@@ -24,6 +24,7 @@
   // see group 5, RFC 3526
   var G = BigInt.str2bigInt(CONST.G, 10)
   var N = BigInt.str2bigInt(CONST.N, 16)
+  var N_MINUS_2 = BigInt.sub(N, BigInt.str2bigInt('2', 10))
 
   // to calculate D's for zero-knowledge proofs
   var Q = BigInt.sub(N, BigInt.str2bigInt('1', 10))
@@ -60,7 +61,7 @@
     sha256.update(CryptoJS.enc.Hex.parse(our ? this.our_fp : this.their_fp))
     sha256.update(CryptoJS.enc.Hex.parse(our ? this.their_fp : this.our_fp))
     sha256.update(CryptoJS.enc.Latin1.parse(this.ssid))
-    sha256.update(CryptoJS.enc.Latin1.parse(secret))  // utf8?
+    sha256.update(CryptoJS.enc.Latin1.parse(secret))
     var hash = sha256.finalize()
     this.secret = HLP.bits2bigInt(hash.toString(CryptoJS.enc.Latin1))
   }
@@ -70,8 +71,8 @@
     this.a3 = HLP.randomExponent()
     this.g2a = BigInt.powMod(G, this.a2, N)
     this.g3a = BigInt.powMod(G, this.a3, N)
-    if ( !HLP.checkGroup(this.g2a, N) ||
-         !HLP.checkGroup(this.g3a, N)
+    if ( !HLP.checkGroup(this.g2a, N_MINUS_2) ||
+         !HLP.checkGroup(this.g3a, N_MINUS_2)
     ) this.makeG2s()
   }
 
@@ -98,7 +99,7 @@
   }
 
   SM.prototype.computeD = function (r, a, c) {
-    return HLP.subMod(r, BigInt.multMod(a, c, Q), Q)
+    return BigInt.subMod(r, BigInt.multMod(a, c, Q), Q)
   }
 
   // the bulk of the work
@@ -115,7 +116,7 @@
 
     if (msg.type === 6) {
       this.init()
-      this.trigger('trust', [false])
+      this.trigger('abort')
       return
     }
 
@@ -141,8 +142,8 @@
         if (ms !== 6) return this.abort()
         msg = HLP.unpackMPIs(6, msg.msg.substring(4))
 
-        if ( !HLP.checkGroup(msg[0], N) ||
-             !HLP.checkGroup(msg[3], N)
+        if ( !HLP.checkGroup(msg[0], N_MINUS_2) ||
+             !HLP.checkGroup(msg[3], N_MINUS_2)
         ) return this.abort()
 
         // verify znp's
@@ -169,6 +170,11 @@
 
         this.smpstate = CONST.SMPSTATE_EXPECT0
 
+        // assume utf8 question
+        question = CryptoJS.enc.Latin1
+          .parse(question)
+          .toString(CryptoJS.enc.Utf8)
+
         // invoke question
         this.trigger('question', [question])
         return
@@ -181,10 +187,10 @@
         if (ms !== 11) return this.abort()
         msg = HLP.unpackMPIs(11, msg.msg.substring(4))
 
-        if ( !HLP.checkGroup(msg[0], N) ||
-             !HLP.checkGroup(msg[3], N) ||
-             !HLP.checkGroup(msg[6], N) ||
-             !HLP.checkGroup(msg[7], N)
+        if ( !HLP.checkGroup(msg[0], N_MINUS_2) ||
+             !HLP.checkGroup(msg[3], N_MINUS_2) ||
+             !HLP.checkGroup(msg[6], N_MINUS_2) ||
+             !HLP.checkGroup(msg[7], N_MINUS_2)
         ) return this.abort()
 
         // verify znp of c3 / c3
@@ -219,8 +225,8 @@
         var d6 = this.computeD(r6, this.secret, cP)
 
         // store these
-        this.QoQ = HLP.divMod(this.q, msg[7], N)
-        this.PoP = HLP.divMod(this.p, msg[6], N)
+        this.QoQ = BigInt.divMod(this.q, msg[7], N)
+        this.PoP = BigInt.divMod(this.p, msg[6], N)
 
         this.computeR()
 
@@ -256,9 +262,9 @@
         if (ms !== 8) return this.abort()
         msg = HLP.unpackMPIs(8, msg.msg.substring(4))
 
-        if ( !HLP.checkGroup(msg[0], N) ||
-             !HLP.checkGroup(msg[1], N) ||
-             !HLP.checkGroup(msg[5], N)
+        if ( !HLP.checkGroup(msg[0], N_MINUS_2) ||
+             !HLP.checkGroup(msg[1], N_MINUS_2) ||
+             !HLP.checkGroup(msg[5], N_MINUS_2)
         ) return this.abort()
 
         // verify znp of cP
@@ -271,7 +277,7 @@
 
         // verify znp of cR
         t3 = HLP.multPowMod(G, msg[7], this.g3ao, msg[6], N)
-        this.QoQ = HLP.divMod(msg[1], this.q, N)  // save Q over Q
+        this.QoQ = BigInt.divMod(msg[1], this.q, N)  // save Q over Q
         t4 = HLP.multPowMod(this.QoQ, msg[7], msg[5], msg[6], N)
 
         if (!HLP.ZKP(7, msg[6], t3, t4))
@@ -290,7 +296,7 @@
         send = HLP.packTLV(5, send)
 
         rab = this.computeRab(msg[5])
-        trust = !!BigInt.equals(rab, HLP.divMod(msg[0], this.p, N))
+        trust = !!BigInt.equals(rab, BigInt.divMod(msg[0], this.p, N))
 
         this.trigger('trust', [trust, 'answered'])
         this.init()
@@ -304,7 +310,7 @@
         if (ms !== 3) return this.abort()
         msg = HLP.unpackMPIs(3, msg.msg.substring(4))
 
-        if (!HLP.checkGroup(msg[0], N)) return this.abort()
+        if (!HLP.checkGroup(msg[0], N_MINUS_2)) return this.abort()
 
         // verify znp of cR
         t3 = HLP.multPowMod(G, msg[2], this.g3ao, msg[1], N)

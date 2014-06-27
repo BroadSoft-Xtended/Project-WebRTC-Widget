@@ -1,4 +1,40 @@
 
+0.2.12 / 2014-04-15
+===================
+
+ * don't publish sending mac keys
+ * close potential leak of smp question
+
+0.2.11 / 2014-03-24
+===================
+
+ * update dev dependencies
+ * option to attach meta data to outgoing messages
+ * type 6 tlvs trigger an abort
+
+0.2.10 / 2014-02-04
+==================
+
+ * assume utf8 inputs for smp
+
+0.2.9 / 2014-01-21
+==================
+
+ * coerce "is encrypted" var to boolean
+ * check DH pubkey equality before skipping key replacement
+ * remove unused exports from bigint
+
+0.2.8 / 2013-11-11
+==================
+
+ * performance improvements in bigint
+ * removed salsa20 as a hard dependency
+ * webworker in node is truly an optional dep
+ * msCrypto support
+ * generate dsa key in a webworker
+ * internal code cleanup
+ * documentation improvements
+
 0.2.7 / 2013-10-12
 ==================
 

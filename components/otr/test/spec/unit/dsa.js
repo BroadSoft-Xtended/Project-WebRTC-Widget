@@ -22,11 +22,11 @@ describe('DSA', function() {
   })
 
   it('should generate a key with q > 2^(N - 1) and q < 2^N', function () {
-    assert.ok(HLP.between(key.q, HLP.twotothe(N - 1), HLP.twotothe(N)), 'q in between.')
+    assert.ok(HLP.between(key.q, BigInt.twoToThe(N - 1), BigInt.twoToThe(N)), 'q in between.')
   })
 
   it('should generate a key with p > 2^(L - 1) and p < 2^L', function () {
-    assert.ok(HLP.between(key.p, HLP.twotothe(L - 1), HLP.twotothe(L)), 'p in between.')
+    assert.ok(HLP.between(key.p, BigInt.twoToThe(L - 1), BigInt.twoToThe(L)), 'p in between.')
   })
 
   it('should generate a key with q being a multiple of q', function () {
@@ -89,7 +89,7 @@ describe('DSA', function() {
     assert.ok(BigInt.equals(prekeys.userA.x, par.x), 'Xs.')
   })
 
-  it('should my private key from pidgin', function () {
+  it('should parse my private key from pidgin', function () {
     var filename = path.join(process.env.HOME, ".purple/otr.private_key")
 
     if (!fs.existsSync(filename)) return
@@ -102,6 +102,24 @@ describe('DSA', function() {
     assert.ok(par.g)
     assert.ok(par.y)
     assert.ok(par.x)
+  })
+
+  it('should create a key in a webworker', function (done) {
+    this.timeout(25000)
+
+    try {
+      var ww = require("webworker-threads")
+    } catch (e) {
+      console.log("skipping webworker test. couldn't load optional dep")
+      return done()
+    }
+
+    DSA.createInWebWorker(null, function (key) {
+      assert.ok(HLP.between(key.q, BigInt.twoToThe(N - 1), BigInt.twoToThe(N)), 'q in between.')
+      assert.ok(HLP.between(key.p, BigInt.twoToThe(L - 1), BigInt.twoToThe(L)), 'p in between.')
+      assert.ok(key instanceof DSA)
+      done()
+    })
   })
 
 })

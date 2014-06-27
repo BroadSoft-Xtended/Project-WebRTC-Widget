@@ -9,5 +9,6 @@
     "commit": "db8c2bdd62b34917fa00bf22c30a83e7955cd93c"
   },
   "_source": "git://github.com/evanvosberg/crypto-js.git",
-  "_target": "~3.1.2"
+  "_target": "~3.1.2",
+  "_originalSource": "crypto-js-evanvosberg"
 }

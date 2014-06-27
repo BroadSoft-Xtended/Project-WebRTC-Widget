@@ -535,7 +535,7 @@ describe('OTR', function () {
         assert.equal(userB.msgstate, CONST.MSGSTATE_ENCRYPTED)
         // send a plaintext msg w/ internal api
         // don't do this
-        userB._sendMsg(m, true)
+        userB.io(m)
       }
     })
     userB.on('error', function (err) { assert.ifError(err) })
@@ -577,6 +577,140 @@ describe('OTR', function () {
     assert.equal(userA.msgstate, CONST.MSGSTATE_PLAINTEXT)
     assert.equal(userB.msgstate, CONST.MSGSTATE_PLAINTEXT)
     userA.sendMsg(m)
+  })
+  
+  it('should passthrough meta data in plaintext mode', function(done) {
+     var m1 = 'text message'
+     var m2 = 'meta data'
+
+     var userA = new OTR({ priv: keys.userA })
+     userA.on('io', function (msg, meta) {
+        assert.equal(msg, m1)
+        assert.equal(meta, m2)
+        done()
+     })
+
+     userA.sendMsg(m1, m2)        
+  })
+  
+  it('should passthrough meta data in encrypted mode', function(done) {
+     var m1 = 'text message'
+     var m2 = 'meta data'
+
+     var userA = new OTR({ priv: keys.userA })
+     var userB = new OTR({ priv: keys.userB })
+     userA.on('io', function (msg, meta) {
+        if (userA.msgstate === CONST.MSGSTATE_ENCRYPTED){
+           assert.equal(meta, m2)
+           done()
+        }
+        userB.receiveMsg(msg)
+     })
+     userA.on('status', function(state){ 
+        if (state === CONST.STATUS_AKE_SUCCESS) {
+           userA.sendMsg(m1, m2)
+        }
+     })
+     userB.on('io', userA.receiveMsg)
+
+     userB.sendQueryMsg()
+  })
+  
+  it('should passthrough meta data for stored messages', function(done) {
+     var m1 = 'text message'
+     var m2 = 'meta data'
+
+     var userA = new OTR({ priv: keys.userA })
+     var userB = new OTR({ priv: keys.userB })
+     userA.msgstate = CONST.MSGSTATE_FINISHED;
+     userA.on('io', function (msg, meta) {
+        if (userA.msgstate === CONST.MSGSTATE_ENCRYPTED){
+           assert.equal(meta, m2)
+           done()
+        }
+        userB.receiveMsg(msg)
+     })
+     userB.on('io', userA.receiveMsg)
+
+     userA.sendMsg(m1, m2)
+     userB.sendQueryMsg()   
+  })
+
+  it('should passthrough meta data for fragmented messages', function(done) {
+     this.timeout(5000)
+     
+     var m1 = 'Lalalala alal allaallal alal al alalal alalaaall  lal lal la lal ala  al ala l al a al al al alalalalal alalal  a lal la aal ala lalala l lala lal lala lal la l  alal lalaall la lal la'
+     var m2 = 'meta data'
+
+     var userA = new OTR({
+          priv: keys.userA
+        , fragment_size: 200 
+        , send_interval: 40
+        })
+     var userB = new OTR({ priv: keys.userB, send_interval: 20 })
+     userA.on('io', function (msg, meta) {
+        if (userA.msgstate === CONST.MSGSTATE_ENCRYPTED){
+           assert.equal(meta, m2)
+           if(msg.replace(/^\?OTR.+,(\d),(\d)/, '$1') == msg.replace(/^\?OTR.+,(\d),(\d)/, '$2'))
+              done()
+        }
+        userB.receiveMsg(msg)
+     })
+     userA.on('status', function(state){ 
+        if (state === CONST.STATUS_AKE_SUCCESS) {
+           userA.sendMsg(m1, m2)
+        }
+     })
+     userB.on('io', userA.receiveMsg)
+     
+     userB.sendQueryMsg() 
+  })
+
+  it('should check for DH pubkey equality before skipping key replacement', function (done) {
+    // issue #47
+
+    var err = function (err) { assert.ifError(err) }
+
+    var userA = new OTR({ priv: keys.userA })
+    userA.on('io', function (msg) { userB.receiveMsg(msg) })
+    userA.on('error', err)
+
+    var bIT = OTR.makeInstanceTag()
+
+    var userB = new OTR({ priv: keys.userB, instance_tag: bIT })
+    userB.on('io', userA.receiveMsg)
+    userB.on('error', err)
+    var rcvd = 0
+    userB.on('ui', function (msg, enc) {
+      assert.ok(enc)
+      rcvd += 1
+      if (rcvd === 2) {
+        rcvd = 0
+
+        // userB crashed; start over
+        userB = new OTR({ priv: keys.userB, instance_tag: bIT })
+        userB.on('io', userA.receiveMsg)
+        userB.on('error', err)
+        userB.on('ui', function (msg, enc) {
+          assert.ok(enc)
+          rcvd += 1
+          if (rcvd === 2) {
+            done()
+          }
+        })
+        userB.sendQueryMsg()
+
+      }
+    })
+
+    userA.on('status', function (state) {
+      if (state === OTR.CONST.STATUS_AKE_SUCCESS) {
+        userA.sendMsg("Amsg1 to B1")
+        userA.sendMsg("Amsg2 to B1")
+      }
+    })
+    userA.sendQueryMsg()
+
   })
 
 })

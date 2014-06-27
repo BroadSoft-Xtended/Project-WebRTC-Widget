@@ -1,13 +1,13 @@
 {
   "name": "strophe.roster",
   "_cacheHeaders": {
-    "ETag": "\"dd79124e5be436e933462bf1101bfef2\"",
-    "Content-Length": "13730",
-    "Content-Type": "text/plain; charset=utf-8",
-    "Content-Disposition": "inline"
+    "ETag": "\"e4c72f83bf25206e631c1f44334b402030caf1c1\"",
+    "Content-Length": "13796",
+    "Content-Type": "text/plain; charset=utf-8"
   },
-  "_release": "e-tag:dd79124e5",
+  "_release": "e-tag:e4c72f83b",
   "main": "index.js",
-  "_source": "https://raw.github.com/jcbrand/strophejs-plugins/75c8693992bc357c699b6d615eeb396e799f5c02/roster/strophe.roster.js",
-  "_target": "*"
+  "_source": "https://raw.github.com/strophe/strophejs-plugins/b1f364eb6e854ffe844c57add38e885cfeb9b498/roster/strophe.roster.js",
+  "_target": "*",
+  "_originalSource": "https://raw.github.com/strophe/strophejs-plugins/b1f364eb6e854ffe844c57add38e885cfeb9b498/roster/strophe.roster.js"
 }

@@ -9,5 +9,6 @@
   "_release": "e-tag:f8b8df613",
   "main": "index.js",
   "_source": "https://raw.github.com/jcbrand/strophejs-plugins/75c8693992bc357c699b6d615eeb396e799f5c02/disco/strophe.disco.js",
-  "_target": "*"
+  "_target": "*",
+  "_originalSource": "https://raw.github.com/jcbrand/strophejs-plugins/75c8693992bc357c699b6d615eeb396e799f5c02/disco/strophe.disco.js"
 }

@@ -9,5 +9,6 @@
     "commit": "d18499bc7f609720257a9a2e601e3cfe9516db95"
   },
   "_source": "git://github.com/SlexAxton/Jed.git",
-  "_target": "0.5.4"
+  "_target": "0.5.4",
+  "_originalSource": "jed"
 }

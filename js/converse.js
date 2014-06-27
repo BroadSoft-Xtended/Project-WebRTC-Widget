@@ -3542,18 +3542,18 @@
         'initialize': function (settings, callback) {
             converse.initialize(settings, callback);
         },
-        'setStatus': function (type) {
-            if(converse.xmppstatus) {
-                converse.xmppstatus.setStatus(type);
-            }
-        },
-        'getStatus': function () {
-            if(converse.xmppstatus && converse.xmppstatus.attributes) {
-              return converse.xmppstatus.attributes.status;
-            }
-            return null;
-        },
-        'getRID': function () {
+      'setStatus': function (type) {
+        if(converse.xmppstatus) {
+          converse.xmppstatus.setStatus(type);
+        }
+      },
+      'getStatus': function () {
+        if(converse.xmppstatus && converse.xmppstatus.attributes) {
+          return converse.xmppstatus.attributes.status;
+        }
+        return null;
+      },
+      'getRID': function () {
             if (converse.expose_rid_and_sid && typeof converse.connection !== "undefined") {
                 return converse.connection.rid;
             }
