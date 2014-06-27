@@ -1,11 +1,11 @@
 /**
  * Backbone localStorage Adapter
- * Version 1.1.7
+ * Version 1.1.6
  *
  * https://github.com/jeromegn/Backbone.localStorage
  */
 (function (root, factory) {
-   if (typeof exports === 'object' && typeof require === 'function') {
+   if (typeof exports === 'object' && root.require) {
      module.exports = factory(require("underscore"), require("backbone"));
    } else if (typeof define === "function" && define.amd) {
       // AMD. Register as an anonymous module.

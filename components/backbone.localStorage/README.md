@@ -1,10 +1,8 @@
-# Backbone localStorage Adapter v1.1.7
+# Backbone localStorage Adapter v1.1.5
 
 [![Build Status](https://secure.travis-ci.org/jeromegn/Backbone.localStorage.png?branch=master)](http://travis-ci.org/jeromegn/Backbone.localStorage)
 
 Quite simply a localStorage adapter for Backbone. It's a drop-in replacement for Backbone.Sync() to handle saving to a localStorage database.
-
-[![Gittip](http://badgr.co/gittip/jeromegn.png)](https://www.gittip.com/jeromegn/)
 
 ## Usage
 
@@ -69,7 +67,7 @@ require(["someCollection"], function(someCollection) {
 If you're using [browserify](https://github.com/substack/node-browserify).
 
 ```javascript
-Backbone.LocalStorage = require("backbone.localstorage");
+var Backbone.LocalStorage = require("backbone.localstorage");
 ```
 
 ##Support

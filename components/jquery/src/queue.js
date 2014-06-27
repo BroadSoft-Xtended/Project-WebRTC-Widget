@@ -1,9 +1,3 @@
-define([
-	"./core",
-	"./deferred",
-	"./callbacks"
-], function( jQuery ) {
-
 jQuery.extend({
 	queue: function( elem, type, data ) {
 		var queue;
@@ -64,8 +58,8 @@ jQuery.extend({
 		var key = type + "queueHooks";
 		return jQuery._data( elem, key ) || jQuery._data( elem, key, {
 			empty: jQuery.Callbacks("once memory").add(function() {
-				jQuery._removeData( elem, type + "queue" );
-				jQuery._removeData( elem, key );
+				jQuery.removeData( elem, type + "queue", true );
+				jQuery.removeData( elem, key, true );
 			})
 		});
 	}
@@ -103,6 +97,19 @@ jQuery.fn.extend({
 			jQuery.dequeue( this, type );
 		});
 	},
+	// Based off of the plugin by Clint Helfers, with permission.
+	// http://blindsignals.com/index.php/2009/07/jquery-delay/
+	delay: function( time, type ) {
+		time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
+		type = type || "fx";
+
+		return this.queue( type, function( next, hooks ) {
+			var timeout = setTimeout( next, time );
+			hooks.stop = function() {
+				clearTimeout( timeout );
+			};
+		});
+	},
 	clearQueue: function( type ) {
 		return this.queue( type || "fx", [] );
 	},
@@ -126,7 +133,7 @@ jQuery.fn.extend({
 		}
 		type = type || "fx";
 
-		while ( i-- ) {
+		while( i-- ) {
 			tmp = jQuery._data( elements[ i ], type + "queueHooks" );
 			if ( tmp && tmp.empty ) {
 				count++;
@@ -136,7 +143,4 @@ jQuery.fn.extend({
 		resolve();
 		return defer.promise( obj );
 	}
-});
-
-return jQuery;
 });

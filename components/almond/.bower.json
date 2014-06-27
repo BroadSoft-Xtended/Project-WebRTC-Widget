@@ -14,6 +14,6 @@
     "commit": "a416b0c7ed69cdd01e1dfd89107d0873ee577d45"
   },
   "_source": "git://github.com/jrburke/almond.git",
-  "_target": "~0.2.9",
+  "_target": "~0.2.6",
   "_originalSource": "almond"
 }

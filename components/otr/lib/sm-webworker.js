@@ -2,11 +2,7 @@
   "use strict";
 
   root.OTR = {}
-  root.crypto = {
-    randomBytes: function () {
-      throw new Error("Haven't seeded yet.")
-    }
-  }
+  root.crypto = {}
 
   // default imports
   var imports = [
@@ -29,30 +25,26 @@
   }
 
   var sm
-  onmessage = function (e) {
-    var data = e.data
-    switch (data.type) {
+  onmessage = function (msg) {
+    var d = msg.data
+    switch (d.type) {
       case 'seed':
-        if (data.imports) imports = data.imports
-        importScripts.apply(root, imports)
-
-        // use salsa20 since there's no prng in webworkers
-        var state = new root.Salsa20(
-          data.seed.slice(0, 32),
-          data.seed.slice(32)
-        )
-        root.crypto.randomBytes = function (n) {
-          return state.getBytes(n)
+        root.crypto.randomBytes = function () {
+          return d.seed
         }
+        if (d.imports) imports = d.imports
+        imports.forEach(function (i) {
+          importScripts(i)
+        })
         break
       case 'init':
-        sm = new root.OTR.SM(data.reqs)
-        ;['trust','question', 'send', 'abort'].forEach(function (m) {
-          sm.on(m, wrapPostMessage(m));
+        sm = new root.OTR.SM(d.reqs)
+        ;['trust','question', 'send', 'abort'].forEach(function (e) {
+          sm.on(e, wrapPostMessage(e));
         })
         break
       case 'method':
-        sm[data.method].apply(sm, data.args)
+        sm[d.method].apply(sm, d.args)
         break
     }
   }

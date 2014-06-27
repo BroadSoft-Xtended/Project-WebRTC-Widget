@@ -1,15 +1,10 @@
-define([
-	"../core",
-	"../ajax"
-], function( jQuery ) {
-
 // Install script dataType
 jQuery.ajaxSetup({
 	accepts: {
 		script: "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript"
 	},
 	contents: {
-		script: /(?:java|ecma)script/
+		script: /javascript|ecmascript/
 	},
 	converters: {
 		"text script": function( text ) {
@@ -37,15 +32,15 @@ jQuery.ajaxTransport( "script", function(s) {
 	if ( s.crossDomain ) {
 
 		var script,
-			head = document.head || jQuery("head")[0] || document.documentElement;
+			head = document.head || document.getElementsByTagName( "head" )[0] || document.documentElement;
 
 		return {
 
 			send: function( _, callback ) {
 
-				script = document.createElement("script");
+				script = document.createElement( "script" );
 
-				script.async = true;
+				script.async = "async";
 
 				if ( s.scriptCharset ) {
 					script.charset = s.scriptCharset;
@@ -62,12 +57,12 @@ jQuery.ajaxTransport( "script", function(s) {
 						script.onload = script.onreadystatechange = null;
 
 						// Remove the script
-						if ( script.parentNode ) {
-							script.parentNode.removeChild( script );
+						if ( head && script.parentNode ) {
+							head.removeChild( script );
 						}
 
 						// Dereference the script
-						script = null;
+						script = undefined;
 
 						// Callback if not abort
 						if ( !isAbort ) {
@@ -75,19 +70,16 @@ jQuery.ajaxTransport( "script", function(s) {
 						}
 					}
 				};
-
-				// Circumvent IE6 bugs with base elements (#2709 and #4378) by prepending
-				// Use native DOM manipulation to avoid our domManip AJAX trickery
+				// Use insertBefore instead of appendChild  to circumvent an IE6 bug.
+				// This arises when a base node is used (#2709 and #4378).
 				head.insertBefore( script, head.firstChild );
 			},
 
 			abort: function() {
 				if ( script ) {
-					script.onload( undefined, true );
+					script.onload( 0, 1 );
 				}
 			}
 		};
 	}
-});
-
 });

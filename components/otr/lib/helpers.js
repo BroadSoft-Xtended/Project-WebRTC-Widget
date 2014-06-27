@@ -29,8 +29,6 @@
   var WRAPPER_BEGIN = "?OTR"
     , WRAPPER_END   = "."
 
-  var TWO = BigInt.str2bigInt('2', 10)
-
   HLP.debug = function (msg) {
     // used as HLP.debug.call(ctx, msg)
     if ( this.debug &&
@@ -58,6 +56,17 @@
     for (; i < str1.length; i++)
       result |= str1[i].charCodeAt(0) ^ str2[i].charCodeAt(0)
     return result === 0
+  }
+
+  HLP.divMod = function (num, den, n) {
+    return BigInt.multMod(num, BigInt.inverseMod(den, n), n)
+  }
+
+  HLP.subMod = function (one, two, n) {
+    one = BigInt.mod(one, n)
+    two = BigInt.mod(two, n)
+    if (BigInt.greater(two, one)) one = BigInt.add(one, n)
+    return BigInt.sub(one, two)
   }
 
   HLP.randomExponent = function () {
@@ -131,8 +140,28 @@
     return (BigInt.greater(x, a) && BigInt.greater(b, x))
   }
 
-  HLP.checkGroup = function (g, N_MINUS_2) {
+  HLP.checkGroup = function (g, N) {
+    var TWO = BigInt.str2bigInt('2', 10)
+    var N_MINUS_2 = BigInt.sub(N, TWO)
     return HLP.GTOE(g, TWO) && HLP.GTOE(N_MINUS_2, g)
+  }
+
+  var OPS = {
+      'XOR': function (c, s) { return c ^ s }
+    , 'OR': function (c, s) { return c | s }
+    , 'AND': function (c, s) { return c & s }
+  }
+  HLP.bigBitWise = function (op, a, b) {
+    var tf = (a.length > b.length)
+      , short = tf ? b : a
+      , long  = tf ? a : b
+      , len = long.length
+      , c = BigInt.expand(short, len)
+      , i = 0
+    for (; i < len; i++) {
+      c[i] = OPS[op](c[i], long[i])
+    }
+    return c
   }
 
   HLP.h1 = function (b, secbytes) {
@@ -153,7 +182,13 @@
     return bytes.substr(start / 8, n / 8)
   }
 
-  var _toString = String.fromCharCode;
+  HLP.twotothe = function (m) {
+    var t = [1 << (m % BigInt.bpe), 0]
+    var i = 0, b = Math.floor(m / BigInt.bpe)
+    for (; i < b; i++) t.unshift(0)
+    return t
+  }
+
   HLP.packBytes = function (val, bytes) {
     val = val.toString(16)
     var nex, res = ''  // big-endian, unsigned long
@@ -183,9 +218,10 @@
   }
 
   HLP.unpack = function (arr) {
+    arr.reverse()
     var val = 0, i = 0, len = arr.length
     for (; i < len; i++) {
-      val = (val * 256) + arr[i]
+      val += Math.pow(256, i) * arr[i]
     }
     return val
   }
@@ -194,13 +230,27 @@
     return HLP.packINT(d.length) + d
   }
 
+  HLP.bigInt2bits = function (bi, pad) {
+    pad || (pad = 0)
+    bi = BigInt.dup(bi)
+    var ba = ''
+    while (!BigInt.isZero(bi)) {
+      ba = _num2bin[bi[0] & 0xff] + ba
+      BigInt.rightShift_(bi, 8)
+    }
+    while (ba.length < pad) {
+      ba = '\x00' + ba
+    }
+    return ba
+  }
+
   HLP.bits2bigInt = function (bits) {
     bits = HLP.toByteArray(bits)
-    return BigInt.ba2bigInt(bits)
+    return HLP.retMPI(bits)
   }
 
   HLP.packMPI = function (mpi) {
-    return HLP.packData(BigInt.bigInt2bits(BigInt.trim(mpi, 0)))
+    return HLP.packData(HLP.bigInt2bits(BigInt.trim(mpi, 0)))
   }
 
   HLP.packSHORT = function (short) {
@@ -226,10 +276,19 @@
     return [n, data]
   }
 
+  HLP.retMPI = function (data) {
+    var mpi = BigInt.str2bigInt('0', 10, data.length)
+    data.forEach(function (d, i) {
+      if (i) BigInt.leftShift_(mpi, 8)
+      mpi[0] |= d
+    })
+    return mpi
+  }
+
   HLP.readMPI = function (data) {
     data = HLP.toByteArray(data)
     data = HLP.readData(data)
-    return BigInt.ba2bigInt(data[1])
+    return HLP.retMPI(data[1])
   }
 
   HLP.packMPIs = function (arr) {
@@ -303,34 +362,41 @@
 
   // https://github.com/msgpack/msgpack-javascript/blob/master/msgpack.js
 
-  var _bin2num = (function () {
-    var i = 0, _bin2num = {}
-    for (; i < 0x100; ++i) {
-      _bin2num[String.fromCharCode(i)] = i  // "\00" -> 0x00
-    }
-    for (i = 0x80; i < 0x100; ++i) {  // [Webkit][Gecko]
-      _bin2num[String.fromCharCode(0xf700 + i)] = i  // "\f780" -> 0x80
-    }
-    return _bin2num
-  }())
+  var _bin2num = {}
+    , _num2bin = {}
+    , _toString = String.fromCharCode
+
+  var i = 0, v
+
+  for (; i < 0x100; ++i) {
+    v = _toString(i)
+    _bin2num[v] = i  // "\00" -> 0x00
+    _num2bin[i] = v  //     0 -> "\00"
+  }
+
+  for (i = 0x80; i < 0x100; ++i) {  // [Webkit][Gecko]
+    _bin2num[_toString(0xf700 + i)] = i  // "\f780" -> 0x80
+  }
 
   HLP.toByteArray = function (data) {
-    var rv = []
+    var rv = [], bin2num = _bin2num, remain
       , ary = data.split("")
       , i = -1
-      , iz = ary.length
-      , remain = iz % 8
+      , iz
+
+    iz = ary.length
+    remain = iz % 8
 
     while (remain--) {
       ++i
-      rv[i] = _bin2num[ary[i]]
+      rv[i] = bin2num[ary[i]]
     }
     remain = iz >> 3
     while (remain--) {
-      rv.push(_bin2num[ary[++i]], _bin2num[ary[++i]],
-              _bin2num[ary[++i]], _bin2num[ary[++i]],
-              _bin2num[ary[++i]], _bin2num[ary[++i]],
-              _bin2num[ary[++i]], _bin2num[ary[++i]])
+      rv.push(bin2num[ary[++i]], bin2num[ary[++i]],
+              bin2num[ary[++i]], bin2num[ary[++i]],
+              bin2num[ary[++i]], bin2num[ary[++i]],
+              bin2num[ary[++i]], bin2num[ary[++i]])
     }
     return rv
   }

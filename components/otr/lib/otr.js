@@ -10,6 +10,7 @@
     CryptoJS = require('../vendor/crypto.js')
     BigInt = require('../vendor/bigint.js')
     EventEmitter = require('../vendor/eventemitter.js')
+    Worker = require('webworker-threads').Worker
     SMWPath = require('path').join(__dirname, '/sm-webworker.js')
     CONST = require('./const.js')
     HLP = require('./helpers.js')
@@ -160,11 +161,6 @@
       Object.keys(otr.smw).forEach(function (k) {
         opts[k] = otr.smw[k]
       })
-
-    // load optional dep. in node
-    if (typeof module !== 'undefined' && module.exports)
-      Worker = require('webworker-threads').Worker
-
     this.worker = new Worker(opts.path)
     var self = this
     this.worker.onmessage = function (e) {
@@ -217,27 +213,22 @@
       })
     })
     this.sm.on('send', function (ssid, send) {
-      if (self.ssid === ssid) {
-        send = self.prepareMsg(send)
-        self.io(send)
-      }
+      if (self.ssid === ssid)
+        self._sendMsg(send)
     })
   }
 
-  OTR.prototype.io = function (msg, meta) {
+  OTR.prototype.io = function (msg) {
 
     // buffer
-    msg = ([].concat(msg)).map(function(m){
-       return { msg: m, meta: meta }
-    })
     this.outgoing = this.outgoing.concat(msg)
 
     var self = this
     ;(function send(first) {
       if (!first) {
         if (!self.outgoing.length) return
-        var elem = self.outgoing.shift()
-        self.trigger('io', [elem.msg, elem.meta])
+        var msg = self.outgoing.shift()
+        self.trigger('io', [msg])
       }
       setTimeout(send, first ? 0 : self.send_interval)
     }(true))
@@ -270,7 +261,7 @@
     this.sendenc = HLP.mask(HLP.h1(sendbyte, secbytes), 0, 128)  // f16 bytes
     this.sendmac = CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(this.sendenc))
     this.sendmac = this.sendmac.toString(CryptoJS.enc.Latin1)
-
+    this.sendmacused = false
     this.rcvenc = HLP.mask(HLP.h1(rcvbyte, secbytes), 0, 128)
     this.rcvmac = CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(this.rcvenc))
     this.rcvmac = this.rcvmac.toString(CryptoJS.enc.Latin1)
@@ -289,6 +280,7 @@
     // reveal old mac keys
     var self = this
     this.sessKeys[1].forEach(function (sk) {
+      if (sk && sk.sendmacused) self.oldMacKeys.push(sk.sendmac)
       if (sk && sk.rcvmacused) self.oldMacKeys.push(sk.rcvmac)
     })
 
@@ -316,6 +308,7 @@
     // reveal old mac keys
     var self = this
     this.sessKeys.forEach(function (sk) {
+      if (sk[1] && sk[1].sendmacused) self.oldMacKeys.push(sk[1].sendmac)
       if (sk[1] && sk[1].rcvmacused) self.oldMacKeys.push(sk[1].rcvmac)
     })
 
@@ -370,6 +363,8 @@
     send += HLP.packData(aes)
     send += HLP.make1Mac(send, sessKeys.sendmac)
     send += HLP.packData(this.oldMacKeys.splice(0).join(''))
+
+    sessKeys.sendmacused = true
 
     send = HLP.wrapMsg(
         send
@@ -513,11 +508,6 @@
       return this.error('Secret is required.')
 
     if (!this.sm) this._smInit()
-
-    // utf8 inputs
-    secret = CryptoJS.enc.Utf8.parse(secret).toString(CryptoJS.enc.Latin1)
-    question = CryptoJS.enc.Utf8.parse(question).toString(CryptoJS.enc.Latin1)
-
     this.sm.rcvSecret(secret, question)
   }
 
@@ -540,43 +530,46 @@
       msg += '?'
     }
 
-    this.io(msg)
+    this._sendMsg(msg, true)
     this.trigger('status', [CONST.STATUS_SEND_QUERY])
   }
 
-  OTR.prototype.sendMsg = function (msg, meta) {
+  OTR.prototype.sendMsg = function (msg) {
     if ( this.REQUIRE_ENCRYPTION ||
          this.msgstate !== CONST.MSGSTATE_PLAINTEXT
     ) {
       msg = CryptoJS.enc.Utf8.parse(msg)
       msg = msg.toString(CryptoJS.enc.Latin1)
     }
+    this._sendMsg(msg)
+  }
 
-    switch (this.msgstate) {
-      case CONST.MSGSTATE_PLAINTEXT:
-        if (this.REQUIRE_ENCRYPTION) {
-          this.storedMgs.push({msg: msg, meta: meta})
-          this.sendQueryMsg()
+  OTR.prototype._sendMsg = function (msg, internal) {
+    if (!internal) {  // a user or sm msg
+
+      switch (this.msgstate) {
+        case CONST.MSGSTATE_PLAINTEXT:
+          if (this.REQUIRE_ENCRYPTION) {
+            this.storedMgs.push(msg)
+            this.sendQueryMsg()
+            return
+          }
+          if (this.SEND_WHITESPACE_TAG && !this.receivedPlaintext) {
+            msg += CONST.WHITESPACE_TAG  // 16 byte tag
+            if (this.ALLOW_V3) msg += CONST.WHITESPACE_TAG_V3
+            if (this.ALLOW_V2) msg += CONST.WHITESPACE_TAG_V2
+          }
+          break
+        case CONST.MSGSTATE_FINISHED:
+          this.storedMgs.push(msg)
+          this.error('Message cannot be sent at this time.')
           return
-        }
-        if (this.SEND_WHITESPACE_TAG && !this.receivedPlaintext) {
-          msg += CONST.WHITESPACE_TAG  // 16 byte tag
-          if (this.ALLOW_V3) msg += CONST.WHITESPACE_TAG_V3
-          if (this.ALLOW_V2) msg += CONST.WHITESPACE_TAG_V2
-        }
-        break
-      case CONST.MSGSTATE_FINISHED:
-        this.storedMgs.push({msg: msg, meta: meta})
-        this.error('Message cannot be sent at this time.')
-        return
-      case CONST.MSGSTATE_ENCRYPTED:
-        msg = this.prepareMsg(msg)
-        break
-      default:
-        throw new Error('Unknown message state.')
-    }
+        default:
+          msg = this.prepareMsg(msg)
+      }
 
-    if (msg) this.io(msg, meta)
+    }
+    if (msg) this.io(msg)
   }
 
   OTR.prototype.receiveMsg = function (msg) {
@@ -622,7 +615,7 @@
           this.doAKE(msg)
     }
 
-    if (msg.msg) this.trigger('ui', [msg.msg, !!msg.encrypted])
+    if (msg.msg) this.trigger('ui', [msg.msg, msg.encrypted])
   }
 
   OTR.prototype.checkInstanceTags = function (it) {
@@ -656,7 +649,7 @@
     if (send) {
       if (!this.debug) err = "An OTR error has occurred."
       err = '?OTR Error:' + err
-      this.io(err)
+      this._sendMsg(err, true)
       return
     }
     this.trigger('error', [err])
@@ -664,9 +657,8 @@
 
   OTR.prototype.sendStored = function () {
     var self = this
-    ;(this.storedMgs.splice(0)).forEach(function (elem) {
-      var msg = self.prepareMsg(elem.msg)
-      self.io(msg, elem.meta)
+    ;(this.storedMgs.splice(0)).forEach(function (msg) {
+      self._sendMsg(msg)
     })
   }
 
@@ -692,7 +684,7 @@
     msg += l1name
 
     msg = this.prepareMsg(msg, filename)
-    this.io(msg)
+    if (msg) this._sendMsg(msg, true)
   }
 
   OTR.prototype.endOtr = function () {

@@ -1,6 +1,5 @@
 CC=gcc
-PWD=$(shell pwd)
-LIBOTR_DIR=$(PWD)/libotr
+LIBOTR_DIR=/tmp/libotr
 
 all: libotr build
 
@@ -20,6 +19,6 @@ build:
 		-o libotr_test_helper.out
 
 clean:
-	rm -rf libotr-3.2.0* libotr libotr_test_helper.out
+	rm -rf libotr-3.2.0* /tmp/libotr libotr_test_helper.out
 
 .PHONY: clean build libotr

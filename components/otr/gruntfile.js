@@ -87,18 +87,8 @@ module.exports = function (grunt) {
     })
   })
 
-  grunt.registerTask('copy_ww', function () {
-    var files = ['dsa-webworker.js', 'sm-webworker.js']
-      , src = 'lib/'
-      , dest = 'build/'
-    files.forEach(function (f) {
-      grunt.file.copy(src + f, dest + f)
-    })
-  })
-
   grunt.registerTask('otr', ['concat:otr', 'uglify:otr'])
   grunt.registerTask('dep', ['concat:cryptojs', 'copy_dep'])
-  grunt.registerTask('ww', ['copy_ww'])
-  grunt.registerTask('default', ['clean', 'otr', 'dep', 'ww'])
+  grunt.registerTask('default', ['clean', 'otr', 'dep'])
 
 }

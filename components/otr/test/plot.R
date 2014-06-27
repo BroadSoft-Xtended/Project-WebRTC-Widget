@@ -16,7 +16,7 @@ da = read.csv(
   col.names = c("time")
 )
 
-p <- qplot(
+qplot(
   time,
   data=da,
   geom="histogram",
@@ -24,7 +24,5 @@ p <- qplot(
   main="xxx",
   xlab="key generation time (ms)"
 )
-
-p + scale_x_continuous(limits = c(0000, 15000))
 
 print(hist_png_filename)

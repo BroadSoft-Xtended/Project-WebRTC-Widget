@@ -10,6 +10,8 @@
 This library hasn't been properly vetted by security researchers. Do not use
 in life and death situations!
 
+`Math.random()` is replaced by `salsa20.js`, seeded with either `window.crypto.getRandomValues()` in the [browser](https://developer.mozilla.org/en-US/docs/DOM/window.crypto.getRandomValues), or `crypto.randomBytes()` in [node.js](http://nodejs.org/api/crypto.html#crypto_crypto_randombytes_size_callback).
+
 ---
 
 ###Install
@@ -17,6 +19,7 @@ in life and death situations!
 Include the build files on the page,
 
     <!-- Load dependencies -->
+    <script src="build/dep/salsa20.js"></script>
     <script src="build/dep/bigint.js"></script>
     <script src="build/dep/crypto.js"></script>
     <script src="build/dep/eventemitter.js"></script>
@@ -34,30 +37,6 @@ And then,
 
     var DSA = require('otr').DSA
     var OTR = require('otr').OTR
-
----
-
-### Build
-
-The contents of `build/` are the result of calling `make build` and are only
-updated with releases. Please submit patches against `lib/` and `vendor/`.
-
----
-
-###Release
-
-The normal flow for making a release is as follows,
-
-    make test
-    // bump the version numbers in package.json / bower.json
-    make build
-    git changelog  // cleanup the changelog
-    git commit -m "bump version"
-    git tag -a vX.X.X -m "version X.X.X"
-    git push origin master
-    git push --tags
-    npm publish
-    // update github releases and pages
 
 ---
 
@@ -85,9 +64,8 @@ For each user you're communicating with, instantiate an OTR object.
       // encrypted === true, if the received msg was encrypted
     })
 
-    buddy.on('io', function (msg, meta) {
+    buddy.on('io', function (msg) {
       console.log("message to send to buddy: " + msg)
-      console.log("(optional) with sendMsg attached meta data: " + meta)
     })
 
     buddy.on('error', function (err) {
@@ -103,8 +81,7 @@ method.
 **Send a message to buddy**: Pass the message to the `sendMsg` method.
 
     var newmsg = "Message to userA."
-    var meta = "optional some meta data, like message id"
-    buddy.sendMsg(newmsg, meta)
+    buddy.sendMsg(newmsg)
 
 **Going encrypted**: Initially, messages are sent in plaintext. To manually
 initiate the authenticated key exchange.
@@ -326,28 +303,6 @@ On the other end,
 
 ---
 
-### WebWorkers
-
-Some support exists for calling computationally expensive work off the main
-thread. However, some feedback on these APIs would be appreciated.
-
-    // generate a DSA key in a web worker
-    DSA.createInWebWorker(null, function (key) {
-			var buddy = new OTR({
-				priv: key,
-				// setting `smw` to a truthy value will perform the socialist
-				// millionaire protocol in a webworker.
-				smw: {}
-			})
-	  })
-
-WebWorkers don't have access to `window.crypto.getRandomValues()`, so they will
-need to include Salsa20.
-
-    <script src="build/dep/salsa20.js"></script>
-
----
-
 ###Links
 
 Spec:
@@ -374,15 +329,12 @@ A sampling of projects that use this library:
 - [Diaspora](https://github.com/sualko/diaspora)
 - [Converse.js](https://github.com/jcbrand/converse.js)
 - [WebRTCCopy](https://github.com/erbbysam/webRTCCopy)
-- [OTRon](https://github.com/osnr/otron)
-- [ojsxc (owncloud)](https://github.com/sualko/ojsxc)
-- [sjsxc (SOGo)](https://github.com/sualko/sjsxc)
 
 ---
 
 ###Donate
 
-Bitcoins: 17wERkMaW4ueVLMyiSH7XS91Rj4Xodnntq
+Bitcoins: 139WGwU6pXvXQnEvCD9j967gUmgW85DLec
 
 ---
 
