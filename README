@@ -95,6 +95,7 @@ The following options exist
     P-Asserted-Identity:  The user portion is taken from the networkUserId client variable.
     The “user=phone URI parameter is added to the request-URI, From, To, and P-Asserted-Identity.
   enableWhiteboard: enables the whiteboard
+  enableFileShare: enables the file share
   enableScreenSharing: enables the screen sharing button
   enableXMPP: enables XMPP chat
   enableSMS: enables SMS

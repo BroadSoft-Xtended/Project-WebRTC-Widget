@@ -163,7 +163,8 @@
         'ws_servers': this.websocketsServers,
         'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
         'trace_sip': this.debug,
-        'enable_ims': this.enableIms
+        'enable_ims': this.enableIms,
+        'enable_datachannel': this.enableWhiteboard || this.enableFileShare
       };
 
       // Add Display Name if set

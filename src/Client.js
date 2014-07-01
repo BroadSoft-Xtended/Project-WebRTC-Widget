@@ -76,7 +76,7 @@
     this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack, this.configuration);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack, this.configuration);
     this.whiteboard = new WebRTC.Whiteboard(this, this.client.find(".whiteboard"), this.eventBus, this.sipStack);
-    this.fileShare = new WebRTC.FileShare(this, this.eventBus, this.sipStack);
+    this.fileShare = new WebRTC.FileShare(this, this.client.find(".file_share"), this.eventBus, this.sipStack);
     this.authentication = new WebRTC.Authentication(this.client.find(".authPopup"), this.eventBus, {
       onAuthenticate: function(data) {
         self.sipStack.init(data.userId, data.password);
@@ -854,15 +854,19 @@
       {
         classes.push("view-"+this.configuration.getView());
       }
+      if (this.configuration.enableScreenSharing)
+      {
+        classes.push("enable-screen-sharing");
+      }
+      if (this.configuration.enableFileShare)
+      {
+        classes.push("enable-file-share");
+      }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }
       if(this.selfViewEnabled) { classes.push("self-view-enabled"); } else { classes.push("self-view-disabled"); }
       if(this.dialpadShown) { classes.push("dialpad-shown"); } else { classes.push("dialpad-hidden"); }
       if(this.fullScreen) { classes.push("full-screen-expanded"); } else { classes.push("full-screen-contracted"); }
-      if (ClientConfig.enableScreenSharing)
-      {
-        classes.push("enable-screen-sharing");
-      }
       if(this.isScreenSharing) { classes.push("screen-sharing"); } else { classes.push("screen-sharing-off"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }
       if(this.authentication.visible) { classes.push("auth-visible"); } else { classes.push("auth-hidden"); }

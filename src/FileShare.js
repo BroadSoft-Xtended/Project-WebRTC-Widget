@@ -12,8 +12,8 @@
       ACTION_RECEIVED: 'received'
     };
 
-  FileShare = function (client, eventBus, sipStack) {
-    this.ui = $('#file_share');
+  FileShare = function (client, element, eventBus, sipStack) {
+    this.ui = element;
     this.fileInput = this.ui.find('input[type="file"]');
     this.status = this.ui.find('.status');
 

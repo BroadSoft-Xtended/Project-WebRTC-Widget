@@ -994,7 +994,7 @@ body {
 .enable-hold.started.held .resume,
 .enable-screen-sharing.screen-sharing-off .shareScreen,
 .enable-screen-sharing.screen-sharing .stopShareScreen,
-.started .file_share
+.enable-file-share.started .file_share
 {
     transition: all 1s linear;
     opacity: 1;
@@ -1031,7 +1031,8 @@ body {
 .reInvite-done .reInvitePopup,
 .client.held .hold, .client:not(.started) .hold,
 .client:not(.held) .resume, .client:not(.started) .resume,
-.client:not(.started) .timer
+.client:not(.started) .timer,
+.client:not(.started) .file_share
 {
     transition: all 1s linear;
     opacity: 0;
