@@ -143,7 +143,7 @@ module.exports = function(grunt) {
           'components/strophe.disco/index.js', 'components/underscore/underscore.js', 'components/backbone/backbone.js',
           'components/backbone.localStorage/backbone.localStorage.js',
           'components/tinysort/src/jquery.tinysort.js',
-          'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/FileSaver.js']
+          'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/FileSaver.js', 'js/sketch.js', 'js/converse.js', 'js/jquery.xhr.js']
         }
       },
       options: {
@@ -191,7 +191,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           pageTemplate: "test/includes/qunit-page.tpl",
-          includeFiles: ["js/3rdparty.js", "js/sketch.js", "js/exsip.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          includeFiles: ["js/3rdparty.js", "js/exsip.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
           testFiles: ["test/test-*.js"],
           templateFiles: "index.html",
           qunitCss: "stylesheet.css",
