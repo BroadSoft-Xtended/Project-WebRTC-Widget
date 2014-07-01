@@ -1,0 +1,19 @@
+{
+  "name": "otr",
+  "version": "0.2.7",
+  "main": "build/otr.js",
+  "ignore": [
+    "**/.*",
+    "node_modules"
+  ],
+  "homepage": "https://github.com/arlolra/otr",
+  "_release": "0.2.7",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.2.7",
+    "commit": "46a342c643e2bd2a195706ac7be22bd7faf59889"
+  },
+  "_source": "git://github.com/arlolra/otr.git",
+  "_target": "0.2.7",
+  "_originalSource": "otr"
+}

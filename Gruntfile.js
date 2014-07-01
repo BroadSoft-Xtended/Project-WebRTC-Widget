@@ -5,12 +5,15 @@ module.exports = function(grunt) {
   var srcFiles = [
     'src/WebRTC.js',
     'src/EventBus.js',
+    'src/DateFormat.js',
     'src/Configuration.js',
     'src/Settings.js',
     'src/History.js',
     'src/Transfer.js',
     'src/Constants.js',
     'src/Timer.js',
+    'src/FileShare.js',
+    'src/Whiteboard.js',
     'src/Stats.js',
     'src/Utils.js',
     'src/Sound.js',
@@ -18,6 +21,9 @@ module.exports = function(grunt) {
     'src/SIPStack.js',
     'src/Icon.js',
     'src/Authentication.js',
+    'src/XMPP.js',
+    'src/SMSProvider.js',
+    'src/SMS.js',
     'src/Client.js'
   ];
 
@@ -112,7 +118,12 @@ module.exports = function(grunt) {
           "detect": true,
           "ClientConfig": true,
           "addStats": true,
-          "getDataSeriesByLabel": true
+          "getDataSeriesByLabel": true,
+          "chrome": true,
+          "require": true,
+          "locales": true,
+          "converse": true,
+          "flensed": true
         }
       },
       globals: {}
@@ -122,7 +133,17 @@ module.exports = function(grunt) {
         files: {
           'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
           'js/3rdparty.js': ['js/jquery-1.11.0.js', 'js/jquery-cookie-1.3.1.js', 'js/jquery-ui-1.10.3.custom.js',
-           'js/stats.js','js/detect-2.1.5.js']
+            'js/stats.js', 'js/detect-2.1.5.js', 'components/otr/build/dep/salsa20.js', 'components/otr/build/dep/bigint.js',
+          'components/otr/vendor/cryptojs/core.js', 'components/otr/vendor/cryptojs/enc-base64.js', 'components/crypto-js-evanvosberg/src/md5.js',
+          'components/crypto-js-evanvosberg/src/evpkdf.js', 'components/otr/vendor/cryptojs/cipher-core.js',
+          'components/otr/vendor/cryptojs/aes.js', 'components/otr/vendor/cryptojs/sha1.js', 'components/otr/vendor/cryptojs/sha256.js',
+          'components/otr/vendor/cryptojs/hmac.js', 'components/otr/vendor/cryptojs/pad-nopadding.js', 'components/otr/vendor/cryptojs/mode-ctr.js',
+          'components/otr/build/dep/eventemitter.js', 'components/otr/build/otr.js', 'components/strophe/strophe.js',
+          'components/strophe.roster/index.js', 'components/strophe.muc/index.js', 'components/strophe.vcard/index.js',
+          'components/strophe.disco/index.js', 'components/underscore/underscore.js', 'components/backbone/backbone.js',
+          'components/backbone.localStorage/backbone.localStorage.js',
+          'components/tinysort/src/jquery.tinysort.js',
+          'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/FileSaver.js']
         }
       },
       options: {
@@ -170,7 +191,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           pageTemplate: "test/includes/qunit-page.tpl",
-          includeFiles: ["js/3rdparty.js", "js/exsip.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          includeFiles: ["js/3rdparty.js", "js/sketch.js", "js/exsip.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
           testFiles: ["test/test-*.js"],
           templateFiles: "index.html",
           qunitCss: "stylesheet.css",

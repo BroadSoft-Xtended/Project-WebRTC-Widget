@@ -118,6 +118,14 @@ TestWebrtc.Helpers = {
     WebRTC.Sound.prototype.pause = function(){console.log('pause');}
   },
 
+  mockSMSProvider: function(){
+    WebRTC.SMSProvider.prototype.remove = function(){console.log('remove');}
+    WebRTC.SMSProvider.prototype.sendSMS = function(){console.log('sendSMS');}
+    WebRTC.SMSProvider.prototype.login = function(){console.log('login');}
+    WebRTC.SMSProvider.prototype.readAll = function(){console.log('readAll');}
+    WebRTC.SMSProvider.prototype.getUpdate = function(){console.log('getUpdate');}
+  },
+
   mockLocation: function(){
     WebRTC.Settings.prototype.reload = function(){console.log('reloaded');}
     window.location.reload = function(){console.log('reloaded');}

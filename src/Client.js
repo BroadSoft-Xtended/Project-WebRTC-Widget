@@ -43,6 +43,10 @@
     this.historyClose = this.client.find(".historyClose");
     this.callHistory = this.client.find(".callHistory");
     this.callStats = this.client.find(".callStats");
+    this.shareScreen = this.client.find( ".shareScreen" );
+    this.stopShareScreen = this.client.find( ".stopShareScreen" );
+    this.screenSharingUnsupported = this.client.find( ".screen_sharing_unsupported" );
+
 
     if(!config && typeof(ClientConfig) === 'undefined') {
       $('#unsupported').text("Could not read ClientConfig - make sure it is included and properly formatted");
@@ -64,11 +68,15 @@
         self.validateUserMediaResolution();
       }
     });
+    this.xmpp = new WebRTC.XMPP(this, this.eventBus);
+    this.sms = new WebRTC.SMS(this, this.client.find(".sms"), this.eventBus, this.sound);
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
     this.stats = new WebRTC.Stats(this, this.sipStack, this.configuration);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack, this.configuration);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack, this.configuration);
+    this.whiteboard = new WebRTC.Whiteboard(this, this.client.find(".whiteboard"), this.eventBus, this.sipStack);
+    this.fileShare = new WebRTC.FileShare(this, this.eventBus, this.sipStack);
     this.authentication = new WebRTC.Authentication(this.client.find(".authPopup"), this.eventBus, {
       onAuthenticate: function(data) {
         self.sipStack.init(data.userId, data.password);
@@ -83,6 +91,7 @@
     this.selfViewEnabled = true;
     this.dialpadShown = false;
     this.muted = false;
+    this.isScreenSharing = false;
 
     this.configuration.setSettings(this.settings);
 
@@ -98,6 +107,12 @@
       if(unsupported)
       {
         $('#unsupported').html(unsupported).show();
+      }
+
+      var whiteboardUnsupported = WebRTC.Utils.whiteboardCompabilityCheck();
+      if(whiteboardUnsupported)
+      {
+        $('#whiteboard_unsupported').html(whiteboardUnsupported).show();
       }
 
       // Allow some windows to be draggable, required jQuery.UI
@@ -384,6 +399,29 @@
       return rtcSession.remote_identity.uri.user || rtcSession.remote_identity.uri.host;
     },
 
+    enableScreenSharing: function(enabled) {
+      var self = this;
+      this.isScreenSharing = enabled;
+      this.updateClientClass();
+      if(enabled) {
+        var onShareScreenSuccess = function(localMedia){
+          localMedia.onended = function(){
+            self.enableScreenSharing(false);
+          };
+        };
+        var onShareScreenFailure = function(e){
+          // no way to distinguish between flag not enabled or simply rejected enabling screen sharing
+          if(e) {
+            self.screenSharingUnsupported.show();
+          }
+          self.enableScreenSharing(false);
+        };
+        self.sipStack.reconnectUserMedia(onShareScreenSuccess, onShareScreenFailure);
+      } else {
+        self.sipStack.reconnectUserMedia();
+      }
+    },
+
     registerListeners: function() {
       var self = this;
 
@@ -550,6 +588,19 @@
       });
 
       // Buttons
+      this.shareScreen.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.enableScreenSharing(true);
+      });
+      this.stopShareScreen.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.enableScreenSharing(false);
+      });
+
       this.callButton.bind('click', function(e)
       {
         e.preventDefault();
@@ -675,6 +726,15 @@
         {
           self.stats.toggle();
         }
+        else if (e.charCode === 84)
+        {
+          self.sms.toggle();
+        }
+        // toggle whiteboard
+        else if (e.charCode === 87)
+        {
+          self.whiteboard.toggle();
+        }
         else if (e.charCode === 72)
         {
           self.history.toggle();
@@ -799,6 +859,11 @@
       if(this.selfViewEnabled) { classes.push("self-view-enabled"); } else { classes.push("self-view-disabled"); }
       if(this.dialpadShown) { classes.push("dialpad-shown"); } else { classes.push("dialpad-hidden"); }
       if(this.fullScreen) { classes.push("full-screen-expanded"); } else { classes.push("full-screen-contracted"); }
+      if (ClientConfig.enableScreenSharing)
+      {
+        classes.push("enable-screen-sharing");
+      }
+      if(this.isScreenSharing) { classes.push("screen-sharing"); } else { classes.push("screen-sharing-off"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }
       if(this.authentication.visible) { classes.push("auth-visible"); } else { classes.push("auth-hidden"); }
       this.client.attr("class", classes.join(" "));

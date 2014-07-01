@@ -29,6 +29,8 @@
     };
 
   Configuration = function(eventBus, configObj) {
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Configuration');
+
     logger.log('window.location.search : '+window.location.search, this);
     logger.log('configuration options : '+ExSIP.Utils.toString(configObj), this);
     jQuery.extend(this, configObj);
@@ -107,8 +109,15 @@
           OfferToReceiveVideo: !this.isAudioOnlyView() && this.offerToReceiveVideo
         }}
       };
-
       return options;
+    },
+
+    getMediaConstraints: function(){
+      if(this.client.isScreenSharing) {
+        return { video: { mandatory: { chromeMediaSource: 'screen' }}};
+      } else {
+        return { audio: true, video: this.getVideoConstraints() };
+      }
     },
 
     getVideoConstraints: function(){

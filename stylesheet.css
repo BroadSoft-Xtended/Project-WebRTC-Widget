@@ -166,7 +166,7 @@ body {
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume {
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume, .icon-screen-sharing, .icon-screen-sharing-off {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -373,6 +373,11 @@ body {
   opacity: .4;
 }
 
+#videoBar #settings {
+    width: auto;
+    background-color: transparent;
+}
+
 /* Settings Button */
 .icon-settings:before {
   content: "\e00c";
@@ -462,24 +467,46 @@ body {
 
 /* Hold Button */
 .icon-hold:before {
-  content: "\e015";
-  color: #FFFFFF;
+    content: "\e015";
+    color: #FFFFFF;
 }
 
 .icon-hold:hover:before {
-  content: "\e015";
-  color: #EFA233;
+    content: "\e015";
+    color: #EFA233;
 }
 
 /* Resume Button */
 .icon-resume:before {
-  content: "\e016";
-  color: #FFFFFF;
+    content: "\e016";
+    color: #FFFFFF;
 }
 
 .icon-resume:hover:before {
-  content: "\e016";
-  color: #EFA233;
+    content: "\e016";
+    color: #EFA233;
+}
+
+/* Screen Sharing Button */
+.icon-screen-sharing:before {
+    content: "\e604";
+    color: #FFFFFF;
+}
+
+.icon-screen-sharing:hover:before {
+    content: "\e604";
+    color: #EFA233;
+}
+
+/* Stop Screen Sharing Button */
+.icon-screen-sharing-off:before {
+    content: "\e605";
+    color: #FFFFFF;
+}
+
+.icon-screen-sharing-off:hover:before {
+    content: "\e605";
+    color: #EFA233;
 }
 
 .button:active {
@@ -857,6 +884,16 @@ body {
   color: white;
   z-index: 10;
 }
+#whiteboard_unsupported, #screen_sharing_unsupported {
+    position:relative;
+    top:0px;
+    left:0px;
+    margin: 10px;
+    background: red;
+}
+#screen_sharing_unsupported {
+    display:none;
+}
 
 .stats-table-container, .stats-graph-sub-container {
     display: none;
@@ -954,7 +991,10 @@ body {
 .enable-transfer.started .transfer,
 .enable-timer.started .timer,
 .client:not(.held).enable-hold.started .hold,
-.enable-hold.started.held .resume
+.enable-hold.started.held .resume,
+.enable-screen-sharing.screen-sharing-off .shareScreen,
+.enable-screen-sharing.screen-sharing .stopShareScreen,
+.started .file_share
 {
     transition: all 1s linear;
     opacity: 1;
@@ -970,6 +1010,7 @@ body {
     opacity: 1;
     z-index: 100;
 }
+.enable-screen-sharing.screen-sharing .shareScreen, .enable-screen-sharing.screen-sharing-off .stopShareScreen,
 .enable-mute.connected .muteAudioIcon, .enable-mute.disconnected .muteAudioIcon,
 .enable-mute.connected .unmuteAudioIcon, .enable-mute.disconnected .unmuteAudioIcon,
 .enable-mute.muted .muteAudioIcon, .enable-mute.unmuted .unmuteAudioIcon,
@@ -1055,4 +1096,125 @@ body {
 .view-audioOnly .dialpad {
     top: 60px;
     left: 0;
+}
+.whiteboard {
+    display: none;
+    position: absolute;
+    top: 40px;
+    left: 378px;
+}
+.whiteboard canvas {
+    border-radius: 4px;
+    border: 2px solid #DDDDDD;
+    box-shadow: 0px 0px 10px #999999;
+}
+.sms {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.sms .smsView {
+    padding: 10px;
+    border-radius: 4px;
+    border: 2px solid #DDDDDD;
+    box-shadow: 0px 0px 10px #999999;
+}
+.sms .smsLoginForm {
+    width: 250px;
+}
+.sms .smsSendForm {
+    width: 600px;
+    display:none;
+}
+.sms .smsSendBody {
+    width:339px
+}
+.sms .smsInbox {
+    width: 600px;
+    display:none;
+}
+.sms .smsInbox .inner{
+    max-height: 250px;
+    overflow: auto;
+}
+.sms .smsInbox .cell{
+    padding: 5px;
+}
+.sms .smsInbox .from{
+    width:100px
+}
+.sms .smsInbox .status{
+    width:50px
+}
+.sms .smsInbox .time{
+    width:135px
+}
+.sms .smsInbox .body{
+    word-wrap: break-word;
+}
+.sms .smsInbox .body > div{
+    display:none;
+}
+.sms .smsInbox .sms-inbox-item.image .body .image span{
+    margin-right: 5px;
+}
+.sms .smsInbox .sms-inbox-item.text .body .text, .sms .smsInbox .sms-inbox-item.image .body .image,
+.sms .smsInbox .sms-inbox-item.video .body .video, .sms .smsInbox .sms-inbox-item.audio .body .audio{
+    display:block;
+}
+.sms .smsInbox .sms-inbox-item.audio .body .audio audio,
+.sms .smsInbox .sms-inbox-item.video .body .video video{
+    width:100%;
+}
+.sms .smsInbox .actions{
+    width:15px;
+}
+.sms .smsInbox .icon-trash{
+    font-size:15px
+}
+.sms .smsStatus {
+    display:none;
+    text-align: right;
+}
+.sms .smsStatus .content{
+    text-align: right;
+    border: 1px solid #c3c3c3;
+    background-color: #e3e2e2;
+    font-size: 70%;
+    padding: 1px 3px;
+    border-top: 0px;
+    margin-right: 15px;
+    border-bottom-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.sms .smsStatus.error{
+    color: red;
+}
+.simple_sketch {
+    background-color:white;
+}
+.tools {
+    padding-bottom: 10px;
+}
+.tools a {
+    border: 1px solid black;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+    vertical-align: middle;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    color: black;
+    font-weight: bold;
+}
+.tools a.selected {
+    border-color: red;
+    border-width: 3px;
+}
+
+[id$="sample"]{
+    display:none !important;
 }

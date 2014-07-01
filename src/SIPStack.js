@@ -94,6 +94,24 @@
       }
     },
 
+    reconnectUserMedia: function(successCallback, failureCallback){
+      var self = this;
+      var onUserMediaUpdateSuccess = function(localMedia) {
+        logger.log("reconnect user media successful", self.configuration);
+        if(self.activeSession) {
+          self.activeSession.changeSession({localMedia: localMedia}, function(){
+            console.log("session changed successfully");
+            if(successCallback) {
+              successCallback(localMedia);
+            }
+          }, failureCallback);
+        } else if (successCallback) {
+          successCallback(localMedia);
+        }
+      };
+      this.updateUserMedia(onUserMediaUpdateSuccess, failureCallback);
+    },
+
     call: function(destination){
       var self = this;
       var session = this.ua.call(destination, this.configuration.getExSIPOptions());
@@ -110,6 +128,12 @@
 
     isStarted: function() {
       return this.getCallState() === C.STATE_STARTED;
+    },
+
+    sendData: function(data) {
+      if(this.activeSession) {
+        this.activeSession.sendData(data);
+      }
     },
 
     transfer: function(transferTarget, isAttended) {
@@ -148,7 +172,7 @@
       }
     },
 
-    updateUserMedia: function(userMediaCallback){
+    updateUserMedia: function(userMediaCallback, failureCallback){
       var self = this;
       if(this.configuration.enableConnectLocalMedia || this.activeSession) {
         // Connect to local stream
@@ -168,8 +192,11 @@
           if(userMediaCallback) {
             userMediaCallback(localStream);
           }
-        }, function(){
+        }, function(e){
           self.eventBus.message(this.configuration.messageGetUserMedia || "Get User Media Failed", "alert");
+          if(failureCallback) {
+            failureCallback(e);
+          }
         }, true);
       }
     },
@@ -261,6 +288,14 @@
         session.on('newDTMF', function(e)
         {
           self.eventBus.newDTMF(e.sender, e.data);
+        });
+        session.on('dataSent', function(e)
+        {
+          self.eventBus.dataSent(e.sender, e.data);
+        });
+        session.on('dataReceived', function(e)
+        {
+          self.eventBus.dataReceived(e.sender, e.data);
         });
         // handle incoming call
         if (e.data.session.direction === "incoming")

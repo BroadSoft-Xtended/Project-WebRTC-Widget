@@ -94,6 +94,12 @@ The following options exist
   enableIms: This feature enables the following for operation in an IMS environment.
     P-Asserted-Identity:  The user portion is taken from the networkUserId client variable.
     The “user=phone URI parameter is added to the request-URI, From, To, and P-Asserted-Identity.
+  enableWhiteboard: enables the whiteboard
+  enableScreenSharing: enables the screen sharing button
+  enableXMPP: enables XMPP chat
+  enableSMS: enables SMS
+  smsHost: sets the SMS host to connect to
+  smsUser: user for the SMS service
 
   volumeClick: Sets the audio volume for the click tone. Can be any￼value from 0 to 1
   volumeDTMF: Sets the DTMF tone volume. Can be any value from 0 to 1.
