@@ -1,0 +1,38 @@
+{
+  "name": "webrtc",
+  "title": "webrtc",
+  "description": "the broadsoft webrtc client",
+  "version": "0.1.0",
+  "homepage": "http://exsip.net",
+  "author": "Dominik Steiner",
+  "keywords": [
+    "sip",
+    "websocket",
+    "webrtc",
+    "library"
+  ],
+  "dependencies": {
+    "grunt": "0.4.4",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-concat": "0.4.0",
+    "grunt-include-replace": "1.2.0",
+    "grunt-contrib-uglify": "0.4.0",
+    "grunt-contrib-jshint": "0.9.2",
+    "grunt-contrib-copy": "0.5.0",
+    "grunt-notify": "0.2.20",
+    "pegjs": "0.8.0",
+    "node-minify": "0.10.2"
+  },
+  "devDependencies": {
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-contrib-qunit": "0.2.2",
+    "grunt-qunit-serverless": "0.2.6"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "grunt travis --verbose"
+  }
+}

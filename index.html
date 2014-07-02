@@ -1,0 +1,405 @@
+<!--***************************************************
+* Created on Mon Jan 14 15:32:43 GMT 2013 by:
+*
+* Copyright 2014 BroadSoft, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+***************************************************-->
+
+<html>
+
+<head>
+  <title>BroadSoft WebRTC Client</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="Author" content="Nathan Stratton"/>
+  <link rel="stylesheet" href="stylesheet.css" type="text/css"/>
+  <script src="js/3rdparty.js" type="text/javascript"></script>
+  <script src="js/exsip.js" type="text/javascript"></script>
+  <script src="js/client-config.js" type="text/javascript"></script>
+  <script src="js/webrtc.js" type="text/javascript"></script>
+  <script type="text/javascript">
+      $(document).ready(function(){
+        client = new WebRTC.Client();
+      });
+  </script>
+</head>
+
+<body>
+
+<div id="unsupported" class="unsupported"></div>
+
+<noscript>
+  <div class="unsupported" style="display:block;background-color:white;color:black;">
+  JavaScript must be enabled to load the WebRTC client
+  </div>
+</noscript>
+
+<div id="client" class="client">
+  <div class="authPopup fadeable popup">
+    <span>Username</span><br>
+    <input class="username" type=text value=""/><br>
+    <span>Password</span><br>
+    <input class="password" type="password" value=""/><br>
+    <br>
+    <div class="alert"></div>
+    <button class="authPopupButton button" type="button">Sign in</button>
+  </div>
+
+  <div class="callControl">
+    <span>Enter Destination URI:</span><br>
+    <input class="destination" type=text value=""/>
+    <div class="call fadeable">
+      <a href="" title="Call" class="icon-call"></a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="errorPopup"></div>
+    <div class="callPopup fadeable popup">
+      <span>Incoming Call</span><br><br>
+      <span class="incomingCallName"></span><br>
+      <span class="incomingCallUser"></span><br><br>
+      <div class="table">
+          <div class="cell">
+              <button class="acceptIncomingCall button" type="button">Accept</button>
+              <button class="holdAndAnswerButton button" type="button">Hold And Answer</button><br>
+              <button class="dropAndAnswerButton button" type="button">Drop And Answer</button>
+          </div>
+          <div class="cell" style="text-align:right;">
+              <button class="rejectIncomingCall button" type="button">Reject</button>
+          </div>
+      </div>
+    </div>
+    <div class="reInvitePopup fadeable popup">
+      <span class="title">ReInvite</span><br><br>
+      <span class="incomingCallName"></span><br>
+      <span class="incomingCallUser"></span><br><br>
+      <button class="acceptReInviteCall button" type="button">Accept</button>
+      <button class="rejectReInviteCall button" type="button">Reject</button>
+    </div>
+    <div class="transferPopup fadeable popup">
+      <div class="title">Transfer</div>
+      <div>
+          <input type="text" placeholder="To Target" class="transferTarget">
+          <input type="checkbox" class="transferTypeAttended">Attended
+      </div>
+      <div class="actions">
+          <button class="acceptTransfer button" type="button">Transfer</button>
+          <button class="rejectTransfer button" type="button">Cancel</button>
+      </div>
+    </div>
+    <div class="settingsPopup table collapse fixed fadeable popup">
+      <span class="row" style="font-size: 22px; font-weight: bold; color: #FFFFFF;">Client Settings</span>
+      <div class="row" style="height: 15px;"></div>
+      <div class="settingDisplayNameRow row">
+          <span class="cell" style="width:250px">Display Name</span>
+          <input class="settingDisplayName cell" type="text" value=""/>
+      </div>
+      <div class="settingUseridRow row">
+          <span class="cell">User ID</span>
+          <input class="settingUserid cell" type="text" value=""/>
+      </div>
+      <div class="settingAuthenticationUseridRow row">
+          <span class="cell">Authentication User ID</span>
+          <input class="settingAuthenticationUserid cell" type="text" value=""/>
+      </div>
+      <div class="settingPasswordRow row">
+          <span class="cell">Password</span>
+          <input class="settingPassword cell" type="password" value=""/>
+      </div>
+      <div class="settingSelfViewDisableRow row">
+          <span class="cell">Disable Self View</span>
+          <input class="settingSelfViewDisable cell" type="checkbox"/>
+      </div>
+      <div class="settingHDRow row">
+          <span class="cell">Start in HD</span>
+          <input class="settingHD cell" type="checkbox"/><br>
+      </div>
+      <div class="settingBandwidthRow row">
+        <span class="cell">Bandwidth</span>
+        <span class="cell">
+          <input class="settingBandwidthLow short" type="text" maxlength="4" value="" placeholder="low"/>
+          <input class="settingBandwidthMed short" type="text" maxlength="4" value="" placeholder="medium"/>
+          <input class="settingBandwidthHigh short" type="text" maxlength="4" value="" placeholder="high"/>
+        </span>
+      </div>
+      <div class="row">
+          <span class="cell">Window Zoom</span>
+          <input class="settingZoom cell short" type="text" maxlength="4" value=""/>
+      </div>
+      <div class="settingAutoAnswerRow row">
+          <span class="cell">Auto Answer</span>
+          <input class="settingAutoAnswer cell" type="checkbox"/>
+      </div>
+      <div class="row">
+          <span class="cell">Self View Window</span>
+          <span class="cell">
+              <input class="settingLocalVideoTop short" type="text" maxlength="4" value=""/><span> top </span>
+              <input class="settingLocalVideoLeft short" type="text" maxlength="4" value=""/><span> left </span>
+          </span>
+      </div>
+      <div class="row">
+          <span class="cell">Call History Window</span>
+          <span class="cell">
+              <input class="settingCallHistoryTop short" type="text" maxlength="4" value=""/><span> top </span>
+              <input class="settingCallHistoryLeft short" type="text" maxlength="4" value=""/><span> left </span>
+          </span>
+      </div>
+      <div class="row">
+          <span class="cell">Call Stats Window</span>
+          <span class="cell">
+              <input class="settingCallStatsTop short" type="text" maxlength="4" value=""/><span> top </span>
+              <input class="settingCallStatsLeft short" type="text" maxlength="4" value=""/><span> left </span>
+          </span>
+      </div>
+      <div class="row">
+          <span class="cell">Page Color</span>
+          <input class="settingColor cell" type="color" /><br>
+      </div>
+      <div class="settingResolutionRow row">
+        <span class="cell">Resolution</span>
+        <span class="cell">
+            <span class="settingResolutionTypeRow">
+              <select class="resolutionTypeSelect"></select> type<br>
+            </span>
+            <span class="settingResolutionDisplayRow">
+              <select class="resolutionDisplayStandardSelect resolutionSubType"></select>
+              <select class="resolutionDisplayWidescreenSelect resolutionSubType"></select> display<br>
+            </span>
+            <span class="settingResolutionEncodingRow">
+              <select class="resolutionEncodingStandardSelect resolutionSubType"></select>
+              <select class="resolutionEncodingWidescreenSelect resolutionSubType"></select> encoding<br>
+            </span>
+        </span>
+      </div>
+      <div class="row">
+          <span class="cell"></span>
+          <span class="cell">
+            <a href="" title="Save Settings" class="saveSettings icon-ok"></a>
+            <a href="" title="Clear Settings" class="clear">Clear Settings</a>
+          </span>
+      </div>
+    </div>
+    <div class="video">
+      <video class="remoteVideo" autoplay="autoplay"></video>
+      <video autoplay="autoplay" muted="true" class="localVideo fadeable"></video>
+    </div>
+    <div class="videoBar">
+        <div class="table fixed collapse">
+          <div class="row">
+            <div class="cell cell-fullScreen">
+                <div class="fullScreenExpand icon fadeable">
+                    <a href="" title="Expand Full Screen" class="icon-fullScreenExpand"></a>
+                </div>
+                <div class="fullScreenContract icon fadeable">
+                    <a href="" title="Contract Full Screen" class="icon-fullScreenContract"></a>
+                </div>
+            </div>
+            <div class="cell cell-selfView">
+                <div class="selfViewDisable icon fadeable">
+                    <a href="" title="Disable Self View" class="icon-selfViewDisable"></a>
+                </div>
+                <div class="selfViewEnable icon fadeable">
+                    <a href="" title="Enable Self View" class="icon-selfViewEnable"></a>
+                </div>
+            </div>
+            <div class="cell cell-dialpad">
+                <div class="dialpadIconShow icon fadeable">
+                    <a href="" title="Show Dialpad" class="icon-dialpadShow"></a>
+                </div>
+                <div class="dialpadIconHide icon fadeable">
+                    <a href="" title="Hide Dialpad" class="icon-dialpadHide"></a>
+                </div>
+            </div>
+            <div class="cell cell-muteAudio">
+                <div class="icon fadeable muteAudioIcon">
+                    <a href="" title="Mute Audio" class="icon-muteAudio"></a>
+                </div>
+                <div class="icon fadeable unmuteAudioIcon">
+                    <a href="" title="Unmute Audio" class="icon-unmuteAudio"></a>
+                </div>
+            </div>
+            <div class="cell cell-hold">
+                <div class="hold icon fadeable">
+                    <a href="" title="Hold Call" class="icon-hold"></a>
+                </div>
+                <div class="resume icon fadeable">
+                    <a href="" title="Resume Call" class="icon-resume"></a>
+                </div>
+            </div>
+            <div class="cell cell-transfer">
+                <div class="transfer icon fadeable">
+                    <a href="" title="Transfer" class="icon-transfer"></a>
+                </div>
+            </div>
+            <div class="cell cell-timer" style="position:relative;top:0;left:0;width:auto;">
+                <div class="timer fadeable"></div>
+                <div class="messages"></div>
+            </div>
+            <div class="cell cell-settings">
+                <div class="settings icon fadeable">
+                    <span title="Settings" class="icon-settings"></span>
+                </div>
+            </div>
+            <div class="cell cell-hangup" style="width:42px;">
+                <div class="hangup icon fadeable">
+                    <a href="" title="Hangup" class="icon-hangup"></a>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="connected-icon">
+      <span title="Websockets Status" class="icon-link"></span>
+    </div>
+    <div class="registered-icon">
+      <span title="Registered" class="icon-link"></span>
+    </div>
+    <div class="quality1">
+      <span title="Call Quality" class="icon-quality1"></span>
+    </div>
+    <div class="quality2">
+      <span title="Call Quality" class="icon-quality2"></span>
+    </div>
+    <div class="quality3">
+      <span title="Call Quality" class="icon-quality3"></span>
+    </div>
+    <div class="quality4">
+      <span title="Call Quality" class="icon-quality4"></span>
+    </div>
+    <div class="dialpad fadeable popup">
+      <div>
+        <button>1</button>
+        <button>2</button>
+        <button>3</button>
+      </div>
+      <div>
+        <button>4</button>
+        <button>5</button>
+        <button>6</button>
+      </div>
+      <div>
+        <button>7</button>
+        <button>8</button>
+        <button>9</button>
+      </div>
+      <div>
+        <button>*</button>
+        <button>0</button>
+        <button>#</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="callHistory">
+      <div class="content">
+
+      </div>
+    <div class="historyBack">
+      <a href="" title="Previous" class="icon-left"></a>
+    </div>
+    <div class="historyClear">
+      <a href="" title="Clear History" class="icon-trash"></a>
+    </div>
+    <div class="historyClose">
+      <a href="" title="Close" class="icon-ok"></a>
+    </div>
+    <div class="historyForward">
+      <a href="" title="Next" class="icon-right"></a>
+    </div>
+      <div class="callHistoryDetails popup">
+          <div class="table">
+              <div class="row">
+                  <div class="cell">Resolution In : </div><div class="resolutionIn cell"></div>
+              </div>
+              <div class="row">
+                  <div class="cell">Resolution Out : </div><div class="resolutionOut cell"></div>
+              </div>
+              <div class="row">
+                  <div class="cell">Bitrate In : </div><div class="bitrateIn cell"></div>
+              </div>
+              <div class="row">
+                  <div class="cell">Bitrate Out : </div><div class="bitrateOut cell"></div>
+              </div>
+              <div class="row">
+                  <div class="cell">Frame Rate In : </div><div class="frameRateIn cell"></div>
+              </div>
+              <div class="row">
+                  <div class="cell">Frame Rate Out : </div><div class="frameRateOut cell"></div>
+              </div>
+              <div class="row">
+                  <div class="cell">Audio Lost : </div><div class="audioLostPer cell">%</div>
+              </div>
+              <div class="row">
+                  <div class="cell">Video Out : </div><div class="videoLostPer cell">%</div>
+              </div>
+              <div class="row">
+                  <div class="cell">Jitter : </div><div class="jitter cell"></div>
+              </div>
+          </div>
+          <div class="actions table">
+              <a class="historyCallLink cell" href="" title="Call"></a>
+              <span class="historyDetailsClose cell"><a href="" title="Close" class="icon-ok"></a></span>
+          </div>
+      </div>
+  </div>
+
+  <div class="callStats">
+    <div class="table fixed collapse">
+      <div class="heading">
+        <div class="cell">Video Stats</div>
+        <div class="cell">Audio Stats</div>
+      </div>
+      <div class="row">
+          <div class="cell">Bitrate out: <a href="javascript:;" data-type="video" data-var="kiloBitsSentPerSecond" class="stats-var"></a> kb/s</div>
+          <div class="cell">Bitrate out: <a href="javascript:;" data-type="audio" data-var="kiloBitsSentPerSecond" class="stats-var"></a> kb/s</div>
+      </div>
+      <div class="row">
+          <div class="cell">Bitrate in: <a href="javascript:;" data-type="video" data-var="kiloBitsReceivedPerSecond" class="stats-var"></a> kb/s</div>
+          <div class="cell">Bitrate in: <a href="javascript:;" data-type="audio" data-var="kiloBitsReceivedPerSecond" class="stats-var"></a> kb/s</div>
+      </div>
+      <div class="row">
+          <div class="cell">Lost: <a href="javascript:;" data-type="video" data-var="packetsLost" class="stats-var"></a> packets (<a href="javascript:;" data-type="video" data-var="packetsLostPer" class="stats-var"></a> %)</div>
+          <div class="cell">Lost: <a href="javascript:;" data-type="audio" data-var="packetsLost" class="stats-var"></a> packets (<a href="javascript:;" data-type="audio" data-var="packetsLostPer" class="stats-var"></a> %)</div>
+      </div>
+      <div class="row">
+          <div class="cell">Frame rate out: <a href="javascript:;" data-type="video" data-var="googFrameRateSent" class="stats-var"></a> in: <a href="javascript:;" data-type="video" data-var="googFrameRateReceived" class="stats-var"></a></div>
+          <div class="cell">Audio Level out: <a href="javascript:;" data-type="audio" data-var="audioInputLevel" class="stats-var"></a> in: <a href="javascript:;" data-type="audio" data-var="audioOutputLevel" class="stats-var"></a></div>
+      </div>
+      <div class="row" style="height: 15px;"></div>
+      <div class="heading">
+          <div class="cell">Resolution</div>
+          <div class="cell">Link</div>
+      </div>
+      <div class="row">
+          <div class="cell">In: <span data-type="video" data-var="googFrameWidthReceived" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightReceived" class="stats-var"></span> Out: <span data-type="video" data-var="googFrameWidthSent" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightSent" class="stats-var"></span></div>
+          <div class="cell"><span style="display:none;">Delay: <a href="javascript:;" data-type="audio" data-var="googRtt" class="stats-var"></a></span> Jitter: <a href="javascript:;" data-type="audio" data-var="googJitterReceived" class="stats-var"></a></div>
+      </div>
+      <div class="row" style="height: 15px;"></div>
+    </div>
+    <div class="stats-container"></div>
+  </div>
+
+  <div class="historyRowSample">
+      <div class="rowSpace"></div>
+      <div class="row">
+          <a href="" title="Number" class="historyDestination"></a>
+          <span class="historyDirection"></span><br>
+          <span class="historyDate"></span><span class="historyLength"></span>
+      </div>
+  </div>
+</div>
+
+</body>
+
+</html>
