@@ -225,98 +225,102 @@
     },
 
     init: function(userid, password){
-      var self = this;
+      try {
+        var self = this;
 
-      if(this.ua) {
-        logger.log('stopping existing UA', this.configuration);
-        this.ua.stop();
-      }
-
-      this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));
-
-      this.updateRtcMediaHandlerOptions();
-
-      // Start SIP Stack
-      this.ua.start();
-
-      // sipStack callbacks
-      this.ua.on('connected', function(e)
-      {
-        self.eventBus.viewChanged(self);
-        self.eventBus.connected(e.data);
-      });
-      this.ua.on('disconnected', function(e)
-      {
-        self.eventBus.viewChanged(self);
-        self.eventBus.disconnected(e.data);
-      });
-      this.ua.on('onReInvite', function(e) {
-        logger.log("incoming onReInvite event", self.configuration);
-        self.incomingReInvite(e);
-      });
-      this.ua.on('newRTCSession', function(e)
-      {
-        var session = e.data.session;
-        self.sessions.push(session);
-        self.eventBus.viewChanged(self);
-
-        // call event handlers
-        session.on('progress', function(e)
-        {
-          self.eventBus.progress(e.sender, e.data);
-        });
-        session.on('failed', function(e)
-        {
-          self.eventBus.failed(e.sender, e.data);
-        });
-        session.on('started', function(e) {
-          self.eventBus.viewChanged(self);
-          self.eventBus.started(e.sender, e.data);
-        });
-        session.on('resumed', function(e) {
-          self.eventBus.viewChanged(self);
-          self.eventBus.resumed(e.sender, e.data);
-        });
-        session.on('held', function(e) {
-          self.eventBus.viewChanged(self);
-          self.eventBus.held(e.sender, e.data);
-        });
-        session.on('ended', function(e)
-        {
-          self.eventBus.ended(e.sender, e.data);
-        });
-        session.on('newDTMF', function(e)
-        {
-          self.eventBus.newDTMF(e.sender, e.data);
-        });
-        session.on('dataSent', function(e)
-        {
-          self.eventBus.dataSent(e.sender, e.data);
-        });
-        session.on('dataReceived', function(e)
-        {
-          self.eventBus.dataReceived(e.sender, e.data);
-        });
-        // handle incoming call
-        if (e.data.session.direction === "incoming")
-        {
-          self.incomingCall(e);
-        } else {
-          if(!self.activeSession) {
-            logger.log('new active session : '+session.id, self.configuration);
-            self.activeSession = session;
-          }
+        if(this.ua) {
+          logger.log('stopping existing UA', this.configuration);
+          this.ua.stop();
         }
-      });
 
-      this.ua.on('registered', function(e)
-      {
-        self.eventBus.registered();
-      });
-      this.ua.on('registrationFailed', function(e)
-      {
-        self.eventBus.registrationFailed(e.data);
-      });
+        this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));
+
+        this.updateRtcMediaHandlerOptions();
+
+        // Start SIP Stack
+        this.ua.start();
+
+        // sipStack callbacks
+        this.ua.on('connected', function(e)
+        {
+          self.eventBus.viewChanged(self);
+          self.eventBus.connected(e.data);
+        });
+        this.ua.on('disconnected', function(e)
+        {
+          self.eventBus.viewChanged(self);
+          self.eventBus.disconnected(e.data);
+        });
+        this.ua.on('onReInvite', function(e) {
+          logger.log("incoming onReInvite event", self.configuration);
+          self.incomingReInvite(e);
+        });
+        this.ua.on('newRTCSession', function(e)
+        {
+          var session = e.data.session;
+          self.sessions.push(session);
+          self.eventBus.viewChanged(self);
+
+          // call event handlers
+          session.on('progress', function(e)
+          {
+            self.eventBus.progress(e.sender, e.data);
+          });
+          session.on('failed', function(e)
+          {
+            self.eventBus.failed(e.sender, e.data);
+          });
+          session.on('started', function(e) {
+            self.eventBus.viewChanged(self);
+            self.eventBus.started(e.sender, e.data);
+          });
+          session.on('resumed', function(e) {
+            self.eventBus.viewChanged(self);
+            self.eventBus.resumed(e.sender, e.data);
+          });
+          session.on('held', function(e) {
+            self.eventBus.viewChanged(self);
+            self.eventBus.held(e.sender, e.data);
+          });
+          session.on('ended', function(e)
+          {
+            self.eventBus.ended(e.sender, e.data);
+          });
+          session.on('newDTMF', function(e)
+          {
+            self.eventBus.newDTMF(e.sender, e.data);
+          });
+          session.on('dataSent', function(e)
+          {
+            self.eventBus.dataSent(e.sender, e.data);
+          });
+          session.on('dataReceived', function(e)
+          {
+            self.eventBus.dataReceived(e.sender, e.data);
+          });
+          // handle incoming call
+          if (e.data.session.direction === "incoming")
+          {
+            self.incomingCall(e);
+          } else {
+            if(!self.activeSession) {
+              logger.log('new active session : '+session.id, self.configuration);
+              self.activeSession = session;
+            }
+          }
+        });
+
+        this.ua.on('registered', function(e)
+        {
+          self.eventBus.registered();
+        });
+        this.ua.on('registrationFailed', function(e)
+        {
+          self.eventBus.registrationFailed(e.data);
+        });
+      } catch(e) {
+        console.error('could not init sip stack', e);
+      }
     }
   };
   WebRTC.SIPStack = SIPStack;
