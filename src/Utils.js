@@ -89,7 +89,7 @@ Utils= {
     // Only Chrome 34+
     if (!isChrome)
     {
-      return "Chrome is required, please go to:<br>" +
+      return "Chrome is required for whiteboard feature, please go to:<br>" +
         "<a href='http://chrome.google.com'>http://chrome.google.com</a>";
     }
     var major = this.majorVersion();
