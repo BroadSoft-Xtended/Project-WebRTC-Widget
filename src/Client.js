@@ -10,6 +10,7 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client');
 
   Client = function(selector, config) {
+    var self = this;
     this.client = $(selector || "#client");
     this.main = this.client.find(".main");
     this.muteAudioIcon = this.client.find('.muteAudioIcon');
@@ -43,6 +44,10 @@
     this.historyClose = this.client.find(".historyClose");
     this.callHistory = this.client.find(".callHistory");
     this.callStats = this.client.find(".callStats");
+    this.shareScreen = this.client.find( ".shareScreen" );
+    this.stopShareScreen = this.client.find( ".stopShareScreen" );
+    this.screenSharingUnsupported = this.client.find( ".screen_sharing_unsupported" );
+
 
     if(!config && typeof(ClientConfig) === 'undefined') {
       $('#unsupported').text("Could not read ClientConfig - make sure it is included and properly formatted");
@@ -50,24 +55,44 @@
       return;
     }
 
-    this.configuration = new WebRTC.Configuration(this);
-    this.configuration = new WebRTC.Configuration(this, (config || ClientConfig));
-    this.eventBus = new WebRTC.EventBus(this.configuration);
-    this.sipStack = new WebRTC.SIPStack(this, this.configuration, this.eventBus);
+    config = config || ClientConfig;
+    this.eventBus = new WebRTC.EventBus({
+      isDebug: function(){
+        return config.debug === true;
+      }
+    });
+    this.configuration = new WebRTC.Configuration(this.eventBus, config);
+    this.sipStack = new WebRTC.SIPStack(this.configuration, this.eventBus);
     this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
-    this.video = new WebRTC.Video(this, this.sipStack, this.eventBus);
+    this.video = new WebRTC.Video(this.client.find('.video'), this.sipStack, this.eventBus, {
+      onPlaying: function(){
+        self.validateUserMediaResolution();
+      }
+    });
+    this.xmpp = new WebRTC.XMPP(this, this.eventBus);
+    this.sms = new WebRTC.SMS(this, this.client.find(".sms"), this.eventBus, this.sound);
     this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
     this.stats = new WebRTC.Stats(this, this.sipStack, this.configuration);
     this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
     this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack, this.configuration);
     this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack, this.configuration);
-    this.authentication = new WebRTC.Authentication(this, this.configuration, this.eventBus);
+    this.whiteboard = new WebRTC.Whiteboard(this, this.client.find(".whiteboard"), this.eventBus, this.sipStack);
+    this.fileShare = new WebRTC.FileShare(this, this.client.find(".file_share"), this.eventBus, this.sipStack);
+    this.authentication = new WebRTC.Authentication(this.client.find(".authPopup"), this.eventBus, {
+      onAuthenticate: function(data) {
+        self.sipStack.init(data.userId, data.password);
+      },
+      settingsUserId: self.settings.userId,
+      settingsAuthenticationUserId: self.settings.authenticationUserId,
+      settingsPassword: self.settings.password
+    });
     this.hold = new WebRTC.Icon(this.client.find( ".hold" ), this.sound);
     this.resume = new WebRTC.Icon(this.client.find( ".resume" ), this.sound);
     this.fullScreen = false;
     this.selfViewEnabled = true;
     this.dialpadShown = false;
     this.muted = false;
+    this.isScreenSharing = false;
 
     this.configuration.setSettings(this.settings);
 
@@ -83,6 +108,12 @@
       if(unsupported)
       {
         $('#unsupported').html(unsupported).show();
+      }
+
+      var whiteboardUnsupported = WebRTC.Utils.whiteboardCompabilityCheck();
+      if(whiteboardUnsupported)
+      {
+        $('#whiteboard_unsupported').html(whiteboardUnsupported).show();
       }
 
       // Allow some windows to be draggable, required jQuery.UI
@@ -118,10 +149,6 @@
         return null;
       };
 
-      if (!this.configuration.userid)
-      {
-        this.configuration.userid = WebRTC.Utils.randomUserid();
-      }
       this.onLoad();
     },
 
@@ -366,9 +393,35 @@
       return rtcSession.remote_identity.uri.user || rtcSession.remote_identity.uri.host;
     },
 
+    enableScreenSharing: function(enabled) {
+      var self = this;
+      this.isScreenSharing = enabled;
+      this.updateClientClass();
+      if(enabled) {
+        var onShareScreenSuccess = function(localMedia){
+          localMedia.onended = function(){
+            self.enableScreenSharing(false);
+          };
+        };
+        var onShareScreenFailure = function(e){
+          // no way to distinguish between flag not enabled or simply rejected enabling screen sharing
+          if(e) {
+            self.screenSharingUnsupported.show();
+          }
+          self.enableScreenSharing(false);
+        };
+        self.sipStack.reconnectUserMedia(onShareScreenSuccess, onShareScreenFailure);
+      } else {
+        self.sipStack.reconnectUserMedia();
+      }
+    },
+
     registerListeners: function() {
       var self = this;
 
+      this.eventBus.on("viewChanged", function(e){
+        self.updateClientClass();
+      });
       this.eventBus.on("ended", function(e){
         self.message(self.configuration.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
         self.history.persistCall(e.sender);
@@ -529,6 +582,19 @@
       });
 
       // Buttons
+      this.shareScreen.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.enableScreenSharing(true);
+      });
+      this.stopShareScreen.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.enableScreenSharing(false);
+      });
+
       this.callButton.bind('click', function(e)
       {
         e.preventDefault();
@@ -671,6 +737,15 @@
         if (e.charCode === 83)
         {
           self.stats.toggle();
+        }
+        else if (e.charCode === 84)
+        {
+          self.sms.toggle();
+        }
+        // toggle whiteboard
+        else if (e.charCode === 87)
+        {
+          self.whiteboard.toggle();
         }
         else if (e.charCode === 72)
         {
@@ -833,11 +908,20 @@
       {
         classes.push("view-"+this.configuration.getView());
       }
+      if (this.configuration.enableScreenSharing)
+      {
+        classes.push("enable-screen-sharing");
+      }
+      if (this.configuration.enableFileShare)
+      {
+        classes.push("enable-file-share");
+      }
       if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }
       if(this.selfViewEnabled) { classes.push("self-view-enabled"); } else { classes.push("self-view-disabled"); }
       if(this.dialpadShown) { classes.push("dialpad-shown"); } else { classes.push("dialpad-hidden"); }
       if(this.fullScreen) { classes.push("full-screen-expanded"); } else { classes.push("full-screen-contracted"); }
+      if(this.isScreenSharing) { classes.push("screen-sharing"); } else { classes.push("screen-sharing-off"); }
       if(this.transfer.visible) { classes.push("transfer-visible"); } else { classes.push("transfer-hidden"); }
       if(this.authentication.visible) { classes.push("auth-visible"); } else { classes.push("auth-hidden"); }
       this.client.attr("class", classes.join(" "));

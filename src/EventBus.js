@@ -6,8 +6,8 @@
   var EventBus;
 //    LOG_PREFIX = WebRTC.name +' | '+ 'EventBus' +' | ';
 
-  EventBus = function(configuration) {
-    this.configuration = configuration;
+  EventBus = function(options) {
+    this.options = options || {};
 
     var events = [
       'message',
@@ -25,7 +25,13 @@
       'resumed',
       'ended',
       'calling',
-      'newDTMF'
+      'newDTMF',
+      'viewChanged',
+      'dataSent',
+      'dataReceived',
+      'smsLoggedIn',
+      'smsReadAll',
+      'smsSent'
     ];
 
     this.initEvents(events);
@@ -33,6 +39,12 @@
 
   EventBus.prototype = new ExSIP.EventEmitter();
 
+  EventBus.prototype.viewChanged = function(sender, data) {
+    this.emit("viewChanged", sender, data);
+  };
+  EventBus.prototype.message = function(text, level) {
+    this.emit("message", this, {text: text, level: level});
+  };
   EventBus.prototype.message = function(text, level) {
     this.emit("message", this, {text: text, level: level});
   };
@@ -75,14 +87,29 @@
   EventBus.prototype.ended = function(sender, data) {
     this.emit("ended", sender, data);
   };
+  EventBus.prototype.dataSent = function(sender, data) {
+    this.emit("dataSent", sender, data);
+  };
+  EventBus.prototype.dataReceived = function(sender, data) {
+    this.emit("dataReceived", sender, data);
+  };
   EventBus.prototype.calling = function(sender, data) {
     this.emit("calling", sender, data);
   };
   EventBus.prototype.newDTMF = function(sender, data) {
     this.emit("newDTMF", sender, data);
   };
+  EventBus.prototype.smsLoggedIn = function(sender, data) {
+    this.emit("smsLoggedIn", sender, data);
+  };
+  EventBus.prototype.smsReadAll = function(sender, data) {
+    this.emit("smsReadAll", sender, data);
+  };
+  EventBus.prototype.smsSent = function(sender, data) {
+    this.emit("smsSent", sender, data);
+  };
   EventBus.prototype.isDebug = function() {
-    return this.configuration.isDebug();
+    return this.options.isDebug();
   };
 
   WebRTC.EventBus = EventBus;

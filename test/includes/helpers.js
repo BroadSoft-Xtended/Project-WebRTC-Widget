@@ -48,6 +48,10 @@ TestWebrtc.Helpers = {
     client.sipStack.ua.emit('registrationFailed', client.sipStack.ua, {response: {status_code: (statusCode || 401)}});
   },
 
+  registered: function() {
+    client.sipStack.ua.emit('registered', client.sipStack.ua, {response: {status_code: 200}});
+  },
+
   endCall: function() {
     client.sipStack.activeSession.status = ExSIP.RTCSession.C.STATUS_TERMINATED;
     client.sipStack.activeSession.emit('ended', client.sipStack.activeSession);
@@ -112,6 +116,14 @@ TestWebrtc.Helpers = {
     WebRTC.Sound.prototype.playClick = function(){console.log('playClick');}
     WebRTC.Sound.prototype.play = function(){console.log('play');}
     WebRTC.Sound.prototype.pause = function(){console.log('pause');}
+  },
+
+  mockSMSProvider: function(){
+    WebRTC.SMSProvider.prototype.remove = function(){console.log('remove');}
+    WebRTC.SMSProvider.prototype.sendSMS = function(){console.log('sendSMS');}
+    WebRTC.SMSProvider.prototype.login = function(){console.log('login');}
+    WebRTC.SMSProvider.prototype.readAll = function(){console.log('readAll');}
+    WebRTC.SMSProvider.prototype.getUpdate = function(){console.log('getUpdate');}
   },
 
   mockLocation: function(){

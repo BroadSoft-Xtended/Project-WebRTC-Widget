@@ -13,10 +13,12 @@
   <meta name="Author" content="Nathan Stratton"/>
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800,300' rel='stylesheet' type='text/css' />
   <link rel="stylesheet" href="stylesheet.css" type="text/css"/>
+  <link rel="stylesheet" type="text/css" media="screen" href="converse.min.css">
   <script src="js/3rdparty.js" type="text/javascript"></script>
   <script src="js/exsip.js" type="text/javascript"></script>
   <script src="js/client-config.js" type="text/javascript"></script>
   <script src="js/webrtc.js" type="text/javascript"></script>
+
   <script type="text/javascript">
       $(document).ready(function(){
         client = new WebRTC.Client();
@@ -27,6 +29,11 @@
 <body>
 
 <div id="unsupported" class="unsupported"></div>
+<div id="whiteboard_unsupported" class="unsupported"></div>
+<div id="screen_sharing_unsupported" class="unsupported">
+  Could not retrieve screen capture. Do you have it enabled?<br>
+  Open link to check : <span style="text-decoration: underline;">chrome://flags/#enable-usermedia-screen-capture</span>
+</div>
 
 <noscript>
   <div class="unsupported" style="display:block;background-color:white;color:black;">
@@ -34,10 +41,10 @@
   </div>
 </noscript>
 
+<div id="conversejs">
+</div>
 <div id="client" class="client">
   <div class="authPopup fadeable popup">
-    <span>Display Name</span><br>
-    <input class="displayName" type=text value=""/><br>
     <span>Username</span><br>
     <input class="username" type=text value=""/><br>
     <span>Password</span><br>
@@ -47,13 +54,15 @@
     <button class="authPopupButton button" type="button">Sign in</button>
   </div>
 
- <!--  <div id="callControl">
-    <span>Enter Destination URI:</span><br>
-    <input class="destination" type=text value=""/>
-    <div class="call fadeable">
-      <a href="" title="Call" class="icon-call"></a>
+  <div class="table">
+    <div class="cell">
+      <div class="file_share fadeable">
+        <span>Share File:</span><br>
+        <input type="file" />
+        <div class="status"></div>
+      </div>
     </div>
-  </div> -->
+  </div>
 
   <div class="main">
     <div class="errorPopup"></div>
@@ -102,12 +111,16 @@
               <input class="settingDisplayName cell" type="text" value=""/>
               </div>
               <div class="settingUseridRow row">
-                  <span class="cell">User ID</span>
-                  <input class="settingUserid cell" type="text" value=""/>
+                <span class="cell">User ID</span>
+                <input class="settingUserid cell" type="text" value=""/>
               </div>
-              <div class="row">
-                  <span class="cell">Password</span>
-                  <input class="settingPassword cell" type="password" value=""/>
+              <div class="settingAuthenticationUseridRow row">
+                <span class="cell">Authentication User ID</span>
+                <input class="settingAuthenticationUserid cell" type="text" value=""/>
+              </div>
+              <div class="settingPasswordRow row">
+                <span class="cell">Password</span>
+                <input class="settingPassword cell" type="password" value=""/>
               </div>
               <div class="settingHDRow row">
                   <span class="cell">Start in HD</span>
@@ -183,8 +196,10 @@
       
       
       <div class="row">
-          <span class="cell"></span>
-          <a href="" title="Save Settings" class="saveSettings cell icon-ok" style="text-align: right;"></a>
+          <span class="cell">
+            <a href="" title="Save Settings" class="saveSettings icon-ok"></a>
+            <a href="" title="Clear Settings" class="clear">Clear Settings</a>
+          </span>
       </div>
     </div>
     <div class="video">
@@ -239,8 +254,16 @@
                   <a href="" title="Transfer" class="icon-transfer"></a>
               </div>
           </div>
+          <div class="cell cell-shareScreen">
+            <div class="icon fadeable shareScreen">
+              <a href="" title="Share Screen" class="icon-screen-sharing"></a>
+            </div>
+            <div class="icon fadeable stopShareScreen">
+              <a href="" title="Stop Share Screen" class="icon-screen-sharing-off"></a>
+            </div>
+          </div>
           <div class="cell cell-timer" style="position:relative;top:0;left:0;width:auto;">
-              <div class="timer fadeable"></div>
+            <div class="timer fadeable"></div>
           </div>
           <div class="cell cell-settings">
               <div class="settings icon fadeable">
@@ -414,6 +437,90 @@
           <span class="historyDate"></span><span class="historyLength"></span>
           <span class="history-details-arrow icon-angle-right"></span>
       </div>
+  </div>
+
+  <div class="whiteboard">
+    <div class="tools">
+      <a href=".simple_sketch" data-tool="marker" class="tooltype">Marker</a>
+      <a href=".simple_sketch" data-tool="eraser" class="tooltype">Eraser</a>
+    </div>
+    <canvas class="simple_sketch" width="600" height="400"></canvas>
+  </div>
+
+  <div class="sms">
+    <div class="smsView">
+      <div class="table fixed smsLoginForm">
+        <div class="row">
+          <label class="cell">Name:</label>
+          <input class="cell smsName" type="text" name="name" placeholder="Email or TN">
+        </div>
+        <div class="row">
+          <label class="cell">Password:</label>
+          <input class="cell smsPassword" type="password" name="password">
+        </div>
+        <div class="row">
+          <div class="cell"></div>
+          <input class="cell smsLogin" type="button" value="Log In">
+        </div>
+      </div>
+
+      <div class="smsInbox">
+        <fieldset>
+          <legend>Inbox</legend>
+          <div class="inner">
+            <div class="table fixed">
+              <div class="row">
+                <div class="cell title status">Status</div>
+                <div class="cell title time">Received</div>
+                <div class="cell title from">From</div>
+                <div class="cell title body">Message</div>
+                <div class="cell title actions"></div>
+              </div>
+              <div class="content" style="display:table-row-group">
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="smsSendForm">
+        <div class="">
+          <div class="">
+            <span class="">To</span>
+            <input class="smsSendTo" type="text" placeholder="US Phone Number"/>
+            <span class="">Text</span>
+            <input class="smsSendBody" type="text" placeholder="Message to Send"/>
+            <input class="smsSendButton" type="button" value="Send SMS"/>
+          </div>
+        </div>
+      </div>
+
+      <div id="sample" class="sms-inbox-item sms-inbox-item-sample row">
+        <div class="status cell"></div>
+        <div class="time cell"></div>
+        <div class="from cell"></div>
+        <div class="body cell">
+          <div class="image">
+            <a href="" target="_blank">
+              <span></span>
+              <img src="">
+            </a>
+          </div>
+          <div class="video">
+            <video controls/>
+          </div>
+          <div class="audio">
+            <audio controls/>
+          </div>
+          <div class="text"></div>
+        </div>
+        <div class="actions cell">
+          <a href="javascript:;" class="icon-trash" title="Delete SMS"></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="smsStatus"><span class="content"></span></div>
   </div>
 </div>
 

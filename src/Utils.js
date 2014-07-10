@@ -6,6 +6,26 @@
 var Utils;
 
 Utils= {
+  dataURItoBlob: function(dataURI) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to an ArrayBuffer
+    var ab = new ArrayBuffer(byteString.length);
+    var ia = new Uint8Array(ab);
+    for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    // write the ArrayBuffer to a blob, and you're done
+    var blob = new Blob([ab], {type: mimeString});
+    return blob;
+  },
+
   format: function(seconds)
   {
     var hrs = Math.floor(seconds / 3600);
@@ -74,6 +94,24 @@ Utils= {
     return userid;
   },
 
+  whiteboardCompabilityCheck: function()
+  {
+    var isChrome = this.isChrome();
+
+    // Only Chrome 34+
+    if (!isChrome)
+    {
+      return "Chrome is required for whiteboard feature, please go to:<br>" +
+        "<a href='http://chrome.google.com'>http://chrome.google.com</a>";
+    }
+    var major = this.majorVersion();
+    if (isChrome && major < 34)
+    {
+      return "Your version of Chrome must be upgraded to at least version 34 in order to be able to use the whiteboard<br>" +
+        "Please go to: <a href='http://chrome.google.com'>http://chrome.google.com</a> or <a href='https://www.google.com/intl/en/chrome/browser/canary.html'>https://www.google.com/intl/en/chrome/browser/canary.html</a>";
+    }
+  },
+
   compatibilityCheck: function(client)
   {
     var isChrome = this.isChrome();
@@ -100,6 +138,11 @@ Utils= {
       }
       client.configuration.enableStats = false;
     }
+  },
+
+  isValidUsPstn: function(pstn){
+    pstn = pstn.replace(/-/g, '').replace(/\(/g, '').replace(/\)/g, '');
+    return pstn.match(/^1?\d{10}$/) !== null;
   },
 
   majorVersion: function(){

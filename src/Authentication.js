@@ -5,18 +5,16 @@
 (function (WebRTC) {
   var Authentication;
 
-  Authentication = function (client, configuration, eventBus) {
-    this.popup = client.find(".authPopup");
+  Authentication = function (element, eventBus, options) {
+    this.popup = element;
     this.okButton = this.popup.find('.authPopupButton');
-    this.userid = this.popup.find('input.username');
-    this.password = this.popup.find('input.password');
-    this.displayName = this.popup.find('input.displayName');
+    this.userIdInput = this.popup.find('input.username');
+    this.passwordInput = this.popup.find('input.password');
     this.alert = this.popup.find('.alert');
 
     this.visible = false;
-    this.client = client;
-    this.configuration = configuration;
     this.eventBus = eventBus;
+    this.options = options || {};
 
     this.registerListeners();
   };
@@ -27,29 +25,28 @@
 
       this.eventBus.on("registrationFailed", function(e){
         var statusCode = e.data.response.status_code;
-        if((statusCode === 401  || statusCode === 403 || statusCode === 404) && self.configuration.getRegister() === true) {
+        if(statusCode === 403 && self.options.settingsUserId() && !self.options.settingsPassword()) {
           self.setVisible(true);
         }
       });
 
       this.okButton.bind('click', function()
       {
-        var userid = self.userid.val();
-        var password = self.password.val();
-        if (self.displayName.val())
-        {
-          self.configuration.sipDisplayName = self.displayName.val();
-        }
-        if (userid === "")
+        var userId = self.userIdInput.val();
+        if (!userId)
         {
           self.alert.text("Invalid Username").fadeIn(10).fadeOut(4000);
           return;
         }
+        var password = self.passwordInput.val();
         self.setVisible(false);
-        self.configuration.userid = userid;
-        $.cookie('settingUserid', userid);
-        $.cookie('settingPassword', password);
-        self.client.onLoad();
+        self.options.onAuthenticate({userId: userId, password: password});
+        self.eventBus.once("registered", function(e){
+          if(self.options.settingsUserId() !== userId) {
+            self.options.settingsAuthenticationUserId(userId);
+          }
+          self.options.settingsPassword(password);
+        });
       });
 
       this.popup.bind('keypress', function(e)
@@ -68,11 +65,9 @@
     setVisible: function(visible){
       this.visible = visible;
 
-      this.userid.val(this.configuration.userid || '');
-      this.password.val(this.configuration.getPassword() || '');
-      this.displayName.val(this.configuration.sipDisplayName || '');
+      this.userIdInput.val(this.options.settingsAuthenticationUserId() || this.options.settingsUserId());
 
-      this.client.updateClientClass();
+      this.eventBus.viewChanged(this);
     }
   };
 

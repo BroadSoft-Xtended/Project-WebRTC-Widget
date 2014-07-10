@@ -6,7 +6,6 @@ module( "SipStack", {
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableTransfer = true;
     ClientConfig.enableCallStats = false;
-    ClientConfig.register = false;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }
@@ -18,8 +17,8 @@ test('RTCMediaHandlerOptions and bandwidth med change', function() {
   client.sipStack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
   client.settings.resolutionType.val(WebRTC.C.STANDARD);
   client.settings.resolutionEncodingStandard.val(WebRTC.C.R_640x480);
-  client.settings.settingBandwidthMed.val("600");
-  client.settings.settingBandwidthMed.trigger("blur");
+  client.settings.bandwidthMed("600");
+  client.settings.bandwidthMedInput.trigger("blur");
   deepEqual(rtcMediaHandlerOptions, {
     RTCConstraints: {'optional': [],'mandatory': {}},
     "disableICE": true,
@@ -31,8 +30,8 @@ test('RTCMediaHandlerOptions and bandwidth low change for resolution 180', funct
   ClientConfig.allowOutside = true;
   client = new WebRTC.Client();
   client.sipStack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
-  client.settings.settingBandwidthLow.val("200");
-  client.settings.settingBandwidthLow.trigger("blur");
+  client.settings.bandwidthLow("200");
+  client.settings.bandwidthLowInput.trigger("blur");
   client.settings.resolutionType.val(WebRTC.C.STANDARD);
   client.settings.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
   client.settings.resolutionEncodingStandard.trigger("change");

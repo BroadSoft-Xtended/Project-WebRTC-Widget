@@ -28,14 +28,15 @@
       enableIms: 524288
     };
 
-  Configuration = function(client, configObj) {
+  Configuration = function(eventBus, configObj) {
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Configuration');
+
     logger.log('window.location.search : '+window.location.search, this);
     logger.log('configuration options : '+ExSIP.Utils.toString(configObj), this);
     jQuery.extend(this, configObj);
 
     // Default URL variables
-    this.client = client;
-    this.userid = this.networkUserId || WebRTC.Utils.getSearchVariable("userid") || $.cookie('settingUserid');
+    this.eventBus = eventBus;
     this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
@@ -84,11 +85,8 @@
     getBackgroundColor: function(){
       return this.color || $('body').css('backgroundColor');
     },
-    getRegister: function(){
-      return this.register || WebRTC.Utils.getSearchVariable("register") === "true";
-    },
     getPassword: function(){
-      return WebRTC.Utils.getSearchVariable("password") || $.cookie('settingPassword');
+      return $.cookie('settingPassword');
     },
     isAutoAnswer: function(){
       return this.settings.settingAutoAnswer.is(':checked');
@@ -110,8 +108,15 @@
           OfferToReceiveVideo: !this.isAudioOnlyView() && this.offerToReceiveVideo
         }}
       };
-
       return options;
+    },
+
+    getMediaConstraints: function(){
+      if(this.client.isScreenSharing) {
+        return { video: { mandatory: { chromeMediaSource: 'screen' }}};
+      } else {
+        return { audio: true, video: this.getVideoConstraints() };
+      }
     },
 
     getVideoConstraints: function(){
@@ -141,26 +146,24 @@
       }
     },
 
-    getExSIPConfig: function(userid, password){
-      var sip_uri = null;
-      // Config settings
-      userid = encodeURI(userid);
-      if ((userid.indexOf("@") === -1))
+    getExSIPConfig: function(authenticationUserId, password){
+      var userid = this.settings.userId() || this.networkUserId || WebRTC.Utils.randomUserid();
+
+      var sip_uri = encodeURI(userid);
+      if ((sip_uri.indexOf("@") === -1))
       {
-        sip_uri = (userid + "@" + this.domainFrom);
-      }
-      else
-      {
-        sip_uri = userid;
+        sip_uri = (sip_uri + "@" + this.domainFrom);
       }
 
       var config  =
       {
         'uri': sip_uri,
+        'authorization_user': authenticationUserId || this.settings.authenticationUserId() || userid,
         'ws_servers': this.websocketsServers,
         'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
         'trace_sip': this.debug,
-        'enable_ims': this.enableIms
+        'enable_ims': this.enableIms,
+        'enable_datachannel': this.enableWhiteboard || this.enableFileShare
       };
 
       // Add Display Name if set
@@ -170,14 +173,14 @@
       }
 
       // Modify config object based password
-      if ((password === false || password === undefined || password === '') && !this.getRegister())
+      if (!this.settings.userId())
       {
         config.register = false;
       }
       else
       {
         config.register = true;
-        config.password = password;
+        config.password = password || this.settings.password();
       }
       return config;
     },
@@ -211,7 +214,7 @@
     setResolutionDisplay: function(resolutionDisplay) {
       this.hd = false;
       this.settings.setResolutionDisplay(resolutionDisplay);
-      this.client.updateClientClass();
+      this.eventBus.viewChanged(this.settings);
     },
 
     getResolutionDisplay: function() {

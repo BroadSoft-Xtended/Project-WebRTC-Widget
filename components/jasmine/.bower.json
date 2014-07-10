@@ -1,0 +1,13 @@
+{
+  "name": "jasmine",
+  "homepage": "https://github.com/jcbrand/jasmine",
+  "_release": "aded55963d",
+  "_resolution": {
+    "type": "branch",
+    "branch": "1_3_x",
+    "commit": "aded55963dd69be62158c062ad5dc6a70ddea8df"
+  },
+  "_source": "https://github.com/jcbrand/jasmine.git",
+  "_target": "1_3_x",
+  "_originalSource": "https://github.com/jcbrand/jasmine.git"
+}
