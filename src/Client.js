@@ -786,7 +786,7 @@
 
       if(encodingWidth !== videoWidth || encodingHeight !== videoHeight) {
         var msg = "Video resolution "+videoWidth+","+videoHeight+" does not match selected encoding "+encodingWidth+","+encodingHeight;
-        this.message(msg, "alert");
+//        this.message(msg, "alert");
         logger.warn(msg, this.configuration);
       }
     },
