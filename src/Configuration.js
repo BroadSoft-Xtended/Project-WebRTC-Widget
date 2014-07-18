@@ -38,6 +38,7 @@
     // Default URL variables
     this.eventBus = eventBus;
     this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
+    this.networkUserId = this.networkUserId || WebRTC.Utils.getSearchVariable("networkUserId");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
     this.audioOnly = (WebRTC.Utils.getSearchVariable("audioOnly") === "true");
     this.sipDisplayName = this.displayName || WebRTC.Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
