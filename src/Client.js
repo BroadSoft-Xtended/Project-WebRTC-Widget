@@ -571,6 +571,9 @@
       {
         var digit = e.data.tone;
         logger.log('DTMF sent : '+ digit, self.configuration);
+        if(!digit) {
+          return;
+        }
         var file = null;
         if (digit === "*")
         {
