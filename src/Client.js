@@ -532,6 +532,9 @@
       this.eventBus.on('newDTMF', function(e)
       {
         var digit = e.data.tone;
+        if(!digit) {
+          return;
+        }
         logger.log('DTMF sent : '+ digit, self.configuration);
         var file = null;
         if (digit === "*")
