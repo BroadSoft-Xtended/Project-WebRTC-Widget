@@ -184,7 +184,7 @@ test('hide or disable settings when ClientConfig has corresponding attributes se
   client.settings.settingsIcon.trigger('click');
   strictEqual(client.settings.settingAutoAnswerRow.is(":visible"), false);
   strictEqual(client.settings.settingSelfViewDisableRow.is(":visible"), false);
-  strictEqual(client.settings.settingUseridRow.is(":visible"), false);
+  strictEqual(client.settings.settingUseridRow.is(":visible"), true);
   strictEqual(client.settings.settingHDRow.is(":visible"), false);
   strictEqual(client.settings.settingResolutionRow.is(":visible"), false);
   strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), false);
