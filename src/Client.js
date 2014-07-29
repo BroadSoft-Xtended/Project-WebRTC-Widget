@@ -730,34 +730,37 @@
       });
 
       // Digits from keyboard
-      document.onkeypress=function(e)
+      $(document).unbind('keypress').bind('keypress', function(e)
       {
         e = e || window.event;
-        if(self.transfer.targetInput.is(e.srcElement)) {
+        if(self.transfer.targetInput.is(e.target)) {
           return;
         }
 
-        if (e.charCode === 223)
-        {
-          self.stats.toggle();
-        }
-        else if (e.charCode === 8224)
-        {
-          self.sms.toggle();
-        }
-        // toggle whiteboard
-        else if (e.charCode === 8721)
-        {
-          self.whiteboard.toggle();
-        }
-        else if (e.charCode === 729)
-        {
-          self.history.toggle();
+        var isModifier = e.altKey || e.ctrlKey;
+        if(isModifier) {
+          if (e.charCode === 223 || e.charCode === 19)
+          {
+            self.stats.toggle();
+          }
+          else if (e.charCode === 8224 || e.charCode === 20)
+          {
+            self.sms.toggle();
+          }
+          // toggle whiteboard
+          else if (e.charCode === 8721 || e.charCode === 23)
+          {
+            self.whiteboard.toggle();
+          }
+          else if (e.charCode === 729 || e.charCode === 8)
+          {
+            self.history.toggle();
+          }
         } else {
           var digit = String.fromCharCode(e.charCode);
           self.processDigitInput(digit, e);
         }
-      };
+      });
 
       // Prevent the backspace key from navigating back if dialpad is shown
       $(document).unbind('keydown').bind('keydown', function (event) {
