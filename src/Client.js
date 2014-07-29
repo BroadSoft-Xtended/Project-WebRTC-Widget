@@ -732,38 +732,37 @@
       // Digits from keyboard
       $(document).unbind('keypress').bind('keypress', function(e)
       {
-        e = e || window.event;
-        if(self.transfer.targetInput.is(e.target)) {
-          return;
-        }
-
-        var isModifier = e.altKey || e.ctrlKey;
-        if(isModifier) {
-          if (e.charCode === 223 || e.charCode === 19)
-          {
-            self.stats.toggle();
-          }
-          else if (e.charCode === 8224 || e.charCode === 20)
-          {
-            self.sms.toggle();
-          }
-          // toggle whiteboard
-          else if (e.charCode === 8721 || e.charCode === 23)
-          {
-            self.whiteboard.toggle();
-          }
-          else if (e.charCode === 729 || e.charCode === 8)
-          {
-            self.history.toggle();
-          }
-        } else {
-          var digit = String.fromCharCode(e.charCode);
-          self.processDigitInput(digit, e);
-        }
       });
 
       // Prevent the backspace key from navigating back if dialpad is shown
       $(document).unbind('keydown').bind('keydown', function (event) {
+        var isModifier = event.altKey;
+        if(isModifier) {
+          if(self.transfer.targetInput.is(event.target)) {
+            return;
+          }
+
+          console.dir(event);
+          if (event.which === 83)
+          {
+            self.stats.toggle();
+          }
+          else if (event.which === 84)
+          {
+            self.sms.toggle();
+          }
+          // toggle whiteboard
+          else if (event.which === 87)
+          {
+            self.whiteboard.toggle();
+          }
+          else if (event.which === 72)
+          {
+            self.history.toggle();
+          }
+          return;
+        }
+
         if(self.dialpadShown) {
           var doPrevent = false;
           if (event.keyCode === 8) {
@@ -776,21 +775,26 @@
             else {
               doPrevent = true;
               self.destination.trigger('keydown', event);
-              this.destination.putCursorAtEnd();
+              self.destination.putCursorAtEnd();
             }
           }
 
           if (doPrevent) {
             event.preventDefault();
+            return;
           }
         }
+
+        var digit = String.fromCharCode(event.which);
+        self.processDigitInput(digit, event);
+
       });
     },
 
     processDigitInput: function(digit, event){
       if(!this.sipStack.isStarted() && this.dialpadShown) {
         // ignore if event happened on destination input itself
-        if(event && this.destination.is(event.srcElement)) {
+        if(event && this.destination.is(event.target)) {
           return;
         }
         this.destination.val(this.destination.val() + digit);
