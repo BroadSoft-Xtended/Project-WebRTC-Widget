@@ -565,6 +565,9 @@
       {
         var digit = e.data.tone;
         logger.log('DTMF sent : '+ digit, self.configuration);
+        if(!digit) {
+          return;
+        }
         var file = null;
         if (digit === "*")
         {
@@ -734,20 +737,20 @@
           return;
         }
 
-        if (e.charCode === 83)
+        if (e.charCode === 19)
         {
           self.stats.toggle();
         }
-        else if (e.charCode === 84)
+        else if (e.charCode === 20)
         {
           self.sms.toggle();
         }
         // toggle whiteboard
-        else if (e.charCode === 87)
+        else if (e.charCode === 23)
         {
           self.whiteboard.toggle();
         }
-        else if (e.charCode === 72)
+        else if (e.charCode === 8)
         {
           self.history.toggle();
         } else {

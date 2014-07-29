@@ -134,7 +134,7 @@ test('change encoding resolution with different video resolution', function() {
   client.settings.resolutionEncodingStandard.val(WebRTC.C.R_960x720);
   client.settings.resolutionEncodingStandard.trigger('change');
   client.video.local.trigger("playing");
-  strictEqual(client.messages.text().trim(), "Video resolution 640,480 does not match selected encoding 960,720");
+  strictEqual(client.messages.text().trim(), "");
 });
 test('hide or disable settings when ClientConfig has corresponding attributes set', function() {
   ClientConfig.enableAutoAnswer = true;
@@ -166,11 +166,11 @@ test('hide or disable settings when ClientConfig has corresponding attributes se
   strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), true);
   strictEqual(client.settings.settingResolutionDisplayRow.is(":visible"), true);
   strictEqual(client.settings.settingResolutionEncodingRow.is(":visible"), true);
-  strictEqual(client.settings.bandwidthLowInput.is(":visible"), true);
-  strictEqual(client.settings.bandwidthMedInput.is(":visible"), true);
-  strictEqual(client.settings.bandwidthHighInput.is(":visible"), true);
-  strictEqual(client.settings.settingBandwidthRow.is(":visible"), true);
-  strictEqual(client.settings.settingDisplayNameRow.is(":visible"), true);
+  strictEqual(client.settings.bandwidthLowInput.is(":visible"), false);
+  strictEqual(client.settings.bandwidthMedInput.is(":visible"), false);
+  strictEqual(client.settings.bandwidthHighInput.is(":visible"), false);
+  strictEqual(client.settings.settingBandwidthRow.is(":visible"), false);
+  strictEqual(client.settings.settingDisplayNameRow.is(":visible"), false);
 
   ClientConfig.enableAutoAnswer = false;
   ClientConfig.enableSelfView = false;

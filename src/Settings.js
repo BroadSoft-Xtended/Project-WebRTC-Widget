@@ -242,7 +242,6 @@
     updateRowVisibility: function(){
       this.settingAutoAnswerRow.toggle(this.configuration.enableAutoAnswer);
       this.settingSelfViewDisableRow.toggle(!this.configuration.hasOwnProperty("enableSelfView"));
-      this.settingUseridRow.toggle(!this.configuration.hasOwnProperty("networkUserId"));
       this.settingHDRow.toggle(!this.configuration.hasOwnProperty("enableHD"));
       this.settingResolutionRow.toggle(!this.configuration.hasOwnProperty("displayResolution") || !this.configuration.hasOwnProperty("encodingResolution"));
       this.settingResolutionDisplayRow.toggle(!this.configuration.hasOwnProperty("displayResolution"));
