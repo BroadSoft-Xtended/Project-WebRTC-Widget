@@ -725,20 +725,20 @@
           var digit = String.fromCharCode(e.charCode);
           self.pressDTMF(digit);
         }
-        else if (e.charCode === 19)
+        else if (e.charCode === 223)
         {
           self.stats.toggle();
         }
-        else if (e.charCode === 20)
+        else if (e.charCode === 8224)
         {
           self.sms.toggle();
         }
         // toggle whiteboard
-        else if (e.charCode === 23)
+        else if (e.charCode === 8721)
         {
           self.whiteboard.toggle();
         }
-        else if (e.charCode === 8)
+        else if (e.charCode === 729)
         {
           self.history.toggle();
         }
