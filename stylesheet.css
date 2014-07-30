@@ -831,32 +831,6 @@ body {
     padding: .5em;
 }
 
-.historyBack {
-    display: none;
-    position: absolute;
-    top: 385;
-    left: 5px;
-}
-
-.historyClose {
-    position: absolute;
-    top: 385;
-    left: 80px;
-}
-
-.historyClear {
-    position: absolute;
-    top: 385;
-    left: 155px;
-}
-
-.historyForward {
-    display: none;
-    position: absolute;
-    top: 385;
-    right: 5px;
-}
-
 .callStats {
     display: none;
     position: absolute;
@@ -1488,7 +1462,7 @@ body
 .callHistory .content
 {
     padding: 10px;
-    height:92.9%;
+    height:84%;
     width: 180px;
 }
 .callHistory .content, .callHistory .callHistoryDetails
@@ -1731,6 +1705,9 @@ ul.tabs
     margin: 0;
     font-size: 18px;
     color: #FFF;
+}
+.settingsPopup .saveSettings {
+    font-size: 30px;
 }
 .videoBar .cell:first-child
 {
