@@ -193,7 +193,7 @@
             userMediaCallback(localStream);
           }
         }, function(e){
-          self.eventBus.message(this.configuration.messageGetUserMedia || "Get User Media Failed", "alert");
+          self.eventBus.message(self.configuration.messageGetUserMedia || "Get User Media Failed", "alert");
           if(failureCallback) {
             failureCallback(e);
           }
