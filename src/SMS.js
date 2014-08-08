@@ -92,7 +92,7 @@
         this.bodyAudio.text(body);
       }
       else {
-        this.bodyText.text(body);
+        this.bodyText.html(body);
       }
     },
     getMessageType: function(message){
