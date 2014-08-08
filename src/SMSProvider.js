@@ -33,7 +33,7 @@
         data: type === "GET" ? jsonData : JSON.stringify(jsonData)
       })
         .done(function(msg){
-          if(msg.status.code === "0000001" || msg.status === "success") {
+          if(msg.status === "empty" || msg.status === "success" || msg.status.code === "0000001") {
             logger.log("Response successful : "+ExSIP.Utils.toString(msg), self.client.configuration);
             if(successCallback) {
               successCallback(msg);

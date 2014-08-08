@@ -218,6 +218,10 @@
 
     onNotification: function (notifications) {
       var needsRead = false, self = this;
+      if(!notifications) {
+        return;
+      }
+
       for(var i=0; i < notifications.length; i++) {
         if(notifications[i].action === 'new-rec' || notifications[i].action === 'update' || notifications[i].action === 'delete') {
           needsRead = true;
