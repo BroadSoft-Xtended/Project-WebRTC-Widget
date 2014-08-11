@@ -531,6 +531,16 @@
   </div>
 </div>
 
+<script type="text/javascript">
+  $(function(){
+    if(parent.$ && parent.$.colorbox) {
+      parent.$.colorbox.resize({
+        innerWidth:$('#client').width()+40,
+        innerHeight:$('#client').height()+40
+      });
+    }
+  });
+</script>
 </body>
 
 </html>
