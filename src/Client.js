@@ -882,6 +882,10 @@
       {
         classes.push("enable-mute");
       }
+      if (this.configuration.enableShareScreen)
+      {
+        classes.push("enable-shareScreen");
+      }
       if (this.configuration.enableCallControl)
       {
         classes.push("enable-call-control");
@@ -916,7 +920,9 @@
       }
       if (this.configuration.getView())
       {
-        classes.push("view-"+this.configuration.getView());
+        this.configuration.getView().split(" ").map(function(view){
+          classes.push("view-"+view);
+        });
       }
       if (this.configuration.enableScreenSharing)
       {

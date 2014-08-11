@@ -1037,7 +1037,8 @@ body {
 .client:not(.enable-full-screen) .cell-fullScreen,
 .client:not(.enable-self-view) .cell-selfView,
 .client:not(.enable-settings) .cell-settings,
-.client:not(.enable-dialpad) .cell-dialpad
+.client:not(.enable-dialpad) .cell-dialpad,
+.client:not(.enable-shareScreen) .cell-shareScreen,
 .client:not(.enable-call-control) .callControl
 {
     display:none !important;
@@ -1097,7 +1098,15 @@ body {
 .view-audioOnly .settingsPopup {
     left: 80%;
 }
-
+.view-conference .selfViewDisable, .view-conference .selfViewEnable{
+    text-align: right !important;
+}
+.view-conference .fullScreenExpand, .view-conference .fullScreenContract{
+    text-align: left !important;
+}
+.view-conference .cell-hangup{
+    width: 30px !important;
+}
 
 
 @font-face {

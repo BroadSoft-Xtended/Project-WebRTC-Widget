@@ -78,7 +78,7 @@
     },
     isAudioOnlyView: function(){
       var view = this.getView();
-      return view === 'audioOnly';
+      return view && !!view.match('audioOnly');
     },
     getView: function(){
       return this.view || WebRTC.Utils.getSearchVariable("view");
