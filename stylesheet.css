@@ -13,6 +13,7 @@
 
 body {
     background-color: #FFFFFF;
+    margin:0;
 }
 
 .callControl {
@@ -1128,7 +1129,7 @@ body {
     color: white;
 }
 .view-conference .icon-hangup:before, .view-conference .icon-hangup:hover:before{
-    color:white;
+    color:white !important;
 }
 
 
