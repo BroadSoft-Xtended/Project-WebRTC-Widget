@@ -58,7 +58,7 @@
     <button class="authPopupButton button" type="button">Sign in</button>
   </div>
 
-  <div class="table">
+  <div class="fileshare-container table">
     <div class="cell">
       <div class="file_share fadeable">
         <span>Share File:</span><br>
@@ -535,8 +535,8 @@
   $(function(){
     if(parent.$ && parent.$.colorbox) {
       parent.$.colorbox.resize({
-        innerWidth:$('#client').width()+40,
-        innerHeight:$('#client').height()+40
+        innerWidth:$('#client').width(),
+        innerHeight:$('#client').height()
       });
     }
   });

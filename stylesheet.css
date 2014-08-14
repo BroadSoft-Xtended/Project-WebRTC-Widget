@@ -957,7 +957,12 @@ body {
     display: block;
     z-index: -1;
 }
-
+.client .fileshare-container {
+    display:none;
+}
+.enable-file-share .fileshare-container {
+    display:table;
+}
 .holdAndAnswerButton, .dropAndAnswerButton, .acceptIncomingCall {
     display:none;
 }
