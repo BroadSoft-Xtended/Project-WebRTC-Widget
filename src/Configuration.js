@@ -164,6 +164,7 @@
         'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
         'trace_sip': this.debug,
         'enable_ims': this.enableIms,
+        'p_asserted_identity': this.pAssertedIdentity,
         'enable_datachannel': this.enableWhiteboard || this.enableFileShare
       };
 
