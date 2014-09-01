@@ -90,6 +90,7 @@ body {
     height: 100%;
     border: none;
     z-index: 1;
+    padding-bottom:0;
 }
 
 .remoteVideo {
