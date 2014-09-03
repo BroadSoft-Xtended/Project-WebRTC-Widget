@@ -7,6 +7,7 @@ module( "Authentication", {
     ClientConfig.enableRegistrationIcon = true;
     ClientConfig.enableSMS = false;
     ClientConfig.enableXMPP = false;
+    ClientConfig.register = false;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
     WebRTC.Utils.getSearchVariable = function(name){ return false;}
@@ -21,7 +22,7 @@ test('on 403 : with settingUserId', function() {
   strictEqual(client.authentication.visible, false);
   TestWebrtc.Helpers.registrationFailed(403);
   strictEqual(client.authentication.visible, true);
-  strictEqual(client.authentication.userIdInput.val(), '12345');
+  strictEqual(client.authentication.authUserIdInput.val(), '12345');
   strictEqual(client.authentication.passwordInput.val(), '');
   client.authentication.passwordInput.val("121212");
   client.authentication.okButton.trigger("click");
@@ -44,7 +45,7 @@ test('on 403 : with settingUserId and settingAuthenticationUserId', function() {
   strictEqual(client.authentication.visible, false);
   TestWebrtc.Helpers.registrationFailed(403);
   strictEqual(client.authentication.visible, true);
-  strictEqual(client.authentication.userIdInput.val(), '54321');
+  strictEqual(client.authentication.authUserIdInput.val(), '54321');
   strictEqual(client.authentication.passwordInput.val(), '');
   client.authentication.passwordInput.val("121212");
   client.authentication.okButton.trigger("click");
@@ -59,17 +60,33 @@ test('on 403 : with settingUserId and settingAuthenticationUserId', function() {
   strictEqual(client.settings.authenticationUserId(), '54321', 'should NOT change settings authenticationUserId as same as userId');
   strictEqual(client.settings.password(), '121212', 'should set settings password');
 });
-test('on 403 : with settingUserId and userId changed', function() {
+test('on 403 : with settingUserId and authUserId changed', function() {
   client = new WebRTC.Client();
   client.settings.userId('12345');
   TestWebrtc.Helpers.connect();
   TestWebrtc.Helpers.registrationFailed(403);
-  client.authentication.userIdInput.val("54321");
+  client.authentication.authUserIdInput.val("54321");
   client.authentication.passwordInput.val("121212");
   client.authentication.okButton.trigger("click");
   strictEqual(client.sipStack.ua.configuration.authorization_user, '54321');
   TestWebrtc.Helpers.registered();
   strictEqual(client.settings.userId(), '12345', 'should NOT change settings userId');
+  strictEqual(client.settings.authenticationUserId(), '54321', 'should set settings authenticationUserId');
+  strictEqual(client.settings.password(), '121212', 'should set settings password');
+});
+test('on 403 : with settingUserId and userId and authUserId changed', function() {
+  client = new WebRTC.Client();
+  client.settings.userId('12345');
+  TestWebrtc.Helpers.connect();
+  TestWebrtc.Helpers.registrationFailed(403);
+  client.authentication.userIdInput.val("23456");
+  client.authentication.authUserIdInput.val("54321");
+  client.authentication.passwordInput.val("121212");
+  client.authentication.okButton.trigger("click");
+  strictEqual(client.sipStack.ua.configuration.uri.toString(), 'sip:23456@'+ClientConfig.domainFrom);
+  strictEqual(client.sipStack.ua.configuration.authorization_user, '54321');
+  TestWebrtc.Helpers.registered();
+  strictEqual(client.settings.userId(), '23456', 'should change settings userId');
   strictEqual(client.settings.authenticationUserId(), '54321', 'should set settings authenticationUserId');
   strictEqual(client.settings.password(), '121212', 'should set settings password');
 });
@@ -79,7 +96,7 @@ test('on 403 : with settingUserId and settingsAuthenticationUserId and userId ch
   client.settings.authenticationUserId('54321');
   TestWebrtc.Helpers.connect();
   TestWebrtc.Helpers.registrationFailed(403);
-  client.authentication.userIdInput.val("98765");
+  client.authentication.authUserIdInput.val("98765");
   client.authentication.passwordInput.val("121212");
   client.authentication.okButton.trigger("click");
   strictEqual(client.sipStack.ua.configuration.authorization_user, '98765');

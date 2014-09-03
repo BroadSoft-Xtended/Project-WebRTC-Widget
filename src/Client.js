@@ -80,8 +80,9 @@
     this.fileShare = new WebRTC.FileShare(this, this.client.find(".file_share"), this.eventBus, this.sipStack);
     this.authentication = new WebRTC.Authentication(this.client.find(".authPopup"), this.eventBus, {
       onAuthenticate: function(data) {
-        self.sipStack.init(data.userId, data.password);
+        self.sipStack.init(data);
       },
+      configurationRegister: self.configuration.register,
       settingsUserId: self.settings.userId,
       settingsAuthenticationUserId: self.settings.authenticationUserId,
       settingsPassword: self.settings.password

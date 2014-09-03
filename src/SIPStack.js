@@ -224,7 +224,7 @@
       }
     },
 
-    init: function(userid, password){
+    init: function(data){
       try {
         var self = this;
 
@@ -233,7 +233,7 @@
           this.ua.stop();
         }
 
-        this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(userid, password));
+        this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(data));
 
         this.updateRtcMediaHandlerOptions();
 

@@ -8,7 +8,8 @@
   Authentication = function (element, eventBus, options) {
     this.popup = element;
     this.okButton = this.popup.find('.authPopupButton');
-    this.userIdInput = this.popup.find('input.username');
+    this.userIdInput = this.popup.find('input.userid');
+    this.authUserIdInput = this.popup.find('input.authUserid');
     this.passwordInput = this.popup.find('input.password');
     this.alert = this.popup.find('.alert');
 
@@ -25,7 +26,7 @@
 
       this.eventBus.on("registrationFailed", function(e){
         var statusCode = e.data.response.status_code;
-        if(statusCode === 403 && self.options.settingsUserId() && !self.options.settingsPassword()) {
+        if((statusCode === 403 && self.options.settingsUserId() && !self.options.settingsPassword()) || self.options.configurationRegister) {
           self.setVisible(true);
         }
       });
@@ -35,16 +36,23 @@
         var userId = self.userIdInput.val();
         if (!userId)
         {
-          self.alert.text("Invalid Username").fadeIn(10).fadeOut(4000);
+          self.alert.text("Invalid User ID").fadeIn(10).fadeOut(4000);
           return;
         }
+        var authUserId = self.authUserIdInput.val();
+//        if (!authUserId)
+//        {
+//          self.alert.text("Invalid Auth User ID").fadeIn(10).fadeOut(4000);
+//          return;
+//        }
         var password = self.passwordInput.val();
         self.setVisible(false);
-        self.options.onAuthenticate({userId: userId, password: password});
+        self.options.onAuthenticate({userId: userId, authenticationUserId: authUserId, password: password});
         self.eventBus.once("registered", function(e){
-          if(self.options.settingsUserId() !== userId) {
-            self.options.settingsAuthenticationUserId(userId);
+          if(authUserId && self.options.settingsUserId() !== authUserId) {
+            self.options.settingsAuthenticationUserId(authUserId);
           }
+          self.options.settingsUserId(userId);
           self.options.settingsPassword(password);
         });
       });
@@ -65,7 +73,8 @@
     setVisible: function(visible){
       this.visible = visible;
 
-      this.userIdInput.val(this.options.settingsAuthenticationUserId() || this.options.settingsUserId());
+      this.authUserIdInput.val(this.options.settingsAuthenticationUserId());
+      this.userIdInput.val(this.options.settingsUserId());
 
       this.eventBus.viewChanged(this);
     }
