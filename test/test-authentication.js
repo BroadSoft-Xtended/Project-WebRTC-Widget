@@ -22,7 +22,8 @@ test('on 403 : with settingUserId', function() {
   strictEqual(client.authentication.visible, false);
   TestWebrtc.Helpers.registrationFailed(403);
   strictEqual(client.authentication.visible, true);
-  strictEqual(client.authentication.authUserIdInput.val(), '12345');
+  strictEqual(client.authentication.userIdInput.val(), '12345');
+  strictEqual(client.authentication.authUserIdInput.val(), '');
   strictEqual(client.authentication.passwordInput.val(), '');
   client.authentication.passwordInput.val("121212");
   client.authentication.okButton.trigger("click");
