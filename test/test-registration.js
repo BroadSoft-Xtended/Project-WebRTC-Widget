@@ -31,3 +31,17 @@ test('without settingUserID', function() {
   client = new WebRTC.Client();
   strictEqual(client.configuration.getExSIPConfig("1509", "4009").register, false);
 });
+test('without settingUserID and with configuration.register', function() {
+  WebRTC.Configuration.prototype.getPassword = function(){return false;}
+  ClientConfig.register = true;
+  client = new WebRTC.Client();
+  strictEqual(client.configuration.getExSIPConfig("1509", false).register, true);
+  TestWebrtc.Helpers.connect();
+  var registered = false;
+  client.eventBus.on("registered", function(e){
+    registered = true;
+  });
+  client.sipStack.ua.emit('registered', client.sipStack.ua);
+  strictEqual(registered, true, "should have received registered from UA");
+  delete ClientConfig.register;
+});

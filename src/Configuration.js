@@ -174,15 +174,15 @@
         config.display_name = this.sipDisplayName;
       }
 
-      // Modify config object based password
-      if (!this.settings.userId())
-      {
-        config.register = false;
-      }
-      else
+      // do registration if setting User ID or configuration register is set
+      if (this.settings.userId() || this.register)
       {
         config.register = true;
         config.password = password || this.settings.password();
+      }
+      else
+      {
+        config.register = false;
       }
       return config;
     },
