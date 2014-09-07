@@ -30,17 +30,17 @@
   </script>
 </head>
 
-<body style="overflow:hidden;">
+<body>
 
 <div id="unsupported" class="unsupported"></div>
 <div id="whiteboard_unsupported" class="unsupported"></div>
 <div id="screen_sharing_unsupported" class="unsupported">
   Could not retrieve screen capture. Do you have it enabled?<br>
-  Open link to check : <span style="text-decoration: underline;">chrome://flags/#enable-usermedia-screen-capture</span>
+  Open link to check : <span>chrome://flags/#enable-usermedia-screen-capture</span>
 </div>
 
 <noscript>
-  <div class="unsupported" style="display:block;background-color:white;color:black;">
+  <div id="javascript_disabled" class="unsupported">
   JavaScript must be enabled to load the WebRTC client
   </div>
 </noscript>
@@ -82,7 +82,7 @@
               <button class="holdAndAnswerButton button" type="button">Hold And Answer</button><br>
               <button class="dropAndAnswerButton button" type="button">Drop And Answer</button>
           </div>
-          <div class="cell" style="text-align:right;">
+          <div id="rejectIncomingCallContainer" class="cell">
               <button class="rejectIncomingCall button" type="button">Reject</button>
           </div>
       </div>
@@ -113,7 +113,7 @@
             </ul>
             <div id='tab1'>
               <div class="settingDisplayNameRow row">
-              <span class="cell" style="width:110px">Display Name</span>
+              <span class="cell">Display Name</span>
               <input class="settingDisplayName cell" type="text" value=""/>
               </div>
               <div class="settingUseridRow row">
@@ -215,7 +215,7 @@
     </div>
     <div class="videoBar">
       <div class="table fixed collapse">
-        <div class="cell" style="width:8px">
+        <div class="cell leftSpacer">
         </div>
         <div class="cell cell-selfView">
             <div class="selfViewDisable icon fadeable">
@@ -250,10 +250,10 @@
                 <a href="" title="Resume Call" class="icon-resume"></a>
             </div>
         </div>
-        <div class="cell cell-hangup" style="width:42px;">
+        <div class="cell cell-hangup">
             <div class="hangup icon fadeable">
                 <a href="" title="Hangup" class="icon-hangup"></a>
-                <div class="subtitle" style="display:none;">End Conference</div>
+                <div class="subtitle">End Conference</div>
             </div>
         </div>
           <div class="cell cell-transfer">
@@ -269,7 +269,7 @@
               <a href="" title="Stop Share Screen" class="icon-screen-sharing-off"></a>
             </div>
           </div>
-          <div class="cell cell-timer" style="position:relative;top:0;left:0;width:auto;">
+          <div class="cell cell-timer">
             <div class="timer fadeable"></div>
           </div>
           <div class="cell cell-settings">
@@ -285,7 +285,7 @@
                   <a href="" title="Contract Full Screen" class="icon-fullScreenContract"></a>
               </div>
           </div>
-          <div class="cell" style="width:8px">
+          <div class="cell rightSpacer">
           </div>
         </div>
       </div>
@@ -417,16 +417,16 @@
             <div class="cell">Frame rate out: <a href="javascript:;" data-type="video" data-var="googFrameRateSent" class="stats-var"></a> in: <a href="javascript:;" data-type="video" data-var="googFrameRateReceived" class="stats-var"></a></div>
             <div class="cell">Audio Level out: <a href="javascript:;" data-type="audio" data-var="audioInputLevel" class="stats-var"></a> in: <a href="javascript:;" data-type="audio" data-var="audioOutputLevel" class="stats-var"></a></div>
         </div>
-        <div class="row" style="height: 15px;"></div>
+        <div class="row spacer"></div>
         <div class="heading">
             <div class="cell">Resolution</div>
             <div class="cell">Link</div>
         </div>
         <div class="row">
             <div class="cell">In: <span data-type="video" data-var="googFrameWidthReceived" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightReceived" class="stats-var"></span> Out: <span data-type="video" data-var="googFrameWidthSent" class="stats-var"></span> x <span data-type="video" data-var="googFrameHeightSent" class="stats-var"></span></div>
-            <div class="cell"><span style="display:none;">Delay: <a href="javascript:;" data-type="audio" data-var="googRtt" class="stats-var"></a></span> Jitter: <a href="javascript:;" data-type="audio" data-var="googJitterReceived" class="stats-var"></a></div>
+            <div class="cell"><span class="statsDelay">Delay: <a href="javascript:;" data-type="audio" data-var="googRtt" class="stats-var"></a></span> Jitter: <a href="javascript:;" data-type="audio" data-var="googJitterReceived" class="stats-var"></a></div>
         </div>
-        <div class="row" style="height: 15px;"></div>
+        <div class="row spacer"></div>
       </div>
       
     </div>
@@ -485,7 +485,7 @@
                 <div class="cell title body">Message</div>
                 <div class="cell title actions"></div>
               </div>
-              <div class="content" style="display:table-row-group">
+              <div class="content">
               </div>
             </div>
           </div>

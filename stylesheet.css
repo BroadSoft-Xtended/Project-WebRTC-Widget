@@ -14,6 +14,7 @@
 body {
     background-color: #FFFFFF;
     margin:0;
+    overflow:hidden;
 }
 
 .callControl {
@@ -1888,4 +1889,58 @@ ul.tabs
 
 [id$="sample"]{
     display:none !important;
+}
+
+#screen_sharing_unsupported span
+{
+    text-decoration: underline;
+}
+#javascript_disabled
+{
+    display:block;
+    background-color:white;
+    color:black;
+}
+#rejectIncomingCallContainer
+{
+    text-align:right;
+}
+.settingDisplayNameRow .cell
+{
+    width:110px;
+}
+.videoBar .leftSpacer
+{
+    width:8px;
+}
+.videoBar .cell-hangup
+{
+    width:42px;
+}
+.videoBar .subtitle
+{
+    display:none;
+}
+.videoBar .cell-timer
+{
+    position:relative;
+    top:0;
+    left:0;
+    width:auto;
+}
+.videoBar .rightSpacer
+{
+    width:8px;
+}
+.smsInbox .content
+{
+    display:table-row-group;
+}
+.callStats .spacer
+{
+    height: 15px;
+}
+.callStats .statsDelay
+{
+    display:none;
 }
