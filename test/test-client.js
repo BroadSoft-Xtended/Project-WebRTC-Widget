@@ -184,6 +184,7 @@ test('unmuteAudio on mute triggered', function() {
   TestWebrtc.Helpers.isVisible(client.unmuteAudioIcon, false);
 });
 test('fullScreen icon', function() {
+  ClientConfig.enableFullScreen = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.isVisible(client.fullScreenExpandIcon, true);
   TestWebrtc.Helpers.isVisible(client.fullScreenContractIcon, false);
@@ -334,7 +335,7 @@ test('on disconnect', function() {
   ClientConfig.enableMessages = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.disconnect();
-  strictEqual(client.messages.text().trim(), 'Connection Failed!');
+  strictEqual(client.messages.text().trim(), 'Connection failed');
 });
 test('on invalid destination and connected', function() {
   var config = {};
