@@ -14,6 +14,7 @@
 body {
     background-color: #FFFFFF;
     margin:0;
+    overflow:hidden;
 }
 
 .callControl {
@@ -33,14 +34,17 @@ body {
     height:auto;
 }
 .callControl input {
-    background: #141414;
-    border: none;
+    background: #333;
+    border: 1px solid #3c3c3c;
     color: #04AFF0;
-    font-family:arial;
+    font-family: arial;
     font-size: 18px;
     padding: 0;
     border-radius: 0;
-    width:109px;
+    width: 171px;
+    line-height: 30px;
+    padding-left: 8px;
+    padding-right: 35px;
 }
 .callControl input:focus
 {
@@ -221,12 +225,12 @@ body {
 /* Hangup Button */
 .icon-hangup:before {
     content: "\e00f";
-    color: #04AFF0;
+    color: #FF0000;
 }
 
 .icon-hangup:hover:before {
     content: "\e00f";
-    color: #04AFF0;
+    color: #FF0000;
 }
 
 .videoBar .icon {
@@ -638,6 +642,7 @@ body {
 .settingsPopup [type="checkbox"] {
     width: 18;
     height: 18;
+    vertical-align: middle;
 }
 
 .settingsPopup .short {
@@ -699,8 +704,8 @@ body {
 
 .dialpad {
     padding: 15px;
-    background: #141414;
-    border: 1px solid #252525;
+    background: #292929;
+    border: 1px solid #3c3c3c;
     display: none;
     position: absolute;
     bottom: 40px;
@@ -1316,8 +1321,8 @@ body
     border: none;
     box-shadow: none;
     margin-top: 0px;
-    background: #141414;
-    border-top: 1px solid #252525;
+    background: #292929;
+    border-top: 1px solid #3c3c3c;
 }
 .videoBar .table
 {
@@ -1327,8 +1332,8 @@ body
 {
     border-radius: 0;
     box-shadow: none;
-    background: #141414;
-    border: 1px solid #252525;
+    background: #292929;
+    border: 1px solid #3c3c3c;
     cursor: move;
 }
 .videoBar .icon, .videoBar a
@@ -1369,18 +1374,19 @@ body
 
 .settingsPopup
 {
-    border: 1px solid #000000;
-    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid #3c3c3c;
+    background: #292929;
     border-radius: 0px;
     box-shadow: none;
     bottom: 40px;
     right: 0px;
     top:auto;
     left: auto;
-    width: 290px !important;
+    width: 304px !important;
     /*padding: 16px;*/
     font-size: 14px;
-    height: 181px;
+    height: 276px;
+    overflow: hidden;
 }
 .settingsPopup span
 {
@@ -1390,6 +1396,11 @@ body
 {
     background: #333;
     border: 1px solid #414141;
+    color: #EEE;
+    padding-left: 5px;
+    margin-left: 14px;
+    line-height: 22px;
+    font-size: 13px;
 }
 /*a, .icon span
 {
@@ -1447,8 +1458,12 @@ body
 }
 .dialpad button:hover
 {
-    background: #111;
+    background: #3a3a3a;
     box-shadow: none;
+}
+.dialpad button:focus
+{
+    outline: none;
 }
 .dialpad button span
 {
@@ -1471,9 +1486,9 @@ body
 }
 .callHistory, .callStats
 {
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: #292929;
     border-radius: 0;
-    border: 1px solid #000000;
+    border: 1px solid #3c3c3c;
     box-shadow: none;
     color: #999999;
     z-index: 200;
@@ -1482,13 +1497,13 @@ body
 .callHistory
 {
     width: 200px;
-    height: 292px;
+    height: 235px;
     right: auto;
     left: 200px;
     bottom: 40px;
     top: auto;
-    background: #141414;
-    border: 1px solid #252525;
+    background: #292929;
+    border: 1px solid #3c3c3c;
     overflow: hidden;
     padding: 0;
 }
@@ -1563,7 +1578,8 @@ body
 }
 .destination-container hr
 {
-    border: 1px solid #0E0E0E;
+    border: none;
+    border-bottom: 1px solid #3c3c3c;
 }
 .call {
     display: block;
@@ -1585,6 +1601,10 @@ body
     padding-top: 5px;
     padding-bottom: 5px;
     outline: none;
+    position: absolute;
+    right: 4px;
+    top: 5px;
+    width: 25px;
 }
 .destination::-webkit-input-placeholder {
     color: #04AFF0;
@@ -1681,6 +1701,7 @@ ul.tabs
 }
 .tabs ~ div {
     padding:10px;
+    margin-bottom: 10px;
 }
 .tabs li {
     list-style:none;
@@ -1740,7 +1761,25 @@ ul.tabs
     color: #FFF;
 }
 .settingsPopup .saveSettings {
-    font-size: 30px;
+    background: #04AFF0;
+    color: #FFF;
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 20px;
+    margin-left: 9px;
+}
+.settingsPopup .saveSettings:hover {
+    background: #017EAD;
+}
+.settingsPopup .clear
+{
+    color: #04AFF0;
+    margin-left: 10px;
+    text-decoration: none;
+}
+.settingsPopup .clear:hover
+{
+    color: #017EAD;
 }
 .videoBar .cell:first-child
 {
@@ -1751,21 +1790,21 @@ ul.tabs
     opacity: 1;
 }
 
-#client::-webkit-scrollbar {
+.client::-webkit-scrollbar {
     width: 8px;
 }
 
 /* Track */
-#client::-webkit-scrollbar-track {
+.client::-webkit-scrollbar-track {
 
 }
 
 /* Handle */
-#client::-webkit-scrollbar-thumb {
+.client::-webkit-scrollbar-thumb {
     background: rgba(39, 39, 39, 1);
 
 }
-#client::-webkit-scrollbar-thumb:window-inactive {
+.client::-webkit-scrollbar-thumb:window-inactive {
     background: rgba(39, 39, 39, 1);
 }
 .whiteboard {
@@ -1888,4 +1927,60 @@ ul.tabs
 
 [id$="sample"]{
     display:none !important;
+}
+
+#screen_sharing_unsupported span
+{
+    text-decoration: underline;
+}
+#javascript_disabled
+{
+    display:block;
+    background-color:white;
+    color:black;
+}
+#rejectIncomingCallContainer
+{
+    text-align:right;
+}
+
+.videoBar .leftSpacer
+{
+    width:8px;
+}
+.videoBar .cell-hangup
+{
+    width:42px;
+}
+.videoBar .subtitle
+{
+    display:none;
+}
+.videoBar .cell-timer
+{
+    position:relative;
+    top:0;
+    left:0;
+    width:auto;
+}
+.videoBar .rightSpacer
+{
+    width:8px;
+}
+.smsInbox .content
+{
+    display:table-row-group;
+}
+.callStats .spacer
+{
+    height: 15px;
+}
+.callStats .statsDelay
+{
+    display:none;
+}
+.btn-star
+{
+    font-size: 30px;
+    vertical-align: middle;
 }
