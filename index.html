@@ -116,13 +116,13 @@
               <span class="cell">Display Name</span>
               <input class="settingDisplayName cell" type="text" value=""/>
               </div>
+              <div class="settingAuthenticationUseridRow row">
+                <span class="cell">Auth User ID</span>
+                <input class="settingAuthenticationUserid cell" type="text" value=""/>
+              </div>
               <div class="settingUseridRow row">
                 <span class="cell">User ID</span>
                 <input class="settingUserid cell" type="text" value=""/>
-              </div>
-              <div class="settingAuthenticationUseridRow row">
-                <span class="cell">Authentication User ID</span>
-                <input class="settingAuthenticationUserid cell" type="text" value=""/>
               </div>
               <div class="settingPasswordRow row">
                 <span class="cell">Password</span>
@@ -203,7 +203,7 @@
       
       <div class="row">
           <span class="cell">
-            <a href="" title="Save Settings" class="saveSettings icon-checkmark6"></a>
+            <a href="" title="Save Settings" class="saveSettings">Save Settings</a>
             <a href="" title="Clear Settings" class="clear">Clear Settings</a>
           </span>
       </div>
@@ -309,7 +309,7 @@
     </div>
     <div class="dialpad fadeable popup">
       <div class="callControl destination-container">
-        <input class="destination" type="text" placeholder="# or URI">
+        <input class="destination" type="text">
         <button class="history-button"><i class="icon-clock"></i></button>
         <hr>
       </div>
@@ -329,12 +329,12 @@
         <button>9</button>
       </div>
       <div class="button-row">
-        <button>*</button>
+        <button class="btn-star">*</button>
         <button>0</button>
         <button>#</button>
       </div>
       <div class="dialpad-control-bar">
-        <div class="call main-button"><a href=""><span class="icon-phone"></span>Call</a></div>
+        <div class="call main-button"><a href="">Call</a></div>
       </div>
     </div>
     <div class="callHistory">
