@@ -73,13 +73,13 @@
   <div class="main">
     <div class="errorPopup"></div>
     <div class="callPopup fadeable popup">
-      <span>Incoming Call</span><br><br>
-      <span class="incomingCallName"></span><br>
-      <span class="incomingCallUser"></span><br><br>
+      <span class="incomingCallTitle">Incoming Call</span>
+      <span class="incomingCallName"></span>
+      <span class="incomingCallUser"></span>
       <div class="table">
           <div class="cell">
               <button class="acceptIncomingCall button" type="button">Accept</button>
-              <button class="holdAndAnswerButton button" type="button">Hold And Answer</button><br>
+              <button class="holdAndAnswerButton button" type="button">Hold And Answer</button>
               <button class="dropAndAnswerButton button" type="button">Drop And Answer</button>
           </div>
           <div id="rejectIncomingCallContainer" class="cell">
@@ -310,7 +310,7 @@
     <div class="dialpad fadeable popup">
       <div class="callControl destination-container">
         <input class="destination" type="text">
-        <button class="history-button"><i class="icon-clock"></i></button>
+        <button class="history-button" title="Call History"><i class="icon-clock"></i></button>
         <hr>
       </div>
       <div class="button-row">
@@ -341,15 +341,15 @@
         <div class="content">
 
         </div>
-      <div>
+      <div class="classHistoryActions">
         <span class="historyBack">
           <a href="" title="Previous" class="icon-arrow-up-thick"></a>
         </span>
         <span class="historyClear">
-          <a href="" title="Clear History" class="icon-delete"></a>
+          <a href="" title="Clear History">Clear</a>
         </span>
         <span class="historyClose">
-          <a href="" title="Close" class="icon-checkmark6"></a>
+          <a href="" title="Close History">Close</a>
         </span>
         <span class="historyForward">
           <a href="" title="Next" class="icon-arrow-down-thick"></a>
@@ -439,10 +439,9 @@
   </div>
 
   <div class="historyRowSample">
-      <div class="rowSpace"></div>
       <div class="row">
           <a href="" title="Number" class="historyDestination"></a>
-          <span class="historyDirection"></span><br>
+          <span class="historyDirection"></span>
           <span class="historyDate"></span><span class="historyLength"></span>
           <span class="history-details-arrow icon-angle-right"></span>
       </div>

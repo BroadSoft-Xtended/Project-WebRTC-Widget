@@ -23,6 +23,7 @@
     this.jitter = this.callHistory.find('.jitter');
     this.historyClear = this.callHistory.find(".historyClear");
     this.historyCallLink = this.callHistory.find(".historyCallLink");
+    this.historyButton = $(".history-button");
 
     this.pageNumber = 0;
     this.historyToggled = false;
@@ -176,7 +177,7 @@
         self.audioLostPer.text(call.audioLostPer);
         self.videoLostPer.text(call.videoLostPer);
         self.jitter.text(call.jitter);
-        self.historyCallLink.attr("data-destination", call.destination);
+        self.historyCallLink.attr("data-destination", call.destinationWithoutSip());
         self.historyCallLink.text("Call "+call.destinationWithoutSip());
         self.callHistoryDetails.fadeIn(100);
         self.callHistory.css({width:"416px"});
@@ -304,10 +305,12 @@
         if (this.historyToggled === false) {
           this.callHistory.fadeIn(100);
           this.historyClear.fadeIn(100);
+          this.historyButton.addClass("active");
         }
         else if (this.historyToggled === true) {
           this.callHistory.fadeOut(100);
           this.historyClear.fadeOut(100);
+          this.historyButton.removeClass("active");
         }
       }
       this.historyToggled = !this.historyToggled;

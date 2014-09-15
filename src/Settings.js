@@ -180,6 +180,9 @@
         self.sound.playClick();
         self.toggled = !self.toggled;
         self.client.updateClientClass();
+        self.client.toggleDialpad(false);
+        self.client.history.historyToggled = true;
+        self.client.history.toggle();
       });
 
       this.colorInput.bind('change', function(e){
@@ -379,6 +382,10 @@
         var mapping = this.cookiesMapper[cookie];
         $.cookie(cookie, mapping.inputGetter(), { expires: this.configuration.expires });
       }
+    },
+    toggleSettings: function(flag){
+      this.toggled = flag;
+      this.client.updateClientClass();
     },
     initializeTabs: function(){
       $('ul.tabs').each(function(){

@@ -38,7 +38,7 @@ Utils= {
   /* format date and time for call history */
   formatDateTime: function (dateStr){
     var date = new Date(dateStr);
-    var strDate = date.getDate() + "/" + (date.getMonth() + 1);
+    var strDate =  (date.getMonth() + 1) + "/" + date.getDate();
     var hours = date.getHours();
     var minutes = date.getMinutes();
     var ampm = hours >= 12 ? 'PM' : 'AM';

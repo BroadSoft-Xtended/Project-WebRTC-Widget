@@ -376,6 +376,11 @@
       this.updateClientClass();
     },
 
+    toggleDialpad: function(flag) {
+      this.dialpadShown = flag;
+      this.updateClientClass();
+    },
+
     updateFullScreen: function() {
       this.fullScreen = document.fullscreen || document.mozFullScreen || document.webkitIsFullScreen;
       this.updateClientClass();
@@ -689,6 +694,8 @@
         e.preventDefault();
         self.sound.playClick();
         self.showDialpad();
+        self.destination.focus();
+        self.settings.toggleSettings(false);
       });
 
       this.dialpadHideIcon.bind('click', function(e)
@@ -696,6 +703,8 @@
         e.preventDefault();
         self.sound.playClick();
         self.hideDialpad();
+        self.history.historyToggled = true;
+        self.history.toggle();
       });
 
       this.historyClose.bind('click', function(e)
