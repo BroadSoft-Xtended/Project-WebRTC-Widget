@@ -1495,7 +1495,8 @@ body
     padding: 16px 0 10px 0;
     height:68%;
     width: 200px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    overflow-x: hidden;
 }
 .callHistory .content, .callHistory .callHistoryDetails
 {
