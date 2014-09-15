@@ -1101,15 +1101,12 @@ body {
     position: relative;
     margin-right: 10px;
 }
-.view-audioOnly .dialpad, .view-audioOnly .settingsPopup {
-    top: 60px;
-    bottom: auto !important;
-}
-.view-audioOnly .dialpad {
-    left: 0;
-}
-.view-audioOnly .settingsPopup {
-    left: 80%;
+.view-audioOnly .messages
+{
+    left: 10px !important;
+    top: 48px !important;
+    font-weight: bold;
+    font-size: 14px;
 }
 .view-conference .selfViewDisable, .view-conference .selfViewEnable{
     text-align: right !important;
