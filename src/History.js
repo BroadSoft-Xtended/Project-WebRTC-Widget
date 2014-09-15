@@ -181,6 +181,8 @@
         self.historyCallLink.text("Call "+call.destinationWithoutSip());
         self.callHistoryDetails.fadeIn(100);
         self.callHistory.css({width:"416px"});
+        $(".history-row").removeClass("active");
+        $(this).addClass("active");
       };
     },
 

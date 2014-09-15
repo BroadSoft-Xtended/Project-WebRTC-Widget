@@ -1511,10 +1511,9 @@ body
 }
 .callHistory .content
 {
-    padding: 10px;
+    padding: 16px 0 10px 0;
     height:68%;
-    width: 180px;
-    padding-top: 18px;
+    width: 200px;
     margin-bottom: 8px;
 }
 .callHistory .content, .callHistory .callHistoryDetails
@@ -1628,9 +1627,10 @@ body
 .callHistory .historyDirection {
     position: absolute;
     color: #3DA005;
-    left: 0px;
+    left: 3px;
     font-family: arial;
     font-size: 18px;
+    top:6px;
 }
 .callHistory .actions
 {
@@ -1647,6 +1647,7 @@ body
     font-family: arial;
     font-size: 18px;
     text-decoration: none;
+    top: 6px;
 }
 .callHistory .historyDate {
     position: absolute;
@@ -1654,7 +1655,7 @@ body
     left: 26px;
     font-family: arial;
     font-size: 10px;
-    top: 24px;
+    top: 29px;
 }
 .callHistory .historyLength {
     position: absolute;
@@ -1662,11 +1663,15 @@ body
     left: 104px;
     font-family: arial;
     font-size: 10px;
-    top: 24px;
+    top: 29px;
 }
 .history-row
 {
     position: relative;
+}
+.history-row:hover, .history-row.active
+{
+    background: #353535;
 }
 .history-row .row {
     display: block;
@@ -1677,9 +1682,9 @@ body
 .history-details-arrow
 {
     position: absolute;
-    right: 2px;
+    right: 8px;
     font-size: 16px;
-    top: 8px;
+    top: 14px;
 }
 .callHistoryDetails
 {
