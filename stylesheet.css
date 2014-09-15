@@ -802,24 +802,7 @@ body {
     box-shadow: 0px 0px 10px #999999;
 }
 
-/*.callHistory .historyDestination {
-    position: absolute;
-    color: #0082FF;
-    left: 10px;
-    font-family:arial;
-    font-size: 18px;
-    text-decoration: none;
-}*/
-
-/*.callHistory .historyDirection {
-    position: absolute;
-    color: #0082FF;
-    left: 205px;
-    font-family:arial;
-    font-size: 18px;
-}*/
-
-.callHistory .historyDate {
+.callHistory .hist-date {
     position: absolute;
     color: #0082FF;
     left: 20px;
@@ -827,7 +810,7 @@ body {
     font-size: 10px;
 }
 
-.callHistory .historyLength {
+.callHistory .hist-length {
     position: absolute;
     color: #0082FF;
     left: 205px;
@@ -1077,7 +1060,7 @@ body {
 .history-row {
     cursor: pointer;
 }
-.historyCallLink {
+.callLink {
     text-align: left;
 }
 .view-audioOnly .video, .view-audioOnly .fullScreenExpand, .view-audioOnly .fullScreenContract,
@@ -1529,7 +1512,7 @@ body
 {
     margin-bottom: 18px;
 }
-.historyCallLink
+.callLink
 {
     background: #6F6F6F;
     float: left;
@@ -1622,7 +1605,7 @@ body
     padding-left: 5px;
     font-weight: 400;
 }
-.callHistory .historyDirection {
+.callHistory .hist-direction {
     position: absolute;
     color: #3DA005;
     left: 3px;
@@ -1634,11 +1617,11 @@ body
 {
     margin-top: 12px;
 }
-.historyDirection .icon-arrow-down-thick
+.hist-direction .icon-arrow-down-thick
 {
     color: #E9651D;
 }
-.callHistory .historyDestination {
+.callHistory .hist-destination {
     position: absolute;
     color: #B3B3B3;
     left: 25px;
@@ -1647,7 +1630,7 @@ body
     text-decoration: none;
     top: 6px;
 }
-.callHistory .historyDate {
+.callHistory .hist-date {
     position: absolute;
     color: #B3B3B3;
     left: 26px;
@@ -1655,7 +1638,7 @@ body
     font-size: 10px;
     top: 29px;
 }
-.callHistory .historyLength {
+.callHistory .hist-length {
     position: absolute;
     color: #B3B3B3;
     left: 104px;
@@ -1677,7 +1660,7 @@ body
     position: relative;
     height: 46px;
 }
-.history-details-arrow
+.hist-details-arrow
 {
     position: absolute;
     right: 8px;

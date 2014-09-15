@@ -22,7 +22,7 @@
     this.videoLostPer = this.callHistory.find('.videoLostPer');
     this.jitter = this.callHistory.find('.jitter');
     this.historyClear = this.callHistory.find(".historyClear");
-    this.historyCallLink = this.callHistory.find(".historyCallLink");
+    this.historyCallLink = this.callHistory.find(".callLink");
     this.historyButton = $(".history-button");
 
     this.pageNumber = 0;
@@ -145,12 +145,12 @@
         var call = calls[i];
         row.bind("click", this.callDetailsHandler(call));
         row.find(".historyCall").text((this.pageNumber * 10) + i + 1);
-        row.find(".historyDestination").text(call.destinationWithoutSip());
+        row.find(".hist-destination").text(call.destinationWithoutSip());
         //row.find(".historyDirection").text(call.direction);
-        row.find(".historyDirection").append("<i class='icon-arrow-"+call.direction+"-thick'></i>");
+        row.find(".hist-direction").append("<i class='icon-arrow-"+call.direction+"-thick'></i>");
         //row.find(".historyDate").text(call.startDate());
-        row.find(".historyDate").text(WebRTC.Utils.formatDateTime(call.startDate()));
-        row.find(".historyLength").text(call.length);
+        row.find(".hist-date").text(WebRTC.Utils.formatDateTime(call.startDate()));
+        row.find(".hist-length").text(call.length);
         this.rows.push(row);
         row.appendTo(this.content);
       }
