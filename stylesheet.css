@@ -802,22 +802,22 @@ body {
     box-shadow: 0px 0px 10px #999999;
 }
 
-.callHistory .historyDestination {
+/*.callHistory .historyDestination {
     position: absolute;
     color: #0082FF;
     left: 10px;
     font-family:arial;
     font-size: 18px;
     text-decoration: none;
-}
+}*/
 
-.callHistory .historyDirection {
+/*.callHistory .historyDirection {
     position: absolute;
     color: #0082FF;
     left: 205px;
     font-family:arial;
     font-size: 18px;
-}
+}*/
 
 .callHistory .historyDate {
     position: absolute;
@@ -1536,9 +1536,9 @@ body
     padding: 6px 10px 6px 10px;
     text-decoration: none;
     font-weight: bold;
-    color: #FFF;
+    color: #FFF !important;
     border-radius: 50px;
-    font-size: 14px;
+    font-size: 14px !important;
 }
 .historyDetailsClose
 {
@@ -1603,7 +1603,7 @@ body
 }
 .dialpad .history-button
 {
-    font-size: 16px;
+    font-size: 16px !important;
     padding-top: 5px;
     padding-bottom: 5px;
     outline: none;
