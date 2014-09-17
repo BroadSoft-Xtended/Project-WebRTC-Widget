@@ -1,6 +1,5 @@
 /public
 /node_modules
-/dist
 /src/config.js
 /js/client-config.js
 /js/webrtc.js
