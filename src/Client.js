@@ -1,3 +1,4 @@
+/*jshint unused: false */
 /***************************************************
  * Created on Mon Jan 14 15:32:43 GMT 2013 by:
  * Nathan Stratton
@@ -7,102 +8,126 @@
  ***************************************************/
 (function(WebRTC) {
   var Client,
-    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client');
+    logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client'),
+    ejs = require('ejs');
 
-  Client = function(selector, config) {
-    var self = this;
-    this.client = $(selector || "#client");
-    this.main = this.client.find(".main");
-    this.muteAudioIcon = this.client.find('.muteAudioIcon');
-    this.unmuteAudioIcon = this.client.find('.unmuteAudioIcon');
-    this.hangup = this.client.find(".hangup");
-    this.callControl = this.client.find(".callControl");
-    this.destination = this.callControl.find("input.destination");
-    this.callButton = this.client.find('.call');
-    this.reInvitePopup = this.client.find('.reInvitePopup');
-    this.acceptReInviteCall = this.client.find(".acceptReInviteCall");
-    this.rejectReInviteCall = this.client.find(".rejectReInviteCall");
-    this.messages = this.client.find(".messages");
-    this.callPopup = this.client.find(".callPopup");
-    this.incomingCallName = this.callPopup.find(".incomingCallName");
-    this.incomingCallUser = this.callPopup.find(".incomingCallUser");
-    this.acceptIncomingCall = this.callPopup.find(".acceptIncomingCall");
-    this.rejectIncomingCall = this.callPopup.find(".rejectIncomingCall");
-    this.holdAndAnswerButton = this.callPopup.find(".holdAndAnswerButton");
-    this.dropAndAnswerButton = this.callPopup.find(".dropAndAnswerButton");
-    this.errorPopup = this.client.find( ".errorPopup" );
-    this.fullScreenExpandIcon = this.client.find(".fullScreenExpand");
-    this.fullScreenContractIcon = this.client.find(".fullScreenContract");
-    this.dialpadShowIcon = this.client.find(".dialpadIconShow");
-    this.dialpadHideIcon = this.client.find(".dialpadIconHide");
-    this.dialpad = this.client.find(".dialpad");
-    this.dialpadButtons = this.client.find(".dialpad button");
-    this.selfViewEnableIcon = this.client.find(".selfViewEnable");
-    this.selfViewDisableIcon = this.client.find(".selfViewDisable");
-    this.connected = this.client.find(".connected-icon");
-    this.registered = this.client.find(".registered-icon");
-    this.historyClose = this.client.find(".historyClose");
-    this.callHistory = this.client.find(".callHistory");
-    this.callStats = this.client.find(".callStats");
-    this.shareScreen = this.client.find( ".shareScreen" );
-    this.stopShareScreen = this.client.find( ".stopShareScreen" );
-    this.screenSharingUnsupported = this.client.find( ".screen_sharing_unsupported" );
-
-
-    if(!config && typeof(ClientConfig) === 'undefined') {
-      $('#unsupported').text("Could not read ClientConfig - make sure it is included and properly formatted");
-      $('#unsupported').show();
-      return;
-    }
-
-    config = config || ClientConfig;
-    this.eventBus = new WebRTC.EventBus({
-      isDebug: function(){
-        return config.debug === true;
-      }
-    });
-    this.configuration = new WebRTC.Configuration(this.eventBus, config);
-    this.sipStack = new WebRTC.SIPStack(this.configuration, this.eventBus);
-    this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
-    this.video = new WebRTC.Video(this.client.find('.video'), this.sipStack, this.eventBus, {
-      onPlaying: function(){
-        self.validateUserMediaResolution();
-      }
-    });
-    this.xmpp = new WebRTC.XMPP(this, this.eventBus);
-    this.sms = new WebRTC.SMS(this, this.client.find(".sms"), this.eventBus, this.sound);
-    this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
-    this.stats = new WebRTC.Stats(this, this.sipStack, this.configuration);
-    this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
-    this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack, this.configuration);
-    this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack, this.configuration);
-    this.whiteboard = new WebRTC.Whiteboard(this, this.client.find(".whiteboard"), this.eventBus, this.sipStack);
-    this.fileShare = new WebRTC.FileShare(this, this.client.find(".file_share"), this.eventBus, this.sipStack);
-    this.authentication = new WebRTC.Authentication(this.client.find(".authPopup"), this.eventBus, {
-      onAuthenticate: function(data) {
-        self.sipStack.init(data);
-      },
-      configurationRegister: self.configuration.register,
-      settingsUserId: self.settings.userId,
-      settingsAuthenticationUserId: self.settings.authenticationUserId,
-      settingsPassword: self.settings.password
-    });
-    this.hold = new WebRTC.Icon(this.client.find( ".hold" ), this.sound);
-    this.resume = new WebRTC.Icon(this.client.find( ".resume" ), this.sound);
-    this.fullScreen = false;
-    this.selfViewEnabled = true;
-    this.dialpadShown = false;
-    this.muted = false;
-    this.isScreenSharing = false;
-
-    this.configuration.setSettings(this.settings);
-
-    this.registerListeners();
-
-    this.init();
+  Client = function(config) {
+    this.config = config;    
   };
 
   Client.prototype = {
+    setup: function(){
+      var self = this;
+      this.client = this.wrapper;
+      this.main = this.client.find(".main");
+      this.muteAudioIcon = this.client.find('.muteAudioIcon');
+      this.unmuteAudioIcon = this.client.find('.unmuteAudioIcon');
+      this.hangup = this.client.find(".hangup");
+      this.callControl = this.client.find(".callControl");
+      this.destination = this.callControl.find("input.destination");
+      this.callButton = this.client.find('.call');
+      this.reInvitePopup = this.client.find('.reInvitePopup');
+      this.acceptReInviteCall = this.client.find(".acceptReInviteCall");
+      this.rejectReInviteCall = this.client.find(".rejectReInviteCall");
+      this.messages = this.client.find(".messages");
+      this.callPopup = this.client.find(".callPopup");
+      this.incomingCallName = this.callPopup.find(".incomingCallName");
+      this.incomingCallUser = this.callPopup.find(".incomingCallUser");
+      this.acceptIncomingCall = this.callPopup.find(".acceptIncomingCall");
+      this.rejectIncomingCall = this.callPopup.find(".rejectIncomingCall");
+      this.holdAndAnswerButton = this.callPopup.find(".holdAndAnswerButton");
+      this.dropAndAnswerButton = this.callPopup.find(".dropAndAnswerButton");
+      this.errorPopup = this.client.find( ".errorPopup" );
+      this.fullScreenExpandIcon = this.client.find(".fullScreenExpand");
+      this.fullScreenContractIcon = this.client.find(".fullScreenContract");
+      this.dialpadShowIcon = this.client.find(".dialpadIconShow");
+      this.dialpadHideIcon = this.client.find(".dialpadIconHide");
+      this.dialpad = this.client.find(".dialpad");
+      this.dialpadButtons = this.client.find(".dialpad button");
+      this.selfViewEnableIcon = this.client.find(".selfViewEnable");
+      this.selfViewDisableIcon = this.client.find(".selfViewDisable");
+      this.connected = this.client.find(".connected-icon");
+      this.registered = this.client.find(".registered-icon");
+      this.historyClose = this.client.find(".historyClose");
+      this.callHistory = this.client.find(".callHistory");
+      this.callStats = this.client.find(".callStats");
+      this.shareScreen = this.client.find( ".shareScreen" );
+      this.stopShareScreen = this.client.find( ".stopShareScreen" );
+      this.screenSharingUnsupported = this.client.find( ".screen_sharing_unsupported" );
+
+
+      if(!this.config && typeof(ClientConfig) === 'undefined') {
+        $('#unsupported').text("Could not read ClientConfig - make sure it is included and properly formatted");
+        $('#unsupported').show();
+        return;
+      }
+
+      this.config = this.config || ClientConfig;
+      this.eventBus = new WebRTC.EventBus({
+        isDebug: function(){
+          return self.config.debug === true;
+        }
+      });
+      this.configuration = new WebRTC.Configuration(this.eventBus, this.config);
+      this.sipStack = new WebRTC.SIPStack(this.configuration, this.eventBus);
+      this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
+      this.video = new WebRTC.Video(this.client.find('.video'), this.sipStack, this.eventBus, {
+        onPlaying: function(){
+          self.validateUserMediaResolution();
+        }
+      });
+      this.xmpp = new WebRTC.XMPP(this, this.eventBus);
+      this.sms = new WebRTC.SMS(this, this.client.find(".sms"), this.eventBus, this.sound);
+      this.settings = new WebRTC.Settings(this, this.configuration, this.sound, this.eventBus, this.sipStack);
+      this.stats = new WebRTC.Stats(this, this.sipStack, this.configuration);
+      this.timer = new WebRTC.Timer(this, this.stats, this.configuration);
+      this.history = new WebRTC.History(this, this.sound, this.stats, this.sipStack, this.configuration);
+      this.transfer = new WebRTC.Transfer(this, this.sound, this.sipStack, this.configuration);
+      this.whiteboard = new WebRTC.Whiteboard(this, this.client.find(".whiteboard"), this.eventBus, this.sipStack);
+      this.fileShare = new WebRTC.FileShare(this, this.client.find(".file_share"), this.eventBus, this.sipStack);
+      this.authentication = new WebRTC.Authentication(this.client.find(".authPopup"), this.eventBus, {
+        onAuthenticate: function(data) {
+          self.sipStack.init(data);
+        },
+        configurationRegister: self.configuration.register,
+        settingsUserId: self.settings.userId,
+        settingsAuthenticationUserId: self.settings.authenticationUserId,
+        settingsPassword: self.settings.password
+      });
+      this.hold = new WebRTC.Icon(this.client.find( ".hold" ), this.sound);
+      this.resume = new WebRTC.Icon(this.client.find( ".resume" ), this.sound);
+      this.fullScreen = false;
+      this.selfViewEnabled = true;
+      this.dialpadShown = false;
+      this.muted = false;
+      this.isScreenSharing = false;
+
+      this.configuration.setSettings(this.settings);
+
+      this.registerListeners();
+
+      this.init();
+    },
+    appendTo: function(parent){
+      this.injectCss();
+
+      this.wrapper = $('<div/>', {class: 'webrtc-wrapper'});
+      parent.append(this.wrapper);
+
+      var renderData = {};
+      var html = ejs.render(WebRTC.C.TEMPLATES.webrtc, renderData);
+      this.wrapper.html(html);
+
+      this.setup();
+    },
+    injectCss: function() {
+      if (!this.hasCss) {
+        this.hasCss = true;
+        var cssData = $.extend({}, WebRTC.C.FONTS);
+        var cssStr = ejs.render(WebRTC.C.CSS.stylesheet, cssData);
+        $("<style type='text/css'>"+cssStr+"</style>").appendTo("head");
+      }
+    },
     init: function() {
       var self = this;
       var unsupported = WebRTC.Utils.compatibilityCheck(this);

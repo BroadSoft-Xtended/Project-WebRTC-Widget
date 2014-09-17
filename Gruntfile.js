@@ -124,6 +124,11 @@ module.exports = function(grunt) {
           "locales": true,
           "converse": true,
           "flensed": true
+        },
+        exported: {
+          "exsip": true,
+          "libs" : true,
+          "clientConfig": true
         }
       },
       globals: {}
@@ -143,7 +148,9 @@ module.exports = function(grunt) {
           'components/strophe.disco/index.js', 'components/underscore/underscore.js', 'components/backbone/backbone.js',
           'components/backbone.localStorage/backbone.localStorage.js',
           'components/tinysort/src/jquery.tinysort.js',
-          'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/FileSaver.js', 'js/sketch.js', 'js/converse.js', 'js/jquery.xhr.js']
+          'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/FileSaver.js', 'js/sketch.js', 'js/converse.js', 'js/jquery.xhr.js'],
+          'dist/<%= pkg.name %>-bundle-<%= pkg.version %>.min.js': ['js/3rdparty.js', 'js/client-config.js', 'js/exsip.js', 
+          'dist/<%= pkg.name %>-<%= pkg.version %>.js']
         }
       },
       options: {
@@ -215,6 +222,15 @@ module.exports = function(grunt) {
           message: 'Tests run successfully' //required
         }
       }
+    },
+    browserify: {
+      all: {
+        files: {
+          'dist/<%= pkg.name %>-<%= pkg.version %>.js' : ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
+          'dist/<%= pkg.name %>-<%= pkg.version %>-devel.js' : ['dist/<%= pkg.name %>-<%= pkg.version %>-devel.js'],
+          'dist/<%= pkg.name %>-devel.js' : ['dist/<%= pkg.name %>-devel.js']
+        }
+      }
     }
   });
 
@@ -229,14 +245,134 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks("grunt-qunit-serverless");
   grunt.loadNpmTasks('grunt-notify');
+  grunt.loadNpmTasks('grunt-browserify');
+
+  var src = 'dist/'+grunt.config().pkg.name+'-'+grunt.config().pkg.version+'.js';
+
+  function base64(type, str) {
+    return 'data:'+type+';base64,' + str.toString('base64');
+  }
+
+  function trim(str) {
+    return str.replace(/(^\s+|\s+$)/g, '').replace(/(\r\n|\n|\r)/g, '');
+  }
+
+  function processCss(str) {
+    var files = grunt.file.expand('*.css'),
+      css = {},
+      name;
+
+    grunt.log.writeln('read css files : '+files);
+    files.forEach(function (file) {
+      name = file.split(/(.*).css/);
+      name = name[1];
+
+      css[name] = trim(grunt.file.read(file));
+    });
+
+    return str.replace('\'$CSS$\'', JSON.stringify(css));
+  }
+
+  function processFonts(str) {
+    var files = grunt.file.expand('fonts/*.*'),
+      fonts = {};
+
+    files.forEach(function (file) {
+      var fileSplit = file.split(/fonts\/(.*)\.(.*)/);
+      var name = fileSplit[1].replace(/-/g,'_')+"_"+fileSplit[2];
+      var contents = grunt.file.read(file, { encoding: null });
+
+      if (contents) {
+        grunt.log.writeln('reading font : '+name);
+        fonts[name] = 'base64,' + contents.toString('base64');
+      } else {
+        grunt.fail.warn('Looks like ' + file + ' is missing. Check that it exists.');
+      }
+    });
+
+    return str.replace('\'$FONTS$\'', JSON.stringify(fonts));
+  }
+
+  function processMedia(str) {
+    var files = grunt.file.expand('media/*.*'),
+      media = {};
+
+    files.forEach(function (file) {
+      var name = file.split(/media\/(.*)\..*/)[1];
+      var contents = grunt.file.read(file, { encoding: null });
+
+      if (contents) {
+        grunt.log.writeln('reading media : '+name);
+        media[name] = base64('audio/ogg', contents);
+      } else {
+        grunt.fail.warn('Looks like ' + file + ' is missing. Check that it exists.');
+      }
+    });
+
+    return str.replace('\'$MEDIA$\'', JSON.stringify(media));
+  }
+
+  function processTemplates(str) {
+    var files = grunt.file.expand('*.html'),
+      templates = {},
+      name;
+
+    files.forEach(function (file) {
+      name = file.split(/(.*).html/);
+      name = name[1];
+
+      grunt.log.writeln('reading template : '+name);
+      templates[name] = trim(grunt.file.read(file));
+    });
+
+    return str.replace('\'$TEMPLATES$\'', JSON.stringify(templates));
+  }
+
+  grunt.registerTask('templates', 'Writes template into the JS', function () {
+    var out = grunt.file.read(src);
+
+    out = processTemplates(out);
+
+    grunt.file.write(src, out);
+  });
+
+  grunt.registerTask('media', 'Encode media with base64 and write to JS', function () {
+    var out = grunt.file.read(src);
+
+    out = processMedia(out);
+
+    grunt.file.write(src, out);
+  });
+
+  grunt.registerTask('fonts', 'Encode fonts with base64 and write to JS', function () {
+    var out = grunt.file.read(src);
+
+    out = processFonts(out);
+
+    grunt.file.write(src, out);
+  });
+
+  grunt.registerTask('css', 'Write css into the JS', function () {
+    var out = grunt.file.read(src);
+
+    out = processCss(out);
+
+    grunt.file.write(src, out);
+  });
 
   // Task for building webrtc-devel.js (uncompressed), webrtc-X.Y.Z.js (uncompressed)
   // and webrtc-X.Y.Z.min.js (minified).
   // Both webrtc-devel.js and webrtc-X.Y.Z.js are the same file with different name.
-  grunt.registerTask('build', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel', 'concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist', 'uglify:dist', 'copy:clientConfig', 'copy:indexDev', 'copy:webrtc']);
+  grunt.registerTask('themify', ['templates', 'css', 'media', 'fonts']);
+
+  grunt.registerTask('compile_devel', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel']);
+
+  grunt.registerTask('compile_dist', ['concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist']);
+
+  grunt.registerTask('build', ['compile_devel', 'compile_dist', 'browserify', 'themify', 'uglify:dist', 'copy:clientConfig', 'copy:indexDev', 'copy:webrtc']);
 
   // Task for building webrtc-devel.js (uncompressed).
-  grunt.registerTask('devel', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel']);
+  grunt.registerTask('devel', ['compile_devel']);
 
   // Test tasks.
   grunt.registerTask('testConnectLocal', ['qunit-serverless']);

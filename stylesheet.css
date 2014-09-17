@@ -6,9 +6,7 @@
  ***************************************************/
 @font-face {
     font-family: 'Exario-Icon-Fonts';
-    src: local("☺"),
-    url('fonts/Exario-Icon-Fonts.svg#Exario-Icon-Fonts') format('svg'),
-    url('fonts/Exario-Icon-Fonts.ttf') format('truetype');
+    src: url('data:application/font-woff;charset=utf-8;<%= Exario_Icon_Fonts_woff %>') format('woff');
 }
 
 body {
@@ -1121,11 +1119,7 @@ body {
 
 @font-face {
     font-family: 'bsl_icons';
-    src:url('fonts/bsl_icons.eot?1sddz2');
-    src:url('fonts/bsl_icons.eot?#iefix1sddz2') format('embedded-opentype'),
-    url('fonts/bsl_icons.woff?1sddz2') format('woff'),
-    url('fonts/bsl_icons.ttf?1sddz2') format('truetype'),
-    url('fonts/bsl_icons.svg?1sddz2#bsl_icons') format('svg');
+    src: url('data:application/font-woff;charset=utf-8;<%= bsl_icons_woff %>') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -2070,11 +2064,4 @@ ul.tabs
     font-size: 14px;
     color: #FFF;
     margin-right: 12px;
-}
-.client
-{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
 }

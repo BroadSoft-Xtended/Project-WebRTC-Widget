@@ -31,19 +31,19 @@
     },
 
     playDtmfRingback: function(){
-      this.playDtmf("media/dtmf-ringback.ogg", {loop: true});
+      this.playDtmf("dtmf-ringback", {loop: true});
     },
 
     playRingtone: function(){
-      this.play("media/ringtone.ogg", {loop: true});
+      this.play("ringtone", {loop: true});
     },
 
     playDtmfTone: function(tone){
-      this.playDtmf("media/dtmf-" + tone + ".ogg");
+      this.playDtmf("dtmf-" + tone);
     },
 
     playClick: function(){
-      this.play("media/click.ogg");
+      this.play("click");
     },
 
     play: function(media, options){
@@ -56,7 +56,7 @@
         return;
       }
       options = options || {};
-      audioSource.setAttribute("src", media);
+      audioSource.setAttribute("src", WebRTC.Constants.C.MEDIA[media]);
       if(options.loop) {
         audioSource.setAttribute("loop", "true");
       } else {

@@ -136,6 +136,20 @@ var WebRTC = (function() {
     }
   };
 
+  $(document).ready(function(){
+    var nodes = $("script[src*='webrtc-bundle']");
+    if(nodes.length === 0) {
+      console.error('no <script> with webrtc-bundle.js found');
+      return;
+    }
+
+    $.each(nodes, function(i, node){
+      node = $(node);
+      var client = new WebRTC.Client();
+      client.appendTo(node.parent());
+    });
+  });
+
   (function($){
     $.isBlank = function(obj){
       return(!obj || $.trim(obj) === "");
