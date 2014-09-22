@@ -143,15 +143,15 @@ var WebRTC = (function() {
       return;
     }
 
-    window.BroadSoft = window.BroadSoft || {};
-    window.BroadSoft.webrtcs = [];
+    window.BroadSoftWebRTC = window.BroadSoftWebRTC || {};
+    window.BroadSoftWebRTC.clients = [];
 
     $.each(nodes, function(i, node){
       node = $(node);
       var client = new WebRTC.Client();
       client.appendTo(node.parent());
       node.remove();
-      window.BroadSoft.webrtcs.push(client);
+      window.BroadSoftWebRTC.clients.push(client);
     });
   });
 
