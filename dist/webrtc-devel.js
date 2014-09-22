@@ -157,7 +157,8 @@ var WebRTC = (function() {
 
     $.each(nodes, function(i, node){
       node = $(node);
-      var client = new WebRTC.Client();
+      var config = $.extend({}, window.ClientConfig, node.data());
+      var client = new WebRTC.Client(config);
       client.appendTo(node.parent());
       node.remove();
       window.BroadSoftWebRTC.clients.push(client);
