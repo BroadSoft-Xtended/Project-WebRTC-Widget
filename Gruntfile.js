@@ -150,13 +150,11 @@ module.exports = function(grunt) {
           'components/tinysort/src/jquery.tinysort.js',
           'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/FileSaver.js', 'js/sketch.js', 'js/converse.js', 'js/jquery.xhr.js'],
           'dist/<%= pkg.name %>-bundle-<%= pkg.version %>.min.js': ['js/3rdparty.js', 'js/client-config.js', 'js/exsip.js', 
-          'dist/<%= pkg.name %>-<%= pkg.version %>.js']
+          'dist/<%= pkg.name %>-<%= pkg.version %>.min.js']
         }
       },
       options: {
-        beautify: true,
-        compress: false,
-        mangle: false,
+        // beautify: false,
         banner: '<%= meta.banner %>'
       }
     },
