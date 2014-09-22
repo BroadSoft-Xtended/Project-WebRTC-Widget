@@ -56,7 +56,7 @@
         return;
       }
       options = options || {};
-      audioSource.setAttribute("src", WebRTC.Constants.C.MEDIA[media]);
+      audioSource.setAttribute("src", WebRTC.C.MEDIA[media]);
       if(options.loop) {
         audioSource.setAttribute("loop", "true");
       } else {

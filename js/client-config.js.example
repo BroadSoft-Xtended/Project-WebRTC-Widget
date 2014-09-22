@@ -19,6 +19,7 @@ ClientConfig = {
     enableIms: false,
     enableSettings: false,
     enableAutoAnswer: false,
+    pAssertedIdentity: '<sip:webguest@broadsoftlabs.com>',
 
     // Client Variables
     allowOutside: true,
@@ -26,12 +27,12 @@ ClientConfig = {
     volumeClick: 1,
     volumeDTMF: 1,
       // the following 5 attributes have to be configured for this webrtc client to be functional:
-      websocketsServers: [{'ws_uri':'ws://websocket.server.fqdn.or.ip.address:8060', 'weight':0}],
+      websocketsServers: [{'ws_uri':'wss://wrs1.broadsoftlabs.com:8443', 'weight':0}],
       stunServer: 'stun.server.ip.address',
       stunPort: 3478,
       //networkUserId: 8323303810,
-      domainFrom: 'from.domain',
-      domainTo: 'to.domain',
+      domainFrom: 'broadsoftlabs.com',
+      domainTo: 'broadsoftlabs.com',
     endCallURL: false,
     bandwidthLow: 128,
     bandwidthMed: 512,

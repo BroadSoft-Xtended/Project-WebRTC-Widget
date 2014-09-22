@@ -198,7 +198,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           pageTemplate: "test/includes/qunit-page.tpl",
-          includeFiles: ["custom.css", "js/3rdparty.js", "js/exsip-*.js", "js/client-config.js", "dist/webrtc-devel.js", "test/includes/*.js"],
+          includeFiles: ["custom.css", 'dist/<%= pkg.name %>-bundle-<%= pkg.version %>.min.js', "test/includes/*.js"],
           testFiles: ["test/test-*.js"],
           templateFiles: "index.html",
           qunitCss: "stylesheet.css",
@@ -208,7 +208,7 @@ module.exports = function(grunt) {
     },
     watch: {
       develop: {
-        files: ['test/*.js', 'test/includes/*.js', 'src/*.js', 'index.html', 'stylesheet.css', 'custom.css', 'js/exsip.js'],
+        files: ['test/*.js', 'test/includes/*.js', 'src/*.js', 'index.html', 'stylesheet.css', 'custom.css', 'js/exsip.js', 'js/client-config.js'],
         tasks: ['build','test'],
         options: {
           spawn: true

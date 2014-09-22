@@ -9,6 +9,8 @@ module( "Authentication", {
     ClientConfig.enableXMPP = false;
     ClientConfig.register = false;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
+    client = new WebRTC.Client();
+    client.appendTo($(document));
   }, teardown: function() {
     WebRTC.Utils.getSearchVariable = function(name){ return false;}
     client.settings.clear();
@@ -16,7 +18,6 @@ module( "Authentication", {
 });
 
 test('on 403 : with settingUserId', function() {
-  client = new WebRTC.Client();
   client.settings.userId('12345');
   TestWebrtc.Helpers.connect();
   strictEqual(client.authentication.visible, false);
@@ -39,7 +40,6 @@ test('on 403 : with settingUserId', function() {
   strictEqual(client.settings.password(), '121212', 'should set settings password');
 });
 test('on 403 : with settingUserId and settingAuthenticationUserId', function() {
-  client = new WebRTC.Client();
   client.settings.userId('12345');
   client.settings.authenticationUserId('54321');
   TestWebrtc.Helpers.connect();
@@ -62,7 +62,6 @@ test('on 403 : with settingUserId and settingAuthenticationUserId', function() {
   strictEqual(client.settings.password(), '121212', 'should set settings password');
 });
 test('on 403 : with settingUserId and authUserId changed', function() {
-  client = new WebRTC.Client();
   client.settings.userId('12345');
   TestWebrtc.Helpers.connect();
   TestWebrtc.Helpers.registrationFailed(403);
@@ -76,7 +75,6 @@ test('on 403 : with settingUserId and authUserId changed', function() {
   strictEqual(client.settings.password(), '121212', 'should set settings password');
 });
 test('on 403 : with settingUserId and userId and authUserId changed', function() {
-  client = new WebRTC.Client();
   client.settings.userId('12345');
   TestWebrtc.Helpers.connect();
   TestWebrtc.Helpers.registrationFailed(403);
@@ -92,7 +90,6 @@ test('on 403 : with settingUserId and userId and authUserId changed', function()
   strictEqual(client.settings.password(), '121212', 'should set settings password');
 });
 test('on 403 : with settingUserId and settingsAuthenticationUserId and userId changed', function() {
-  client = new WebRTC.Client();
   client.settings.userId('12345');
   client.settings.authenticationUserId('54321');
   TestWebrtc.Helpers.connect();
@@ -107,7 +104,6 @@ test('on 403 : with settingUserId and settingsAuthenticationUserId and userId ch
   strictEqual(client.settings.password(), '121212', 'should set settings password');
 });
 test('on 403 : with settingPassword and settingUserId', function() {
-  client = new WebRTC.Client();
   client.settings.userId('12345');
   client.settings.password('password');
   TestWebrtc.Helpers.connect();
@@ -116,7 +112,6 @@ test('on 403 : with settingPassword and settingUserId', function() {
   strictEqual(client.authentication.visible, false);
 });
 test('on 403 : with settingAuthenticationUserId and settingPassword and settingUserId', function() {
-  client = new WebRTC.Client();
   client.settings.userId('12345');
   client.settings.authenticationUserId('54321');
   client.settings.password('password');
@@ -127,7 +122,6 @@ test('on 403 : with settingAuthenticationUserId and settingPassword and settingU
 });
 test('on non 403', function() {
   $.cookie('settingUserId', '12345');
-  client = new WebRTC.Client();
   TestWebrtc.Helpers.connect();
   strictEqual(client.authentication.visible, false);
   TestWebrtc.Helpers.registrationFailed(404);

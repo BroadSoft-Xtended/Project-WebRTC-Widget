@@ -18,7 +18,6 @@
   Client.prototype = {
     setup: function(){
       var self = this;
-      this.client = this.wrapper;
       this.main = this.client.find(".main");
       this.muteAudioIcon = this.client.find('.muteAudioIcon');
       this.unmuteAudioIcon = this.client.find('.unmuteAudioIcon');
@@ -118,6 +117,7 @@
       var html = ejs.render(WebRTC.C.TEMPLATES.webrtc, renderData);
       this.wrapper.html(html);
 
+      this.client = this.wrapper.find('.client');
       this.setup();
     },
     injectCss: function() {

@@ -152,10 +152,15 @@ var WebRTC = (function() {
       return;
     }
 
+    window.BroadSoft = window.BroadSoft || {};
+    window.BroadSoft.webrtcs = [];
+
     $.each(nodes, function(i, node){
       node = $(node);
       var client = new WebRTC.Client();
       client.appendTo(node.parent());
+      node.remove();
+      window.BroadSoft.webrtcs.push(client);
     });
   });
 
@@ -2255,7 +2260,7 @@ WebRTC.Utils = Utils;
         return;
       }
       options = options || {};
-      audioSource.setAttribute("src", WebRTC.Constants.C.MEDIA[media]);
+      audioSource.setAttribute("src", WebRTC.C.MEDIA[media]);
       if(options.loop) {
         audioSource.setAttribute("loop", "true");
       } else {
@@ -3357,7 +3362,6 @@ WebRTC.Utils = Utils;
   Client.prototype = {
     setup: function(){
       var self = this;
-      this.client = this.wrapper;
       this.main = this.client.find(".main");
       this.muteAudioIcon = this.client.find('.muteAudioIcon');
       this.unmuteAudioIcon = this.client.find('.unmuteAudioIcon');
@@ -3457,6 +3461,7 @@ WebRTC.Utils = Utils;
       var html = ejs.render(WebRTC.C.TEMPLATES.webrtc, renderData);
       this.wrapper.html(html);
 
+      this.client = this.wrapper.find('.client');
       this.setup();
     },
     injectCss: function() {
