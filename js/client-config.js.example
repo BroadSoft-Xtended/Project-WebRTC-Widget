@@ -26,7 +26,7 @@ ClientConfig = {
     volumeClick: 1,
     volumeDTMF: 1,
       // the following 5 attributes have to be configured for this webrtc client to be functional:
-      websocketsServers: [{'ws_uri':'ws://websocket.server.fqdn.or.ip.address:8060', 'weight':0}],
+      websocketsServers: [{'ws_uri':'wss://websocket.server.fqdn.or.ip.address:8443', 'weight':0}],
       stunServer: 'stun.server.ip.address',
       stunPort: 3478,
       //networkUserId: 8323303810,
