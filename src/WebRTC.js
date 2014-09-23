@@ -148,7 +148,10 @@ var WebRTC = (function() {
 
     $.each(nodes, function(i, node){
       node = $(node);
-      var config = $.extend({}, window.ClientConfig, node.data());
+      var data = JSON.parse(node.text());
+      console.log("script config : ", data);
+      var config = $.extend({}, window.ClientConfig, data);
+      console.log("merged config : ", config);
       var client = new WebRTC.Client(config);
       client.appendTo(node.parent());
       node.remove();
