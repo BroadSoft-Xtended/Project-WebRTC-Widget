@@ -1090,6 +1090,17 @@ body {
     font-weight: bold;
     font-size: 14px;
 }
+.client.view-seamless
+{
+    position:static;
+    top: 0;
+    bottom: 0;
+    transform: none;
+}
+.view-audioOnly.view-seamless .dialpad
+{
+    top: 45px;
+}
 .view-conference .selfViewDisable, .view-conference .selfViewEnable{
     text-align: right !important;
 }
