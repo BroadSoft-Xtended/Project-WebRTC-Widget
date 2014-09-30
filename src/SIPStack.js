@@ -130,6 +130,14 @@
       return this.getCallState() === C.STATE_STARTED;
     },
 
+    unregister: function() {
+      return this.ua && this.ua.unregister();
+    },
+
+    isRegistered: function() {
+      return this.ua && this.ua.isRegistered();
+    },
+
     sendData: function(data) {
       if(this.activeSession) {
         this.activeSession.sendData(data);

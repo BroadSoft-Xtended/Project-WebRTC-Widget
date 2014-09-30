@@ -32,7 +32,7 @@ test('settings icon after click', function() {
 });
 test('persist', function() {
   client = new WebRTC.Client();
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingUserId"), "");
   strictEqual($.cookie("settingPassword"), "");
 });
@@ -41,7 +41,7 @@ test('persist with active call', function() {
   var reload = false;
   client.settings.reload = function(){reload = true;}
   TestWebrtc.Helpers.startCall();
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual(reload, false);
   TestWebrtc.Helpers.endCall();
   strictEqual(reload, true);
@@ -49,7 +49,7 @@ test('persist with active call', function() {
 test('persist with userid set', function() {
   client = new WebRTC.Client();
   client.settings.userId('someuserid');
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingUserId"), "someuserid");
   strictEqual($.cookie("settingPassword"), "");
 });
@@ -57,7 +57,7 @@ test('persist with display name set', function() {
   client = new WebRTC.Client();
   strictEqual(client.settings.displayName(), "");
   client.settings.displayName('somedisplayname');
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingDisplayName"), "somedisplayname");
   client = new WebRTC.Client();
   strictEqual(client.settings.displayName(), "somedisplayname");
@@ -76,7 +76,7 @@ test('persist with resolution set', function() {
   client.settings.resolutionType.val(WebRTC.C.STANDARD);
   client.settings.resolutionDisplayStandard.val(WebRTC.C.R_960x720);
   client.settings.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingResolutionDisplay"), WebRTC.C.R_960x720);
   strictEqual($.cookie("settingResolutionEncoding"), WebRTC.C.R_320x240);
   client = new WebRTC.Client();
@@ -89,7 +89,7 @@ test('persist with resolution set', function() {
 test('persist with password set', function() {
   client = new WebRTC.Client();
   client.settings.password('121212');
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingPassword"), '121212');
   strictEqual(WebRTC.Utils.getSearchVariable("password"), false);
   strictEqual(client.configuration.getPassword(), '121212');

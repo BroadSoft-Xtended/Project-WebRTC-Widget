@@ -335,7 +335,7 @@ test('on disconnect', function() {
   ClientConfig.enableMessages = true;
   client = new WebRTC.Client();
   TestWebrtc.Helpers.disconnect();
-  strictEqual(client.messages.text().trim(), 'Connection failed');
+  strictEqual(client.messages.text().trim(), 'Connection Failed!');
 });
 test('on invalid destination and connected', function() {
   var config = {};

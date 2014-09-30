@@ -586,7 +586,9 @@ var WebRTC = (function() {
     this.userIdInput = this.settingsUi.find(".settingUserid");
     this.authenticationUserIdInput = this.settingsUi.find(".settingAuthenticationUserid");
     this.passwordInput = this.settingsUi.find(".settingPassword");
-    this.save = this.settingsUi.find(".saveSettings");
+    this.saveBtn = this.settingsUi.find(".saveSettings");
+    this.signInBtn = this.settingsUi.find(".sign-in");
+    this.signOutBtn = this.settingsUi.find(".sign-out");
     this.displayNameInput = this.settingsUi.find(".settingDisplayName");
     this.resolutionType = this.settingsUi.find('.resolutionTypeSelect');
     this.resolutionDisplayWidescreen = this.settingsUi.find('.resolutionDisplayWidescreenSelect');
@@ -758,20 +760,22 @@ var WebRTC = (function() {
       });
       this.clearLink.on('click', function(e) {
         e.preventDefault();
-        self.clear();
-        self.eventBus.message('Settings cleared');
+        self.resetLayout();
+        self.eventBus.message('Settings reset');
       });
-      this.save.bind('click', function(e)
+      this.signOutBtn.on('click', function(e) {
+        e.preventDefault();
+        self.signOut();
+      });
+      this.saveBtn.bind('click', function(e)
       {
         e.preventDefault();
-        self.sound.playClick();
-        self.persist();
-        self.settingsUi.fadeOut(100);
-        if(!self.sipStack.activeSession) {
-          self.reload();
-        } else {
-          self.settingsChanged = true;
-        }
+        self.save();
+      });
+      this.signInBtn.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.signIn();
       });
       this.bandwidthLowInput.bind('blur', function(e)
       {
@@ -938,6 +942,46 @@ var WebRTC = (function() {
       } else {
         return false;
       }
+    },
+    changed: function(){
+      if(!this.sipStack.activeSession) {
+        this.reload();
+      } else {
+        this.settingsChanged = true;
+      }
+    },
+    save: function(){
+      this.sound.playClick();
+      this.persist();
+      this.toggled = false;
+      this.client.updateClientClass();
+      this.changed();
+    },
+    signIn: function(){
+      this.sound.playClick();
+      this.persist();
+      this.sipStack.init();
+      this.toggled = false;
+      this.client.updateClientClass();
+    },    
+    resetLayout: function(){
+      this.resolutionEncoding(WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
+      this.resolutionDisplay(WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+      this.client.updateClientClass();
+    },
+    clearConfiguration: function(){
+      this.displayName(null);
+      this.userId(null);
+      this.authenticationUserId(null);
+      this.password(null);
+    },
+    signOut: function(){
+      this.sound.playClick();
+      this.sipStack.unregister();
+      this.clearConfiguration();
+      this.sipStack.init();
+      this.toggled = false;
+      this.client.updateClientClass();
     },
     clear: function(){
       for(var cookie in this.cookiesMapper) {
@@ -2456,6 +2500,14 @@ WebRTC.Utils = Utils;
       return this.getCallState() === C.STATE_STARTED;
     },
 
+    unregister: function() {
+      return this.ua && this.ua.unregister();
+    },
+
+    isRegistered: function() {
+      return this.ua && this.ua.isRegistered();
+    },
+
     sendData: function(data) {
       if(this.activeSession) {
         this.activeSession.sendData(data);
@@ -3807,6 +3859,7 @@ WebRTC.Utils = Utils;
         self.message(e.data.text, e.data.level);
       });
       this.eventBus.on("registrationFailed", function(e){
+        self.updateClientClass();
         if (self.configuration.enableRegistrationIcon)
         {
           //$("#registered").removeClass("success");
@@ -3820,6 +3873,7 @@ WebRTC.Utils = Utils;
         self.message(self.configuration.messageRegistrationFailed.replace('{0}', msg), "alert");
       });
       this.eventBus.on("registered", function(e){
+        self.updateClientClass();
         if (self.configuration.enableRegistrationIcon)
         {
           self.registered.removeClass("alert");
@@ -4199,6 +4253,9 @@ WebRTC.Utils = Utils;
       var callState = this.sipStack.getCallState();
       if(callState) {
         classes.push(callState);
+      }
+      if(this.sipStack.isRegistered()) {
+        classes.push('registered');
       }
       if(this.event) {
         classes.push(this.event);

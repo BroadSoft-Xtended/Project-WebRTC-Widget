@@ -492,6 +492,7 @@
         self.message(e.data.text, e.data.level);
       });
       this.eventBus.on("registrationFailed", function(e){
+        self.updateClientClass();
         if (self.configuration.enableRegistrationIcon)
         {
           //$("#registered").removeClass("success");
@@ -505,6 +506,7 @@
         self.message(self.configuration.messageRegistrationFailed.replace('{0}', msg), "alert");
       });
       this.eventBus.on("registered", function(e){
+        self.updateClientClass();
         if (self.configuration.enableRegistrationIcon)
         {
           self.registered.removeClass("alert");
@@ -884,6 +886,9 @@
       var callState = this.sipStack.getCallState();
       if(callState) {
         classes.push(callState);
+      }
+      if(this.sipStack.isRegistered()) {
+        classes.push('registered');
       }
       if(this.event) {
         classes.push(this.event);
