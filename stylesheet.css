@@ -946,6 +946,7 @@ body {
     opacity: 0;
     display: block;
     z-index: -1;
+    backface-visibility: hidden;
 }
 .client .fileshare-container {
     display:none;
@@ -1301,7 +1302,7 @@ body
 {
     border-radius: 0px;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
     background: #000000;
     background: -moz-linear-gradient(top,  #181818 0%, #494949 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#181818), color-stop(100%,#494949));
@@ -1481,6 +1482,7 @@ body
     position: absolute;
     top: 50%;
     left: 50%;
+    backface-visibility: hidden;
     transform: translate(-50%,-50%);
     color: rgba(255, 255, 255, 0.08);
     z-index: 1;
@@ -2085,5 +2087,9 @@ ul.tabs
 }
 .client
 {
-    margin:auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    backface-visibility: hidden;
 }
