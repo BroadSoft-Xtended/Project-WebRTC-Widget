@@ -1100,14 +1100,7 @@ body {
     font-weight: bold;
     font-size: 14px;
 }
-.client.view-seamless
-{
-    position:static;
-    top: 0;
-    bottom: 0;
-    transform: none;
-}
-.view-audioOnly.view-seamless .dialpad
+.view-audioOnly .dialpad
 {
     top: 45px;
 }
@@ -2085,7 +2078,7 @@ ul.tabs
     color: #FFF;
     margin-right: 12px;
 }
-.client
+.client.view-centered
 {
     position: absolute;
     top: 50%;

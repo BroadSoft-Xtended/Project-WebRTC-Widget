@@ -413,12 +413,20 @@ var WebRTC = (function() {
       }
     },
     isAudioOnlyView: function(){
-      var view = this.getView();
-      return view && !!view.match('audioOnly');
+      var views = this.getViews();
+      return views.indexOf('audioOnly') !== -1;
     },
-    getView: function(){
-      return this.view || WebRTC.Utils.getSearchVariable("view");
-    },
+    getViews: function(){
+      var view = WebRTC.Utils.getSearchVariable("view");
+      var views = [];
+      if(this.view) {
+        $.merge(views, this.view.split(' '));
+      }
+      if(view) {
+        $.merge(views, view.split(' '));        
+      }
+      return $.unique(views);
+    },    
     getBackgroundColor: function(){
       return this.color || $('body').css('backgroundColor');
     },
@@ -4300,9 +4308,10 @@ WebRTC.Utils = Utils;
       {
         classes.push("enable-dialpad");
       }
-      if (this.configuration.getView())
+      var views = this.configuration.getViews();
+      if (views && views.length > 0)
       {
-        this.configuration.getView().split(" ").map(function(view){
+        views.map(function(view){
           classes.push("view-"+view);
         });
       }

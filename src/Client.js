@@ -933,9 +933,10 @@
       {
         classes.push("enable-dialpad");
       }
-      if (this.configuration.getView())
+      var views = this.configuration.getViews();
+      if (views && views.length > 0)
       {
-        this.configuration.getView().split(" ").map(function(view){
+        views.map(function(view){
           classes.push("view-"+view);
         });
       }

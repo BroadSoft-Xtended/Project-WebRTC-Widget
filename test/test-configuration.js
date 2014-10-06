@@ -201,13 +201,20 @@ test('setResolutionDisplay', function() {
 test('with view url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "view" ? "audioOnly" : false;}
   client = new WebRTC.Client();
-  strictEqual(client.configuration.getView(), 'audioOnly');
+  deepEqual(client.configuration.getViews(), ['audioOnly']);
 });
 test('with ClientConfig.view param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
   ClientConfig.view = 'audioOnly';
   client = new WebRTC.Client();
-  strictEqual(client.configuration.getView(), 'audioOnly');
+  deepEqual(client.configuration.getViews(), ['audioOnly']);
+  delete ClientConfig.view;
+});
+test('with ClientConfig.view param and url params', function() {
+  WebRTC.Utils.getSearchVariable = function(name){ return name === "view" ? "centered" : false;}
+  ClientConfig.view = 'audioOnly';
+  client = new WebRTC.Client();
+  deepEqual(client.configuration.getViews(), ['audioOnly', 'centered']);
   delete ClientConfig.view;
 });
 test('without color url param', function() {
