@@ -179,6 +179,7 @@ var WebRTC = (function() {
       'incomingCall',
       'connected',
       'registered',
+      'unregistered',
       'registrationFailed',
       'disconnected',
       'progress',
@@ -222,6 +223,9 @@ var WebRTC = (function() {
   };
   EventBus.prototype.connected = function(data) {
     this.emit("connected", this, data);
+  };
+  EventBus.prototype.unregistered = function(data) {
+    this.emit("unregistered", this, data);
   };
   EventBus.prototype.registered = function(data) {
     this.emit("registered", this, data);
@@ -493,7 +497,7 @@ var WebRTC = (function() {
 
     getExSIPConfig: function(data){
       data = data || {};
-      var userid = data.userId || this.settings.userId() || this.networkUserId || WebRTC.Utils.randomUserid();
+      var userid = data.userId || $.cookie('settingUserId') || this.networkUserId || WebRTC.Utils.randomUserid();
 
       var sip_uri = encodeURI(userid);
       if ((sip_uri.indexOf("@") === -1))
@@ -504,7 +508,7 @@ var WebRTC = (function() {
       var config  =
       {
         'uri': sip_uri,
-        'authorization_user': data.authenticationUserId || this.settings.authenticationUserId() || userid,
+        'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
         'ws_servers': this.websocketsServers,
         'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
         'trace_sip': this.debug,
@@ -520,10 +524,10 @@ var WebRTC = (function() {
       }
 
       // do registration if setting User ID or configuration register is set
-      if (this.settings.userId() || this.register)
+      if ($.cookie('settingUserId') || this.register)
       {
         config.register = true;
-        config.password = data.password || this.settings.password();
+        config.password = data.password || $.cookie('settingPassword');
       }
       else
       {
@@ -749,6 +753,15 @@ var WebRTC = (function() {
           self.reload();
         }
       });
+      this.eventBus.on("registered", function(e){ 
+        self.enableRegistration(true);
+      });
+      this.eventBus.on("unregistered", function(e){ 
+        self.enableRegistration(true);
+      });
+      this.eventBus.on("registrationFailed", function(e){ 
+        self.enableRegistration(true);
+      });
       this.resolutionTypeSelect.bind('change', function(e){
         self.updateResolutionSelectVisibility();
       });
@@ -965,31 +978,42 @@ var WebRTC = (function() {
       this.client.updateClientClass();
       this.changed();
     },
+    enableRegistration: function(enable){
+      this.signInBtn.removeClass("disabled");
+      this.signOutBtn.removeClass("disabled");
+      if(!enable) {
+        this.signInBtn.addClass("disabled");
+        this.signOutBtn.addClass("disabled");
+      }
+    },
     signIn: function(){
       this.sound.playClick();
       this.persist();
       this.sipStack.init();
-      this.toggled = false;
-      this.client.updateClientClass();
+      this.enableRegistration(false);
+    },    
+    signOut: function(){
+      this.sound.playClick();
+      this.sipStack.unregister();
+      this.clearConfigurationCookies();
+      this.enableRegistration(false);
     },    
     resetLayout: function(){
       this.resolutionEncoding(WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
       this.resolutionDisplay(WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
       this.client.updateClientClass();
     },
+    clearConfigurationCookies: function(){
+      $.removeCookie('settingDisplayName');
+      $.removeCookie('settingUserId');
+      $.removeCookie('settingAuthenticationUserId');
+      $.removeCookie('settingPassword');
+    },
     clearConfiguration: function(){
       this.displayName(null);
       this.userId(null);
       this.authenticationUserId(null);
       this.password(null);
-    },
-    signOut: function(){
-      this.sound.playClick();
-      this.sipStack.unregister();
-      this.clearConfiguration();
-      this.sipStack.init();
-      this.toggled = false;
-      this.client.updateClientClass();
     },
     clear: function(){
       for(var cookie in this.cookiesMapper) {
@@ -2502,7 +2526,7 @@ WebRTC.Utils = Utils;
 
     sendDTMF: function(digit) {
       this.activeSession.sendDTMF(digit, this.configuration.getDTMFOptions());
-    },
+    },    
 
     isStarted: function() {
       return this.getCallState() === C.STATE_STARTED;
@@ -2510,6 +2534,10 @@ WebRTC.Utils = Utils;
 
     unregister: function() {
       return this.ua && this.ua.unregister();
+    },
+
+    register: function() {
+      return this.ua && this.ua.register();
     },
 
     isRegistered: function() {
@@ -2699,6 +2727,10 @@ WebRTC.Utils = Utils;
         this.ua.on('registered', function(e)
         {
           self.eventBus.registered();
+        });
+        this.ua.on('unregistered', function(e)
+        {
+          self.eventBus.unregistered();
         });
         this.ua.on('registrationFailed', function(e)
         {
@@ -3888,6 +3920,10 @@ WebRTC.Utils = Utils;
           self.registered.addClass("success").fadeIn(10).fadeOut(3000);
         }
         self.message(self.configuration.messageRegistered, "success");
+      });
+      this.eventBus.on("unregistered", function(e){
+        self.updateClientClass();
+        self.message(self.configuration.messageUnregistered || 'Unregistered', "success");
       });
       this.eventBus.on("connected", function(e){
         if (self.configuration.enableConnectionIcon)

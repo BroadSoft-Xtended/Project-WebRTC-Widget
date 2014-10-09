@@ -157,7 +157,7 @@
 
     getExSIPConfig: function(data){
       data = data || {};
-      var userid = data.userId || this.settings.userId() || this.networkUserId || WebRTC.Utils.randomUserid();
+      var userid = data.userId || $.cookie('settingUserId') || this.networkUserId || WebRTC.Utils.randomUserid();
 
       var sip_uri = encodeURI(userid);
       if ((sip_uri.indexOf("@") === -1))
@@ -168,7 +168,7 @@
       var config  =
       {
         'uri': sip_uri,
-        'authorization_user': data.authenticationUserId || this.settings.authenticationUserId() || userid,
+        'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
         'ws_servers': this.websocketsServers,
         'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
         'trace_sip': this.debug,
@@ -184,10 +184,10 @@
       }
 
       // do registration if setting User ID or configuration register is set
-      if (this.settings.userId() || this.register)
+      if ($.cookie('settingUserId') || this.register)
       {
         config.register = true;
-        config.password = data.password || this.settings.password();
+        config.password = data.password || $.cookie('settingPassword');
       }
       else
       {

@@ -514,6 +514,10 @@
         }
         self.message(self.configuration.messageRegistered, "success");
       });
+      this.eventBus.on("unregistered", function(e){
+        self.updateClientClass();
+        self.message(self.configuration.messageUnregistered || 'Unregistered', "success");
+      });
       this.eventBus.on("connected", function(e){
         if (self.configuration.enableConnectionIcon)
         {

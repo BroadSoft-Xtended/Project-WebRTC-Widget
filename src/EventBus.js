@@ -16,6 +16,7 @@
       'incomingCall',
       'connected',
       'registered',
+      'unregistered',
       'registrationFailed',
       'disconnected',
       'progress',
@@ -59,6 +60,9 @@
   };
   EventBus.prototype.connected = function(data) {
     this.emit("connected", this, data);
+  };
+  EventBus.prototype.unregistered = function(data) {
+    this.emit("unregistered", this, data);
   };
   EventBus.prototype.registered = function(data) {
     this.emit("registered", this, data);

@@ -2086,3 +2086,9 @@ ul.tabs
     transform: translate(-50%, -50%);
     backface-visibility: hidden;
 }
+a.disabled {
+   pointer-events: none;
+   cursor: default;
+   background-color: #999;
+   opacity: 0.5;
+}

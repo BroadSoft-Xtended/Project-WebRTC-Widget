@@ -50,6 +50,7 @@ ClientConfig = {
     messageCall: "Performing NAT Tests",
     messageConnected: "Connected",
     messageConnectionFailed: "Connection Failed!",
+    messageUnregistered: "Unregistered",
     messageRegistered: "Registered",
     messageRegistrationFailed: "Registration Failed : {0}",
     messageEmptyDestination: "Invalid Number",

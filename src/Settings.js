@@ -173,6 +173,15 @@
           self.reload();
         }
       });
+      this.eventBus.on("registered", function(e){ 
+        self.enableRegistration(true);
+      });
+      this.eventBus.on("unregistered", function(e){ 
+        self.enableRegistration(true);
+      });
+      this.eventBus.on("registrationFailed", function(e){ 
+        self.enableRegistration(true);
+      });
       this.resolutionTypeSelect.bind('change', function(e){
         self.updateResolutionSelectVisibility();
       });
@@ -389,31 +398,42 @@
       this.client.updateClientClass();
       this.changed();
     },
+    enableRegistration: function(enable){
+      this.signInBtn.removeClass("disabled");
+      this.signOutBtn.removeClass("disabled");
+      if(!enable) {
+        this.signInBtn.addClass("disabled");
+        this.signOutBtn.addClass("disabled");
+      }
+    },
     signIn: function(){
       this.sound.playClick();
       this.persist();
       this.sipStack.init();
-      this.toggled = false;
-      this.client.updateClientClass();
+      this.enableRegistration(false);
+    },    
+    signOut: function(){
+      this.sound.playClick();
+      this.sipStack.unregister();
+      this.clearConfigurationCookies();
+      this.enableRegistration(false);
     },    
     resetLayout: function(){
       this.resolutionEncoding(WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
       this.resolutionDisplay(WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
       this.client.updateClientClass();
     },
+    clearConfigurationCookies: function(){
+      $.removeCookie('settingDisplayName');
+      $.removeCookie('settingUserId');
+      $.removeCookie('settingAuthenticationUserId');
+      $.removeCookie('settingPassword');
+    },
     clearConfiguration: function(){
       this.displayName(null);
       this.userId(null);
       this.authenticationUserId(null);
       this.password(null);
-    },
-    signOut: function(){
-      this.sound.playClick();
-      this.sipStack.unregister();
-      this.clearConfiguration();
-      this.sipStack.init();
-      this.toggled = false;
-      this.client.updateClientClass();
     },
     clear: function(){
       for(var cookie in this.cookiesMapper) {
