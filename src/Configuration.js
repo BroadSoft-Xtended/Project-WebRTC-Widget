@@ -37,6 +37,7 @@
 
     // Default URL variables
     this.eventBus = eventBus;
+    this.enableMessages = WebRTC.Utils.getSearchVariable("enableMessages") || this.enableMessages;
     this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
     this.networkUserId = this.networkUserId || WebRTC.Utils.getSearchVariable("networkUserId");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
