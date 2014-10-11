@@ -966,6 +966,7 @@ body {
 
 .started .watermark-icon {
     display:none;
+    transform:none;
 }
 
 .enable-mute.unmuted.started .muteAudioIcon,
