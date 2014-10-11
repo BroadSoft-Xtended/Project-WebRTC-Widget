@@ -964,6 +964,10 @@ body {
     display:inline-block;
 }
 
+.started .watermark-icon {
+    display:none;
+}
+
 .enable-mute.unmuted.started .muteAudioIcon,
 .enable-mute.muted.started .unmuteAudioIcon,
 .enable-full-screen.full-screen-contracted .fullScreenExpand,
