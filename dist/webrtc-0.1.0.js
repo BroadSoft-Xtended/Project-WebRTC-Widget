@@ -377,7 +377,9 @@ var WebRTC = (function() {
 
     // Default URL variables
     this.eventBus = eventBus;
-    this.enableMessages = this.enableMessages || WebRTC.Utils.getSearchVariable("enableMessages");
+    if(WebRTC.Utils.getSearchVariable("disableMessages")) {
+      this.enableMessages = false;
+    }
     this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
     this.networkUserId = this.networkUserId || WebRTC.Utils.getSearchVariable("networkUserId");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
