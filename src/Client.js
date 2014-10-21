@@ -58,7 +58,7 @@
     });
     this.configuration = new WebRTC.Configuration(this.eventBus, config);
     this.sipStack = new WebRTC.SIPStack(this.configuration, this.eventBus);
-    this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
+    this.sound = new WebRTC.Sound(this.sipStack, this.configuration, this.eventBus);
     this.video = new WebRTC.Video(this.client.find('.video'), this.sipStack, this.eventBus, {
       onPlaying: function(){
         self.validateUserMediaResolution();
@@ -82,7 +82,6 @@
     this.fullScreen = false;
     this.selfViewEnabled = true;
     this.dialpadShown = false;
-    this.muted = false;
 
     this.configuration.setSettings(this.settings);
 
@@ -356,13 +355,11 @@
     },
 
     muteAudio: function() {
-      this.setMuted(true);
-      this.sound.enableLocalAudio(false);
+      this.sound.setMuted(true);
     },
 
     unmuteAudio: function() {
-      this.setMuted(false);
-      this.sound.enableLocalAudio(true);
+      this.sound.setMuted(false);
     },
 
     showDialpad: function() {
@@ -712,10 +709,6 @@
       this.event = event;
       this.updateClientClass();
     },
-    setMuted: function(muted){
-      this.muted = muted;
-      this.updateClientClass();
-    },
 
     validateUserMediaResolution: function(){
       var encodingWidth = this.settings.getResolutionEncodingWidth();
@@ -797,7 +790,7 @@
       {
         classes.push("view-"+this.configuration.getView());
       }
-      if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
+      if(this.sound.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }
       if(this.selfViewEnabled) { classes.push("self-view-enabled"); } else { classes.push("self-view-disabled"); }
       if(this.dialpadShown) { classes.push("dialpad-shown"); } else { classes.push("dialpad-hidden"); }
