@@ -2260,15 +2260,42 @@ WebRTC.Utils = Utils;
   var Sound;
 //    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
-  Sound = function(sipStack, configuration) {
+  Sound = function(sipStack, configuration, eventBus) {
     this.sipStack = sipStack;
+    this.eventBus = eventBus;
     this.soundOut = document.createElement("audio");
     this.soundOut.volume = configuration.volumeClick;
     this.soundOutDTMF = document.createElement("audio");
     this.soundOutDTMF.volume = configuration.volumeDTMF;
+    this.muted = false;
+
+    this.registerListeners();
   };
 
   Sound.prototype = {
+    registerListeners: function() {
+      var self = this;
+      this.eventBus.on("resumed", function(e){
+        self.updateLocalAudio();
+      });
+      this.eventBus.on("started", function(e){
+        self.updateLocalAudio();
+      });
+      this.eventBus.on("userMediaUpdated", function(e){
+        self.updateLocalAudio();
+      });
+    },
+      
+    setMuted: function(muted) {
+      this.muted = muted;
+      this.eventBus.viewChanged(this);
+      this.updateLocalAudio();
+    },
+      
+    updateLocalAudio: function() {
+      this.enableLocalAudio(!this.muted);
+    },  
+
     enableLocalAudio: function(enabled) {
       var localStreams = this.sipStack.getLocalStreams();
       if(!localStreams) {
@@ -3473,7 +3500,7 @@ WebRTC.Utils = Utils;
     });
     this.configuration = new WebRTC.Configuration(this.eventBus, config);
     this.sipStack = new WebRTC.SIPStack(this.configuration, this.eventBus);
-    this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
+    this.sound = new WebRTC.Sound(this.sipStack, this.configuration, this.eventBus);
     this.video = new WebRTC.Video(this.client.find('.video'), this.sipStack, this.eventBus, {
       onPlaying: function(){
         self.validateUserMediaResolution();
@@ -3502,7 +3529,6 @@ WebRTC.Utils = Utils;
     this.fullScreen = false;
     this.selfViewEnabled = true;
     this.dialpadShown = false;
-    this.muted = false;
     this.isScreenSharing = false;
 
     this.configuration.setSettings(this.settings);
@@ -3767,13 +3793,11 @@ WebRTC.Utils = Utils;
     },
 
     muteAudio: function() {
-      this.setMuted(true);
-      this.sound.enableLocalAudio(false);
+      this.sound.setMuted(true);
     },
 
     unmuteAudio: function() {
-      this.setMuted(false);
-      this.sound.enableLocalAudio(true);
+      this.sound.setMuted(false);
     },
 
     showDialpad: function() {
@@ -4259,10 +4283,6 @@ WebRTC.Utils = Utils;
       this.event = event;
       this.updateClientClass();
     },
-    setMuted: function(muted){
-      this.muted = muted;
-      this.updateClientClass();
-    },
 
     validateUserMediaResolution: function(){
       var encodingWidth = this.settings.getResolutionEncodingWidth();
@@ -4362,7 +4382,7 @@ WebRTC.Utils = Utils;
       {
         classes.push("enable-file-share");
       }
-      if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
+      if(this.sound.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }
       if(this.selfViewEnabled) { classes.push("self-view-enabled"); } else { classes.push("self-view-disabled"); }
       if(this.dialpadShown) { classes.push("dialpad-shown"); } else { classes.push("dialpad-hidden"); }
