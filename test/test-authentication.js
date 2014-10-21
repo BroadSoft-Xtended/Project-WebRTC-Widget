@@ -9,8 +9,7 @@ module( "Authentication", {
     ClientConfig.enableXMPP = false;
     ClientConfig.register = false;
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
-    client = new WebRTC.Client();
-    client.appendTo($(document));
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
   }, teardown: function() {
     WebRTC.Utils.getSearchVariable = function(name){ return false;}
     client.settings.clear();
@@ -42,6 +41,7 @@ test('on 403 : with settingUserId', function() {
 test('on 403 : with settingUserId and settingAuthenticationUserId', function() {
   client.settings.userId('12345');
   client.settings.authenticationUserId('54321');
+  client.authentication.passwordInput.val('');
   TestWebrtc.Helpers.connect();
   strictEqual(client.authentication.visible, false);
   TestWebrtc.Helpers.registrationFailed(403);

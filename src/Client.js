@@ -11,8 +11,11 @@
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client'),
     ejs = require('ejs');
 
-  Client = function(config) {
+  Client = function(config, element) {
     this.config = config;    
+    if(element) {
+      this.appendTo($(element));
+    }
   };
 
   Client.prototype = {
@@ -69,7 +72,7 @@
       });
       this.configuration = new WebRTC.Configuration(this.eventBus, this.config);
       this.sipStack = new WebRTC.SIPStack(this.configuration, this.eventBus);
-      this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
+      this.sound = new WebRTC.Sound(this.sipStack, this.configuration, this.eventBus);
       this.video = new WebRTC.Video(this.client.find('.video'), this.sipStack, this.eventBus, {
         onPlaying: function(){
           self.validateUserMediaResolution();
@@ -98,7 +101,6 @@
       this.fullScreen = false;
       this.selfViewEnabled = true;
       this.dialpadShown = false;
-      this.muted = false;
       this.isScreenSharing = false;
 
       this.configuration.setSettings(this.settings);
@@ -382,13 +384,11 @@
     },
 
     muteAudio: function() {
-      this.setMuted(true);
-      this.sound.enableLocalAudio(false);
+      this.sound.setMuted(true);
     },
 
     unmuteAudio: function() {
-      this.setMuted(false);
-      this.sound.enableLocalAudio(true);
+      this.sound.setMuted(false);
     },
 
     showDialpad: function() {
@@ -517,6 +517,7 @@
         self.message(e.data.text, e.data.level);
       });
       this.eventBus.on("registrationFailed", function(e){
+        self.updateClientClass();
         if (self.configuration.enableRegistrationIcon)
         {
           //$("#registered").removeClass("success");
@@ -530,12 +531,17 @@
         self.message(self.configuration.messageRegistrationFailed.replace('{0}', msg), "alert");
       });
       this.eventBus.on("registered", function(e){
+        self.updateClientClass();
         if (self.configuration.enableRegistrationIcon)
         {
           self.registered.removeClass("alert");
           self.registered.addClass("success").fadeIn(10).fadeOut(3000);
         }
         self.message(self.configuration.messageRegistered, "success");
+      });
+      this.eventBus.on("unregistered", function(e){
+        self.updateClientClass();
+        self.message(self.configuration.messageUnregistered || 'Unregistered', "success");
       });
       this.eventBus.on("connected", function(e){
         if (self.configuration.enableConnectionIcon)
@@ -868,10 +874,6 @@
       this.event = event;
       this.updateClientClass();
     },
-    setMuted: function(muted){
-      this.muted = muted;
-      this.updateClientClass();
-    },
 
     validateUserMediaResolution: function(){
       var encodingWidth = this.settings.getResolutionEncodingWidth();
@@ -909,6 +911,9 @@
       var callState = this.sipStack.getCallState();
       if(callState) {
         classes.push(callState);
+      }
+      if(this.sipStack.isRegistered()) {
+        classes.push('registered');
       }
       if(this.event) {
         classes.push(this.event);
@@ -953,9 +958,10 @@
       {
         classes.push("enable-dialpad");
       }
-      if (this.configuration.getView())
+      var views = this.configuration.getViews();
+      if (views && views.length > 0)
       {
-        this.configuration.getView().split(" ").map(function(view){
+        views.map(function(view){
           classes.push("view-"+view);
         });
       }
@@ -967,7 +973,7 @@
       {
         classes.push("enable-file-share");
       }
-      if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
+      if(this.sound.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }
       if(this.selfViewEnabled) { classes.push("self-view-enabled"); } else { classes.push("self-view-disabled"); }
       if(this.dialpadShown) { classes.push("dialpad-shown"); } else { classes.push("dialpad-hidden"); }

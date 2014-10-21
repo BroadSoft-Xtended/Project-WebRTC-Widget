@@ -37,6 +37,9 @@
 
     // Default URL variables
     this.eventBus = eventBus;
+    if(WebRTC.Utils.getSearchVariable("disableMessages")) {
+      this.enableMessages = false;
+    }
     this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
     this.networkUserId = this.networkUserId || WebRTC.Utils.getSearchVariable("networkUserId");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
@@ -77,12 +80,20 @@
       }
     },
     isAudioOnlyView: function(){
-      var view = this.getView();
-      return view && !!view.match('audioOnly');
+      var views = this.getViews();
+      return views.indexOf('audioOnly') !== -1;
     },
-    getView: function(){
-      return this.view || WebRTC.Utils.getSearchVariable("view");
-    },
+    getViews: function(){
+      var view = WebRTC.Utils.getSearchVariable("view");
+      var views = [];
+      if(this.view) {
+        $.merge(views, this.view.split(' '));
+      }
+      if(view) {
+        $.merge(views, view.split(' '));        
+      }
+      return $.unique(views);
+    },    
     getBackgroundColor: function(){
       return this.color || $('body').css('backgroundColor');
     },
@@ -149,7 +160,7 @@
 
     getExSIPConfig: function(data){
       data = data || {};
-      var userid = data.userId || this.settings.userId() || this.networkUserId || WebRTC.Utils.randomUserid();
+      var userid = data.userId || $.cookie('settingUserId') || this.networkUserId || WebRTC.Utils.randomUserid();
 
       var sip_uri = encodeURI(userid);
       if ((sip_uri.indexOf("@") === -1))
@@ -160,7 +171,7 @@
       var config  =
       {
         'uri': sip_uri,
-        'authorization_user': data.authenticationUserId || this.settings.authenticationUserId() || userid,
+        'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
         'ws_servers': this.websocketsServers,
         'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
         'trace_sip': this.debug,
@@ -176,10 +187,10 @@
       }
 
       // do registration if setting User ID or configuration register is set
-      if (this.settings.userId() || this.register)
+      if ($.cookie('settingUserId') || this.register)
       {
         config.register = true;
-        config.password = data.password || this.settings.password();
+        config.password = data.password || $.cookie('settingPassword');
       }
       else
       {

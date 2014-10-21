@@ -944,6 +944,7 @@ body {
     opacity: 0;
     display: block;
     z-index: -1;
+    backface-visibility: hidden;
 }
 .client .fileshare-container {
     display:none;
@@ -959,6 +960,15 @@ body {
 .started .dropAndAnswerButton,
 .client:not(.started) .acceptIncomingCall {
     display:inline-block;
+}
+
+.started .watermark-icon {
+    display:none;
+    transform:none;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
+}
+.connected .watermark-icon {
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .enable-mute.unmuted.started .muteAudioIcon,
@@ -1023,6 +1033,15 @@ body {
     opacity: 0;
     z-index: -1;
 }
+.sign-in, .sign-out {
+    display: none;
+}
+.client:not(.registered) .sign-in,
+.client.registered .sign-out
+{
+    display: block;
+}
+
 .client:not(.enable-mute) .cell-muteAudio,
 .client:not(.enable-transfer) .cell-transfer,
 .client:not(.enable-hold) .cell-hold,
@@ -1087,6 +1106,10 @@ body {
     top: 48px !important;
     font-weight: bold;
     font-size: 14px;
+}
+.view-audioOnly .dialpad
+{
+    top: 45px;
 }
 .view-conference .selfViewDisable, .view-conference .selfViewEnable{
     text-align: right !important;
@@ -1275,7 +1298,7 @@ body
 {
     border-radius: 0px;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.05);
     background: #000000;
     background: -moz-linear-gradient(top,  #181818 0%, #494949 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#181818), color-stop(100%,#494949));
@@ -1287,6 +1310,9 @@ body
 
 
     overflow: hidden;
+}
+.started .remoteVideo {
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
 }
 .videoBar
 {
@@ -1372,9 +1398,11 @@ body
     border: 1px solid #414141;
     color: #EEE;
     padding-left: 5px;
-    margin-left: 14px;
     line-height: 22px;
     font-size: 13px;
+}
+.settingsPopup input, .settingsPopup select {
+    margin-left: 14px;    
 }
 /*a, .icon span
 {
@@ -1453,6 +1481,7 @@ body
     position: absolute;
     top: 50%;
     left: 50%;
+    backface-visibility: hidden;
     transform: translate(-50%,-50%);
     color: rgba(255, 255, 255, 0.08);
     z-index: 1;
@@ -1733,21 +1762,6 @@ ul.tabs
 {
     text-align: right;
 }
-.resolutionTypeSelect
-{
-    margin-left: 42px;
-    width: 170px;
-}
-.resolutionDisplayStandardSelect
-{
-    margin-left: 13px;
-    width: 170px;
-}
-.resolutionEncodingStandardSelect
-{
-    margin-left: 22px;
-    width: 170px;
-}
 .cell-selfView
 {
     /*padding-left: 12px;*/
@@ -1762,16 +1776,21 @@ ul.tabs
     font-size: 18px;
     color: #FFF;
 }
-.settingsPopup .saveSettings {
+.settingsPopup .btn {
     background: #04AFF0;
     color: #FFF;
     padding: 5px 10px;
     text-decoration: none;
     border-radius: 20px;
     margin-left: 9px;
+    margin-top: 15px;
     font-weight: 700;
+    text-align: center;
 }
-.settingsPopup .saveSettings:hover {
+.settingsPopup .saveSettings, .settingsPopup .clear {
+    display: inline-block
+}
+.settingsPopup .btn:hover {
     background: #017EAD;
 }
 .settingsPopup .clear
@@ -2064,4 +2083,18 @@ ul.tabs
     font-size: 14px;
     color: #FFF;
     margin-right: 12px;
+}
+.client.view-centered
+{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    backface-visibility: hidden;
+}
+a.disabled {
+   pointer-events: none;
+   cursor: default;
+   background-color: #999;
+   opacity: 0.5;
 }

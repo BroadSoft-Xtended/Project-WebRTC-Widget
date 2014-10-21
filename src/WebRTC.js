@@ -148,12 +148,14 @@ var WebRTC = (function() {
 
     $.each(nodes, function(i, node){
       node = $(node);
+      if(!node.text()) {
+        return;
+      }
       var data = JSON.parse(node.text());
       console.log("script config : ", data);
       var config = $.extend({}, window.ClientConfig, data);
       console.log("merged config : ", config);
-      var client = new WebRTC.Client(config);
-      client.appendTo(node.parent());
+      var client = new WebRTC.Client(config, node.parent());
       node.remove();
       window.BroadSoftWebRTC.clients.push(client);
     });

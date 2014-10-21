@@ -157,12 +157,14 @@ var WebRTC = (function() {
 
     $.each(nodes, function(i, node){
       node = $(node);
+      if(!node.text()) {
+        return;
+      }
       var data = JSON.parse(node.text());
       console.log("script config : ", data);
       var config = $.extend({}, window.ClientConfig, data);
       console.log("merged config : ", config);
-      var client = new WebRTC.Client(config);
-      client.appendTo(node.parent());
+      var client = new WebRTC.Client(config, node.parent());
       node.remove();
       window.BroadSoftWebRTC.clients.push(client);
     });
@@ -203,6 +205,7 @@ var WebRTC = (function() {
       'incomingCall',
       'connected',
       'registered',
+      'unregistered',
       'registrationFailed',
       'disconnected',
       'progress',
@@ -246,6 +249,9 @@ var WebRTC = (function() {
   };
   EventBus.prototype.connected = function(data) {
     this.emit("connected", this, data);
+  };
+  EventBus.prototype.unregistered = function(data) {
+    this.emit("unregistered", this, data);
   };
   EventBus.prototype.registered = function(data) {
     this.emit("registered", this, data);
@@ -397,6 +403,9 @@ var WebRTC = (function() {
 
     // Default URL variables
     this.eventBus = eventBus;
+    if(WebRTC.Utils.getSearchVariable("disableMessages")) {
+      this.enableMessages = false;
+    }
     this.destination = this.destination || WebRTC.Utils.getSearchVariable("destination");
     this.networkUserId = this.networkUserId || WebRTC.Utils.getSearchVariable("networkUserId");
     this.hd = (WebRTC.Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
@@ -437,12 +446,20 @@ var WebRTC = (function() {
       }
     },
     isAudioOnlyView: function(){
-      var view = this.getView();
-      return view && !!view.match('audioOnly');
+      var views = this.getViews();
+      return views.indexOf('audioOnly') !== -1;
     },
-    getView: function(){
-      return this.view || WebRTC.Utils.getSearchVariable("view");
-    },
+    getViews: function(){
+      var view = WebRTC.Utils.getSearchVariable("view");
+      var views = [];
+      if(this.view) {
+        $.merge(views, this.view.split(' '));
+      }
+      if(view) {
+        $.merge(views, view.split(' '));        
+      }
+      return $.unique(views);
+    },    
     getBackgroundColor: function(){
       return this.color || $('body').css('backgroundColor');
     },
@@ -509,7 +526,7 @@ var WebRTC = (function() {
 
     getExSIPConfig: function(data){
       data = data || {};
-      var userid = data.userId || this.settings.userId() || this.networkUserId || WebRTC.Utils.randomUserid();
+      var userid = data.userId || $.cookie('settingUserId') || this.networkUserId || WebRTC.Utils.randomUserid();
 
       var sip_uri = encodeURI(userid);
       if ((sip_uri.indexOf("@") === -1))
@@ -520,7 +537,7 @@ var WebRTC = (function() {
       var config  =
       {
         'uri': sip_uri,
-        'authorization_user': data.authenticationUserId || this.settings.authenticationUserId() || userid,
+        'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
         'ws_servers': this.websocketsServers,
         'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
         'trace_sip': this.debug,
@@ -536,10 +553,10 @@ var WebRTC = (function() {
       }
 
       // do registration if setting User ID or configuration register is set
-      if (this.settings.userId() || this.register)
+      if ($.cookie('settingUserId') || this.register)
       {
         config.register = true;
-        config.password = data.password || this.settings.password();
+        config.password = data.password || $.cookie('settingPassword');
       }
       else
       {
@@ -610,7 +627,9 @@ var WebRTC = (function() {
     this.userIdInput = this.settingsUi.find(".settingUserid");
     this.authenticationUserIdInput = this.settingsUi.find(".settingAuthenticationUserid");
     this.passwordInput = this.settingsUi.find(".settingPassword");
-    this.save = this.settingsUi.find(".saveSettings");
+    this.saveBtn = this.settingsUi.find(".saveSettings");
+    this.signInBtn = this.settingsUi.find(".sign-in");
+    this.signOutBtn = this.settingsUi.find(".sign-out");
     this.displayNameInput = this.settingsUi.find(".settingDisplayName");
     this.resolutionType = this.settingsUi.find('.resolutionTypeSelect');
     this.resolutionDisplayWidescreen = this.settingsUi.find('.resolutionDisplayWidescreenSelect');
@@ -763,6 +782,15 @@ var WebRTC = (function() {
           self.reload();
         }
       });
+      this.eventBus.on("registered", function(e){ 
+        self.enableRegistration(true);
+      });
+      this.eventBus.on("unregistered", function(e){ 
+        self.enableRegistration(true);
+      });
+      this.eventBus.on("registrationFailed", function(e){ 
+        self.enableRegistration(true);
+      });
       this.resolutionTypeSelect.bind('change', function(e){
         self.updateResolutionSelectVisibility();
       });
@@ -782,20 +810,22 @@ var WebRTC = (function() {
       });
       this.clearLink.on('click', function(e) {
         e.preventDefault();
-        self.clear();
-        self.eventBus.message('Settings cleared');
+        self.resetLayout();
+        self.eventBus.message('Settings reset');
       });
-      this.save.bind('click', function(e)
+      this.signOutBtn.on('click', function(e) {
+        e.preventDefault();
+        self.signOut();
+      });
+      this.saveBtn.bind('click', function(e)
       {
         e.preventDefault();
-        self.sound.playClick();
-        self.persist();
-        self.settingsUi.fadeOut(100);
-        if(!self.sipStack.activeSession) {
-          self.reload();
-        } else {
-          self.settingsChanged = true;
-        }
+        self.save();
+      });
+      this.signInBtn.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.signIn();
       });
       this.bandwidthLowInput.bind('blur', function(e)
       {
@@ -962,6 +992,57 @@ var WebRTC = (function() {
       } else {
         return false;
       }
+    },
+    changed: function(){
+      if(!this.sipStack.activeSession) {
+        this.reload();
+      } else {
+        this.settingsChanged = true;
+      }
+    },
+    save: function(){
+      this.sound.playClick();
+      this.persist();
+      this.toggled = false;
+      this.client.updateClientClass();
+      this.changed();
+    },
+    enableRegistration: function(enable){
+      this.signInBtn.removeClass("disabled");
+      this.signOutBtn.removeClass("disabled");
+      if(!enable) {
+        this.signInBtn.addClass("disabled");
+        this.signOutBtn.addClass("disabled");
+      }
+    },
+    signIn: function(){
+      this.sound.playClick();
+      this.persist();
+      this.sipStack.init();
+      this.enableRegistration(false);
+    },    
+    signOut: function(){
+      this.sound.playClick();
+      this.sipStack.unregister();
+      this.clearConfigurationCookies();
+      this.enableRegistration(false);
+    },    
+    resetLayout: function(){
+      this.resolutionEncoding(WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
+      this.resolutionDisplay(WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+      this.client.updateClientClass();
+    },
+    clearConfigurationCookies: function(){
+      $.removeCookie('settingDisplayName');
+      $.removeCookie('settingUserId');
+      $.removeCookie('settingAuthenticationUserId');
+      $.removeCookie('settingPassword');
+    },
+    clearConfiguration: function(){
+      this.displayName(null);
+      this.userId(null);
+      this.authenticationUserId(null);
+      this.password(null);
     },
     clear: function(){
       for(var cookie in this.cookiesMapper) {
@@ -2214,15 +2295,42 @@ WebRTC.Utils = Utils;
   var Sound;
 //    LOG_PREFIX = WebRTC.name +' | '+ 'Configuration' +' | ';
 
-  Sound = function(sipStack, configuration) {
+  Sound = function(sipStack, configuration, eventBus) {
     this.sipStack = sipStack;
+    this.eventBus = eventBus;
     this.soundOut = document.createElement("audio");
     this.soundOut.volume = configuration.volumeClick;
     this.soundOutDTMF = document.createElement("audio");
     this.soundOutDTMF.volume = configuration.volumeDTMF;
+    this.muted = false;
+
+    this.registerListeners();
   };
 
   Sound.prototype = {
+    registerListeners: function() {
+      var self = this;
+      this.eventBus.on("resumed", function(e){
+        self.updateLocalAudio();
+      });
+      this.eventBus.on("started", function(e){
+        self.updateLocalAudio();
+      });
+      this.eventBus.on("userMediaUpdated", function(e){
+        self.updateLocalAudio();
+      });
+    },
+      
+    setMuted: function(muted) {
+      this.muted = muted;
+      this.eventBus.viewChanged(this);
+      this.updateLocalAudio();
+    },
+      
+    updateLocalAudio: function() {
+      this.enableLocalAudio(!this.muted);
+    },  
+
     enableLocalAudio: function(enabled) {
       var localStreams = this.sipStack.getLocalStreams();
       if(!localStreams) {
@@ -2483,10 +2591,22 @@ WebRTC.Utils = Utils;
 
     sendDTMF: function(digit) {
       this.activeSession.sendDTMF(digit, this.configuration.getDTMFOptions());
-    },
+    },    
 
     isStarted: function() {
       return this.getCallState() === C.STATE_STARTED;
+    },
+
+    unregister: function() {
+      return this.ua && this.ua.unregister();
+    },
+
+    register: function() {
+      return this.ua && this.ua.register();
+    },
+
+    isRegistered: function() {
+      return this.ua && this.ua.isRegistered();
     },
 
     sendData: function(data) {
@@ -2672,6 +2792,10 @@ WebRTC.Utils = Utils;
         this.ua.on('registered', function(e)
         {
           self.eventBus.registered();
+        });
+        this.ua.on('unregistered', function(e)
+        {
+          self.eventBus.unregistered();
         });
         this.ua.on('registrationFailed', function(e)
         {
@@ -3359,8 +3483,11 @@ WebRTC.Utils = Utils;
     logger = new ExSIP.Logger(WebRTC.name +' | '+ 'Client'),
     ejs = require('ejs');
 
-  Client = function(config) {
+  Client = function(config, element) {
     this.config = config;    
+    if(element) {
+      this.appendTo($(element));
+    }
   };
 
   Client.prototype = {
@@ -3417,7 +3544,7 @@ WebRTC.Utils = Utils;
       });
       this.configuration = new WebRTC.Configuration(this.eventBus, this.config);
       this.sipStack = new WebRTC.SIPStack(this.configuration, this.eventBus);
-      this.sound = new WebRTC.Sound(this.sipStack, this.configuration);
+      this.sound = new WebRTC.Sound(this.sipStack, this.configuration, this.eventBus);
       this.video = new WebRTC.Video(this.client.find('.video'), this.sipStack, this.eventBus, {
         onPlaying: function(){
           self.validateUserMediaResolution();
@@ -3446,7 +3573,6 @@ WebRTC.Utils = Utils;
       this.fullScreen = false;
       this.selfViewEnabled = true;
       this.dialpadShown = false;
-      this.muted = false;
       this.isScreenSharing = false;
 
       this.configuration.setSettings(this.settings);
@@ -3730,13 +3856,11 @@ WebRTC.Utils = Utils;
     },
 
     muteAudio: function() {
-      this.setMuted(true);
-      this.sound.enableLocalAudio(false);
+      this.sound.setMuted(true);
     },
 
     unmuteAudio: function() {
-      this.setMuted(false);
-      this.sound.enableLocalAudio(true);
+      this.sound.setMuted(false);
     },
 
     showDialpad: function() {
@@ -3865,6 +3989,7 @@ WebRTC.Utils = Utils;
         self.message(e.data.text, e.data.level);
       });
       this.eventBus.on("registrationFailed", function(e){
+        self.updateClientClass();
         if (self.configuration.enableRegistrationIcon)
         {
           //$("#registered").removeClass("success");
@@ -3878,12 +4003,17 @@ WebRTC.Utils = Utils;
         self.message(self.configuration.messageRegistrationFailed.replace('{0}', msg), "alert");
       });
       this.eventBus.on("registered", function(e){
+        self.updateClientClass();
         if (self.configuration.enableRegistrationIcon)
         {
           self.registered.removeClass("alert");
           self.registered.addClass("success").fadeIn(10).fadeOut(3000);
         }
         self.message(self.configuration.messageRegistered, "success");
+      });
+      this.eventBus.on("unregistered", function(e){
+        self.updateClientClass();
+        self.message(self.configuration.messageUnregistered || 'Unregistered', "success");
       });
       this.eventBus.on("connected", function(e){
         if (self.configuration.enableConnectionIcon)
@@ -4216,10 +4346,6 @@ WebRTC.Utils = Utils;
       this.event = event;
       this.updateClientClass();
     },
-    setMuted: function(muted){
-      this.muted = muted;
-      this.updateClientClass();
-    },
 
     validateUserMediaResolution: function(){
       var encodingWidth = this.settings.getResolutionEncodingWidth();
@@ -4257,6 +4383,9 @@ WebRTC.Utils = Utils;
       var callState = this.sipStack.getCallState();
       if(callState) {
         classes.push(callState);
+      }
+      if(this.sipStack.isRegistered()) {
+        classes.push('registered');
       }
       if(this.event) {
         classes.push(this.event);
@@ -4301,9 +4430,10 @@ WebRTC.Utils = Utils;
       {
         classes.push("enable-dialpad");
       }
-      if (this.configuration.getView())
+      var views = this.configuration.getViews();
+      if (views && views.length > 0)
       {
-        this.configuration.getView().split(" ").map(function(view){
+        views.map(function(view){
           classes.push("view-"+view);
         });
       }
@@ -4315,7 +4445,7 @@ WebRTC.Utils = Utils;
       {
         classes.push("enable-file-share");
       }
-      if(this.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
+      if(this.sound.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }
       if(this.selfViewEnabled) { classes.push("self-view-enabled"); } else { classes.push("self-view-disabled"); }
       if(this.dialpadShown) { classes.push("dialpad-shown"); } else { classes.push("dialpad-hidden"); }

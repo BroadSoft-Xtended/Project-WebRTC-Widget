@@ -110,6 +110,12 @@
                   <input class="settingBandwidthHigh short" type="text" maxlength="4" value="" placeholder="high"/>
                 </span>
               </div>
+              <div class="row">
+                  <span class="cell">
+                    <a href="" title="Sign In" class="btn sign-in">Sign In</a>
+                    <a href="" title="Sign Out" class="btn sign-out">Sign Out</a>
+                  </span>
+              </div>
             </div>
             <div id='tab2'>
               <div class="settingSelfViewDisableRow row">
@@ -147,32 +153,37 @@
                     <span class="cell">Page Color</span>
                     <input class="settingColor cell" type="color" /><br>
                 </div> -->
-                <div class="settingResolutionRow row">
+                <div class="settingResolutionRow">
                   <!-- <span class="cell">Resolution</span> -->
-                  <span class="cell">
-                      <span class="settingResolutionTypeRow">
-                       Mode <select class="resolutionTypeSelect"></select><br>
+                  <div class="row">
+                    <span class="settingResolutionTypeRow cell">Mode</span> 
+                    <select class="resolutionTypeSelect cell"></select>
+                  </div>
+                  <div class="row">
+                      <span class="settingResolutionDisplayRow cell">Resolution</span>
+                      <span class="cell">
+                        <select class="resolutionDisplayStandardSelect resolutionSubType"></select>
+                        <select class="resolutionDisplayWidescreenSelect resolutionSubType"></select>
                       </span>
-                      <span class="settingResolutionDisplayRow">
-                        Resolution<select class="resolutionDisplayStandardSelect resolutionSubType"></select>
-                        <select class="resolutionDisplayWidescreenSelect resolutionSubType"></select> <br>
-                      </span>
-                      <span class="settingResolutionEncodingRow">
-                        Encoding<select class="resolutionEncodingStandardSelect resolutionSubType"></select>
-                        <select class="resolutionEncodingWidescreenSelect resolutionSubType"></select><br>
-                      </span>
-                  </span>
+                  </div>
+                  <div class="row">
+                    <span class="settingResolutionEncodingRow cell">Encoding</span>
+                    <span class="cell">
+                      <select class="resolutionEncodingStandardSelect resolutionSubType"></select>
+                      <select class="resolutionEncodingWidescreenSelect resolutionSubType"></select>
+                    </span>
+                  </div>
                 </div>
+                <div class="row">
+                    <span class="cell">
+                      <a href="" title="Save Settings" class="btn saveSettings">Save Settings</a>
+                      <a href="" title="Reset Settings" class="clear">Reset Settings</a>
+                    </span>
+                </div>                
             </div>
       </div>
       
       
-      <div class="row">
-          <span class="cell">
-            <a href="" title="Save Settings" class="saveSettings">Save Settings</a>
-            <a href="" title="Clear Settings" class="clear">Clear Settings</a>
-          </span>
-      </div>
     </div>
     <div class="video">
       <span class="icon-facetime-video watermark-icon"></span>

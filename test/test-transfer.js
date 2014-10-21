@@ -11,26 +11,26 @@ module( "Transfer", {
   }
 });
 test('transfer', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.isVisible(client.transfer.icon, false);
 });
 test('transferPopup', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.isVisible(client.transfer.popup, false);
 });
 test('transfer on call started with enableTransfer is false', function() {
   ClientConfig.enableTransfer = false;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.isVisible(client.transfer.icon, false);
 });
 test('transfer on call started', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.isVisible(client.transfer.icon, true);
 });
 test('transferPopup on transfer triggered', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.startCall();
   client.transfer.icon.trigger("click");
   TestWebrtc.Helpers.isVisible(client.transfer.popup, true);
@@ -38,7 +38,7 @@ test('transferPopup on transfer triggered', function() {
   TestWebrtc.Helpers.isVisible(client.transfer.popup, false);
 });
 test('transferPopup on transfer rejected', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.startCall();
   client.transfer.icon.trigger("click");
   TestWebrtc.Helpers.isVisible(client.transfer.popup, true);
@@ -46,19 +46,19 @@ test('transferPopup on transfer rejected', function() {
   TestWebrtc.Helpers.isVisible(client.transfer.popup, false);
 });
 test('transferPopup on call started', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.isVisible(client.transfer.popup, false);
 });
 test('transfer on call ended', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.endCall();
   TestWebrtc.Helpers.isVisible(client.transfer.icon, false);
 });
 test('hold call and invite target', function() {
   ClientConfig.enableAutoAnswer = false;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   var sessionToTransfer = TestWebrtc.Helpers.outgoingSession({id: "sessionToTransfer"});
   TestWebrtc.Helpers.startCall(sessionToTransfer);
@@ -72,7 +72,7 @@ test('hold call and invite target', function() {
 
 test('hold call and invite target failed', function() {
   ClientConfig.enableAutoAnswer = false;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   var sessionToTransfer = TestWebrtc.Helpers.outgoingSession({id: "sessionToTransfer"});
   TestWebrtc.Helpers.startCall(sessionToTransfer);
@@ -84,7 +84,7 @@ test('hold call and invite target failed', function() {
 });
 test('acceptTransfer triggered with empty target', function() {
   var transferTarget = null;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('transfer');transferTarget = target;};
   TestWebrtc.Helpers.startCall();
   client.transfer.icon.trigger("click");
@@ -95,7 +95,7 @@ test('acceptTransfer triggered with empty target', function() {
 });
 test('acceptTransfer triggered with target', function() {
   var transferTarget = null;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('transfer');transferTarget = target;};
   TestWebrtc.Helpers.startCall();
   client.transfer.icon.trigger("click");
@@ -108,7 +108,7 @@ test('acceptTransfer triggered with target', function() {
 test('acceptTransfer triggered with target and with attended checked', function() {
   var basicTransferTarget = null;
   var attendedTransferTarget = null;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   ExSIP.UA.prototype.transfer = function(target, rtcSession){console.log('basic transfer');basicTransferTarget = target;};
   ExSIP.UA.prototype.attendedTransfer = function(target, rtcSession){console.log('attended transfer');attendedTransferTarget = target;};
   TestWebrtc.Helpers.startCall();

@@ -10,7 +10,7 @@ module( "SMS", {
 });
 
 test('loginLink clicked', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   var loginName = "", loginPassword = "";
   client.sms.smsProvider.login = function(name, password) {
     loginName = name;
@@ -27,7 +27,7 @@ test('loginLink clicked', function() {
 });
 
 test('login successful', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   var readAllCalled = false;
   client.sms.smsProvider.readAll = function() {
     readAllCalled = true;
@@ -45,7 +45,7 @@ test('login successful', function() {
 });
 
 test('received messages', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.eventBus.smsLoggedIn(client.sms);
   client.eventBus.smsReadAll(client.sms, {messages: [
     {"mid":274907,"type":"sms","time":1394749434000,"stime":1394749434000,"status":"N","body":"BS: Test sending msg to cpa-dev-prod ","tn":"12403649086","rawtn":"12403649086","name":"","dir":"I"},
@@ -61,7 +61,7 @@ test('received messages', function() {
 });
 
 test('delete message', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   var removeCalled = false;
   window.confirm = function(){ return true;}
   client.sms.smsProvider.remove = function(mids, onSuccess, onFailure) {
@@ -83,7 +83,7 @@ test('delete message', function() {
 });
 
 test('send message', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   var sendToArray = "", sendBody = "";
   client.sms.smsProvider.sendSMS = function(toArray, body) {
     sendToArray = toArray;

@@ -10,19 +10,19 @@ module( "Settings", {
 });
 test('settings icon', function() {
   ClientConfig.enableSettings = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
   TestWebrtc.Helpers.isVisible(client.settings.popup, false);
 });
 test('settings icon with enableSettings = false', function() {
   ClientConfig.enableSettings = false;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, false);
   TestWebrtc.Helpers.isVisible(client.settings.popup, false);
 });
 test('settings icon after click', function() {
   ClientConfig.enableSettings = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.settingsIcon.trigger('click');
   TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
   TestWebrtc.Helpers.isVisible(client.settings.popup, true);
@@ -31,55 +31,55 @@ test('settings icon after click', function() {
   TestWebrtc.Helpers.isVisible(client.settings.popup, false);
 });
 test('persist', function() {
-  client = new WebRTC.Client();
-  client.settings.save.trigger("click");
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingUserId"), "");
   strictEqual($.cookie("settingPassword"), "");
 });
 test('persist with active call', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   var reload = false;
   client.settings.reload = function(){reload = true;}
   TestWebrtc.Helpers.startCall();
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual(reload, false);
   TestWebrtc.Helpers.endCall();
   strictEqual(reload, true);
 });
 test('persist with userid set', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.userId('someuserid');
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingUserId"), "someuserid");
   strictEqual($.cookie("settingPassword"), "");
 });
 test('persist with display name set', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   strictEqual(client.settings.displayName(), "");
   client.settings.displayName('somedisplayname');
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingDisplayName"), "somedisplayname");
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   strictEqual(client.settings.displayName(), "somedisplayname");
 });
 test('resolution types with ClientConfig set', function() {
   ClientConfig.displayResolution = WebRTC.C.R_960x720;
   ClientConfig.encodingResolution = WebRTC.C.R_320x240;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   strictEqual(client.settings.getResolutionDisplay(), WebRTC.C.R_960x720);
   strictEqual(client.settings.getResolutionEncoding(), WebRTC.C.R_320x240);
   ClientConfig.displayResolution = null;
   ClientConfig.encodingResolution = null;
 });
 test('persist with resolution set', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.resolutionType.val(WebRTC.C.STANDARD);
   client.settings.resolutionDisplayStandard.val(WebRTC.C.R_960x720);
   client.settings.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingResolutionDisplay"), WebRTC.C.R_960x720);
   strictEqual($.cookie("settingResolutionEncoding"), WebRTC.C.R_320x240);
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   strictEqual(client.settings.resolutionType.val(), WebRTC.C.STANDARD);
   strictEqual(client.settings.resolutionDisplayStandard.val(), WebRTC.C.R_960x720);
   strictEqual(client.settings.resolutionEncodingStandard.val(), WebRTC.C.R_320x240);
@@ -87,19 +87,19 @@ test('persist with resolution set', function() {
   $.cookie("settingResolutionEncoding", "");
 });
 test('persist with password set', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.password('121212');
-  client.settings.save.trigger("click");
+  client.settings.saveBtn.trigger("click");
   strictEqual($.cookie("settingPassword"), '121212');
   strictEqual(WebRTC.Utils.getSearchVariable("password"), false);
   strictEqual(client.configuration.getPassword(), '121212');
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   strictEqual(client.configuration.getPassword(), '121212');
   strictEqual(client.settings.password(), '121212');
   $.cookie("settingPassword", "");
 });
 test('setResolution with standard resolution', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.setResolutionDisplay(WebRTC.C.R_320x240);
   client.settings.setResolutionEncoding(WebRTC.C.R_320x240);
   deepEqual(client.settings.resolutionType.val(), WebRTC.C.STANDARD);
@@ -109,7 +109,7 @@ test('setResolution with standard resolution', function() {
   deepEqual(client.settings.resolutionEncodingStandard.css("display"), "inline-block");
 });
 test('setResolution with widescreen resolution', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.setResolutionDisplay(WebRTC.C.R_320x180);
   client.settings.setResolutionEncoding(WebRTC.C.R_320x180);
   deepEqual(client.settings.resolutionType.val(), WebRTC.C.WIDESCREEN);
@@ -119,7 +119,7 @@ test('setResolution with widescreen resolution', function() {
   deepEqual(client.settings.resolutionEncodingStandard.css("display"), "none");
 });
 test('change resolution type', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.resolutionType.val('standard');
   client.settings.resolutionType.trigger('change');
   deepEqual(client.settings.resolutionDisplayWidescreen.css("display"), "none");
@@ -130,7 +130,7 @@ test('change resolution type', function() {
 test('change encoding resolution with different video resolution', function() {
   WebRTC.Video.prototype.localWidth = function(){return 640;}
   WebRTC.Video.prototype.localHeight = function(){return 480;}
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.resolutionEncodingStandard.val(WebRTC.C.R_960x720);
   client.settings.resolutionEncodingStandard.trigger('change');
   client.video.local.trigger("playing");
@@ -147,7 +147,7 @@ test('hide or disable settings when ClientConfig has corresponding attributes se
   delete ClientConfig.bandwidthMed;
   delete ClientConfig.bandwidthHigh;
   delete ClientConfig.displayName;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.settingsIcon.trigger('click');
 //  strictEqual(client.settings.settingSelfViewDisableRow.is(":visible"), false);
 //  strictEqual(client.settings.settingBandwidthLow.is(":visible"), false);
@@ -182,11 +182,10 @@ test('hide or disable settings when ClientConfig has corresponding attributes se
   ClientConfig.bandwidthMed = '1024';
   ClientConfig.bandwidthHigh = '2048';
   ClientConfig.displayName = 'test display name';
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.settingsIcon.trigger('click');
   strictEqual(client.settings.settingAutoAnswerRow.is(":visible"), false);
   strictEqual(client.settings.settingSelfViewDisableRow.is(":visible"), false);
-  strictEqual(client.settings.settingUseridRow.is(":visible"), false);
   strictEqual(client.settings.settingHDRow.is(":visible"), false);
   strictEqual(client.settings.settingResolutionRow.is(":visible"), false);
   strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), false);
@@ -199,7 +198,7 @@ test('hide or disable settings when ClientConfig has corresponding attributes se
   strictEqual(client.settings.settingDisplayNameRow.is(":visible"), false);
 
   delete ClientConfig.displayResolution;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.settingsIcon.trigger('click');
   client.settings.tabLayoutLink.trigger('click');
   strictEqual(client.settings.settingResolutionRow.is(":visible"), true);
@@ -209,7 +208,7 @@ test('hide or disable settings when ClientConfig has corresponding attributes se
 
   delete ClientConfig.encodingResolution;
   ClientConfig.displayResolution = '960x720';
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.settingsIcon.trigger('click');
   client.settings.tabLayoutLink.trigger('click');
   strictEqual(client.settings.settingResolutionRow.is(":visible"), true);

@@ -6,6 +6,7 @@ module( "Call Waiting", {
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableTransfer = true;
     ClientConfig.enableCallStats = false;
+    client = window.BroadSoftWebRTC.clients[0];
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
   }, teardown: function() {
   }
@@ -13,7 +14,7 @@ module( "Call Waiting", {
 
 test('1st incoming call', function() {
   ClientConfig.enableAutoAnswer = false;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   var session = TestWebrtc.Helpers.incomingSession();
   var answerOptions = "";
@@ -30,7 +31,7 @@ test('1st incoming call', function() {
 
 test('incoming call and cancel', function() {
   ClientConfig.enableAutoAnswer = false;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   var session = TestWebrtc.Helpers.incomingSession();
   var answerOptions = "";
@@ -44,7 +45,7 @@ test('incoming call and cancel', function() {
 
 test('1st incoming call with enableAutoAnswer', function() {
   ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.settings.settingAutoAnswer.prop('checked', true);
   TestWebrtc.Helpers.connect();
   var session = TestWebrtc.Helpers.incomingSession();
@@ -57,7 +58,7 @@ test('1st incoming call with enableAutoAnswer', function() {
 
 test('2nd incoming call with enableAutoAnswer', function() {
   ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   TestWebrtc.Helpers.startCall();
   var session = TestWebrtc.Helpers.incomingSession();
@@ -75,7 +76,7 @@ test('2nd incoming call with enableAutoAnswer', function() {
 
 test('2nd incoming call and hold+answer click', function() {
   ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   var outgoingSession = TestWebrtc.Helpers.outgoingSession();
   TestWebrtc.Helpers.startCall(outgoingSession);
@@ -94,7 +95,7 @@ test('2nd incoming call and hold+answer click', function() {
 
 test('2nd incoming call and hold+answer click and resume 1st call after 2nd ends', function() {
   ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   var outgoingSession = TestWebrtc.Helpers.outgoingSession();
   TestWebrtc.Helpers.startCall(outgoingSession);
@@ -110,7 +111,7 @@ test('2nd incoming call and hold+answer click and resume 1st call after 2nd ends
 
 test('2nd incoming call and drop+answer click', function() {
   ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   var outgoingSession = TestWebrtc.Helpers.outgoingSession();
   TestWebrtc.Helpers.startCall(outgoingSession);
@@ -128,7 +129,7 @@ test('2nd incoming call and drop+answer click', function() {
 
 test('call and hangup and incoming call', function() {
   ClientConfig.enableAutoAnswer = false;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   TestWebrtc.Helpers.startCall();
   TestWebrtc.Helpers.endCall();

@@ -124,10 +124,22 @@
 
     sendDTMF: function(digit) {
       this.activeSession.sendDTMF(digit, this.configuration.getDTMFOptions());
-    },
+    },    
 
     isStarted: function() {
       return this.getCallState() === C.STATE_STARTED;
+    },
+
+    unregister: function() {
+      return this.ua && this.ua.unregister();
+    },
+
+    register: function() {
+      return this.ua && this.ua.register();
+    },
+
+    isRegistered: function() {
+      return this.ua && this.ua.isRegistered();
     },
 
     sendData: function(data) {
@@ -313,6 +325,10 @@
         this.ua.on('registered', function(e)
         {
           self.eventBus.registered();
+        });
+        this.ua.on('unregistered', function(e)
+        {
+          self.eventBus.unregistered();
         });
         this.ua.on('registrationFailed', function(e)
         {

@@ -13,7 +13,7 @@ module( "SipStack", {
 
 test('RTCMediaHandlerOptions and bandwidth med change', function() {
   ClientConfig.allowOutside = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.sipStack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
   client.settings.resolutionType.val(WebRTC.C.STANDARD);
   client.settings.resolutionEncodingStandard.val(WebRTC.C.R_640x480);
@@ -28,7 +28,7 @@ test('RTCMediaHandlerOptions and bandwidth med change', function() {
 });
 test('RTCMediaHandlerOptions and bandwidth low change for resolution 180', function() {
   ClientConfig.allowOutside = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   client.sipStack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
   client.settings.bandwidthLow("200");
   client.settings.bandwidthLowInput.trigger("blur");

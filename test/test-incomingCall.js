@@ -8,7 +8,7 @@ module( "Incoming Call", {
 });
 
 test('window.onbeforeunload', function() {
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.connect();
   var session = TestWebrtc.Helpers.incomingSession();
   var terminated = false;

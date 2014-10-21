@@ -18,7 +18,9 @@
     this.userIdInput = this.settingsUi.find(".settingUserid");
     this.authenticationUserIdInput = this.settingsUi.find(".settingAuthenticationUserid");
     this.passwordInput = this.settingsUi.find(".settingPassword");
-    this.save = this.settingsUi.find(".saveSettings");
+    this.saveBtn = this.settingsUi.find(".saveSettings");
+    this.signInBtn = this.settingsUi.find(".sign-in");
+    this.signOutBtn = this.settingsUi.find(".sign-out");
     this.displayNameInput = this.settingsUi.find(".settingDisplayName");
     this.resolutionType = this.settingsUi.find('.resolutionTypeSelect');
     this.resolutionDisplayWidescreen = this.settingsUi.find('.resolutionDisplayWidescreenSelect');
@@ -171,6 +173,15 @@
           self.reload();
         }
       });
+      this.eventBus.on("registered", function(e){ 
+        self.enableRegistration(true);
+      });
+      this.eventBus.on("unregistered", function(e){ 
+        self.enableRegistration(true);
+      });
+      this.eventBus.on("registrationFailed", function(e){ 
+        self.enableRegistration(true);
+      });
       this.resolutionTypeSelect.bind('change', function(e){
         self.updateResolutionSelectVisibility();
       });
@@ -190,20 +201,22 @@
       });
       this.clearLink.on('click', function(e) {
         e.preventDefault();
-        self.clear();
-        self.eventBus.message('Settings cleared');
+        self.resetLayout();
+        self.eventBus.message('Settings reset');
       });
-      this.save.bind('click', function(e)
+      this.signOutBtn.on('click', function(e) {
+        e.preventDefault();
+        self.signOut();
+      });
+      this.saveBtn.bind('click', function(e)
       {
         e.preventDefault();
-        self.sound.playClick();
-        self.persist();
-        self.settingsUi.fadeOut(100);
-        if(!self.sipStack.activeSession) {
-          self.reload();
-        } else {
-          self.settingsChanged = true;
-        }
+        self.save();
+      });
+      this.signInBtn.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.signIn();
       });
       this.bandwidthLowInput.bind('blur', function(e)
       {
@@ -370,6 +383,57 @@
       } else {
         return false;
       }
+    },
+    changed: function(){
+      if(!this.sipStack.activeSession) {
+        this.reload();
+      } else {
+        this.settingsChanged = true;
+      }
+    },
+    save: function(){
+      this.sound.playClick();
+      this.persist();
+      this.toggled = false;
+      this.client.updateClientClass();
+      this.changed();
+    },
+    enableRegistration: function(enable){
+      this.signInBtn.removeClass("disabled");
+      this.signOutBtn.removeClass("disabled");
+      if(!enable) {
+        this.signInBtn.addClass("disabled");
+        this.signOutBtn.addClass("disabled");
+      }
+    },
+    signIn: function(){
+      this.sound.playClick();
+      this.persist();
+      this.sipStack.init();
+      this.enableRegistration(false);
+    },    
+    signOut: function(){
+      this.sound.playClick();
+      this.sipStack.unregister();
+      this.clearConfigurationCookies();
+      this.enableRegistration(false);
+    },    
+    resetLayout: function(){
+      this.resolutionEncoding(WebRTC.C.DEFAULT_RESOLUTION_ENCODING);
+      this.resolutionDisplay(WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+      this.client.updateClientClass();
+    },
+    clearConfigurationCookies: function(){
+      $.removeCookie('settingDisplayName');
+      $.removeCookie('settingUserId');
+      $.removeCookie('settingAuthenticationUserId');
+      $.removeCookie('settingPassword');
+    },
+    clearConfiguration: function(){
+      this.displayName(null);
+      this.userId(null);
+      this.authenticationUserId(null);
+      this.password(null);
     },
     clear: function(){
       for(var cookie in this.cookiesMapper) {

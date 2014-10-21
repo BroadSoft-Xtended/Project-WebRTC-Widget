@@ -16,7 +16,7 @@ module( "Registration", {
 test('with settingUserID', function() {
   $.cookie('settingUserId', '12345')
   WebRTC.Configuration.prototype.getPassword = function(){return false;}
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   strictEqual(client.configuration.getExSIPConfig("1509", false).register, true);
   TestWebrtc.Helpers.connect();
   var registered = false;
@@ -28,13 +28,13 @@ test('with settingUserID', function() {
 });
 test('without settingUserID', function() {
   WebRTC.Configuration.prototype.getPassword = function(){return false;}
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   strictEqual(client.configuration.getExSIPConfig("1509", "4009").register, false);
 });
 test('without settingUserID and with configuration.register', function() {
   WebRTC.Configuration.prototype.getPassword = function(){return false;}
   ClientConfig.register = true;
-  client = new WebRTC.Client();
+  client = new WebRTC.Client(ClientConfig, '#testWrapper');
   strictEqual(client.configuration.getExSIPConfig("1509", false).register, true);
   TestWebrtc.Helpers.connect();
   var registered = false;
