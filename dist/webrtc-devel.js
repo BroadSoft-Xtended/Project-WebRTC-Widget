@@ -3612,8 +3612,7 @@ WebRTC.Utils = Utils;
       styleData = styleData || {};
       var cssData = $.extend({}, WebRTC.C.STYLES, WebRTC.C.FONTS, styleData);
       var cssStr = ejs.render(WebRTC.C.CSS.stylesheet, cssData);
-      if (!this.hasCss) {
-        this.hasCss = true;
+      if ($("#webrtc_css").length === 0) {
         $("<style type='text/css' id='webrtc_css'>"+cssStr+"</style>").appendTo("head");
       } else {
         $("#webrtc_css").text(cssStr);
@@ -4461,6 +4460,14 @@ WebRTC.Utils = Utils;
       if (this.configuration.enableFileShare)
       {
         classes.push("enable-file-share");
+      }
+      if (this.configuration.selfViewSize)
+      {
+        classes.push("selfView-"+this.configuration.selfViewSize);
+      }
+      if (this.configuration.selfViewLocation)
+      {
+        classes.push("selfView-"+this.configuration.selfViewLocation);
       }
       if(this.sound.muted) { classes.push("muted"); } else { classes.push("unmuted"); }
       if(this.settings.toggled) { classes.push("settings-shown"); } else { classes.push("settings-hidden"); }

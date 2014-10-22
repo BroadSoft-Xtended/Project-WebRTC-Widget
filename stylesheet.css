@@ -1336,6 +1336,38 @@ body
     border: 1px solid #3c3c3c;
     cursor: move;
 }
+.selfView-bl .localVideo {
+    top: auto;
+    bottom: 1%;
+    left: 1%;
+    right: auto;
+}
+.selfView-tl .localVideo {
+    top: 1%;
+    bottom: auto;
+    left: 1%;
+    right: auto;
+}
+.selfView-tr .localVideo {
+    top: 1%;
+    bottom: auto;
+    left: auto !important;
+    right: 1%;
+}
+.selfView-br .localVideo {
+    top: auto;
+    bottom: 1%;
+    left: auto !important;
+    right: 1%;
+}
+.selfView-1x .localVideo {
+    width: 25%;
+    height: 25%;
+}
+.selfView-2x .localVideo {
+    width: 50%;
+    height: 50%;
+}
 .videoBar .icon, .videoBar a
 {
     font-size: 20px;
