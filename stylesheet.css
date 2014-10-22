@@ -216,7 +216,7 @@ body {
 
 .icon-call:hover:before {
     content: "\e00e";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Hangup Button */
@@ -261,7 +261,7 @@ body {
 
 .icon-fullScreenExpand:hover:before {
     content: "\e002";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* FullScreen Contract Button */
@@ -272,7 +272,7 @@ body {
 
 .icon-fullScreenContract:hover:before {
     content: "\e003";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Self View Disable Button */
@@ -283,18 +283,18 @@ body {
 
 .icon-selfViewDisable:hover:before {
     content: "\e00a";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Self View Enable Button */
 .icon-selfViewEnable:before {
     content: "\e00d";
-    color: #04AFF0;
+    color: #FFFFFF;
 }
 
 .icon-selfViewEnable:hover:before {
     content: "\e00d";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Mute Audio Button */
@@ -305,18 +305,18 @@ body {
 
 .icon-muteAudio:hover:before {
     content: "\e008";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Unmute Audio Button */
 .icon-unmuteAudio:before {
     content: "\e009";
-    color: #04AFF0;
+    color: #FFFFFF;
 }
 
 .icon-unmuteAudio:hover:before {
     content: "\e009";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Dialpad Show Button */
@@ -327,18 +327,18 @@ body {
 
 .icon-dialpadShow:hover:before {
     content: "\e010";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Dialpad Hide Button */
 .icon-dialpadHide:before {
     content: "\e010";
-    color: #04AFF0;
+    color: #FFFFFF;
 }
 
 .icon-dialpadHide:hover:before {
     content: "\e010";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Dialpad Hide Button */
@@ -412,7 +412,7 @@ body {
 
 .icon-settings:hover:before {
     content: "\e00c";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Ok Button */
@@ -423,7 +423,7 @@ body {
 
 .icon-ok:hover:before {
     content: "\e011";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* History Button */
@@ -443,7 +443,7 @@ body {
 
 .icon-history:hover:before {
     content: "\e012";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Trash Button */
@@ -454,7 +454,7 @@ body {
 
 .icon-trash:hover:before {
     content: "\e013";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Left Button */
@@ -465,7 +465,7 @@ body {
 
 .icon-left:hover:before {
     content: "\e000";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Right Button */
@@ -476,7 +476,7 @@ body {
 
 .icon-right:hover:before {
     content: "\e001";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Transfer Button */
@@ -487,7 +487,7 @@ body {
 
 .icon-transfer:hover:before {
     content: "\e014";
-    color: #04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Hold Button */
@@ -498,7 +498,7 @@ body {
 
 .icon-hold:hover:before {
     content: "\e015";
-    color: #EFA233;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Resume Button */
@@ -509,7 +509,7 @@ body {
 
 .icon-resume:hover:before {
     content: "\e016";
-    color: #EFA233;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Screen Sharing Button */
@@ -520,7 +520,7 @@ body {
 
 .icon-screen-sharing:hover:before {
     content: "\e604";
-    color: #EFA233;
+    color: <%= iconHightlightColor %>;
 }
 
 /* Stop Screen Sharing Button */
@@ -531,7 +531,7 @@ body {
 
 .icon-screen-sharing-off:hover:before {
     content: "\e605";
-    color: #EFA233;
+    color: <%= iconHightlightColor %>;
 }
 
 .button:active {
@@ -767,23 +767,23 @@ body {
     text-align: center;
     font-family: arial;
     font-size: 16px;
-    color: #FFFFFF;
+    color: <%= timerColor %>;
 }
 
 .normal {
-    color: #999999;
+    color: <%= infoMessageColor %>;
 }
 
 .success {
-    color: #00FF00;
+    color: <%= successMessageColor %>;
 }
 
 .warning {
-    color: #FFFF00;
+    color: <%= successMessageColor %>;
 }
 
 .alert {
-    color: #FF0000;
+    color: <%= alertMessageColor %>;
 }
 
 .callHistory {
@@ -1369,7 +1369,7 @@ body
 }
 .icon a:hover, .icon span:hover, .videoBar a:hover
 {
-    color:#04AFF0;
+    color: <%= iconHightlightColor %>;
 }
 
 .settingsPopup
@@ -1498,6 +1498,9 @@ body
     color: #999999;
     z-index: 200;
     padding: 10px;
+}
+.callStats {
+    color: <%= statsColor %>;
 }
 .callHistory
 {

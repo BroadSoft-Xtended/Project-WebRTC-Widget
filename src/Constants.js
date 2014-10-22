@@ -26,7 +26,17 @@
 
     MEDIA: '$MEDIA$',
 
-    FONTS: '$FONTS$'
+    FONTS: '$FONTS$',
+
+    STYLES: {
+      iconHightlightColor: '#00adef',
+      infoMessageColor: '#999999',
+      successMessageColor: '#00FF00',
+      warningMessageColor: '#FFFF00',
+      alertMessageColor: '#FF0000',
+      statsColor: '#999999',
+      timerColor: '#FFFFFF'
+    }
 
   };
   C.DEFAULT_RESOLUTION_ENCODING = C.R_640x480;

@@ -110,7 +110,7 @@
       this.init();
     },
     appendTo: function(parent){
-      this.injectCss();
+      this.updateCss();
 
       this.wrapper = $('<div/>', {class: 'webrtc-wrapper'});
       parent.append(this.wrapper);
@@ -122,12 +122,15 @@
       this.client = this.wrapper.find('.client');
       this.setup();
     },
-    injectCss: function() {
+    updateCss: function(styleData) {
+      styleData = styleData || {};
+      var cssData = $.extend({}, WebRTC.C.STYLES, WebRTC.C.FONTS, styleData);
+      var cssStr = ejs.render(WebRTC.C.CSS.stylesheet, cssData);
       if (!this.hasCss) {
         this.hasCss = true;
-        var cssData = $.extend({}, WebRTC.C.FONTS);
-        var cssStr = ejs.render(WebRTC.C.CSS.stylesheet, cssData);
-        $("<style type='text/css'>"+cssStr+"</style>").appendTo("head");
+        $("<style type='text/css' id='webrtc_css'>"+cssStr+"</style>").appendTo("head");
+      } else {
+        $("#webrtc_css").text(cssStr);
       }
     },
     init: function() {

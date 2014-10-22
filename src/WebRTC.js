@@ -151,11 +151,15 @@ var WebRTC = (function() {
       if(!node.text()) {
         return;
       }
-      var data = JSON.parse(node.text());
-      console.log("script config : ", data);
-      var config = $.extend({}, window.ClientConfig, data);
+      var configData = JSON.parse(node.text());
+      console.log("script config : ", configData);
+      var config = $.extend({}, window.ClientConfig, configData);
       console.log("merged config : ", config);
       var client = new WebRTC.Client(config, node.parent());
+      var styleData = node.data();
+      if(styleData) {
+        client.updateCss(styleData);
+      }
       node.remove();
       window.BroadSoftWebRTC.clients.push(client);
     });
