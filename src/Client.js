@@ -123,8 +123,8 @@
       this.setup();
     },
     updateCss: function(styleData) {
-      styleData = styleData || {};
-      var cssData = $.extend({}, WebRTC.C.STYLES, WebRTC.C.FONTS, styleData);
+      this.styleData = styleData || {};
+      var cssData = $.extend({}, WebRTC.C.STYLES, WebRTC.C.FONTS, this.styleData);
       var cssStr = ejs.render(WebRTC.C.CSS.stylesheet, cssData);
       if ($("#webrtc_css").length === 0) {
         $("<style type='text/css' id='webrtc_css'>"+cssStr+"</style>").appendTo("head");
@@ -283,7 +283,8 @@
 
     setClientConfig: function(clientConfig) {
       var connectionChanged = this.configuration.websocketsServers[0].ws_uri !== clientConfig.websocketsServers[0].ws_uri;
-      jQuery.extend(this.configuration, clientConfig);
+      jQuery.extend(this.config, clientConfig);
+      jQuery.extend(this.configuration, this.config);
       this.guiStart();
       this.updateClientClass();
       if(connectionChanged) {
@@ -904,6 +905,31 @@
       this.configuration.audioOnly = audioOnly;
       this.configuration.offerToReceiveVideo = true;
       this.sipStack.updateUserMedia();
+    },
+
+    asScript: function(){
+      var self = this;
+      var script = '<script src="'+self.src+'" ';
+      var dataStrs = Object.keys(self.styleData).filter(function(key){
+        var value = self.styleData[key];
+        var defaultValue = WebRTC.C.STYLES[key];
+        return !!value && value !== defaultValue;
+      }).map(function(key){
+        var value = self.styleData[key];
+        return "data-"+key+"='"+value+"'";
+      });
+      script += dataStrs.join(' ');
+      
+      var config = $.extend({}, this.config);
+      Object.keys(config).forEach(function(key){
+        var value = config[key];
+        var defaultValue = ClientConfig[key];
+        if(value === defaultValue) {
+          delete config[key];
+        }
+      });
+      script += '>\n' + JSON.stringify(config, undefined, 2) + '\n</script>';
+      return script;
     },
 
     updateClientClass: function(){

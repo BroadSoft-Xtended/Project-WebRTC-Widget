@@ -160,6 +160,7 @@ var WebRTC = (function() {
       if(styleData) {
         client.updateCss(styleData);
       }
+      client.src = node[0].src;
       node.remove();
       window.BroadSoftWebRTC.clients.push(client);
     });
