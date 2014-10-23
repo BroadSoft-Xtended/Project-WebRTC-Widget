@@ -924,7 +924,7 @@
       Object.keys(config).forEach(function(key){
         var value = config[key];
         var defaultValue = ClientConfig[key];
-        if(value === defaultValue) {
+        if((!value && !defaultValue) || value+"" === defaultValue+"") {
           delete config[key];
         }
       });

@@ -28,7 +28,7 @@ ClientConfig = {
     volumeClick: 1,
     volumeDTMF: 1,
       // the following 5 attributes have to be configured for this webrtc client to be functional:
-      websocketsServers: [{'ws_uri':'wss://webrtc-gw1.broadsoftlabs.com:8443', 'weight':0}],
+      websocketsServers: [{'ws_uri':'wss://webrtc-gw.broadsoftlabs.com:8443', 'weight':0}],
       stunServer: '64.212.220.81',
       stunPort: 3478,
       domainFrom: 'broadsoftlabs.com',

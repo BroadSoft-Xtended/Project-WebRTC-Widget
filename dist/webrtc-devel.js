@@ -20,7 +20,7 @@ var WebRTC = (function() {
 
   Object.defineProperties(WebRTC, {
     version: {
-      get: function(){ return '0.1.1'; }
+      get: function(){ return '0.1.0'; }
     },
     name: {
       get: function(){ return 'webrtc'; }
@@ -4411,7 +4411,7 @@ WebRTC.Utils = Utils;
       Object.keys(config).forEach(function(key){
         var value = config[key];
         var defaultValue = ClientConfig[key];
-        if(value === defaultValue) {
+        if((!value && !defaultValue) || value+"" === defaultValue+"") {
           delete config[key];
         }
       });

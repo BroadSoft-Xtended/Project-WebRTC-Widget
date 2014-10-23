@@ -367,7 +367,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('compile_dist', ['concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist']);
 
-  grunt.registerTask('build', ['compile_devel', 'compile_dist', 'browserify', 'themify', 'uglify:dist', 'copy:clientConfig', 'copy:indexDev', 'copy:webrtc']);
+  grunt.registerTask('build', ['compile_devel', 'compile_dist', 'browserify', 'themify', 'copy:clientConfig', 'uglify:dist', 'copy:indexDev', 'copy:webrtc']);
 
   // Task for building webrtc-devel.js (uncompressed).
   grunt.registerTask('devel', ['compile_devel']);
