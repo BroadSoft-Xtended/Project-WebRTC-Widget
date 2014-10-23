@@ -4411,7 +4411,7 @@ WebRTC.Utils = Utils;
       Object.keys(config).forEach(function(key){
         var value = config[key];
         var defaultValue = ClientConfig[key];
-        if((!value && !defaultValue) || value+"" === defaultValue+"") {
+        if((!value && !defaultValue) || JSON.stringify(value) === JSON.stringify(defaultValue)) {
           delete config[key];
         }
       });
