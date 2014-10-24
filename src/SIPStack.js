@@ -186,7 +186,7 @@
 
     updateUserMedia: function(userMediaCallback, failureCallback){
       var self = this;
-      if(this.configuration.enableConnectLocalMedia || this.activeSession) {
+      if(!this.configuration.disabled && (this.configuration.enableConnectLocalMedia || this.activeSession)) {
         // Connect to local stream
         var options = this.configuration.getExSIPOptions();
         logger.log("updating user media ...", self.configuration);
