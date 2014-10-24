@@ -153,7 +153,8 @@ var WebRTC = (function() {
       }
       var configData = JSON.parse(node.text());
       console.log("script config : ", configData);
-      var config = $.extend({}, window.ClientConfig, configData);
+      var clientConfig = WebRTC.Utils.clone(window.ClientConfig);
+      var config = $.extend({}, clientConfig, configData);
       console.log("merged config : ", config);
       var client = new WebRTC.Client(config, node.parent());
       var styleData = node.data();

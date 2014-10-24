@@ -162,7 +162,8 @@ var WebRTC = (function() {
       }
       var configData = JSON.parse(node.text());
       console.log("script config : ", configData);
-      var config = $.extend({}, window.ClientConfig, configData);
+      var clientConfig = WebRTC.Utils.clone(window.ClientConfig);
+      var config = $.extend({}, clientConfig, configData);
       console.log("merged config : ", config);
       var client = new WebRTC.Client(config, node.parent());
       var styleData = node.data();
@@ -2084,6 +2085,10 @@ var WebRTC = (function() {
 var Utils;
 
 Utils= {
+  clone: function(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  },
+
   dataURItoBlob: function(dataURI) {
     // convert base64 to raw binary data held in a string
     // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
@@ -3554,7 +3559,7 @@ WebRTC.Utils = Utils;
         return;
       }
 
-      this.config = this.config || ClientConfig;
+      this.config = this.config || WebRTC.Utils.clone(window.ClientConfig);
       this.eventBus = new WebRTC.EventBus({
         isDebug: function(){
           return self.config.debug === true;
@@ -3804,7 +3809,7 @@ WebRTC.Utils = Utils;
 
     // Initial startup
     checkEndCallURL: function() {
-      if (this.configuration.endCallURL)
+      if (this.configuration.endCallURL && !this.configuration.disabled)
       {
         window.location = this.configuration.endCallURL;
       }
@@ -4414,6 +4419,13 @@ WebRTC.Utils = Utils;
       Object.keys(config).forEach(function(key){
         var value = config[key];
         var defaultValue = ClientConfig[key];
+        if(Array.isArray(value)) {
+          value = JSON.stringify(value);
+          defaultValue = JSON.stringify(defaultValue);
+        } else {
+          value = value+"";
+          defaultValue = defaultValue+"";
+        }
         if((!value && !defaultValue) || JSON.stringify(value) === JSON.stringify(defaultValue)) {
           delete config[key];
         }

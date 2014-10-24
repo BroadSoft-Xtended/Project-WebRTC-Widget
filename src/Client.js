@@ -64,7 +64,7 @@
         return;
       }
 
-      this.config = this.config || ClientConfig;
+      this.config = this.config || WebRTC.Utils.clone(window.ClientConfig);
       this.eventBus = new WebRTC.EventBus({
         isDebug: function(){
           return self.config.debug === true;
@@ -314,7 +314,7 @@
 
     // Initial startup
     checkEndCallURL: function() {
-      if (this.configuration.endCallURL)
+      if (this.configuration.endCallURL && !this.configuration.disabled)
       {
         window.location = this.configuration.endCallURL;
       }
@@ -924,7 +924,14 @@
       Object.keys(config).forEach(function(key){
         var value = config[key];
         var defaultValue = ClientConfig[key];
-        if((!value && !defaultValue) || JSON.stringify(value) === JSON.stringify(defaultValue)) {
+        if(Array.isArray(value)) {
+          value = JSON.stringify(value);
+          defaultValue = JSON.stringify(defaultValue);
+        } else {
+          value = value+"";
+          defaultValue = defaultValue+"";
+        }
+        if((!value && !defaultValue) || value === defaultValue) {
           delete config[key];
         }
       });
