@@ -924,6 +924,10 @@
       Object.keys(config).forEach(function(key){
         var value = config[key];
         var defaultValue = ClientConfig[key];
+        if(!value && !defaultValue) {
+          delete config[key];
+          return;          
+        }
         if(Array.isArray(value)) {
           value = JSON.stringify(value);
           defaultValue = JSON.stringify(defaultValue);
@@ -931,7 +935,7 @@
           value = value+"";
           defaultValue = defaultValue+"";
         }
-        if((!value && !defaultValue) || value === defaultValue) {
+        if(value === defaultValue) {
           delete config[key];
         }
       });
