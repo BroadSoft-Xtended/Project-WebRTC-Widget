@@ -4411,7 +4411,7 @@ WebRTC.Utils = Utils;
         return !!value && value !== defaultValue;
       }).map(function(key){
         var value = self.styleData[key];
-        return "data-"+key+"='"+value+"'";
+        return "data-"+key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()+"='"+value+"'";
       });
       script += dataStrs.join(' ');
       
