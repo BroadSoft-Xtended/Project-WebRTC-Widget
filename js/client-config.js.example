@@ -44,7 +44,7 @@ ClientConfig = {
     register: false,
     encodingResolution: "640x480",
     displayResolution: "640x480",
-    view: "audioOnly",
+    view: "audioVideo",
     selfViewLocation: "bl",
 
     // Client Messages
