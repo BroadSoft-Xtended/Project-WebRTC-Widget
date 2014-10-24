@@ -2727,6 +2727,9 @@ WebRTC.Utils = Utils;
           this.ua.stop();
         }
 
+        if(this.configuration.disabled) {
+          return;
+        }
         this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(data));
 
         this.updateRtcMediaHandlerOptions();
