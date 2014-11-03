@@ -149,7 +149,7 @@ module.exports = function(grunt) {
           'components/backbone.localStorage/backbone.localStorage.js',
           'components/tinysort/src/jquery.tinysort.js',
           'components/jed/jed.js', 'locale/en/LC_MESSAGES/en.js', 'js/FileSaver.js', 'js/sketch.js', 'js/converse.js', 'js/jquery.xhr.js'],
-          'dist/<%= pkg.name %>-bundle-<%= pkg.version %>.min.js': ['js/3rdparty.js', 'js/client-config.js', 'js/exsip.js', 
+          'dist/<%= pkg.name %>-bundle-<%= pkg.version %>.min.js': ['js/3rdparty.js', 'js/client-config.js.default', 'js/exsip.js', 
           'dist/<%= pkg.name %>-<%= pkg.version %>.min.js']
         }
       },
@@ -159,18 +159,6 @@ module.exports = function(grunt) {
       }
     },
     copy: {
-      clientConfig: {
-        options: {
-          processContent: function (content, srcpath) {
-            if(grunt.file.exists('js/client-config.js')) {
-              return false;
-            }
-            return grunt.template.process(content);
-          }
-        },
-        src: 'js/client-config.js.example',
-        dest: 'js/client-config.js'
-      },
       indexDev: {
         options: {
           processContent: function (content, srcpath) {
@@ -206,7 +194,7 @@ module.exports = function(grunt) {
     },
     watch: {
       develop: {
-        files: ['test/*.js', 'test/includes/*.js', 'src/*.js', 'index.html', 'index-test.html', 'stylesheet.css', 'custom.css', 'js/exsip.js', 'js/client-config.js'],
+        files: ['test/*.js', 'test/includes/*.js', 'src/*.js', 'index.html', 'index-test.html', 'stylesheet.css', 'custom.css', 'js/exsip.js', 'js/client-config.js.default'],
         tasks: ['build','test'],
         options: {
           spawn: true
@@ -367,7 +355,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('compile_dist', ['concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist']);
 
-  grunt.registerTask('build', ['compile_devel', 'compile_dist', 'browserify', 'themify', 'copy:clientConfig', 'uglify:dist', 'copy:indexDev', 'copy:webrtc']);
+  grunt.registerTask('build', ['compile_devel', 'compile_dist', 'browserify', 'themify', 'uglify:dist', 'copy:indexDev', 'copy:webrtc']);
 
   // Task for building webrtc-devel.js (uncompressed).
   grunt.registerTask('devel', ['compile_devel']);
