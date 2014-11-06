@@ -54,6 +54,11 @@ body {
     left: 0px;
     width:100%;
 }
+.client {
+    position:relative;
+    top:0;
+    left:0;
+}
 .client.r1280x720 {
     width:1280px;
 }
@@ -549,7 +554,7 @@ body {
 }
 
 /* Incoming Call Pupup */
-.callPopup, .reInvitePopup, .transferPopup, .callHistoryDetails {
+.callPopup, .reInvitePopup, .transferPopup, .callHistoryDetails, .authPopup {
     display: none;
     background: #333333;
     padding: 10px;
@@ -647,18 +652,8 @@ body {
 }
 /* Auth Button */
 .authPopup {
-    display: none;
-    background: #333333;
-    padding: 10px;
-    border: 2px solid #DDDDDD;
-    float: left;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    box-shadow: 0px 0px 10px #999999;
-    border-radius: 3px;
-    font-size: 14px;
-    line-height: 18px;
+    width: 200px;
+    height: 200px;
 }
 
 .authPopup span {
@@ -690,7 +685,7 @@ body {
     padding: 6px 6px 4px;
     margin-top: 10px;
     font-size: 12px;
-    width: 214px;
+    width: 200px;
 }
 
 .authPopup #alert {
