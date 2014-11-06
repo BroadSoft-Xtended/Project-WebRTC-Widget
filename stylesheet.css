@@ -196,7 +196,7 @@ body {
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume, .icon-screen-sharing, .icon-screen-sharing-off {
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link.exario, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1.exario, .icon-quality2.exario, .icon-quality3.exario, .icon-quality4.exario, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume, .icon-screen-sharing, .icon-screen-sharing-off {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -355,7 +355,7 @@ body {
     left: 15px;
 }
 
-.icon-quality1:before {
+.icon-quality1.exario:before {
     content: "\e007";
     color: #00FF00;
     opacity: .4;
@@ -369,7 +369,7 @@ body {
     left: 15px;
 }
 
-.icon-quality2:before {
+.icon-quality2.exario:before {
     content: "\e006";
     color: #FFFF00;
     opacity: .4;
@@ -383,7 +383,7 @@ body {
     left: 15px;
 }
 
-.icon-quality3:before {
+.icon-quality3.exario:before {
     content: "\e005";
     color: #FF9900;
     opacity: .4;
@@ -397,7 +397,7 @@ body {
     left: 15px;
 }
 
-.icon-quality4:before {
+.icon-quality4.exario:before {
     content: "\e004";
     color: #FF0000;
     opacity: .4;
@@ -549,7 +549,7 @@ body {
     box-shadow: 0px 0px 10px #999;
 }
 
-.icon-link:before {
+.icon-link.exario:before {
     content: "\e00b";
 }
 
