@@ -1,7 +1,7 @@
 /***************************************************
 * Created on Mon Jan 14 15:32:43 GMT 2013 by:
 *
-* Copyright 2013 Broadsoft
+* Copyright 2014 Broadsoft
 * http://www.broadsoft.com
 ***************************************************/
 

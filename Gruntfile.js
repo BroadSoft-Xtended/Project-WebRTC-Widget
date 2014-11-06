@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 /***************************************************\n\
 * Created on Mon Jan 14 15:32:43 GMT 2013 by:\n\
 *\n\
-* Copyright 2013 Broadsoft\n\
+* Copyright 2014 Broadsoft\n\
 * http://www.broadsoft.com\n\
 ***************************************************/\n\n\n',
       footer: '\
