@@ -654,6 +654,7 @@
       this.destination.keypress(function (e) {
         if (e.keyCode === 13) {
           e.preventDefault();
+          self.destination.blur();
           self.callUri(self.destination.val());
         }
       });
