@@ -203,6 +203,10 @@ body {
   margin: 0 0.35em 0 0;
   font-size: 25px;
 }
+.icon-link.exario, .icon-quality1.exario, .icon-quality2.exario, .icon-quality3.exario, .icon-quality4.exario {
+    font-family: 'Exario-Icon-Fonts' !important;
+    font-size: 20px !important;
+}
 
 /* Call Button */
 
