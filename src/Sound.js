@@ -44,7 +44,7 @@
 
     enableLocalAudio: function(enabled) {
       var localStreams = this.sipStack.getLocalStreams();
-      if(!localStreams) {
+      if(!localStreams || localStreams.length === 0) {
         return;
       }
       var localMedia = localStreams[0];
