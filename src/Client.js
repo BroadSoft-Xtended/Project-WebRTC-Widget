@@ -786,7 +786,6 @@
             return;
           }
 
-          console.dir(event);
           if (event.which === 83)
           {
             self.stats.toggle();

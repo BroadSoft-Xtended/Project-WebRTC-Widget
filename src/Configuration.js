@@ -56,6 +56,7 @@
     if(features) {
       this.setClientConfigFlags(parseInt(features, 10));
     }
+    this.bodyBackgroundColor = $('body').css('backgroundColor');
   };
 
   Configuration.prototype = {
@@ -95,7 +96,7 @@
       return $.unique(views);
     },    
     getBackgroundColor: function(){
-      return this.color || $('body').css('backgroundColor');
+      return this.color || this.bodyBackgroundColor;
     },
     getPassword: function(){
       return $.cookie('settingPassword');

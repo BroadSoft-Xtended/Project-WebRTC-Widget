@@ -428,6 +428,7 @@ var WebRTC = (function() {
     if(features) {
       this.setClientConfigFlags(parseInt(features, 10));
     }
+    this.bodyBackgroundColor = $('body').css('backgroundColor');
   };
 
   Configuration.prototype = {
@@ -467,7 +468,7 @@ var WebRTC = (function() {
       return $.unique(views);
     },    
     getBackgroundColor: function(){
-      return this.color || $('body').css('backgroundColor');
+      return this.color || this.bodyBackgroundColor;
     },
     getPassword: function(){
       return $.cookie('settingPassword');
@@ -914,7 +915,7 @@ var WebRTC = (function() {
         var value = mapping.initValue ? mapping.initValue() : $.cookie(cookie);
         mapping.inputSetter(value);
       }
-      this.updateViewPositions();
+      // this.updateViewPositions();
     },
     updateViewPositions: function(){
       var localVideoPosition = this.client.video.local.position();
@@ -938,17 +939,10 @@ var WebRTC = (function() {
     },
     updateResolutionSelectVisibility: function(){
       var resolutionType = this.resolutionType.val();
-      this.resolutionDisplayWidescreen.hide();
-      this.resolutionDisplayStandard.hide();
-      this.resolutionEncodingWidescreen.hide();
-      this.resolutionEncodingStandard.hide();
-      if(resolutionType === WebRTC.C.STANDARD) {
-        this.resolutionDisplayStandard.show();
-        this.resolutionEncodingStandard.show();
-      } else if(resolutionType === WebRTC.C.WIDESCREEN) {
-        this.resolutionDisplayWidescreen.show();
-        this.resolutionEncodingWidescreen.show();
-      }
+      this.resolutionDisplayStandard.toggle(resolutionType === WebRTC.C.STANDARD);
+      this.resolutionEncodingStandard.toggle(resolutionType === WebRTC.C.STANDARD);
+      this.resolutionDisplayWidescreen.toggle(resolutionType === WebRTC.C.WIDESCREEN);
+      this.resolutionEncodingWidescreen.toggle(resolutionType === WebRTC.C.WIDESCREEN);
     },
 
     setResolutionDisplay: function(resolution){
@@ -2733,6 +2727,7 @@ WebRTC.Utils = Utils;
         }
 
         if(this.configuration.disabled) {
+          this.ua = {};
           return;
         }
         this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(data));
@@ -4281,7 +4276,6 @@ WebRTC.Utils = Utils;
             return;
           }
 
-          console.dir(event);
           if (event.which === 83)
           {
             self.stats.toggle();

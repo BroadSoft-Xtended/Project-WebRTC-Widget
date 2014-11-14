@@ -299,7 +299,7 @@
         var value = mapping.initValue ? mapping.initValue() : $.cookie(cookie);
         mapping.inputSetter(value);
       }
-      this.updateViewPositions();
+      // this.updateViewPositions();
     },
     updateViewPositions: function(){
       var localVideoPosition = this.client.video.local.position();
@@ -323,17 +323,10 @@
     },
     updateResolutionSelectVisibility: function(){
       var resolutionType = this.resolutionType.val();
-      this.resolutionDisplayWidescreen.hide();
-      this.resolutionDisplayStandard.hide();
-      this.resolutionEncodingWidescreen.hide();
-      this.resolutionEncodingStandard.hide();
-      if(resolutionType === WebRTC.C.STANDARD) {
-        this.resolutionDisplayStandard.show();
-        this.resolutionEncodingStandard.show();
-      } else if(resolutionType === WebRTC.C.WIDESCREEN) {
-        this.resolutionDisplayWidescreen.show();
-        this.resolutionEncodingWidescreen.show();
-      }
+      this.resolutionDisplayStandard.toggle(resolutionType === WebRTC.C.STANDARD);
+      this.resolutionEncodingStandard.toggle(resolutionType === WebRTC.C.STANDARD);
+      this.resolutionDisplayWidescreen.toggle(resolutionType === WebRTC.C.WIDESCREEN);
+      this.resolutionEncodingWidescreen.toggle(resolutionType === WebRTC.C.WIDESCREEN);
     },
 
     setResolutionDisplay: function(resolution){
