@@ -14,6 +14,14 @@ test('settings icon', function() {
   TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
   TestWebrtc.Helpers.isVisible(client.settings.popup, false);
 });
+test('settings icon after call started', function() {
+  ClientConfig.enableSettings = true;
+  client = new WebRTC.Client();
+  client.settings.settingsIcon.trigger('click');
+  TestWebrtc.Helpers.startCall();
+  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, false);
+  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
+});
 test('settings icon with enableSettings = false', function() {
   ClientConfig.enableSettings = false;
   client = new WebRTC.Client();

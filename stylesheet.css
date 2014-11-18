@@ -947,7 +947,7 @@ body {
 .enable-self-view.self-view-enabled .selfViewDisable,
 .enable-self-view.self-view-disabled .selfViewEnable,
 .enable-self-view.self-view-enabled .localVideo,
-.enable-settings .settings,
+.client:not(.started).enable-settings .settings,
 .enable-dialpad.dialpad-shown .dialpadIconHide,
 .enable-dialpad.dialpad-hidden .dialpadIconShow,
 .started .hangup, .calling .hangup,
@@ -965,7 +965,7 @@ body {
 .client:not(.disconnected).auth-visible .authPopup,
 .reInvite .reInvitePopup,
 .enable-dialpad.dialpad-shown .dialpad,
-.enable-settings.settings-shown .settingsPopup,
+.client:not(.started).enable-settings.settings-shown .settingsPopup,
 .incomingCall .callPopup{
     transition: all 1s linear;
     opacity: 1;
