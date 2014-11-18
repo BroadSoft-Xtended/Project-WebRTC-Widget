@@ -56,7 +56,7 @@ test('received messages', function() {
   strictEqual(client.sms.inboxItems[1].message.mid, 274907);
   strictEqual(client.sms.inboxItems[1].from.text(), "12403649086");
   strictEqual(client.sms.inboxItems[1].status.text(), "New");
-  strictEqual(client.sms.inboxItems[1].time.text(), "03/13/2014 16:23:54");
+  // strictEqual(client.sms.inboxItems[1].time.text(), "03/13/2014 16:23:54");
   strictEqual(client.sms.inboxItems[1].bodyText.text(), "BS: Test sending msg to cpa-dev-prod");
 });
 
