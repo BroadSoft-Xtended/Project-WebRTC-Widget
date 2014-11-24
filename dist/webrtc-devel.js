@@ -2657,7 +2657,7 @@ WebRTC.Utils = Utils;
           }
         }
       } else {
-        if(this.ua && this.ua.isConnected()) {
+        if(this.ua && this.ua.isConnected && this.ua.isConnected()) {
           return C.STATE_CONNECTED;
         } else {
           return C.STATE_DISCONNECTED;
@@ -2727,7 +2727,6 @@ WebRTC.Utils = Utils;
         }
 
         if(this.configuration.disabled) {
-          this.ua = {};
           return;
         }
         this.ua = new ExSIP.UA(this.configuration.getExSIPConfig(data));
