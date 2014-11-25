@@ -153,7 +153,7 @@
         {
           self.video.local.draggable({
             snap: ".remoteVideo,.videoBar",
-            containment: "parent",
+            // containment: "parent",
             snapTolerance: 200,
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
