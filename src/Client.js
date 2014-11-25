@@ -151,7 +151,7 @@
       {
         $(function()
         {
-          self.video.local.draggable({
+          self.video.localHolder.draggable({
             snap: ".remoteVideo,.videoBar",
             // containment: "parent",
             snapTolerance: 200,

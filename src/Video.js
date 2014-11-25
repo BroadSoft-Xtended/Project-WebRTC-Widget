@@ -8,7 +8,8 @@
 
   Video = function(element, sipStack, eventBus, options) {
     this.ui = element;
-    this.local = this.ui.find('.localVideo');
+    this.local = this.ui.find('.localVideo video');
+    this.localHolder = this.ui.find('.localVideo');
     this.remote = this.ui.find('.remoteVideo');
     this.eventBus = eventBus;
 
