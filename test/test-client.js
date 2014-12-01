@@ -210,14 +210,14 @@ test('selfView icon', function() {
   client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.isVisible(client.selfViewEnableIcon, false);
   TestWebrtc.Helpers.isVisible(client.selfViewDisableIcon, true);
-  TestWebrtc.Helpers.isVisible(client.video.local, true);
+  TestWebrtc.Helpers.isVisible(client.video.localHolder, true);
 });
 test('selfView icon with enableSelfView = false', function() {
   ClientConfig.enableSelfView = false;
   client = new WebRTC.Client(ClientConfig, '#testWrapper');
   TestWebrtc.Helpers.isVisible(client.selfViewEnableIcon, false);
   TestWebrtc.Helpers.isVisible(client.selfViewDisableIcon, false);
-  TestWebrtc.Helpers.isVisible(client.video.local, false);
+  TestWebrtc.Helpers.isVisible(client.video.localHolder, false);
 });
 test('selfView icon after click', function() {
   ClientConfig.enableSelfView = true;
@@ -225,11 +225,11 @@ test('selfView icon after click', function() {
   client.selfViewDisableIcon.trigger('click');
   TestWebrtc.Helpers.isVisible(client.selfViewEnableIcon, true);
   TestWebrtc.Helpers.isVisible(client.selfViewDisableIcon, false);
-  TestWebrtc.Helpers.isVisible(client.video.local, false);
+  TestWebrtc.Helpers.isVisible(client.video.localHolder, false);
   client.selfViewEnableIcon.trigger('click');
   TestWebrtc.Helpers.isVisible(client.selfViewEnableIcon, false);
   TestWebrtc.Helpers.isVisible(client.selfViewDisableIcon, true);
-  TestWebrtc.Helpers.isVisible(client.video.local, true);
+  TestWebrtc.Helpers.isVisible(client.video.localHolder, true);
 });
 test('dialpad icon', function() {
   ClientConfig.enableDialpad = true;

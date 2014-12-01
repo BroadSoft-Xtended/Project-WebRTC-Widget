@@ -2415,7 +2415,8 @@ WebRTC.Utils = Utils;
 
   Video = function(element, sipStack, eventBus, options) {
     this.ui = element;
-    this.local = this.ui.find('.localVideo');
+    this.local = this.ui.find('.localVideo video');
+    this.localHolder = this.ui.find('.localVideo');
     this.remote = this.ui.find('.remoteVideo');
     this.eventBus = eventBus;
 
@@ -3640,9 +3641,9 @@ WebRTC.Utils = Utils;
       {
         $(function()
         {
-          self.video.local.draggable({
+          self.video.localHolder.draggable({
             snap: ".remoteVideo,.videoBar",
-            containment: "parent",
+            // containment: "parent",
             snapTolerance: 200,
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
