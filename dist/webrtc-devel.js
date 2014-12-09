@@ -3643,7 +3643,7 @@ WebRTC.Utils = Utils;
         {
           self.video.localHolder.draggable({
             snap: ".remoteVideo,.videoBar",
-            // containment: "parent",
+            containment: ".main",
             snapTolerance: 200,
             stop: function( event, ui ) {self.settings.updateViewPositions();}
           });
