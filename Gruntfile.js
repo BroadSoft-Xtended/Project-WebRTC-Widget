@@ -2,6 +2,11 @@
 
 module.exports = function(grunt) {
 
+  var reporter;
+  if(grunt.option('reporter') && grunt.option('reporter') !== 'undefined') {
+    reporter = require('./test/includes/'+grunt.option('reporter')+'_reporter')
+  }
+
   var srcFiles = [
     'src/WebRTC.js',
     'src/EventBus.js',
@@ -183,6 +188,7 @@ module.exports = function(grunt) {
     "qunit-serverless": {
       all: {
         options: {
+          reporter: reporter,
           pageTemplate: "test/includes/qunit-page.tpl",
           includeFiles: ["custom.css", 'dist/<%= pkg.name %>-bundle-<%= pkg.version %>.min.js', "test/includes/*.js"],
           testFiles: ["test/test-*.js"],
