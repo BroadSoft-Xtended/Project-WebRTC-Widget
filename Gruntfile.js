@@ -7,31 +7,6 @@ module.exports = function(grunt) {
     reporter = require('./test/includes/'+grunt.option('reporter')+'_reporter')
   }
 
-  var srcFiles = [
-    'src/WebRTC.js',
-    'src/EventBus.js',
-    'src/DateFormat.js',
-    'src/Configuration.js',
-    'src/Settings.js',
-    'src/History.js',
-    'src/Transfer.js',
-    'src/Constants.js',
-    'src/Timer.js',
-    'src/FileShare.js',
-    'src/Whiteboard.js',
-    'src/Stats.js',
-    'src/Utils.js',
-    'src/Sound.js',
-    'src/Video.js',
-    'src/SIPStack.js',
-    'src/Icon.js',
-    'src/Authentication.js',
-    'src/XMPP.js',
-    'src/SMSProvider.js',
-    'src/SMS.js',
-    'src/Client.js'
-  ];
-
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -42,79 +17,32 @@ module.exports = function(grunt) {
 *\n\
 * Copyright 2014 Broadsoft\n\
 * http://www.broadsoft.com\n\
-***************************************************/\n\n\n',
-      footer: '\
-\n\n\nwindow.WebRTC = WebRTC;\n\
-}(window));\n\n'
-    },
-    concat: {
-      dist: {
-        src: srcFiles,
-        dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
-        options: {
-          banner: '<%= meta.banner %>',
-          separator: '\n\n\n',
-          footer: '<%= meta.footer %>',
-          process: true
-        },
-        nonull: true
-      },
-      post_dist: {
-        src: [
-          'dist/<%= pkg.name %>-<%= pkg.version %>.js'
-        ],
-        dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
-        nonull: true
-      },
-      devel: {
-        src: srcFiles,
-        dest: 'dist/<%= pkg.name %>-devel.js',
-        options: {
-          banner: '<%= meta.banner %>',
-          separator: '\n\n\n',
-          footer: '<%= meta.footer %>',
-          process: true
-        },
-        nonull: true
-      },
-      post_devel: {
-        src: [
-          'dist/<%= pkg.name %>-devel.js'
-        ],
-        dest: 'dist/<%= pkg.name %>-devel.js',
-        nonull: true
-      }
-    },
-    includereplace: {
-      dist: {
-        src:'dist/<%= pkg.name %>-<%= pkg.version %>.js',
-        dest: 'dist/<%= pkg.name %>-<%= pkg.version %>.js'
-      },
-      devel: {
-        src: 'dist/<%= pkg.name %>-devel.js',
-        dest: 'dist/<%= pkg.name %>-devel.js'
-      }
+***************************************************/\n\n\n'
     },
     jshint: {
-      dist: 'dist/<%= pkg.name %>-<%= pkg.version %>.js',
-      devel: 'dist/<%= pkg.name %>-devel.js',
-      files: ['js/*.js'],
       options: {
-        devel: true,
-        browser: true,
+        // DOC: http://www.jshint.com/docs/options/
         curly: true,
         eqeqeq: true,
         immed: true,
-        latedef: true,
-        newcap: false,
+        latedef: 'nofunc',  // Allow functions to be used before defined (it is valid).
+        newcap: true,
         noarg: true,
-        sub: true,
+        noempty: true,
+        nonbsp:  true,
+        // nonew: true,  // TODO: Enable when fixed.
+        plusplus: false,
         undef: true,
-        boss: true,
-        eqnull: true,
-        onecase:true,
-        unused:"vars",
-        supernew: true,
+        unused: true,
+        boss: false,
+        eqnull: false,
+        funcscope: false,
+        sub: false,
+        supernew: false,
+        browser: true,
+        devel: true,
+        node: true,
+        nonstandard: true,  // Allow 'unescape()' and 'escape()'.
         "globals": {
           "$": true,
           "jQuery": true,
@@ -136,7 +64,11 @@ module.exports = function(grunt) {
           "clientConfig": true
         }
       },
-      globals: {}
+      globals: {},
+      // Lint JS files separately.
+      each_file: {
+        src: [ 'src/**/*.js' ]
+      }      
     },
     uglify: {
       dist: {
@@ -216,11 +148,15 @@ module.exports = function(grunt) {
       }
     },
     browserify: {
-      all: {
+      dist: {
         files: {
-          'dist/<%= pkg.name %>-<%= pkg.version %>.js' : ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
-          'dist/<%= pkg.name %>-<%= pkg.version %>-devel.js' : ['dist/<%= pkg.name %>-<%= pkg.version %>-devel.js'],
-          'dist/<%= pkg.name %>-devel.js' : ['dist/<%= pkg.name %>-devel.js']
+          'dist/<%= pkg.name %>-<%= pkg.version %>.js': [ 'src/WebRTC.js' ]
+        },
+        options: {
+          browserifyOptions: {
+            standalone: 'WebRTC',
+            externalRequireName: 'KKKK'
+          }
         }
       }
     }
@@ -357,22 +293,11 @@ module.exports = function(grunt) {
   // Both webrtc-devel.js and webrtc-X.Y.Z.js are the same file with different name.
   grunt.registerTask('themify', ['templates', 'css', 'media', 'fonts']);
 
-  grunt.registerTask('compile_devel', ['concat:devel', 'includereplace:devel', 'jshint:devel', 'concat:post_devel']);
-
-  grunt.registerTask('compile_dist', ['concat:dist', 'includereplace:dist', 'jshint:dist', 'concat:post_dist']);
-
-  grunt.registerTask('build', ['compile_devel', 'compile_dist', 'browserify', 'themify', 'uglify:dist', 'copy:indexDev', 'copy:webrtc']);
-
-  // Task for building webrtc-devel.js (uncompressed).
-  grunt.registerTask('devel', ['compile_devel']);
+  grunt.registerTask('build', ['jshint:each_file', 'browserify', 'themify', 'uglify:dist', 'copy:indexDev', 'copy:webrtc']);
 
   // Test tasks.
   grunt.registerTask('testConnectLocal', ['qunit-serverless']);
   grunt.registerTask('test', ['testConnectLocal', 'notify:qunit']);
-
-  // Travis CI task.
-  // Doc: http://manuel.manuelles.nl/blog/2012/06/22/integrate-travis-ci-into-grunt/
-  grunt.registerTask('travis', ['devel', 'test']);
 
   // Default task is an alias for 'build'.
   grunt.registerTask('default', ['build']);

@@ -1,11 +1,4 @@
-/**
- * @fileoverview Utils
- */
-
-(function(WebRTC) {
-var Utils;
-
-Utils= {
+var Utils = {
   clone: function(obj) {
     return JSON.parse(JSON.stringify(obj));
   },
@@ -69,7 +62,7 @@ Utils= {
   },
 
   containsKey: function(object, value) {
-    return $.inArray(value, $.map(object, function(key, value) { return key; })) !== -1;
+    return $.inArray(value, $.map(object, function(key) { return key; })) !== -1;
   },
 
   containsValue: function(object, value) {
@@ -223,5 +216,4 @@ Utils= {
   }
 };
 
-WebRTC.Utils = Utils;
-}(WebRTC));
+module.exports = Utils;
