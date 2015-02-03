@@ -25,10 +25,11 @@ var Flags = {
 
 Configuration.Flags = Flags;
 
-var events = require('events');
+var events = require('./EventBus');
 var debug = require('debug')('configuration');
 var Utils = require('./Utils');
 var WebRTC_C = require('./Constants');
+var ExSIP = require('exsip');
 
 function Configuration(configObj) {
   debug('window.location.search : ' + window.location.search);
@@ -252,7 +253,7 @@ Configuration.prototype = {
   setResolutionDisplay: function(resolutionDisplay) {
     this.hd = false;
     this.settings.setResolutionDisplay(resolutionDisplay);
-    events.emit('viewChanged', this.settings);
+    events.emit('viewChanged');
   },
 
   getResolutionDisplay: function() {

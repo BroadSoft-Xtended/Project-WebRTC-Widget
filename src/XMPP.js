@@ -1,6 +1,6 @@
 module.exports = XMPP;
 
-var events = require('events');
+var events = require('./EventBus');
 var debug = require('debug')('xmpp');
 var debugerror = require('debug')('xmpp:ERROR');
 debugerror.log = console.warn.bind(console);
@@ -33,13 +33,13 @@ XMPP.prototype = {
   },
   registerListeners: function() {
     var self = this;
-    events.on("started", function(e) {
+    events.on("started", function() {
       self.statusBeforeCall = converse.getStatus();
-      debug('status before call : ' + self.statusBeforeCall, e);
+      debug('status before call : ' + self.statusBeforeCall);
       converse.setStatus('dnd');
     });
-    events.on("ended", function(e) {
-      debug('reset status to : ' + self.statusBeforeCall, e);
+    events.on("ended", function() {
+      debug('reset status to : ' + self.statusBeforeCall);
       converse.setStatus(self.statusBeforeCall);
     });
   }

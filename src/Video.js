@@ -1,6 +1,6 @@
 module.exports = Video;
 
-var events = require('events');
+var events = require('./EventBus');
 var debug = require('debug')('video');
 
 function Video(element, sipStack, options) {
@@ -11,6 +11,7 @@ function Video(element, sipStack, options) {
 
   this.options = options || {};
   this.sipStack = sipStack;
+
   this.registerListeners();
 }
 
@@ -21,7 +22,7 @@ Video.prototype = {
       self.options.onPlaying();
     });
     events.on("userMediaUpdated", function(e) {
-      self.updateStreams([e.data.localStream], []);
+      self.updateStreams([e && e.localStream], []);
     });
   },
 

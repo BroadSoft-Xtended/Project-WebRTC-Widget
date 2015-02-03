@@ -8,8 +8,11 @@
  ***************************************************/
 module.exports = Client;
 
+var fs = require('fs');
+var styles = fs.readFileSync(__dirname + '/../styles/bundle.min.css', 'utf-8');
+var templates = require('../js/templates');
 var ejs = require('ejs');
-var events = require('events');
+var events = require('./EventBus');
 var debug = require('debug')('client');
 var debugerror = require('debug')('client:ERROR');
 debugerror.log = console.warn.bind(console);
@@ -30,6 +33,7 @@ var Authentication = require('./Authentication');
 var Icon = require('./Icon');
 var WebRTC_C = require('./Constants');
 var Utils = require('./Utils');
+var ExSIP = require('exsip');
 
 function Client(config, element) {
   this.config = config;
@@ -133,7 +137,7 @@ Client.prototype = {
     parent.append(this.wrapper);
 
     var renderData = {};
-    var html = ejs.render(WebRTC_C.TEMPLATES.webrtc, renderData);
+    var html = ejs.render(templates.webrtc(), renderData);
     this.wrapper.html(html);
 
     this.client = this.wrapper.find('.client');
@@ -142,7 +146,7 @@ Client.prototype = {
   updateCss: function(styleData) {
     this.styleData = styleData || {};
     var cssData = $.extend({}, WebRTC_C.STYLES, WebRTC_C.FONTS, this.styleData);
-    var cssStr = ejs.render(WebRTC_C.CSS.stylesheet, cssData);
+    var cssStr = ejs.render(styles, cssData);
     if ($("#webrtc_css").length === 0) {
       $("<style type='text/css' id='webrtc_css'>" + cssStr + "</style>").appendTo("head");
     } else {
@@ -330,7 +334,7 @@ Client.prototype = {
     this.sipStack.init();
 
     if (!this.configuration.enableConnectLocalMedia && this.configuration.destination) {
-      this.events.once("connected", function(e) {
+      events.once("connected", function(e) {
         self.callUri(self.configuration.destination);
       });
     }
@@ -453,21 +457,21 @@ Client.prototype = {
   registerListeners: function() {
     var self = this;
 
-    this.events.on("viewChanged", function(e) {
+    events.on("viewChanged", function(e) {
       self.updateClientClass();
     });
-    this.events.on("ended", function(e) {
+    events.on("ended", function(e) {
       self.message(self.configuration.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
       self.history.persistCall(e.sender);
       self.endCall({
         rtcSession: e.sender
       });
     });
-    this.events.on("resumed", function(e) {
+    events.on("resumed", function(e) {
       self.onSessionStarted(e.sender);
       self.message(self.configuration.messageResume.replace('{0}', self.getRemoteUser(e.sender)), "success");
     });
-    this.events.on("started", function(e) {
+    events.on("started", function(e) {
       self.onSessionStarted(e.sender);
       var dtmfTones = Utils.parseDTMFTones(self.configuration.destination);
       if (dtmfTones && e.data && !e.data.isReconnect) {
@@ -481,10 +485,10 @@ Client.prototype = {
         self.timer.start();
       }
     });
-    this.events.on("held", function(e) {
+    events.on("held", function(e) {
       self.message(self.configuration.messageHold.replace('{0}', self.getRemoteUser(e.sender)), "success");
     });
-    this.events.on("disconnected", function(e) {
+    events.on("disconnected", function(e) {
       if (self.configuration.enableConnectionIcon) {
         self.connected.removeClass("success");
         self.connected.addClass("alert").fadeIn(100);
@@ -499,7 +503,7 @@ Client.prototype = {
       self.message(msg, "alert");
       self.endCall();
     });
-    this.events.on("failed", function(e) {
+    events.on("failed", function(e) {
       var error = e.data.cause;
       self.message(error, "alert");
       if (error === "User Denied Media Access") {
@@ -512,14 +516,14 @@ Client.prototype = {
         rtcSession: e.sender
       });
     });
-    this.events.on("progress", function(e) {
+    events.on("progress", function(e) {
       self.message(self.configuration.messageProgress, "normal");
       self.sound.playDtmfRingback();
     });
-    this.events.on("message", function(e) {
-      self.message(e.data.text, e.data.level);
+    events.on("message", function(e) {
+      self.message(e.text, e.level);
     });
-    this.events.on("registrationFailed", function(e) {
+    events.on("registrationFailed", function(e) {
       self.updateClientClass();
       if (self.configuration.enableRegistrationIcon) {
         //$("#registered").removeClass("success");
@@ -532,7 +536,7 @@ Client.prototype = {
       }
       self.message(self.configuration.messageRegistrationFailed.replace('{0}', msg), "alert");
     });
-    this.events.on("registered", function(e) {
+    events.on("registered", function(e) {
       self.updateClientClass();
       if (self.configuration.enableRegistrationIcon) {
         self.registered.removeClass("alert");
@@ -540,11 +544,11 @@ Client.prototype = {
       }
       self.message(self.configuration.messageRegistered, "success");
     });
-    this.events.on("unregistered", function(e) {
+    events.on("unregistered", function(e) {
       self.updateClientClass();
       self.message(self.configuration.messageUnregistered || 'Unregistered', "success");
     });
-    this.events.on("connected", function(e) {
+    events.on("connected", function(e) {
       if (self.configuration.enableConnectionIcon) {
         self.connected.removeClass("alert");
         self.connected.addClass("success").fadeIn(10).fadeOut(3000);
@@ -557,7 +561,7 @@ Client.prototype = {
         }
       });
     });
-    this.events.on("incomingCall", function(evt) {
+    events.on("incomingCall", function(evt) {
       var incomingCallName = evt.data.request.from.display_name;
       var incomingCallUser = evt.data.request.from.uri.user;
       self.message("Incoming Call", "success");
@@ -572,7 +576,7 @@ Client.prototype = {
       );
       self.sound.playRingtone();
     });
-    this.events.on("reInvite", function(e) {
+    events.on("reInvite", function(e) {
       self.setEvent("reInvite");
       var incomingCallName = e.data.request.from.display_name;
       var incomingCallUser = e.data.request.from.uri.user;
@@ -592,10 +596,7 @@ Client.prototype = {
         e.data.session.rejectReInvite();
       });
     });
-    this.events.on('message', function(e) {
-      self.message();
-    });
-    this.events.on('newDTMF', function(e) {
+    events.on('newDTMF', function(e) {
       var digit = e.data.tone;
       debug('DTMF sent : ' + digit);
       if (!digit) {

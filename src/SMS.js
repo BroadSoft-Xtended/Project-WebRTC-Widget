@@ -1,6 +1,6 @@
 module.exports = SMS;
 
-var events = require('events');
+var events = require('./EventBus');
 var debug = require('debug')('sms');
 var SMSProvider = require('./SMSProvider');
 var DateFormat = require('./DateFormat');
@@ -140,7 +140,7 @@ SMS.prototype = {
     });
     events.on('smsReadAll', function(e) {
       self.status.hide();
-      var messages = e.data.messages;
+      var messages = e.messages;
 
       messages = messages.sort(function(a, b) {
         return b.time - a.time;

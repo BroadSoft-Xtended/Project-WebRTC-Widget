@@ -1,0 +1,1823 @@
+@import 'font-face'
+font-face-inline('Exario-Icon-Fonts', 'Exario-Icon-Fonts', '../fonts')
+
+body
+  background-color #FFFFFF
+  margin 0
+  font-family 'Open Sans', Arial, sans-serif
+  -webkit-font-smoothing antialiased !important
+
+.callControl
+  display none
+  position relative
+  left 0px
+  top 0
+  height 75px
+  color #666666
+  font-family arial
+  font-size 18px
+  font-weight bold
+  height auto
+  display block
+  input
+    background #333
+    border 1px solid #3c3c3c
+    color #d3d3d3
+    font-family arial
+    font-size 18px
+    padding 0
+    border-radius 0
+    width 171px
+    line-height 30px
+    padding-left 8px
+    padding-right 35px
+    &:focus
+      outline none
+
+.main
+  position relative
+  top 0px
+  left 0px
+  width 100%
+  &:-webkit-full-screen-ancestor
+    &:not(iframe)
+      position absolute !important
+      top 0px
+      left 0px
+      right 0px
+      bottom 0px
+      width 100%
+      height 100%
+
+.client
+  position relative
+  top 0
+  left 0
+  &.r1280x720
+    width 1280px
+  &.r960x720
+    width 960px
+  .table
+    display table
+    width 100%
+  .fixed
+    table-layout fixed
+  .collapse
+    border-collapse collapse
+  .cell
+    display table-cell
+  .heading
+    display table-row
+    font-weight bold
+  .row
+    display table-row
+    margin 0
+  .group
+    display table-row-group
+  .fadeable
+    opacity 0
+    display block
+    z-index -1
+    backface-visibility hidden
+  .fileshare-container
+    display none
+  .icon-cog4
+    &:before
+      content "\f163"
+  &::-webkit-scrollbar
+    width 8px
+  &::-webkit-scrollbar-track
+  &::-webkit-scrollbar-thumb
+    background rgba(39, 39, 39, 1)
+    &:window-inactive
+      background rgba(39, 39, 39, 1)
+  &.view-centered
+    position absolute
+    top 50%
+    left 50%
+    transform translate(-50%, -50%)
+    backface-visibility hidden
+
+.client.r640x360, .client.r640x480
+  width 640px
+
+.client.r320x180, .client.r320x240
+  width 320px
+
+.full-screen-expanded
+  &.client
+    width 100% !important
+    height 100% !important
+  .video
+    padding-bottom 0
+    bottom 40px
+    position absolute
+    height auto !important
+  .videoBar
+    top auto !important
+    bottom 0px
+    position absolute
+  .main
+    height 100%
+
+.video
+  position relative
+  top 0px
+  left 0px
+  width 100%
+  height auto
+  &:-webkit-full-screen
+    position absolute
+    height 100%
+    border none
+    z-index 1
+
+.widescreen
+  .video
+    padding-bottom 56.25%
+
+.standard
+  .video
+    padding-bottom 75%
+
+.remoteVideo
+  display none
+  position absolute
+  top 0%
+  left 0%
+  width 100%
+  height 100%
+  background-color #191414
+  border-radius 4px
+  border 2px solid #DDDDDD
+  box-shadow 0px 0px 10px #000000
+  border-radius 0px
+  border none
+  box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
+  background #000000
+  background -moz-linear-gradient(top,  #181818 0%, #494949 100%)
+  background -webkit-gradient(linear, left top, left bottom, color-stop(0%,#181818), color-stop(100%,#494949))
+  background -webkit-linear-gradient(top,  #181818 0%,#494949 100%)
+  background -o-linear-gradient(top,  #181818 0%,#494949 100%)
+  background -ms-linear-gradient(top,  #181818 0%,#494949 100%)
+  background linear-gradient(to bottom,  #181818 0%,#494949 100%)
+  overflow hidden
+
+.localVideo
+  display none
+  position absolute
+  top auto
+  left 0
+  bottom 0
+  right auto
+  width 25%
+  height 25%
+  background-color transparent
+  z-index 99
+  video
+    border-radius 0
+    box-shadow none
+    background #292929
+    border 1px solid #3c3c3c
+    cursor move
+    width 100%
+    height 100%
+    position absolute
+  .inner
+    margin 5px
+    position absolute
+    top 0
+    bottom 0
+    right 0
+    left 0
+
+:-webkit-full-screen
+  .remoteVideo
+    z-index 1
+  .localVideo
+    z-index 2
+
+:-webkit-full-screen .remoteVideo, :-webkit-full-screen .localVideo
+  border none
+  border-radius 0
+
+.videoBar
+  display none
+  position relative
+  top 0px
+  left 0px
+  width 100%
+  height 40px
+  background black
+  background-image -ms-linear-gradient(center top , #404040, #000000)
+  background-image linear-gradient(to bottom, #404040, #000000)
+  background-image -webkit-linear-gradient(#404040, #000000)
+  background-image -moz-linear-gradient(top, #404040, #000000)
+  border-radius 4px
+  border 2px solid #DDDDDD
+  box-shadow 0px 0px 10px #000000
+  margin-top 5px
+  background-image none
+  border-radius 0px
+  border none
+  box-shadow none
+  margin-top 0px
+  background #292929
+  border-top 1px solid #3c3c3c
+  .icon
+    display none
+    z-index 10
+    margin 0px 2.5px
+    position absolute
+  .table
+    height 100%
+    margin 6px
+    margin 0
+  .cell
+    position relative
+    top 0px
+    left 0px
+    width 35px
+    width 36px
+    .icon
+      width 100%
+      text-align center
+      margin-top 10px
+      margin-right 0
+      margin-left 0
+      a
+        margin 0
+    &:first-child
+      padding 0
+  span
+    color grey
+  .unmuteAudio
+    margin-top -1px
+  .leftSpacer
+    width 8px
+  .cell-hangup
+    width 42px
+  .subtitle
+    display none
+  .cell-timer
+    position relative
+    top 0
+    left 0
+    width auto
+  .rightSpacer
+    width 8px
+
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link.exario, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1.exario, .icon-quality2.exario, .icon-quality3.exario, .icon-quality4.exario, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume, .icon-screen-sharing, .icon-screen-sharing-off
+  font-family 'Exario-Icon-Fonts'
+  speak none
+  text-decoration none
+  margin 0 0.35em 0 0
+  font-size 25px
+
+.icon-link.exario, .icon-quality1.exario, .icon-quality2.exario, .icon-quality3.exario, .icon-quality4.exario
+  font-family 'Exario-Icon-Fonts' !important
+  font-size 20px !important
+
+.call
+  display none
+  position absolute
+  z-index 10
+  top 25px
+  left 265px
+  display block
+  position static
+  top auto
+  left auto
+
+.icon-call
+  &:before
+    content "\e00e"
+    color #3B9E3B
+  &:hover
+    &:before
+      content "\e00e"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-hangup
+  &:before
+    content "\e00f"
+    color #FF0000
+  &:hover
+    &:before
+      content "\e00f"
+      color #FF0000
+
+.hangup, .fullScreen, .selfView, .muteAudioIcon, .dialpadIcon, .messages
+  top 0
+  left 0
+
+.icon-fullScreenExpand
+  &:before
+    content "\e002"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e002"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-fullScreenContract
+  &:before
+    content "\e003"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e003"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-selfViewDisable
+  &:before
+    content "\e00a"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e00a"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-selfViewEnable
+  &:before
+    content "\e00d"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e00d"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-muteAudio
+  &:before
+    content "\e008"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e008"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-unmuteAudio
+  &:before
+    content "\e009"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e009"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-dialpadShow
+  &:before
+    content "\e010"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e010"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-dialpadHide
+  &:before
+    content "\e010"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e010"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.quality1
+  display none
+  position absolute
+  z-index 10
+  top 13px
+  left 15px
+
+.icon-quality1
+  &.exario
+    &:before
+      content "\e007"
+      color #00FF00
+      opacity .4
+
+.quality2
+  display none
+  position absolute
+  z-index 10
+  top 13px
+  left 15px
+
+.icon-quality2
+  &.exario
+    &:before
+      content "\e006"
+      color #FFFF00
+      opacity .4
+
+.quality3
+  display none
+  position absolute
+  z-index 10
+  top 13px
+  left 15px
+
+.icon-quality3
+  &.exario
+    &:before
+      content "\e005"
+      color #FF9900
+      opacity .4
+
+.quality4
+  display none
+  position absolute
+  z-index 10
+  top 13px
+  left 15px
+
+.icon-quality4
+  &.exario
+    &:before
+      content "\e004"
+      color #FF0000
+      opacity .4
+
+#videoBar
+  #settings
+    width auto
+    background-color transparent
+
+.icon-settings
+  &:before
+    content "\e00c"
+    color #FFFFFF
+    opacity .4
+    opacity 1
+  &:hover
+    &:before
+      content "\e00c"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-ok
+  &:before
+    content "\e011"
+    color #00FF00
+  &:hover
+    &:before
+      content "\e011"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+#history
+  display none
+  position absolute
+  z-index 10
+  top 6px
+  right 60px
+
+.icon-history
+  &:before
+    content "\e012"
+    color #FFFFFF
+    opacity .4
+  &:hover
+    &:before
+      content "\e012"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-trash
+  &:before
+    content "\e013"
+    color #FF0000
+  &:hover
+    &:before
+      content "\e013"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-left
+  &:before
+    content "\e000"
+    color #00FF00
+  &:hover
+    &:before
+      content "\e000"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-right
+  &:before
+    content "\e001"
+    color #00FF00
+  &:hover
+    &:before
+      content "\e001"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-transfer
+  &:before
+    content "\e014"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e014"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-hold
+  &:before
+    content "\e015"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e015"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-resume
+  &:before
+    content "\e016"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e016"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-screen-sharing
+  &:before
+    content "\e604"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e604"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.icon-screen-sharing-off
+  &:before
+    content "\e605"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e605"
+      @css {
+        color <%= iconHightlightColor %>        
+      }
+
+.button
+  &:active
+    color #04AFF0
+    background -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A))
+    background linear-gradient(to bottom left, #7CDD07, #FAA51A)
+  &:hover
+    box-shadow 0px 0px 10px #999
+
+.icon-link
+  &.exario
+    &:before
+      content "\e00b"
+
+.callPopup, .reInvitePopup, .transferPopup, .callHistoryDetails, .authPopup
+  display none
+  background #333333
+  padding 10px
+  border 2px solid #DDDDDD
+  float left
+  position absolute
+  top 0
+  bottom 0
+  left 0
+  right 0
+  margin auto
+  box-shadow 0px 0px 10px #999999
+  border-radius 3px
+  font-size 14px
+  line-height 18px
+  z-index 100
+
+.callPopup, .reInvitePopup
+  width 170px
+  height 137px
+
+.transferPopup
+  color white
+  width 280px
+  height 60px
+
+.transferTarget
+  width 200px
+
+.popup
+  .actions
+    text-align right
+  .title
+    font-weight bold
+    font-size 16px
+    color white
+
+.callPopup
+  padding 0
+  background #292929
+  border 1px solid #3c3c3c
+  box-shadow none
+  width 220px
+  border-radius 0
+  height 168px
+  span
+    color #999999
+    font-size 22px
+  .incomingCallTitle
+    display block
+    padding 8px
+    font-size 18px
+    font-weight bold
+    background #3c3c3c
+    margin-bottom 18px
+    color #E4E4E4
+  .acceptIncomingCall
+    background #3DA005
+    border none
+    border-radius 20px
+    padding 5px 10px
+    font-size 14px
+    color #FFF
+    margin-left 12px
+  #rejectIncomingCallContainer
+    button
+      background #FF0000
+      border none
+      border-radius 20px
+      padding 5px 10px
+      font-size 14px
+      color #FFF
+      margin-right 12px
+
+.ui-widget-content
+  &.ui-dialog
+    display none
+    color #999999
+    font-size 22px
+    background #333333
+    padding 10px
+    border 2px solid #DDDDDD
+    box-shadow 0px 0px 10px #999999
+    border-radius 3px
+    z-index 99
+
+.no-close
+  .ui-dialog-titlebar-close
+    display none
+
+.settingsPopup
+  display none
+  background #333333
+  padding 2px
+  border 2px solid #DDDDDD
+  position absolute
+  top 5px
+  left 5px
+  overflow-x hidden
+  overflow-y scroll
+  width 435
+  height 180
+  box-shadow 0px 0px 10px #999999
+  border-radius 3px
+  font-size 20px
+  line-height 28px
+  z-index 99
+  border 1px solid #3c3c3c
+  background #292929
+  border-radius 0px
+  box-shadow none
+  bottom 40px
+  right 0px
+  top auto
+  left auto
+  width 304px !important
+  font-size 14px
+  height 276px
+  overflow hidden
+  span
+    color #999999
+    font-size 20px
+    font-size 14px
+  [type="checkbox"]
+    width 18
+    height 18
+    vertical-align middle
+  .short
+    width 36px
+  input
+    background #333
+    border 1px solid #414141
+    color #EEE
+    padding-left 5px
+    line-height 22px
+    font-size 13px
+  .tabs
+    span
+      margin-right 5px
+      color #fff
+  .btn
+    background #04AFF0
+    color #FFF
+    padding 5px 10px
+    text-decoration none
+    border-radius 20px
+    margin-left 9px
+    margin-top 15px
+    font-weight 700
+    text-align center
+    &:hover
+      background #017EAD
+  .clear
+    color #04AFF0
+    margin-left 10px
+    text-decoration none
+    font-weight 700
+    &:hover
+      color #017EAD
+
+.authPopup
+  width 210px
+  height 200px
+  span
+    color #999999
+    font-size 14px
+    line-height 18px
+  input
+    background #666666
+    border-bottom 1px solid #333333
+    border-left 1px solid #000000
+    border-right 1px solid #333333
+    border-top 1px solid #000000
+    color #FFFFFF
+    border-radius 3px
+    font-family arial
+    font-size 16px
+    padding 6px 6px 4px
+    width 200px
+  button
+    border-color #999999
+    border-width 1px
+    border-radius 4px
+    color #333333
+    cursor pointer
+    padding 6px 6px 4px
+    margin-top 10px
+    font-size 12px
+    width 200px
+  #alert
+    font-size 20px
+    text-align center
+    color #FF0000
+
+.dialpad
+  padding 15px
+  background #292929
+  border 1px solid #3c3c3c
+  display none
+  position absolute
+  bottom 40px
+  right auto
+  width 170px
+  top auto
+  left 0px
+  letter-spacing 5px
+  z-index 100
+  box-sizing content-box
+  height 228px
+  padding-left 14px
+  button
+    color #333333
+    opacity 0.8
+    font-family arial
+    font-size 20px
+    width 30px
+    border-color #000000
+    border-width 1px
+    border-radius 4px
+    border-spacing 5em
+    font-weight bold
+    line-height 33px
+    margin .1em
+    border-top-style outset
+    cursor pointer
+    color #B3B3B3
+    background none
+    border-radius 0
+    font-weight normal
+    padding 0
+    margin 0
+    border none
+    width 50px
+    &:active
+      color #04AFF0
+      background -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A))
+      background linear-gradient(to left bottom, #F47A20, #FAA51A)
+    &:hover
+      box-shadow 1px 1px 20px #999999
+      background #3a3a3a
+      box-shadow none
+    &:focus
+      outline none
+    span
+      display block
+      font-size 8px
+      text-align center
+      font-weight bold
+      margin-top -13px
+      color #2D7B99
+  .history-button
+    font-size 16px !important
+    padding-top 5px
+    padding-bottom 5px
+    outline none
+    position absolute
+    right 4px
+    top 5px
+    width 25px
+    &.active
+      color #04AFF0
+
+.connected-icon
+  display none
+  position absolute
+  top 13px
+  right 5px
+
+.registered-icon
+  display none
+  position absolute
+  top 13px
+  right 40px
+
+.timer
+  display none
+  position absolute
+  top 3px
+  left 0px
+  width 100%
+  text-align center
+  font-family arial
+  font-size 16px
+  @css {
+    color <%= timerColor %>        
+  }
+  top 11px
+
+.normal
+  @css {
+    color <%= infoMessageColor %>        
+  }
+
+.success
+  @css {
+    color <%= successMessageColor %>        
+  }
+
+.warning
+  @css {
+    color <%= successMessageColor %>        
+  }
+
+.alert
+  @css {
+    color <%= alertMessageColor %>        
+  }
+
+.callHistory
+  display none
+  position absolute
+  top 88px
+  left 378px
+  width 265px
+  height 420px
+  background-color #191414
+  border-radius 4px
+  border 2px solid #DDDDDD
+  box-shadow 0px 0px 10px #999999
+  width 200px
+  height 258px
+  right auto
+  left 200px
+  bottom 40px
+  top auto
+  background #292929
+  border 1px solid #3c3c3c
+  overflow hidden
+  padding 0
+  .hist-date
+    position absolute
+    color #0082FF
+    left 20px
+    font-family arial
+    font-size 10px
+    position absolute
+    color #B3B3B3
+    left 26px
+    font-family arial
+    font-size 10px
+    top 29px
+  .hist-length
+    position absolute
+    color #0082FF
+    left 205px
+    font-family arial
+    font-size 10px
+    position absolute
+    color #B3B3B3
+    left 104px
+    font-family arial
+    font-size 10px
+    top 29px
+  .rowSpace
+    padding .5em
+  .actions
+    margin-top 11px
+    margin-top 12px
+  .content
+    padding 16px 0 10px 0
+    height 68%
+    width 200px
+    margin-bottom 10px
+    overflow-x hidden
+  .hist-direction
+    position absolute
+    color #3DA005
+    left 3px
+    font-family arial
+    font-size 18px
+    top 6px
+  .hist-destination
+    position absolute
+    color #B3B3B3
+    left 25px
+    font-family arial
+    font-size 18px
+    text-decoration none
+    top 6px
+
+.callStats
+  display none
+  position absolute
+  top 10px
+  color #666666
+  left 660px
+  width 400px
+  padding 2px
+  border-radius 4px
+  border 2px solid #DDDDDD
+  box-shadow 0px 0px 10px #999999
+  @css {
+    color <%= statsColor %>
+  }
+  top auto
+  bottom 40px
+  right 0
+  left auto
+  .statsVideo
+    position absolute
+    white-space pre-wrap
+    color #0082FF
+    left 10px
+    font-family arial
+    font-size 18px
+    text-decoration none
+  .statsAudio
+    position absolute
+    white-space pre-wrap
+    color #0082FF
+    left 260px
+    float left
+    font-family arial
+    font-size 18px
+    text-decoration none
+  a
+    color #2BA6CB
+  .spacer
+    height 15px
+  .statsDelay
+    display none
+
+.unsupported
+  position absolute
+  top 240px
+  left 30px
+  width 600px
+  background-color #191414
+  text-align center
+  display none
+  color white
+  z-index 10
+
+#whiteboard_unsupported, #screen_sharing_unsupported
+  position relative
+  top 0px
+  left 0px
+  margin 10px
+  background red
+
+#screen_sharing_unsupported
+  display none
+  span
+    text-decoration underline
+
+.stats-table-container, .stats-graph-sub-container
+  display none
+
+.stats0-selected .kiloBitsSentPerSecond-video,
+.stats1-selected .kiloBitsSentPerSecond-audio,
+.stats2-selected .kiloBitsReceivedPerSecond-video,
+.stats3-selected .kiloBitsReceivedPerSecond-audio,
+.stats4-selected .packetsLost-video,
+.stats5-selected .packetsLostPer-video,
+.stats6-selected .packetsLost-audio,
+.stats7-selected .packetsLostPer-audio,
+.stats8-selected .googFrameRateSent-video,
+.stats9-selected .googFrameRateReceived-video,
+.stats10-selected .audioOutputLevel-audio,
+.stats11-selected .audioInputLevel-audio,
+.stats12-selected .googFrameWidthReceived-video,
+.stats13-selected .googFrameHeightReceived-video,
+.stats14-selected .googFrameWidthSent-video,
+.stats15-selected .googFrameHeightSent-video,
+.stats16-selected .googRtt-audio,
+.stats17-selected .googJitterReceived-audio
+  display block
+
+.client .row:before, .client .row:after
+  display none
+
+.stats-graph-sub-container
+  canvas
+    width 100%
+
+.resolutionSubType
+  display none
+
+.enable-file-share
+  .fileshare-container
+    display table
+
+.holdAndAnswerButton, .dropAndAnswerButton, .acceptIncomingCall
+  display none
+
+.started .holdAndAnswerButton,
+.started .dropAndAnswerButton,
+.client:not(.started) .acceptIncomingCall
+  display inline-block
+
+.started
+  .watermark-icon
+    display none
+    transform none
+    box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
+  .remoteVideo
+    box-shadow 0 0 1px rgba(0, 0, 0, 0.1)
+
+.connected
+  .watermark-icon
+    box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
+
+.enable-mute.unmuted.started .muteAudioIcon,
+.enable-mute.muted.started .unmuteAudioIcon,
+.enable-full-screen.full-screen-contracted .fullScreenExpand,
+.enable-full-screen.full-screen-expanded .fullScreenContract,
+.enable-self-view.self-view-enabled .selfViewDisable,
+.enable-self-view.self-view-disabled .selfViewEnable,
+.enable-self-view.self-view-enabled .localVideo,
+.enable-settings .settings,
+.enable-dialpad.dialpad-shown .dialpadIconHide,
+.enable-dialpad.dialpad-hidden .dialpadIconShow,
+.started .hangup, .calling .hangup,
+.enable-call-control.connected .call,
+.enable-transfer.started .transfer,
+.enable-timer.started .timer,
+.client:not(.held).enable-hold.started .hold,
+.enable-hold.started.held .resume,
+.enable-screen-sharing.screen-sharing-off .shareScreen,
+.enable-screen-sharing.screen-sharing .stopShareScreen,
+.enable-file-share.started .file_share
+  transition all 1s linear
+  opacity 1
+  z-index 20
+
+.enable-transfer.started.transfer-visible .transferPopup,
+.client:not(.disconnected).auth-visible .authPopup,
+.reInvite .reInvitePopup,
+.enable-dialpad.dialpad-shown .dialpad,
+.enable-settings.settings-shown .settingsPopup,
+.incomingCall .callPopup
+  transition all 1s linear
+  opacity 1
+  z-index 100
+
+.enable-screen-sharing.screen-sharing .shareScreen, .enable-screen-sharing.screen-sharing-off .stopShareScreen,
+.enable-mute.connected .muteAudioIcon, .enable-mute.disconnected .muteAudioIcon,
+.enable-mute.connected .unmuteAudioIcon, .enable-mute.disconnected .unmuteAudioIcon,
+.enable-mute.muted .muteAudioIcon, .enable-mute.unmuted .unmuteAudioIcon,
+.enable-full-screen.full-screen-expanded .fullScreenExpand,
+.enable-full-screen.full-screen-contracted .fullScreenContract,
+.enable-self-view.self-view-disabled .selfViewDisable,
+.enable-self-view.self-view-enabled .selfViewEnable,
+.enable-self-view.self-view-disabled .localVideo,
+.enable-settings.settings-hidden .settingsPopup,
+.enable-dialpad.dialpad-hidden .dialpadIconHide,
+.enable-dialpad.dialpad-shown .dialpadIconShow,
+.enable-dialpad.dialpad-hidden .dialpad,
+.connected .hangup, .disconnected .hangup,
+.client:not(.connected) .call,
+.enable-transfer.connected .transfer, .enable-transfer.disconnected .transfer,
+.enable-transfer.transfer-hidden .transferPopup,
+.client.disconnected .authPopup, .client.auth-hidden .authPopup,
+.reInvite-done .reInvitePopup,
+.client.held .hold, .client:not(.started) .hold,
+.client:not(.held) .resume, .client:not(.started) .resume,
+.client:not(.started) .timer,
+.client:not(.started) .file_share
+  transition all 1s linear
+  opacity 0
+  z-index -1
+
+.sign-in, .sign-out
+  display none
+
+.client:not(.registered) .sign-in,
+.client.registered .sign-out
+  display block
+
+.client:not(.enable-mute) .cell-muteAudio,
+.client:not(.enable-transfer) .cell-transfer,
+.client:not(.enable-hold) .cell-hold,
+.client:not(.enable-timer) .cell-timer,
+.client:not(.enable-full-screen) .cell-fullScreen,
+.client:not(.enable-self-view) .cell-selfView,
+.client:not(.enable-settings) .cell-settings,
+.client:not(.enable-dialpad) .cell-dialpad,
+.client:not(.enable-shareScreen) .cell-shareScreen,
+.client:not(.enable-call-control) .callControl
+  display none !important
+
+.historyRowSample
+  display none
+
+.callHistoryDetails
+  width 150px
+  height 190px
+  background white
+  width 194px
+  height auto
+  border none
+  clear both
+  top 0
+  bottom -1
+  left 201px
+  right auto
+  box-shadow none
+  border-radius 0
+  background #292929
+  border 1px solid #3c3c3c
+  border-top none
+  .table
+    font-size 13px
+    padding-left 8px
+
+.historyDetailsClose
+  text-align right
+  margin-top 10px
+  text-align right
+  margin-top 10px
+  display inline-block !important
+  height 26px
+  margin-top 0
+  .icon-ok
+    margin 0px
+  a
+    text-decoration none
+    outline-color rgba(0, 0, 0, 0)
+    color #aaa
+    font-size 18px
+
+.history-row
+  cursor pointer
+  position relative
+  .row
+    display block
+    margin 0
+    position relative
+    height 46px
+
+.callLink
+  text-align left
+  background #6F6F6F
+  float left
+  padding 6px 10px 6px 10px
+  text-decoration none
+  font-weight bold
+  color #FFF !important
+  border-radius 50px
+  font-size 14px !important
+
+.view-audioOnly .video, .view-audioOnly .fullScreenExpand, .view-audioOnly .fullScreenContract,
+.view-audioOnly .selfViewDisable, .view-audioOnly .selfViewEnable, .view-audioOnly .quality1,
+.view-audioOnly .quality2, .view-audioOnly .quality3, .view-audioOnly .quality4,
+.view-audioOnly .cell-fullScreen, .view-audioOnly .cell-selfView
+  display none !important
+
+.client.view-audioOnly, .view-audioOnly .videoBar
+  display inline-block
+  width auto
+
+.view-audioOnly
+  .videoBar
+    .table
+      table-layout auto
+      width auto
+  .cell-hangup
+    width 35px !important
+  .timer
+    position relative
+    margin-right 10px
+  .messages
+    left 10px !important
+    top 48px !important
+    font-weight bold
+    font-size 14px
+  .dialpad
+    top 45px
+
+.view-conference .selfViewDisable, .view-conference .selfViewEnable
+  text-align right !important
+
+.view-conference .fullScreenExpand, .view-conference .fullScreenContract
+  text-align left !important
+
+.view-conference
+  .cell-hangup
+    width 30px !important
+    top 2px
+  .videoBar
+    .cell
+      .hangup
+        margin-top 0
+        width 140px
+        background-color red
+        border-radius 5px
+        margin-left 10px
+        height 36px
+        line-height 14px
+  .hangup
+    .subtitle
+      display block !important
+      font-size 14px
+      color white
+
+.view-conference .icon-hangup:before, .view-conference .icon-hangup:hover:before
+  color white !important
+
+font-face-inline('bsl_icons', 'bsl_icons', '../fonts')
+
+.client [class^="icon-"], .client [class*=" icon-"]
+  font-family 'bsl_icons'
+  speak none
+  font-style normal
+  font-weight normal
+  font-variant normal
+  text-transform none
+  line-height 1
+  -webkit-font-smoothing antialiased
+  -moz-osx-font-smoothing grayscale
+
+.icon-dialpad:before, .icon-dialpadShow:before, .icon-dialpadShow:hover:before, .icon-dialpadHide:before, .icon-dialpadHide:hover:before
+  content "\ed3b"
+
+.icon-grid3
+  &:before
+    content "\eeb3"
+
+.icon-phone
+  &:before
+    content "\e62c"
+
+.icon-phone-hang-up:before, .icon-hangup:before, .icon-hangup:hover:before
+  content "\e600"
+
+.icon-clock
+  &:before
+    content "\e634"
+
+.client .icon-cog:before, .icon-settings:before, .icon-settings:hover:before
+  content "\e601"
+
+.icon-pause2:before, .icon-resume:before, .icon-resume:hover:before, .icon-hold:before, .icon-hold:hover:before
+  content "\e6bb"
+
+.icon-volume-high
+  &:before
+    content "\e6c0"
+
+.icon-volume-medium:before, .icon-unmuteAudio:before, .icon-unmuteAudio:hover:before
+  content "\e6c1"
+
+.icon-volume-low
+  &:before
+    content "\e6c2"
+
+.icon-volume-mute:before, .icon-muteAudio:before, .icon-muteAudio:hover:before
+  content "\e6c3"
+
+.icon-checkbox-checked
+  &:before
+    content "\e6d8"
+
+.icon-checkbox-unchecked
+  &:before
+    content "\e6d9"
+
+.icon-checkbox-partial
+  &:before
+    content "\e6da"
+
+.icon-radio-checked
+  &:before
+    content "\e6db"
+
+.icon-radio-unchecked
+  &:before
+    content "\e6dc"
+
+.icon-arrow-up-thick
+  &:before
+    content "\f5a4"
+
+.icon-arrow-down-thick
+  &:before
+    content "\f5a5"
+
+.icon-delete
+  &:before
+    content "\f5ab"
+
+.icon-delete-outline
+  &:before
+    content "\f5ac"
+
+.icon-checkmark6
+  &:before
+    content "\f2c7"
+
+.icon-cancel3
+  &:before
+    content "\f2c9"
+
+.icon-notice
+  &:before
+    content "\f2cf"
+
+.icon-warning2
+  &:before
+    content "\f2d4"
+
+.icon-grid5
+  &:before
+    content "\f34b"
+
+.icon-resize4:before, .icon-fullScreenContract:before, .icon-fullScreenContract:hover:before, .icon-fullScreenExpand:before, .icon-fullScreenExpand:hover:before
+  content "\f371"
+
+.icon-info8
+  &:before
+    content "\f3a4"
+
+.icon-th
+  &:before
+    content "\e602"
+
+.icon-signal2
+  &:before
+    content "\f162"
+
+.icon-time
+  &:before
+    content "\f167"
+
+.icon-volume-off
+  &:before
+    content "\f170"
+
+.icon-volume-down
+  &:before
+    content "\f171"
+
+.icon-volume-up
+  &:before
+    content "\f172"
+
+.icon-facetime-video:before, .icon-selfViewEnable:before, .icon-selfViewEnable:hover:before, .icon-selfViewDisable:before, .icon-selfViewDisable:hover:before
+  content "\f17f"
+
+.icon-share5:before, .icon-transfer:before, .icon-transfer:hover:before
+  content "\f186"
+
+.icon-phone5
+  &:before
+    content "\f1b9"
+
+.icon-angle-right
+  &:before
+    content "\f1fe"
+
+.icon-logout
+  &:before
+    content "\f45c"
+
+.icon-cross4
+  &:before
+    content "\f465"
+
+.icon-history2
+  &:before
+    content "\f477"
+
+.icon-arrow-right10
+  &:before
+    content "\f4bb"
+
+.selfView-bl
+  .localVideo
+    top auto
+    bottom 0
+    left 0
+    right auto
+
+.selfView-tl
+  .localVideo
+    top 0
+    bottom auto
+    left 0
+    right auto
+
+.selfView-tr
+  .localVideo
+    top 0
+    bottom auto
+    left auto !important
+    right 0
+
+.selfView-br
+  .localVideo
+    top auto
+    bottom 0
+    left auto !important
+    right 0
+
+.selfView-1x
+  .localVideo
+    width 25%
+    height 25%
+
+.selfView-2x
+  .localVideo
+    width 50%
+    height 50%
+
+.videoBar .icon, .videoBar a
+  font-size 20px
+  color grey
+  text-decoration none
+
+.icon
+  cursor pointer
+
+.icon a:hover, .icon span:hover, .videoBar a:hover
+  @css {
+    color <%= iconHightlightColor %>    
+  }
+
+.settingsPopup input, .settingsPopup select
+  margin-left 14px
+
+.messages
+  position absolute
+  font-family arial
+  text-align left
+  width auto
+  font-size 12px
+  bottom auto
+  top 10px
+  left 10px
+
+.videoBar .hold, .videoBar .resume
+  margin-top -1px
+
+.hangup
+  a
+    &.icon-phone-hang-up
+      color #f90007
+      font-size 24px
+
+.watermark-icon
+  position absolute
+  top 50%
+  left 50%
+  backface-visibility hidden
+  transform translate(-50%,-50%)
+  color rgba(255, 255, 255, 0.08)
+  z-index 1
+  font-size 265px
+  text-align center
+  width 100%
+
+.callHistory, .callStats
+  background-color #292929
+  border-radius 0
+  border 1px solid #3c3c3c
+  box-shadow none
+  color #999999
+  z-index 200
+  padding 10px
+
+.callHistory .content, .callHistory .callHistoryDetails
+  overflow auto
+
+.stats-container
+  margin-bottom 18px
+
+.dialpad-control-bar
+  margin-top 6px
+  .main-button
+    background #3DA005
+    border-radius 14px
+    width 70px
+    padding 5px
+    margin 0 auto
+  a
+    color #fff
+    text-decoration none
+    text-align center
+    width 100%
+    display inline-block
+    font-size 14px
+    font-weight 700
+    letter-spacing 1
+    span
+      margin-right 5px
+
+.destination-container
+  hr
+    border none
+    border-bottom 1px solid #3c3c3c
+
+.selfViewEnable a, .dialpadIconHide a,.unmuteAudio a,.fullScreenContract a
+  color #04AFF0 !important
+
+.destination
+  &::-webkit-input-placeholder
+    color #04AFF0
+    font-style italic
+    padding-left 5px
+    font-weight 400
+
+.hist-direction
+  .icon-arrow-down-thick
+    color #E9651D
+
+.history-row:hover, .history-row.active
+  background #353535
+
+.hist-details-arrow
+  position absolute
+  right 8px
+  font-size 16px
+  top 14px
+
+.default-color
+  color #2BA6CB
+
+ul
+  &.tabs
+    width 250px
+    padding-left 0
+
+.tabs~div p, .tabs~div h3
+  margin-bottom 15px
+  color #999
+  font-size 14px
+
+.tabs
+  & ~ div
+    padding 10px
+    margin-bottom 10px
+  li
+    list-style none
+    display inline
+  a
+    padding 5px 10px
+    display inline-block
+    background #494949
+    color #fff
+    text-decoration none
+    &.active
+      background #04AFF0
+      color #fff
+
+#history-dt-close-container
+  text-align right
+
+.cell-selfView
+
+.settings
+  margin-top 12px !important
+  .icon-settings
+    margin 0
+    font-size 18px
+    color #FFF
+
+.settingsPopup .saveSettings, .settingsPopup .clear
+  display inline-block
+
+.whiteboard
+  display none
+  position absolute
+  top 40px
+  left 378px
+  canvas
+    border-radius 4px
+    border 2px solid #DDDDDD
+    box-shadow 0px 0px 10px #999999
+
+.sms
+  display none
+  position absolute
+  top 10px
+  right 10px
+  .smsView
+    padding 10px
+    border-radius 4px
+    border 2px solid #DDDDDD
+    box-shadow 0px 0px 10px #999999
+  .smsLoginForm
+    width 250px
+  .smsSendForm
+    width 600px
+    display none
+  .smsSendBody
+    width 339px
+  .smsInbox
+    width 600px
+    display none
+    .inner
+      max-height 250px
+      overflow auto
+    .cell
+      padding 5px
+    .from
+      width 100px
+    .status
+      width 50px
+    .time
+      width 135px
+    .body
+      word-wrap break-word
+      & > div
+        display none
+    .sms-inbox-item
+      &.image
+        .body
+          .image
+            span
+              margin-right 5px
+    .actions
+      width 15px
+    .icon-trash
+      font-size 15px
+  .smsStatus
+    display none
+    text-align right
+    .content
+      text-align right
+      border 1px solid #c3c3c3
+      background-color #e3e2e2
+      font-size 70%
+      padding 1px 3px
+      border-top 0px
+      margin-right 15px
+      border-bottom-right-radius 4px
+      border-bottom-left-radius 4px
+    &.error
+      color red
+
+.sms .smsInbox .sms-inbox-item.text .body .text, .sms .smsInbox .sms-inbox-item.image .body .image,
+.sms .smsInbox .sms-inbox-item.video .body .video, .sms .smsInbox .sms-inbox-item.audio .body .audio
+  display block
+
+.sms .smsInbox .sms-inbox-item.audio .body .audio audio,
+.sms .smsInbox .sms-inbox-item.video .body .video video
+  width 100%
+
+.simple_sketch
+  background-color white
+
+.tools
+  padding-bottom 10px
+  a
+    border 1px solid black
+    height 30px
+    line-height 30px
+    padding 0 10px
+    vertical-align middle
+    text-align center
+    text-decoration none
+    display inline-block
+    color black
+    font-weight bold
+    &.selected
+      border-color red
+      border-width 3px
+
+[id$="sample"]
+  display none !important
+
+#javascript_disabled
+  display block
+  background-color white
+  color black
+
+#rejectIncomingCallContainer
+  text-align right
+
+.smsInbox
+  .content
+    display table-row-group
+
+.btn-star
+  font-size 30px
+  vertical-align middle
+
+.historyClear
+  a
+    text-decoration none
+    color #FFF
+    font-size 14px
+    font-weight 700
+    background #6F6F6F
+    border-radius 20px
+    padding 5px 10px
+    margin-left 15px
+    &:hover
+      background #4E4E4E
+
+.classHistoryActions
+  padding-top 2px
+
+.historyClose
+  a
+    color #04AFF0
+    font-size 14px
+    font-weight 700
+    text-decoration none
+    margin-left 8px
+    &:hover
+      color #017EAD
+
+.incomingCallName, .incomingCallUser
+  display block
+  margin-left 10px
+  margin-bottom 18px
+
+a
+  &.disabled
+    pointer-events none
+    cursor default
+    background-color #999
+    opacity 0.5

@@ -2,7 +2,8 @@ var Client = require('./Client');
 var Utils = require('./Utils');
 var WebRTC = {
   Client: Client,
-  Utils: Utils
+  Utils: Utils,
+  Sound: require('./Sound')
 };
 
 module.exports = WebRTC;
@@ -19,70 +20,6 @@ Object.defineProperties(WebRTC, {
     }
   }
 });
-
-// IIFE to ensure safe use of $
-(function($) {
-  // Create plugin
-  $.fn.tooltips = function() {
-
-    var $el;
-
-    // Ensure chaining works
-    return this.each(function(i, el) {
-
-      $el = $(el).attr("data-tooltip", i);
-      var tooltipEl = $el.attr('data-tooltip-element');
-      var content = tooltipEl ? $(tooltipEl)[0].outerHTML : $el.attr('title');
-      // Make DIV and append to page
-      var $tooltip = $('<div class="tooltip" data-tooltip="' + i + '">' + content + '<div class="arrow"></div></div>').appendTo("body");
-
-      // Position right away, so first appearance is smooth
-      $tooltip.position({
-        at: "center top",
-        my: "center bottom",
-        of: $el,
-        collision: 'none'
-      });
-
-      $el
-      // Get rid of yellow box popup
-        .removeAttr("title")
-
-      // Mouseenter
-      .hover(function() {
-
-        $el = $(this);
-
-        $tooltip = $('div[data-tooltip=' + $el.data('tooltip') + ']');
-
-        // Reposition tooltip, in case of page movement e.g. screen resize
-        $tooltip.position({
-          at: "center top",
-          my: "center bottom",
-          of: $el,
-          collision: 'none'
-        });
-
-        // Adding class handles animation through CSS
-        $tooltip.addClass("active");
-
-        // Mouseleave
-      }, function() {
-
-        $el = $(this);
-
-        // Temporary class for same-direction fadeout
-        $tooltip = $('div[data-tooltip=' + $el.data('tooltip') + ']').addClass("out");
-
-        // Remove all classes
-        setTimeout(function() {
-          $tooltip.removeClass("active").removeClass("out");
-        }, 300);
-
-      });
-    });
-  };
-})(jQuery);
 
 jQuery.fn.putCursorAtEnd = function() {
 

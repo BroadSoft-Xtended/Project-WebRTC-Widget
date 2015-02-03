@@ -1,6 +1,7 @@
 module.exports = SMSProvider;
 
-var events = require('events');
+var ExSIP = require('exsip');
+var events = require('./EventBus');
 var debug = require('debug')('smsprovider');
 var debugerror = require('debug')('client:ERROR');
 debugerror.log = console.warn.bind(console);
@@ -60,10 +61,9 @@ SMSProvider.prototype = {
     this.send("GET", "getUpdate", data, onSuccess, onFailure, false);
   },
   sendSMS: function(desttnarray, body, onFailure) {
-    var self = this;
     var onSuccess = function(msg) {
       debug("sent msg " + msg + " to " + desttnarray);
-      events.emit('smsSent', self, {
+      events.emit('smsSent', {
         desttnarray: desttnarray,
         body: body
       });
@@ -86,10 +86,9 @@ SMSProvider.prototype = {
     }, onFailure);
   },
   readAll: function(onFailure) {
-    var self = this;
     var onSuccess = function(msg) {
       debug("Read all mgs : " + ExSIP.Utils.toString(msg.messages));
-      events.emit('smsReadAll', self, {
+      events.emit('smsReadAll', {
         messages: msg.messages
       });
     };
@@ -102,7 +101,7 @@ SMSProvider.prototype = {
       self.sessionid = msg.sessionid;
       self.name = name;
       debug("Logged in " + name + " : " + msg.sessionid);
-      events.emit('smsLoggedIn', self);
+      events.emit('smsLoggedIn');
     };
     var data = {
       spcode: ClientConfig.smsSpcode,

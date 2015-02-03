@@ -9,7 +9,7 @@ var C = {
 
 FileShare.C = C;
 
-var events = require('events');
+var events = require('./EventBus');
 var debug = require('debug')('fileshare');
 var Utils = require('./Utils');
 
@@ -31,7 +31,7 @@ FileShare.prototype = {
     this.fileInput.on('change', $.proxy(this.handleFileSelect, this));
 
     events.on("dataReceived", function(e) {
-      var data = e.data.data,
+      var data = e.data,
         match;
       var regex = /^fileshare:([^:]*):([^:]*):?/;
       if (!!(match = data.match(regex)) ) {

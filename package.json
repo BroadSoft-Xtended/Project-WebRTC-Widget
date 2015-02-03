@@ -13,7 +13,9 @@
   ],
   "dependencies": {
     "ejs": "1.0.0",
-    "debug": "2.1.1"
+    "debug": "2.1.1",
+    "exsip": "exsip",
+    "brfs": "~1.3.0"
   },
   "devDependencies": {
     "grunt": "0.4.4",
@@ -30,7 +32,19 @@
     "grunt-browserify": "3.0.1",
     "grunt-contrib-watch": "0.6.1",
     "grunt-contrib-qunit": "0.2.2",
-    "grunt-qunit-serverless": "0.2.6"
+    "grunt-qunit-serverless": "0.2.6",
+    "mocha": "2.1.0",
+    "jsdom": "3.1.0",
+    "mocha-jsdom": "0.2.0",
+    "glob-cli": "^1.0.0",
+    "templatizer": "^1.0.0",
+    "uglify-js": "2.4.16",
+    "stylus": "^0.48.1",
+    "stylus-font-face": "0.1.0",
+    "autoprefixer-stylus": "^0.3.0",
+    "css": "^2.1.0",
+    "cssmin": "0.4.2",
+    "expect": "1.6.0"
   },
   "engines": {
     "node": ">=0.10.0"

@@ -62,3 +62,5 @@ ClientConfig = {
     messageEmptyDestination: "Invalid Destination",
     messageGetUserMedia: "Unable to Access Camera and/or Microphone"
 };
+
+module.exports = ClientConfig;

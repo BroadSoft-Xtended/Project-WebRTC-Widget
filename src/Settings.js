@@ -1,6 +1,6 @@
 module.exports = Settings;
 
-var events = require('events');
+var events = require('./EventBus');
 var debug = require('debug')('settings');
 var debugerror = require('debug')('settings:ERROR');
 debugerror.log = console.warn.bind(console);
@@ -241,7 +241,7 @@ function Settings(client, configuration, sound, sipStack) {
             expires: self.configuration.expires
           });
         } else {
-          $.removeCookie(cookie);
+          jQuery.removeCookie(cookie);
         }
       } else {
         return mapping.inputGetter();
@@ -251,6 +251,7 @@ function Settings(client, configuration, sound, sipStack) {
   for (var cookie in this.cookiesMapper) {
     makeAccessor(cookie);
   }
+
   this.registerListeners();
   this.initUi();
   this.updateRowVisibility();
@@ -295,7 +296,7 @@ Settings.prototype = {
     this.clearLink.on('click', function(e) {
       e.preventDefault();
       self.resetLayout();
-      events.emit('message', 'Settings reset');
+      events.emit('message', {text: 'Settings reset'});
     });
     this.signOutBtn.on('click', function(e) {
       e.preventDefault();

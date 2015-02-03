@@ -1,7 +1,6 @@
 module.exports = Authentication;
 
-var events = require('events');
-var util = require('util');
+var events = require('./EventBus');
 
 function Authentication(element, options) {
   this.popup = element;
@@ -14,11 +13,8 @@ function Authentication(element, options) {
   this.visible = false;
   this.options = options || {};
 
-  events.EventEmitter.call(this);
   this.registerListeners();
 }
-
-util.inherits(Authentication, events.EventEmitter);
 
 Authentication.prototype = {
   registerListeners: function() {
@@ -76,6 +72,6 @@ Authentication.prototype = {
     this.authUserIdInput.val(this.options.settingsAuthenticationUserId());
     this.userIdInput.val(this.options.settingsUserId());
 
-    events.emit('viewChanged', this);
+    events.emit('viewChanged');
   }
 };

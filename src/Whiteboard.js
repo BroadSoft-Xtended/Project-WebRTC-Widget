@@ -1,11 +1,13 @@
 module.exports = Whiteboard;
 
-var events = require('events');
+var events = require('./EventBus');
 
 function Whiteboard(client, element, sipStack) {
   this.whiteboard = element;
   this.canvas = this.whiteboard.find('.simple_sketch');
-  this.context = this.canvas[0].getContext('2d');
+  if(this.canvas[0] && this.canvas[0].getContext) {
+    this.context = this.canvas[0].getContext('2d');    
+  }
 
   this.toggled = false;
   this.client = client;
@@ -25,7 +27,7 @@ Whiteboard.prototype = {
   registerListeners: function() {
     var self = this;
     events.on("dataReceived", function(e) {
-      var data = e.data.data;
+      var data = e.data;
       var regex = /^whiteboard:/;
       if (data.match(regex)) {
         data = data.replace(regex, '');

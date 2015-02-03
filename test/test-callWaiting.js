@@ -1,141 +1,164 @@
-module( "Call Waiting", {
-  setup: function() {
-    TestWebrtc.Helpers.mockWebRTC();
-    TestWebrtc.Helpers.mockSound();
+require('./includes/common');
+describe('call waiting', function() {
+
+  before(function() {
+    setUp();
+    testUA.mockWebRTC();
+    testUA.mockSound();
     ClientConfig.domainTo = "domain.to";
     ClientConfig.domainFrom = "domain.from";
     ClientConfig.enableTransfer = true;
     ClientConfig.enableCallStats = false;
-    client = window.BroadSoftWebRTC.clients[0];
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
-  }, teardown: function() {
-  }
-});
+    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
+      console.log("enableLocalAudio : " + enable);
+    }
+  });
 
-test('1st incoming call', function() {
-  ClientConfig.enableAutoAnswer = false;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.connect();
-  var session = TestWebrtc.Helpers.incomingSession();
-  var answerOptions = "";
-  session.answer = function(options){console.log("answer"); answerOptions = options;}
-  TestWebrtc.Helpers.incomingCall(session);
-  strictEqual(answerOptions, "", "Answer should not have been called");
-  strictEqual(client.incomingCallName.text(), "Incoming DisplayName");
-  strictEqual(client.incomingCallUser.text(), "Incoming User");
-  TestWebrtc.Helpers.isVisible(client.callPopup, true);
-  strictEqual(client.dropAndAnswerButton.is(":visible"), false);
-  strictEqual(client.holdAndAnswerButton.is(":visible"), false);
-  strictEqual(client.acceptIncomingCall.is(":visible"), true);
-});
+  it('1st incoming call', function() {
+    ClientConfig.enableAutoAnswer = false;
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    testUA.connect();
+    var session = testUA.incomingSession();
+    var answerOptions = "";
+    session.answer = function(options) {
+      console.log("answer");
+      answerOptions = options;
+    }
+    testUA.incomingCall(session);
+    expect(answerOptions).toEqual("", "Answer should not have been called");
+    expect(client.incomingCallName.text()).toEqual("Incoming DisplayName");
+    expect(client.incomingCallUser.text()).toEqual("Incoming User");
+    testUA.isVisible(client.callPopup, true);
+    expect(client.dropAndAnswerButton.is(":visible")).toEqual(false);
+    expect(client.holdAndAnswerButton.is(":visible")).toEqual(false);
+    expect(client.acceptIncomingCall.is(":visible")).toEqual(true);
+  });
 
-test('incoming call and cancel', function() {
-  ClientConfig.enableAutoAnswer = false;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.connect();
-  var session = TestWebrtc.Helpers.incomingSession();
-  var answerOptions = "";
-  session.answer = function(options){console.log("answer"); answerOptions = options;}
-  TestWebrtc.Helpers.incomingCall(session);
-  strictEqual(answerOptions, "", "Answer should NOT have been called");
-  TestWebrtc.Helpers.isVisible(client.callPopup, true);
-  session.failed('remote', null, ExSIP.C.causes.CANCELED);
-  TestWebrtc.Helpers.isVisible(client.callPopup, false);
-});
+  it('incoming call and cancel', function() {
+    ClientConfig.enableAutoAnswer = false;
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    testUA.connect();
+    var session = testUA.incomingSession();
+    var answerOptions = "";
+    session.answer = function(options) {
+      console.log("answer");
+      answerOptions = options;
+    }
+    testUA.incomingCall(session);
+    expect(answerOptions).toEqual("", "Answer should NOT have been called");
+    testUA.isVisible(client.callPopup, true);
+    session.failed('remote', null, ExSIP.C.causes.CANCELED);
+    testUA.isVisible(client.callPopup, false);
+  });
 
-test('1st incoming call with enableAutoAnswer', function() {
-  ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.settingAutoAnswer.prop('checked', true);
-  TestWebrtc.Helpers.connect();
-  var session = TestWebrtc.Helpers.incomingSession();
-  var answerOptions = "";
-  session.answer = function(options){console.log("answer"); answerOptions = options;}
-  TestWebrtc.Helpers.incomingCall(session);
-  notStrictEqual(answerOptions, "", "Answer should have been called");
-  TestWebrtc.Helpers.isVisible(client.callPopup, false);
-});
+  it('1st incoming call with enableAutoAnswer', function() {
+    ClientConfig.enableAutoAnswer = true;
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    client.settings.settingAutoAnswer.prop('checked', true);
+    testUA.connect();
+    var session = testUA.incomingSession();
+    var answerOptions = "";
+    session.answer = function(options) {
+      console.log("answer");
+      answerOptions = options;
+    }
+    testUA.incomingCall(session);
+    expect(answerOptions).toNotEqual("", "Answer should have been called");
+    testUA.isVisible(client.callPopup, false, 'should not show call popup');
+  });
 
-test('2nd incoming call with enableAutoAnswer', function() {
-  ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.connect();
-  TestWebrtc.Helpers.startCall();
-  var session = TestWebrtc.Helpers.incomingSession();
-  var answerOptions = "";
-  session.answer = function(options){console.log("answer"); answerOptions = options;}
-  TestWebrtc.Helpers.incomingCall(session);
-  strictEqual(answerOptions, "", "Answer should not have been called");
-  strictEqual(client.incomingCallName.text(), "Incoming DisplayName");
-  strictEqual(client.incomingCallUser.text(), "Incoming User");
-  TestWebrtc.Helpers.isVisible(client.callPopup, true);
-  strictEqual(client.dropAndAnswerButton.is(":visible"), true);
-  strictEqual(client.holdAndAnswerButton.is(":visible"), true);
-  strictEqual(client.acceptIncomingCall.is(":visible"), false);
-});
+  it('2nd incoming call with enableAutoAnswer', function() {
+    ClientConfig.enableAutoAnswer = true;
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    testUA.connect();
+    testUA.startCall();
+    var session = testUA.incomingSession();
+    var answerOptions = "";
+    session.answer = function(options) {
+      console.log("answer");
+      answerOptions = options;
+    }
+    testUA.incomingCall(session);
+    expect(answerOptions).toEqual("", "Answer should not have been called");
+    expect(client.incomingCallName.text()).toEqual("Incoming DisplayName");
+    expect(client.incomingCallUser.text()).toEqual("Incoming User");
+    testUA.isVisible(client.callPopup, true);
+    expect(client.dropAndAnswerButton.is(":visible")).toEqual(true);
+    expect(client.holdAndAnswerButton.is(":visible")).toEqual(true);
+    expect(client.acceptIncomingCall.is(":visible")).toEqual(false);
+  });
 
-test('2nd incoming call and hold+answer click', function() {
-  ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.connect();
-  var outgoingSession = TestWebrtc.Helpers.outgoingSession();
-  TestWebrtc.Helpers.startCall(outgoingSession);
-  var incomingSession = TestWebrtc.Helpers.incomingSession();
-  var answerOptions = "";
-  incomingSession.answer = function(options){console.log("answer"); answerOptions = options; incomingSession.started('local');}
-  TestWebrtc.Helpers.incomingCall(incomingSession);
+  it('2nd incoming call and hold+answer click', function() {
+    ClientConfig.enableAutoAnswer = true;
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    testUA.connect();
+    var outgoingSession = testUA.outgoingSession();
+    testUA.startCall(outgoingSession);
+    var incomingSession = testUA.incomingSession();
+    var answerOptions = "";
+    incomingSession.answer = function(options) {
+      console.log("answer");
+      answerOptions = options;
+      incomingSession.started('local');
+    }
+    testUA.incomingCall(incomingSession);
 
-  ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active");
-  deepEqual(client.sipStack.sessions.length, 2);
-  client.holdAndAnswerButton.trigger("click");
-  ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
-  deepEqual(client.sipStack.sessions.length, 2);
-  notStrictEqual(answerOptions, "", "Answer should have been called");
-});
+    ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active");
+    deepEqual(client.sipStack.sessions.length, 2);
+    client.holdAndAnswerButton.trigger("click");
+    ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
+    deepEqual(client.sipStack.sessions.length, 2);
+    expect(answerOptions).toNotEqual("", "Answer should have been called");
+  });
 
-test('2nd incoming call and hold+answer click and resume 1st call after 2nd ends', function() {
-  ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.connect();
-  var outgoingSession = TestWebrtc.Helpers.outgoingSession();
-  TestWebrtc.Helpers.startCall(outgoingSession);
-  var incomingSession = TestWebrtc.Helpers.incomingSession();
-  TestWebrtc.Helpers.incomingCall(incomingSession);
+  it('2nd incoming call and hold+answer click and resume 1st call after 2nd ends', function() {
+    ClientConfig.enableAutoAnswer = true;
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    testUA.connect();
+    var outgoingSession = testUA.outgoingSession();
+    testUA.startCall(outgoingSession);
+    var incomingSession = testUA.incomingSession();
+    testUA.incomingCall(incomingSession);
 
-  client.holdAndAnswerButton.trigger("click");
-  ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
-  client.hangup.trigger("click");
-  ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active again");
-  strictEqual(client.sipStack.sessions.length, 1);
-});
+    client.holdAndAnswerButton.trigger("click");
+    ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
+    client.hangup.trigger("click");
+    ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active again");
+    expect(client.sipStack.sessions.length).toEqual(1);
+  });
 
-test('2nd incoming call and drop+answer click', function() {
-  ClientConfig.enableAutoAnswer = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.connect();
-  var outgoingSession = TestWebrtc.Helpers.outgoingSession();
-  TestWebrtc.Helpers.startCall(outgoingSession);
-  var incomingSession = TestWebrtc.Helpers.incomingSession();
-  incomingSession.answer = function(options){console.log("answer"); answerOptions = options; incomingSession.started('local');}
-  TestWebrtc.Helpers.incomingCall(incomingSession);
+  it('2nd incoming call and drop+answer click', function() {
+    ClientConfig.enableAutoAnswer = true;
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    testUA.connect();
+    var outgoingSession = testUA.outgoingSession();
+    testUA.startCall(outgoingSession);
+    var incomingSession = testUA.incomingSession();
+    incomingSession.answer = function(options) {
+      console.log("answer");
+      answerOptions = options;
+      incomingSession.started('local');
+    }
+    testUA.incomingCall(incomingSession);
 
-  ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active");
-  deepEqual(client.sipStack.sessions.length, 2);
-  client.dropAndAnswerButton.trigger("click");
-  ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
-  deepEqual(client.sipStack.sessions.length, 1);
-  notStrictEqual(answerOptions, "", "Answer should have been called");
-});
+    ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active");
+    deepEqual(client.sipStack.sessions.length, 2);
+    client.dropAndAnswerButton.trigger("click");
+    ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
+    deepEqual(client.sipStack.sessions.length, 1);
+    expect(answerOptions).toNotEqual("", "Answer should have been called");
+  });
 
-test('call and hangup and incoming call', function() {
-  ClientConfig.enableAutoAnswer = false;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.connect();
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.endCall();
-  TestWebrtc.Helpers.incomingCall();
-  TestWebrtc.Helpers.isVisible(client.callPopup, true);
-  strictEqual(client.dropAndAnswerButton.is(":visible"), false);
-  strictEqual(client.holdAndAnswerButton.is(":visible"), false);
-  strictEqual(client.acceptIncomingCall.is(":visible"), true);
+  it('call and hangup and incoming call', function() {
+    ClientConfig.enableAutoAnswer = false;
+    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    testUA.connect();
+    testUA.startCall();
+    testUA.endCall();
+    testUA.incomingCall();
+    testUA.isVisible(client.callPopup, true);
+    expect(client.dropAndAnswerButton.is(":visible")).toEqual(false);
+    expect(client.holdAndAnswerButton.is(":visible")).toEqual(false);
+    expect(client.acceptIncomingCall.is(":visible")).toEqual(true);
+  });
 });

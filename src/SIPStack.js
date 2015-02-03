@@ -11,7 +11,8 @@ var C = {
 
 SIPStack.C = C;
 
-var events = require('events');
+var ExSIP = require('exsip');
+var events = require('./EventBus');
 var debug = require('debug')('sipstack');
 var debugerror = require('debug')('sipstack:ERROR');
 debugerror.log = console.warn.bind(console);
@@ -67,7 +68,7 @@ SIPStack.prototype = {
     var self = this;
     var firstSession = this.activeSession;
     session.on('ended', function() {
-      events.emit('message', 'Resuming with ' + firstSession.remote_identity.uri.user, 'normal');
+      events.emit('message', {text: 'Resuming with ' + firstSession.remote_identity.uri.user, level: 'normal'});
       debug("incoming call ended - unholding first call");
       firstSession.unhold(function() {
         debug("unhold first call successful");
@@ -118,7 +119,7 @@ SIPStack.prototype = {
   call: function(destination) {
     var session = this.ua.call(destination, this.configuration.getExSIPOptions());
     session.on('failed', function(e) {
-      events.emit('failed', e.sender, e.data);
+      events.emit('failed', e.data);
     });
     events.emit('calling', session);
   },
@@ -209,7 +210,7 @@ SIPStack.prototype = {
           userMediaCallback(localStream);
         }
       }, function(e) {
-        events.emit('message', self.configuration.messageGetUserMedia || "Get User Media Failed", "alert");
+        events.emit('message', {text: self.configuration.messageGetUserMedia || "Get User Media Failed", level: "alert"});
         if (failureCallback) {
           failureCallback(e);
         }
@@ -232,7 +233,7 @@ SIPStack.prototype = {
     if (!this.activeSession && this.configuration.isAutoAnswer()) {
       session.answer(this.configuration.getExSIPOptions());
     } else {
-      events.emit('incomingCall', evt.data);
+      events.emit('incomingCall', evt);
     }
   },
 
@@ -257,12 +258,12 @@ SIPStack.prototype = {
 
       // sipStack callbacks
       this.ua.on('connected', function(e) {
-        events.emit('viewChanged', self);
-        events.emit('connected', e.data);
+        events.emit('viewChanged');
+        events.emit('connected', e);
       });
       this.ua.on('disconnected', function(e) {
-        events.emit('viewChanged', self);
-        events.emit('disconnected', e.data);
+        events.emit('viewChanged');
+        events.emit('disconnected', e);
       });
       this.ua.on('onReInvite', function(e) {
         debug("incoming onReInvite event");
@@ -271,38 +272,38 @@ SIPStack.prototype = {
       this.ua.on('newRTCSession', function(e) {
         var session = e.data.session;
         self.sessions.push(session);
-        events.emit('viewChanged', self);
+        events.emit('viewChanged');
 
         // call event handlers
         session.on('progress', function(e) {
-          events.emit('progress', e.sender, e.data);
+          events.emit('progress', e);
         });
         session.on('failed', function(e) {
-          events.emit('failed', e.sender, e.data);
+          events.emit('failed', e);
         });
         session.on('started', function(e) {
           events.emit('viewChanged', self);
-          events.emit('started', e.sender, e.data);
+          events.emit('started', e);
         });
         session.on('resumed', function(e) {
           events.emit('viewChanged', self);
-          events.emit('resumed', e.sender, e.data);
+          events.emit('resumed', e);
         });
         session.on('held', function(e) {
           events.emit('viewChanged', self);
-          events.emit('held', e.sender, e.data);
+          events.emit('held', e);
         });
         session.on('ended', function(e) {
-          events.emit('ended', e.sender, e.data);
+          events.emit('ended', e);
         });
         session.on('newDTMF', function(e) {
-          events.emit('newDTMF', e.sender, e.data);
+          events.emit('newDTMF', e);
         });
         session.on('dataSent', function(e) {
-          events.emit('dataSent', e.sender, e.data);
+          events.emit('dataSent', e);
         });
         session.on('dataReceived', function(e) {
-          events.emit('dataReceived', e.sender, e.data);
+          events.emit('dataReceived', e);
         });
         // handle incoming call
         if (e.data.session.direction === "incoming") {
@@ -322,7 +323,7 @@ SIPStack.prototype = {
         events.emit('unregistered');
       });
       this.ua.on('registrationFailed', function(e) {
-        events.emit('registrationFailed', e.data);
+        events.emit('registrationFailed', e);
       });
     } catch (e) {
       debugerror('could not init sip stack', e);

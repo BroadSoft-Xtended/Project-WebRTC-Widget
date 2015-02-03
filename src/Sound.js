@@ -1,6 +1,6 @@
 module.exports = Sound;
 
-var events = require('events');
+var events = require('./EventBus');
 var WebRTC_C = require('./Constants');
 
 function Sound(sipStack, configuration) {
@@ -30,7 +30,7 @@ Sound.prototype = {
 
   setMuted: function(muted) {
     this.muted = muted;
-    events.emit('viewChanged', this);
+    events.emit('viewChanged');
     this.updateLocalAudio();
   },
 

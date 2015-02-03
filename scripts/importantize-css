@@ -1,0 +1,48 @@
+#!/usr/bin/env node
+
+var fs = require('fs');
+var css = require('css');
+
+module.exports = function (infile, outfile, cb) {
+    infile = fs.readFileSync(infile).toString();
+    var ast = css.parse(infile);
+
+    function eachDeclaration (tree, fn) {
+        if (tree.type === 'stylesheet') {
+            tree.stylesheet.rules.forEach(function (rule) { eachDeclaration(rule, fn); });
+        }
+        if (tree.type === 'rule') {
+            tree.declarations.forEach(function (declaration) {
+                if (declaration.type === 'declaration') {
+                    fn(tree.selectors, declaration);
+                }
+            });
+        }
+
+    }
+
+    eachDeclaration(ast, function (selectors, declaration) {
+        if (!declaration.property) {
+            console.log(selectors, declaration);
+        }
+
+        if (
+            declaration.property.match(/font-size/) ||
+            declaration.property.match(/line-height/) ||
+            declaration.property.match(/font/)
+           ) {
+            declaration.value = declaration.value + '!important';
+        }
+    });
+
+    fs.writeFileSync(outfile, css.stringify(ast));
+    cb();
+};
+
+if (require.main === module) {
+    var path = require('path');
+    var infile = path.join(process.cwd(), process.argv[2]);
+    var outfile = path.join(process.cwd(), process.argv[3]);
+
+    module.exports(infile, outfile, console.log.bind(console, 'Importantized css'));
+}
