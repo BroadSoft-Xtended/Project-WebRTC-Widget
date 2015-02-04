@@ -1,5 +1,6 @@
 var Client = require('./Client');
 var Utils = require('./Utils');
+var ClientConfig = require('../js/client-config.js.default');
 var WebRTC = {
   Client: Client,
   Utils: Utils,
@@ -90,7 +91,7 @@ $(document).ready(function() {
     }
     var configData = JSON.parse(node.text());
     console.log("script config : ", configData);
-    var clientConfig = Utils.clone(window.ClientConfig);
+    var clientConfig = Utils.clone(ClientConfig);
     var config = $.extend({}, clientConfig, configData);
     console.log("merged config : ", config);
     var client = new Client(config, node.parent());

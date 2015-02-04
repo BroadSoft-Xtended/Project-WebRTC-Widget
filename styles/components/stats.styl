@@ -1,0 +1,77 @@
+.callStats
+  display none
+  position absolute
+  top 10px
+  left 660px
+  width 400px
+  top auto
+  bottom 40px
+  right 0
+  left auto
+  background-color #292929
+  border-radius 0
+  border 1px solid #3c3c3c
+  box-shadow none
+  color #999999
+  z-index 200
+  padding 10px
+  .statsVideo
+    position absolute
+    white-space pre-wrap
+    color #0082FF
+    left 10px
+    font-family arial
+    font-size 18px
+    text-decoration none
+  .statsAudio
+    position absolute
+    white-space pre-wrap
+    color #0082FF
+    left 260px
+    float left
+    font-family arial
+    font-size 18px
+    text-decoration none
+  a
+    color #2BA6CB
+  .spacer
+    height 15px
+  .statsDelay
+    display none
+
+.stats-table-container, .stats-graph-sub-container
+  display none
+
+.stats0-selected .kiloBitsSentPerSecond-video,
+.stats1-selected .kiloBitsSentPerSecond-audio,
+.stats2-selected .kiloBitsReceivedPerSecond-video,
+.stats3-selected .kiloBitsReceivedPerSecond-audio,
+.stats4-selected .packetsLost-video,
+.stats5-selected .packetsLostPer-video,
+.stats6-selected .packetsLost-audio,
+.stats7-selected .packetsLostPer-audio,
+.stats8-selected .googFrameRateSent-video,
+.stats9-selected .googFrameRateReceived-video,
+.stats10-selected .audioOutputLevel-audio,
+.stats11-selected .audioInputLevel-audio,
+.stats12-selected .googFrameWidthReceived-video,
+.stats13-selected .googFrameHeightReceived-video,
+.stats14-selected .googFrameWidthSent-video,
+.stats15-selected .googFrameHeightSent-video,
+.stats16-selected .googRtt-audio,
+.stats17-selected .googJitterReceived-audio
+  display block
+
+@css {
+  .callStats {
+	color: <%= statsColor %>; 	
+  }
+}
+
+.stats-graph-sub-container
+  canvas
+    width 100%
+    
+.stats-container
+  margin-bottom 18px
+

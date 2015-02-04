@@ -1,3 +1,595 @@
+.bdsft-reset {
+  font-size: 14px;
+  font: normal normal 14px Open Sans, Arial, sans-serif;
+}
+.bdsft-reset div,
+.bdsft-reset span,
+.bdsft-reset applet,
+.bdsft-reset object,
+.bdsft-reset iframe,
+.bdsft-reset h1,
+.bdsft-reset h2,
+.bdsft-reset h3,
+.bdsft-reset h4,
+.bdsft-reset h5,
+.bdsft-reset h6,
+.bdsft-reset p,
+.bdsft-reset blockquote,
+.bdsft-reset pre,
+.bdsft-reset a,
+.bdsft-reset abbr,
+.bdsft-reset acronym,
+.bdsft-reset address,
+.bdsft-reset big,
+.bdsft-reset cite,
+.bdsft-reset code,
+.bdsft-reset del,
+.bdsft-reset dfn,
+.bdsft-reset em,
+.bdsft-reset img,
+.bdsft-reset ins,
+.bdsft-reset kbd,
+.bdsft-reset q,
+.bdsft-reset s,
+.bdsft-reset samp,
+.bdsft-reset small,
+.bdsft-reset strike,
+.bdsft-reset strong,
+.bdsft-reset sub,
+.bdsft-reset sup,
+.bdsft-reset tt,
+.bdsft-reset var,
+.bdsft-reset b,
+.bdsft-reset u,
+.bdsft-reset i,
+.bdsft-reset center,
+.bdsft-reset dl,
+.bdsft-reset dt,
+.bdsft-reset dd,
+.bdsft-reset ol,
+.bdsft-reset ul,
+.bdsft-reset li,
+.bdsft-reset fieldset,
+.bdsft-reset form,
+.bdsft-reset div.form,
+.bdsft-reset label,
+.bdsft-reset legend,
+.bdsft-reset table,
+.bdsft-reset caption,
+.bdsft-reset tbody,
+.bdsft-reset tfoot,
+.bdsft-reset thead,
+.bdsft-reset tr,
+.bdsft-reset th,
+.bdsft-reset td,
+.bdsft-reset article,
+.bdsft-reset aside,
+.bdsft-reset canvas,
+.bdsft-reset details,
+.bdsft-reset figcaption,
+.bdsft-reset figure,
+.bdsft-reset footer,
+.bdsft-reset header,
+.bdsft-reset hgroup,
+.bdsft-reset menu,
+.bdsft-reset nav,
+.bdsft-reset section,
+.bdsft-reset summary,
+.bdsft-reset time,
+.bdsft-reset mark,
+.bdsft-reset audio,
+.bdsft-reset video,
+.bdsft-reset button,
+.bdsft-reset textarea,
+.bdsft-reset input {
+  font-size: 100%;
+  font: normal normal 100% Open Sans, Arial, sans-serif;
+}
+.bdsft-reset,
+.bdsft-reset div,
+.bdsft-reset span,
+.bdsft-reset applet,
+.bdsft-reset object,
+.bdsft-reset iframe,
+.bdsft-reset h1,
+.bdsft-reset h2,
+.bdsft-reset h3,
+.bdsft-reset h4,
+.bdsft-reset h5,
+.bdsft-reset h6,
+.bdsft-reset p,
+.bdsft-reset blockquote,
+.bdsft-reset pre,
+.bdsft-reset a,
+.bdsft-reset abbr,
+.bdsft-reset acronym,
+.bdsft-reset address,
+.bdsft-reset big,
+.bdsft-reset cite,
+.bdsft-reset code,
+.bdsft-reset del,
+.bdsft-reset dfn,
+.bdsft-reset em,
+.bdsft-reset img,
+.bdsft-reset ins,
+.bdsft-reset kbd,
+.bdsft-reset q,
+.bdsft-reset s,
+.bdsft-reset samp,
+.bdsft-reset small,
+.bdsft-reset strike,
+.bdsft-reset strong,
+.bdsft-reset sub,
+.bdsft-reset sup,
+.bdsft-reset tt,
+.bdsft-reset var,
+.bdsft-reset b,
+.bdsft-reset u,
+.bdsft-reset i,
+.bdsft-reset center,
+.bdsft-reset dl,
+.bdsft-reset dt,
+.bdsft-reset dd,
+.bdsft-reset ol,
+.bdsft-reset ul,
+.bdsft-reset li,
+.bdsft-reset fieldset,
+.bdsft-reset form,
+.bdsft-reset div.form,
+.bdsft-reset label,
+.bdsft-reset legend,
+.bdsft-reset table,
+.bdsft-reset caption,
+.bdsft-reset tbody,
+.bdsft-reset tfoot,
+.bdsft-reset thead,
+.bdsft-reset tr,
+.bdsft-reset th,
+.bdsft-reset td,
+.bdsft-reset article,
+.bdsft-reset aside,
+.bdsft-reset canvas,
+.bdsft-reset details,
+.bdsft-reset figcaption,
+.bdsft-reset figure,
+.bdsft-reset footer,
+.bdsft-reset header,
+.bdsft-reset hgroup,
+.bdsft-reset menu,
+.bdsft-reset nav,
+.bdsft-reset section,
+.bdsft-reset summary,
+.bdsft-reset time,
+.bdsft-reset mark,
+.bdsft-reset audio,
+.bdsft-reset video,
+.bdsft-reset button,
+.bdsft-reset textarea,
+.bdsft-reset input {
+  font-family: Open Sans, Arial, sans-serif;
+  font-size-adjust: none;
+  font-style: normal;
+  letter-spacing: normal;
+  font-stretch: normal;
+  font-variant: normal;
+  font-weight: normal;
+  text-align: left;
+  text-align-last: start;
+  text-decoration: none;
+  text-emphasis: none;
+  text-height: auto;
+  text-indent: 0;
+  text-justify: auto;
+  text-outline: none;
+  text-shadow: none;
+  text-transform: none;
+  text-wrap: normal;
+  alignment-adjust: auto;
+  alignment-baseline: baseline;
+  -webkit-animation: none 0 ease 0 1 normal;
+  -moz-animation: none 0 ease 0 1 normal;
+  -ms-animation: none 0 ease 0 1 normal;
+  animation: none 0 ease 0 1 normal;
+  -webkit-animation-play-state: running;
+  -moz-play-state: running;
+  -ms-animation-play-state: running;
+  animation-play-state: running;
+  appearance: normal;
+  azimuth: center;
+  backface-visibility: visible;
+  background: none 0 0 auto repeat scroll padding-box transparent;
+  background-color: transparent;
+  background-image: none;
+  baseline-shift: baseline;
+  binding: none;
+  bleed: 6pt;
+  bookmark-label: content();
+  bookmark-level: none;
+  bookmark-state: open;
+  bookmark-target: none;
+  border: 0 none transparent;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  bottom: auto;
+  box-align: stretch;
+  box-decoration-break: slice;
+  box-direction: normal;
+  box-flex: 0;
+  box-flex-group: 1;
+  box-lines: single;
+  box-ordinal-group: 1;
+  box-orient: inline-axis;
+  box-pack: start;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  break-after: auto;
+  break-before: auto;
+  break-inside: auto;
+  caption-side: top;
+  clear: none;
+  clip: auto;
+  color: inherit;
+  color-profile: auto;
+  -webkit-column-count: auto;
+  -webkit-column-fill: balance;
+  -webkit-column-gap: normal;
+  -webkit-column-rule: medium medium #1f1f1f;
+  -webkit-column-span: 1;
+  -webkit-column-width: auto;
+  -webkit-columns: auto auto;
+  -moz-column-count: auto;
+  -moz-column-fill: balance;
+  -moz-column-gap: normal;
+  -moz-column-rule: medium medium #1f1f1f;
+  -moz-column-span: 1;
+  -moz-column-width: auto;
+  -moz-columns: auto auto;
+  column-count: auto;
+  column-fill: balance;
+  column-gap: normal;
+  column-rule: medium medium #1f1f1f;
+  column-span: 1;
+  column-width: auto;
+  columns: auto auto;
+  content: normal;
+  counter-increment: none;
+  counter-reset: none;
+  crop: auto;
+  cursor: auto;
+  direction: ltr;
+  display: inline;
+  dominant-baseline: auto;
+  drop-initial-after-adjust: text-after-edge;
+  drop-initial-after-align: baseline;
+  drop-initial-before-adjust: text-before-edge;
+  drop-initial-before-align: caps-height;
+  drop-initial-size: auto;
+  drop-initial-value: initial;
+  elevation: level;
+  empty-cells: show;
+  fit: fill;
+  fit-position: 0% 0%;
+  float: none;
+  float-offset: 0 0;
+  grid-columns: none;
+  grid-rows: none;
+  hanging-punctuation: none;
+  height: auto;
+  hyphenate-after: auto;
+  hyphenate-before: auto;
+  hyphenate-character: auto;
+  hyphenate-lines: no-limit;
+  hyphenate-resource: none;
+  hyphens: manual;
+  icon: auto;
+  image-orientation: auto;
+  image-rendering: auto;
+  image-resolution: normal;
+  inline-box-align: last;
+  left: auto;
+  line-height: inherit;
+  line-stacking: inline-line-height exclude-ruby consider-shifts;
+  list-style: disc outside none;
+  margin: 0;
+  marks: none;
+  marquee-direction: forward;
+  marquee-loop: 1;
+  marquee-play-count: 1;
+  marquee-speed: normal;
+  marquee-style: scroll;
+  max-height: none;
+  max-width: none;
+  min-height: 0;
+  min-width: 0;
+  move-to: normal;
+  nav-down: auto;
+  nav-index: auto;
+  nav-left: auto;
+  nav-right: auto;
+  nav-up: auto;
+  opacity: 1;
+  orphans: 2;
+  outline: invert none medium;
+  outline-offset: 0;
+  overflow: visible;
+  overflow-style: auto;
+  padding: 0;
+  page: auto;
+  page-break-after: auto;
+  page-break-before: auto;
+  page-break-inside: auto;
+  page-policy: start;
+  perspective: none;
+  perspective-origin: 50% 50%;
+  position: static;
+  presentation-level: 0;
+  punctuation-trim: none;
+  quotes: none;
+  rendering-intent: auto;
+  resize: none;
+  right: auto;
+  rotation: 0;
+  rotation-point: 50% 50%;
+  ruby-align: auto;
+  ruby-overhang: none;
+  ruby-position: before;
+  ruby-span: none;
+  size: auto;
+  string-set: none;
+  table-layout: auto;
+  top: auto;
+  -webkit-transform: none;
+  -moz-transform: none;
+  transform: none;
+  -webkit-transform-origin: 50% 50%;
+  -moz-transform-origin: 50% 50%;
+  -o-transform-origin: 50% 50%;
+  transform-origin: 50% 50% 0;
+  transform-style: flat;
+  -webkit-transition: all 0 ease 0;
+  -moz-transition: all 0 ease 0;
+  -o-transition: all 0 ease 0;
+  transition: all 0 ease 0;
+  unicode-bidi: normal;
+  vertical-align: baseline;
+  white-space: normal;
+  white-space-collapse: collapse;
+  widows: 2;
+  width: auto;
+  word-break: normal;
+  word-spacing: normal;
+  word-wrap: normal;
+  z-index: auto;
+  text-align: start;
+}
+.bdsft-reset address,
+.bdsft-reset blockquote,
+.bdsft-reset dd,
+.bdsft-reset div,
+.bdsft-reset dl,
+.bdsft-reset dt,
+.bdsft-reset fieldset,
+.bdsft-reset form,
+.bdsft-reset div.form,
+.bdsft-reset frame,
+.bdsft-reset frameset,
+.bdsft-reset h1,
+.bdsft-reset h2,
+.bdsft-reset h3,
+.bdsft-reset h4,
+.bdsft-reset h5,
+.bdsft-reset h6,
+.bdsft-reset noframes,
+.bdsft-reset ol,
+.bdsft-reset p,
+.bdsft-reset ul,
+.bdsft-reset center,
+.bdsft-reset dir,
+.bdsft-reset hr,
+.bdsft-reset menu,
+.bdsft-reset pre,
+.bdsft-reset article,
+.bdsft-reset aside,
+.bdsft-reset canvas,
+.bdsft-reset details,
+.bdsft-reset figcaption,
+.bdsft-reset figure,
+.bdsft-reset footer,
+.bdsft-reset header,
+.bdsft-reset hgroup,
+.bdsft-reset nav,
+.bdsft-reset section,
+.bdsft-reset summary {
+  display: block;
+}
+.bdsft-reset li {
+  display: list-item;
+}
+.bdsft-reset table {
+  display: table;
+}
+.bdsft-reset tr {
+  display: table-row;
+}
+.bdsft-reset thead {
+  display: table-header-group;
+}
+.bdsft-reset tbody {
+  display: table-row-group;
+}
+.bdsft-reset tfoot {
+  display: table-footer-group;
+}
+.bdsft-reset col {
+  display: table-column;
+}
+.bdsft-reset colgroup {
+  display: table-column-group;
+}
+.bdsft-reset td,
+.bdsft-reset th {
+  display: table-cell;
+}
+.bdsft-reset caption {
+  display: table-caption;
+}
+.bdsft-reset input,
+.bdsft-reset select {
+  display: inline-block;
+}
+.bdsft-reset b,
+.bdsft-reset strong,
+.bdsft-reset strong > * {
+  font-weight: bold;
+}
+.bdsft-reset textarea,
+.bdsft-reset input {
+  cursor: text;
+}
+.bdsft-reset textarea .bdsft-reset textarea::-webkit-input-placeholder,
+.bdsft-reset input .bdsft-reset textarea::-webkit-input-placeholder,
+.bdsft-reset textarea .bdsft-reset input::-webkit-input-placeholder,
+.bdsft-reset input .bdsft-reset input::-webkit-input-placeholder {
+  background-color: inherit;
+  color: inherit;
+  font-family: Open Sans, Arial, sans-serif;
+  font-size-adjust: none;
+  font-size: 100%;
+  font-style: normal;
+  letter-spacing: normal;
+  font-stretch: normal;
+  font-variant: normal;
+  font-weight: normal;
+  font: normal normal 100% Open Sans, Arial, sans-serif;
+  text-align: left;
+  text-align-last: start;
+  text-decoration: none;
+  text-emphasis: none;
+  text-height: auto;
+  text-indent: 0;
+  text-justify: auto;
+  text-outline: none;
+  text-shadow: none;
+  text-transform: none;
+  text-wrap: normal;
+}
+.bdsft-reset textarea .bdsft-reset textarea:-moz-placeholder,
+.bdsft-reset input .bdsft-reset textarea:-moz-placeholder,
+.bdsft-reset textarea .bdsft-reset input:-moz-placeholder,
+.bdsft-reset input .bdsft-reset input:-moz-placeholder {
+  background-color: inherit;
+  color: inherit;
+  font-family: Open Sans, Arial, sans-serif;
+  font-size-adjust: none;
+  font-size: 100%;
+  font-style: normal;
+  letter-spacing: normal;
+  font-stretch: normal;
+  font-variant: normal;
+  font-weight: normal;
+  font: normal normal 100% Open Sans, Arial, sans-serif;
+  text-align: left;
+  text-align-last: start;
+  text-decoration: none;
+  text-emphasis: none;
+  text-height: auto;
+  text-indent: 0;
+  text-justify: auto;
+  text-outline: none;
+  text-shadow: none;
+  text-transform: none;
+  text-wrap: normal;
+}
+.bdsft-reset textarea .bdsft-reset textarea::-moz-placeholder,
+.bdsft-reset input .bdsft-reset textarea::-moz-placeholder,
+.bdsft-reset textarea .bdsft-reset input::-moz-placeholder,
+.bdsft-reset input .bdsft-reset input::-moz-placeholder {
+/* Firefox 18- */
+  background-color: inherit;
+  color: inherit;
+  font-family: Open Sans, Arial, sans-serif;
+  font-size-adjust: none;
+  font-size: 100%;
+  font-style: normal;
+  letter-spacing: normal;
+  font-stretch: normal;
+  font-variant: normal;
+  font-weight: normal;
+  font: normal normal 100% Open Sans, Arial, sans-serif;
+  text-align: left;
+  text-align-last: start;
+  text-decoration: none;
+  text-emphasis: none;
+  text-height: auto;
+  text-indent: 0;
+  text-justify: auto;
+  text-outline: none;
+  text-shadow: none;
+  text-transform: none;
+  text-wrap: normal;
+}
+.bdsft-reset textarea .bdsft-reset textarea:-ms-input-placeholder,
+.bdsft-reset input .bdsft-reset textarea:-ms-input-placeholder,
+.bdsft-reset textarea .bdsft-reset input:-ms-input-placeholder,
+.bdsft-reset input .bdsft-reset input:-ms-input-placeholder {
+/* Firefox 19+ */
+  background-color: inherit;
+  color: inherit;
+  font-family: Open Sans, Arial, sans-serif;
+  font-size-adjust: none;
+  font-size: 100%;
+  font-style: normal;
+  letter-spacing: normal;
+  font-stretch: normal;
+  font-variant: normal;
+  font-weight: normal;
+  font: normal normal 100% Open Sans, Arial, sans-serif;
+  text-align: left;
+  text-align-last: start;
+  text-decoration: none;
+  text-emphasis: none;
+  text-height: auto;
+  text-indent: 0;
+  text-justify: auto;
+  text-outline: none;
+  text-shadow: none;
+  text-transform: none;
+  text-wrap: normal;
+}
+.bdsft-reset input[type=checkbox],
+.bdsft-reset input[type=radio] {
+  cursor: default;
+}
+.bdsft-reset a,
+.bdsft-reset a *,
+.bdsft-reset a span,
+.bdsft-reset button,
+.bdsft-reset button *,
+.bdsft-reset button span,
+.bdsft-reset input[type=submit],
+.bdsft-reset input[type=reset] {
+  cursor: pointer;
+}
+.bdsft-reset a:link,
+.bdsft-reset a:visited,
+.bdsft-reset a:hover,
+.bdsft-reset a:active {
+  color: inherit;
+  background: transparent;
+  text-shadow: none;
+}
+.bdsft-reset button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+.bdsft-reset *[class^='bdsft-icon'] {
+  font-family: FontAwesome !important;
+}
 @font-face {
   font-family: 'Exario-Icon-Fonts';
   src: url("../fonts/Exario-Icon-Fonts.eot?") format("embedded-opentype");
@@ -369,10 +961,10 @@ body {
 .icon-call:hover:before {
   content: "\e00e";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-hangup:before {
   content: "\e00f";
   color: #f00;
@@ -397,10 +989,10 @@ body {
 .icon-fullScreenExpand:hover:before {
   content: "\e002";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-fullScreenContract:before {
   content: "\e003";
   color: #fff;
@@ -408,10 +1000,10 @@ body {
 .icon-fullScreenContract:hover:before {
   content: "\e003";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-selfViewDisable:before {
   content: "\e00a";
   color: #fff;
@@ -419,10 +1011,10 @@ body {
 .icon-selfViewDisable:hover:before {
   content: "\e00a";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-selfViewEnable:before {
   content: "\e00d";
   color: #fff;
@@ -430,10 +1022,10 @@ body {
 .icon-selfViewEnable:hover:before {
   content: "\e00d";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-muteAudio:before {
   content: "\e008";
   color: #fff;
@@ -441,10 +1033,10 @@ body {
 .icon-muteAudio:hover:before {
   content: "\e008";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-unmuteAudio:before {
   content: "\e009";
   color: #fff;
@@ -452,10 +1044,10 @@ body {
 .icon-unmuteAudio:hover:before {
   content: "\e009";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-dialpadShow:before {
   content: "\e010";
   color: #fff;
@@ -463,10 +1055,10 @@ body {
 .icon-dialpadShow:hover:before {
   content: "\e010";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-dialpadHide:before {
   content: "\e010";
   color: #fff;
@@ -474,10 +1066,10 @@ body {
 .icon-dialpadHide:hover:before {
   content: "\e010";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .quality1 {
   display: none;
   position: absolute;
@@ -539,10 +1131,10 @@ body {
 .icon-settings:hover:before {
   content: "\e00c";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-ok:before {
   content: "\e011";
   color: #0f0;
@@ -550,17 +1142,10 @@ body {
 .icon-ok:hover:before {
   content: "\e011";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
-#history {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 6px;
-  right: 60px;
-}
+      color: <%= iconHightlightColor %>;
 .icon-history:before {
   content: "\e012";
   color: #fff;
@@ -569,10 +1154,10 @@ body {
 .icon-history:hover:before {
   content: "\e012";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-trash:before {
   content: "\e013";
   color: #f00;
@@ -580,10 +1165,10 @@ body {
 .icon-trash:hover:before {
   content: "\e013";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-left:before {
   content: "\e000";
   color: #0f0;
@@ -591,10 +1176,10 @@ body {
 .icon-left:hover:before {
   content: "\e000";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-right:before {
   content: "\e001";
   color: #0f0;
@@ -602,10 +1187,10 @@ body {
 .icon-right:hover:before {
   content: "\e001";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-transfer:before {
   content: "\e014";
   color: #fff;
@@ -613,10 +1198,10 @@ body {
 .icon-transfer:hover:before {
   content: "\e014";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-hold:before {
   content: "\e015";
   color: #fff;
@@ -624,10 +1209,10 @@ body {
 .icon-hold:hover:before {
   content: "\e015";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-resume:before {
   content: "\e016";
   color: #fff;
@@ -635,10 +1220,10 @@ body {
 .icon-resume:hover:before {
   content: "\e016";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-screen-sharing:before {
   content: "\e604";
   color: #fff;
@@ -646,10 +1231,10 @@ body {
 .icon-screen-sharing:hover:before {
   content: "\e604";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .icon-screen-sharing-off:before {
   content: "\e605";
   color: #fff;
@@ -657,10 +1242,10 @@ body {
 .icon-screen-sharing-off:hover:before {
   content: "\e605";
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 }
 
-      color <%= iconHightlightColor %>
+      color: <%= iconHightlightColor %>;
 .button:active {
   color: #04aff0;
   background: -webkit-gradient(linear, left top, right bottom, from(#7cdd07), to(#faa51a));
@@ -981,99 +1566,20 @@ body {
   text-align: center;
   font-family: arial;
   font-size: 16px;
-
-  color <%= timerColor %>
   top: 11px;
 }
 
-  color <%= timerColor %>
+.timer {
+  color: <%= timerColor %>;
+}
 
-  color <%= infoMessageColor %>
+  color: <%= infoMessageColor %>;
 
-  color <%= successMessageColor %>
+  color: <%= successMessageColor %>;
 
-  color <%= successMessageColor %>
+  color: <%= successMessageColor %>;
 
-  color <%= alertMessageColor %>
-.callHistory {
-  display: none;
-  position: absolute;
-  top: 88px;
-  left: 378px;
-  width: 265px;
-  height: 420px;
-  background-color: #191414;
-  border-radius: 4px;
-  border: 2px solid #ddd;
-  box-shadow: 0px 0px 10px #999;
-  width: 200px;
-  height: 258px;
-  right: auto;
-  left: 200px;
-  bottom: 40px;
-  top: auto;
-  background: #292929;
-  border: 1px solid #3c3c3c;
-  overflow: hidden;
-  padding: 0;
-}
-.callHistory .hist-date {
-  position: absolute;
-  color: #0082ff;
-  left: 20px;
-  font-family: arial;
-  font-size: 10px;
-  position: absolute;
-  color: #b3b3b3;
-  left: 26px;
-  font-family: arial;
-  font-size: 10px;
-  top: 29px;
-}
-.callHistory .hist-length {
-  position: absolute;
-  color: #0082ff;
-  left: 205px;
-  font-family: arial;
-  font-size: 10px;
-  position: absolute;
-  color: #b3b3b3;
-  left: 104px;
-  font-family: arial;
-  font-size: 10px;
-  top: 29px;
-}
-.callHistory .rowSpace {
-  padding: 0.5em;
-}
-.callHistory .actions {
-  margin-top: 11px;
-  margin-top: 12px;
-}
-.callHistory .content {
-  padding: 16px 0 10px 0;
-  height: 68%;
-  width: 200px;
-  margin-bottom: 10px;
-  overflow-x: hidden;
-}
-.callHistory .hist-direction {
-  position: absolute;
-  color: #3da005;
-  left: 3px;
-  font-family: arial;
-  font-size: 18px;
-  top: 6px;
-}
-.callHistory .hist-destination {
-  position: absolute;
-  color: #b3b3b3;
-  left: 25px;
-  font-family: arial;
-  font-size: 18px;
-  text-decoration: none;
-  top: 6px;
-}
+  color: <%= alertMessageColor %>;
 .callStats {
   display: none;
   position: absolute;
@@ -1297,56 +1803,6 @@ body {
 }
 .historyRowSample {
   display: none;
-}
-.callHistoryDetails {
-  width: 150px;
-  height: 190px;
-  background: #fff;
-  width: 194px;
-  height: auto;
-  border: none;
-  clear: both;
-  top: 0;
-  bottom: -1;
-  left: 201px;
-  right: auto;
-  box-shadow: none;
-  border-radius: 0;
-  background: #292929;
-  border: 1px solid #3c3c3c;
-  border-top: none;
-}
-.callHistoryDetails .table {
-  font-size: 13px;
-  padding-left: 8px;
-}
-.historyDetailsClose {
-  text-align: right;
-  margin-top: 10px;
-  text-align: right;
-  margin-top: 10px;
-  display: inline-block !important;
-  height: 26px;
-  margin-top: 0;
-}
-.historyDetailsClose .icon-ok {
-  margin: 0px;
-}
-.historyDetailsClose a {
-  text-decoration: none;
-  outline-color: rgba(0,0,0,0);
-  color: #aaa;
-  font-size: 18px;
-}
-.history-row {
-  cursor: pointer;
-  position: relative;
-}
-.history-row .row {
-  display: block;
-  margin: 0;
-  position: relative;
-  height: 46px;
 }
 .callLink {
   text-align: left;
@@ -1640,7 +2096,7 @@ body {
   cursor: pointer;
 }
 
-  color <%= iconHightlightColor %>
+  color: <%= iconHightlightColor %>;
 .settingsPopup input,
 .settingsPopup select {
   margin-left: 14px;
@@ -1675,7 +2131,6 @@ body {
   text-align: center;
   width: 100%;
 }
-.callHistory,
 .callStats {
   background-color: #292929;
   border-radius: 0;
@@ -1684,10 +2139,6 @@ body {
   color: #999;
   z-index: 200;
   padding: 10px;
-}
-.callHistory .content,
-.callHistory .callHistoryDetails {
-  overflow: auto;
 }
 .stats-container {
   margin-bottom: 18px;
@@ -1731,19 +2182,6 @@ body {
   padding-left: 5px;
   font-weight: 400;
 }
-.hist-direction .icon-arrow-down-thick {
-  color: #e9651d;
-}
-.history-row:hover,
-.history-row.active {
-  background: #353535;
-}
-.hist-details-arrow {
-  position: absolute;
-  right: 8px;
-  font-size: 16px;
-  top: 14px;
-}
 .default-color {
   color: #2ba6cb;
 }
@@ -1775,9 +2213,6 @@ ul.tabs {
 .tabs a.active {
   background: #04aff0;
   color: #fff;
-}
-#history-dt-close-container {
-  text-align: right;
 }
 .cell-selfView,
 .settings {
@@ -1929,6 +2364,118 @@ ul.tabs {
   font-size: 30px;
   vertical-align: middle;
 }
+.incomingCallName,
+.incomingCallUser {
+  display: block;
+  margin-left: 10px;
+  margin-bottom: 18px;
+}
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  background-color: #999;
+  opacity: 0.5;
+}
+.callHistory {
+  display: none;
+  position: absolute;
+  width: 200px;
+  height: 258px;
+  right: auto;
+  left: 200px;
+  bottom: 40px;
+  top: auto;
+  background: #292929;
+  overflow: hidden;
+  background-color: #292929;
+  border-radius: 0;
+  border: 1px solid #3c3c3c;
+  box-shadow: none;
+  color: #999;
+  z-index: 200;
+  padding: 0;
+}
+.callHistory .rowSpace {
+  padding: 0.5em;
+}
+.callHistory .actions {
+  margin-top: 12px;
+}
+.callHistory .content {
+  padding: 16px 0 10px 0;
+  height: 68%;
+  width: 200px;
+  overflow: auto;
+  margin-bottom: 10px;
+}
+.history-row:hover,
+.history-row.active {
+  background: #353535;
+}
+.history-row {
+  cursor: pointer;
+}
+position relative .row {
+  display: block;
+  margin: 0;
+  position: relative;
+  height: 46px;
+}
+position relative .row .hist-direction {
+  position: absolute;
+  color: #3da005;
+  left: 3px;
+  font-family: arial;
+  font-size: 18px;
+  top: 6px;
+}
+position relative .row .hist-direction .icon-arrow-down-thick {
+  color: #e9651d;
+}
+position relative .row .hist-destination {
+  position: absolute;
+  color: #b3b3b3;
+  left: 25px;
+  font-family: arial;
+  font-size: 18px;
+  text-decoration: none;
+  top: 6px;
+}
+position relative .row .hist-date {
+  position: absolute;
+  color: #0082ff;
+  left: 20px;
+  font-family: arial;
+  font-size: 10px;
+  position: absolute;
+  color: #b3b3b3;
+  left: 26px;
+  font-family: arial;
+  font-size: 10px;
+  top: 29px;
+}
+position relative .row .hist-length {
+  position: absolute;
+  color: #0082ff;
+  left: 205px;
+  font-family: arial;
+  font-size: 10px;
+  position: absolute;
+  color: #b3b3b3;
+  left: 104px;
+  font-family: arial;
+  font-size: 10px;
+  top: 29px;
+}
+.hist-details-arrow {
+  position: absolute;
+  right: 8px;
+  font-size: 16px;
+  top: 14px;
+}
+.classHistoryActions {
+  padding-top: 2px;
+}
 .historyClear a {
   text-decoration: none;
   color: #fff;
@@ -1942,9 +2489,6 @@ ul.tabs {
 .historyClear a:hover {
   background: #4e4e4e;
 }
-.classHistoryActions {
-  padding-top: 2px;
-}
 .historyClose a {
   color: #04aff0;
   font-size: 14px;
@@ -1955,15 +2499,44 @@ ul.tabs {
 .historyClose a:hover {
   color: #017ead;
 }
-.incomingCallName,
-.incomingCallUser {
-  display: block;
-  margin-left: 10px;
-  margin-bottom: 18px;
+.callHistoryDetails {
+  background: #fff;
+  width: 194px;
+  height: auto;
+  border: none;
+  clear: both;
+  top: 0;
+  bottom: -1;
+  left: 201px;
+  right: auto;
+  box-shadow: none;
+  border-radius: 0;
+  background: #292929;
+  border: 1px solid #3c3c3c;
+  border-top: none;
+  overflow: auto;
 }
-a.disabled {
-  pointer-events: none;
-  cursor: default;
-  background-color: #999;
-  opacity: 0.5;
+.callHistoryDetails .historyDetailsClose {
+  text-align: right;
+  margin-top: 10px;
+  text-align: right;
+  margin-top: 10px;
+  display: inline-block !important;
+  height: 26px;
+  margin-top: 0;
+}
+.callHistoryDetails .historyDetailsClose .icon-ok {
+  margin: 0px;
+}
+.callHistoryDetails .historyDetailsClose a {
+  text-decoration: none;
+  outline-color: rgba(0,0,0,0);
+  color: #aaa;
+  font-size: 18px;
+}
+.callHistoryDetails .table {
+  font-size: 13px;
+}
+.callHistoryDetails .table padding-left 8px #history-dt-close-container {
+  text-align: right;
 }

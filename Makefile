@@ -1,21 +1,23 @@
 SHELL := /bin/bash
 PATH := node_modules/.bin:$(PATH)
 
-JS_FILES := $(shell glob-cli "lib/**/*.js")
+JS_FILES := $(shell glob-cli "src/**/*.js")
 JADE_FILES := $(shell glob-cli "templates/**/*.jade")
 STYLUS_FILES := $(shell glob-cli "styles/**/*.styl")
 
 
 all: build
 
-build: dist/webrtc.js
+build: dist/webrtc-bundle.js
 
 
 
 ## Build browserified files #######################################################
 TRANSFORMS := -t brfs
 
-### Without script tag loader
+dist/webrtc-bundle.js: dist/webrtc.js
+	uglifyjs js/3rdparty.js $< > $@
+
 dist/webrtc.js: dist/webrtc.dev.js
 	uglifyjs $< > $@
 

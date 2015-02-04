@@ -1,0 +1,269 @@
+.videoBar
+  display none
+  position relative
+  top 0px
+  left 0px
+  width 100%
+  height 40px
+  background black
+  background-image -ms-linear-gradient(center top , #404040, #000000)
+  background-image linear-gradient(to bottom, #404040, #000000)
+  background-image -webkit-linear-gradient(#404040, #000000)
+  background-image -moz-linear-gradient(top, #404040, #000000)
+  border-radius 4px
+  border 2px solid #DDDDDD
+  box-shadow 0px 0px 10px #000000
+  margin-top 5px
+  background-image none
+  border-radius 0px
+  border none
+  box-shadow none
+  margin-top 0px
+  background #292929
+  border-top 1px solid #3c3c3c
+  .icon
+    display none
+    z-index 10
+    margin 0px 2.5px
+    position absolute
+  .table
+    height 100%
+    margin 6px
+    margin 0
+  .cell
+    position relative
+    top 0px
+    left 0px
+    width 35px
+    width 36px
+    .icon
+      width 100%
+      text-align center
+      margin-top 10px
+      margin-right 0
+      margin-left 0
+      a
+        margin 0
+    &:first-child
+      padding 0
+  span
+    color grey
+  .unmuteAudio
+    margin-top -1px
+  .leftSpacer
+    width 8px
+  .cell-hangup
+    width 42px
+  .subtitle
+    display none
+  .cell-timer
+    position relative
+    top 0
+    left 0
+    width auto
+  .rightSpacer
+    width 8px
+
+.full-screen-expanded
+  .videoBar
+    top auto !important
+    bottom 0px
+    position absolute
+    
+.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link.exario, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1.exario, .icon-quality2.exario, .icon-quality3.exario, .icon-quality4.exario, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume, .icon-screen-sharing, .icon-screen-sharing-off
+  font-family 'Exario-Icon-Fonts'
+  speak none
+  text-decoration none
+  margin 0 0.35em 0 0
+  font-size 25px
+
+.icon-link.exario, .icon-quality1.exario, .icon-quality2.exario, .icon-quality3.exario, .icon-quality4.exario
+  font-family 'Exario-Icon-Fonts' !important
+  font-size 20px !important
+
+.call
+  display none
+  position absolute
+  z-index 10
+  top 25px
+  left 265px
+  display block
+  position static
+  top auto
+  left auto
+
+.icon-call
+  &:before
+    content "\e00e"
+    color #3B9E3B
+  &:hover
+    &:before
+      content "\e00e"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.icon-hangup
+  &:before
+    content "\e00f"
+    color #FF0000
+  &:hover
+    &:before
+      content "\e00f"
+      color #FF0000
+
+.hangup, .fullScreen, .selfView, .muteAudioIcon, .dialpadIcon, .messages
+  top 0
+  left 0
+
+.icon-fullScreenExpand
+  &:before
+    content "\e002"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e002"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.icon-fullScreenContract
+  &:before
+    content "\e003"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e003"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.icon-selfViewDisable
+  &:before
+    content "\e00a"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e00a"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.icon-selfViewEnable
+  &:before
+    content "\e00d"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e00d"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.icon-muteAudio
+  &:before
+    content "\e008"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e008"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.icon-unmuteAudio
+  &:before
+    content "\e009"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e009"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.icon-dialpadShow
+  &:before
+    content "\e010"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e010"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.icon-dialpadHide
+  &:before
+    content "\e010"
+    color #FFFFFF
+  &:hover
+    &:before
+      content "\e010"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+#videoBar
+  #settings
+    width auto
+    background-color transparent
+
+.icon-settings
+  &:before
+    content "\e00c"
+    color #FFFFFF
+    opacity .4
+    opacity 1
+  &:hover
+    &:before
+      content "\e00c"
+      @css {
+        color: <%= iconHightlightColor %>;        
+      }
+
+.view-audioOnly .videoBar
+  display inline-block
+  width auto        
+  
+.view-audioOnly
+  .videoBar
+    .table
+      table-layout auto
+      width auto
+  .cell-hangup
+    width 35px !important
+  .timer
+    position relative
+    margin-right 10px  
+    
+.view-conference
+  .cell-hangup
+    width 30px !important
+    top 2px
+  .videoBar
+    .cell
+      .hangup
+        margin-top 0
+        width 140px
+        background-color red
+        border-radius 5px
+        margin-left 10px
+        height 36px
+        line-height 14px
+  .hangup
+    .subtitle
+      display block !important
+      font-size 14px
+      color white
+
+.view-conference .icon-hangup:before, .view-conference .icon-hangup:hover:before
+  color white !important
+
+.view-conference .selfViewDisable, .view-conference .selfViewEnable
+  text-align right !important
+
+.view-conference .fullScreenExpand, .view-conference .fullScreenContract
+  text-align left !important
+
+    

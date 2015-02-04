@@ -34,6 +34,7 @@ var Icon = require('./Icon');
 var WebRTC_C = require('./Constants');
 var Utils = require('./Utils');
 var ExSIP = require('exsip');
+var ClientConfig = require('../js/client-config.js.default');
 
 function Client(config, element) {
   this.config = config;
@@ -82,13 +83,7 @@ Client.prototype = {
     this.screenSharingUnsupported = this.client.find(".screen_sharing_unsupported");
 
 
-    if (!this.config && typeof(ClientConfig) === 'undefined') {
-      $('#unsupported').text("Could not read ClientConfig - make sure it is included and properly formatted");
-      $('#unsupported').show();
-      return;
-    }
-
-    this.config = this.config || Utils.clone(window.ClientConfig);
+    this.config = this.config || Utils.clone(ClientConfig);
     this.configuration = new Configuration(this.config);
     this.sipStack = new SIPStack(this.configuration);
     this.sound = new Sound(this.sipStack, this.configuration);
