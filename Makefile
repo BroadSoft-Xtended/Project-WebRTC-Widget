@@ -34,7 +34,7 @@ styles/bundle.min.css: styles/main.css
 # 	scripts/importantize-css styles/main.css styles/bundle.css
 
 styles/main.css: $(STYLUS_FILES)
-	stylus --include-css -u stylus-font-face styles/main.styl -o styles
+	stylus --include-css -u stylus-font-face --with {limit:20000} styles/main.styl -o styles
 
 ## Compile jade templates #########################################################
 js/templates.js: $(JADE_FILES)
