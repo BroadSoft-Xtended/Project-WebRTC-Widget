@@ -1,0 +1,31 @@
+.messages
+  position absolute
+  font-family arial
+  text-align left
+  width auto
+  font-size 12px
+  bottom auto
+  top 10px
+  left 10px
+
+.view-audioOnly
+  .messages
+    left 10px !important
+    top 48px !important
+    font-weight bold
+    font-size 14px
+
+@css {
+	.normal {
+	  color: <%= infoMessageColor %>;        
+	}
+	.success {
+	  color: <%= successMessageColor %>;        
+	}
+	.warning {
+	  color: <%= successMessageColor %>;        
+	}
+	.alert {
+	  color: <%= alertMessageColor %>;        
+	}
+}

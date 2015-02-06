@@ -22,7 +22,6 @@
   background #292929
   border-top 1px solid #3c3c3c
   .icon
-    display none
     z-index 10
     margin 0px 2.5px
     position absolute
@@ -70,157 +69,14 @@
     bottom 0px
     position absolute
     
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link.exario, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1.exario, .icon-quality2.exario, .icon-quality3.exario, .icon-quality4.exario, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume, .icon-screen-sharing, .icon-screen-sharing-off
-  font-family 'Exario-Icon-Fonts'
-  speak none
-  text-decoration none
-  margin 0 0.35em 0 0
-  font-size 25px
-
-.icon-link.exario, .icon-quality1.exario, .icon-quality2.exario, .icon-quality3.exario, .icon-quality4.exario
-  font-family 'Exario-Icon-Fonts' !important
-  font-size 20px !important
-
-.call
-  display none
-  position absolute
-  z-index 10
-  top 25px
-  left 265px
-  display block
-  position static
-  top auto
-  left auto
-
-.icon-call
-  &:before
-    content "\e00e"
-    color #3B9E3B
-  &:hover
-    &:before
-      content "\e00e"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
-
-.icon-hangup
-  &:before
-    content "\e00f"
-    color #FF0000
-  &:hover
-    &:before
-      content "\e00f"
-      color #FF0000
-
 .hangup, .fullScreen, .selfView, .muteAudioIcon, .dialpadIcon, .messages
   top 0
   left 0
-
-.icon-fullScreenExpand
-  &:before
-    content "\e002"
-    color #FFFFFF
-  &:hover
-    &:before
-      content "\e002"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
-
-.icon-fullScreenContract
-  &:before
-    content "\e003"
-    color #FFFFFF
-  &:hover
-    &:before
-      content "\e003"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
-
-.icon-selfViewDisable
-  &:before
-    content "\e00a"
-    color #FFFFFF
-  &:hover
-    &:before
-      content "\e00a"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
-
-.icon-selfViewEnable
-  &:before
-    content "\e00d"
-    color #FFFFFF
-  &:hover
-    &:before
-      content "\e00d"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
-
-.icon-muteAudio
-  &:before
-    content "\e008"
-    color #FFFFFF
-  &:hover
-    &:before
-      content "\e008"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
-
-.icon-unmuteAudio
-  &:before
-    content "\e009"
-    color #FFFFFF
-  &:hover
-    &:before
-      content "\e009"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
-
-.icon-dialpadShow
-  &:before
-    content "\e010"
-    color #FFFFFF
-  &:hover
-    &:before
-      content "\e010"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
-
-.icon-dialpadHide
-  &:before
-    content "\e010"
-    color #FFFFFF
-  &:hover
-    &:before
-      content "\e010"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
 
 #videoBar
   #settings
     width auto
     background-color transparent
-
-.icon-settings
-  &:before
-    content "\e00c"
-    color #FFFFFF
-    opacity .4
-    opacity 1
-  &:hover
-    &:before
-      content "\e00c"
-      @css {
-        color: <%= iconHightlightColor %>;        
-      }
 
 .view-audioOnly .videoBar
   display inline-block
@@ -233,9 +89,6 @@
       width auto
   .cell-hangup
     width 35px !important
-  .timer
-    position relative
-    margin-right 10px  
     
 .view-conference
   .cell-hangup
@@ -257,13 +110,11 @@
       font-size 14px
       color white
 
-.view-conference .icon-hangup:before, .view-conference .icon-hangup:hover:before
-  color white !important
+      
+.videoBar .icon, .videoBar a
+  font-size 20px
+  color grey
+  text-decoration none
 
-.view-conference .selfViewDisable, .view-conference .selfViewEnable
-  text-align right !important
-
-.view-conference .fullScreenExpand, .view-conference .fullScreenContract
-  text-align left !important
-
-    
+.videoBar .hold, .videoBar .resume
+  margin-top -1px
