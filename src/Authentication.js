@@ -1,18 +1,27 @@
-module.exports = Authentication;
+module.exports = require('./factory')(Authentication)
 
-var events = require('./EventBus');
+var events;
+var templates = require('../js/templates');
+var $ = require('jquery');
 
-function Authentication(element, options) {
-  this.popup = element;
-  this.okButton = this.popup.find('.authPopupButton');
-  this.userIdInput = this.popup.find('input.userid');
-  this.authUserIdInput = this.popup.find('input.authUserid');
-  this.passwordInput = this.popup.find('input.password');
-  this.alert = this.popup.find('.alert');
+function Authentication(options) {
+  options = options || {};
+  events = require('./eventbus')(options);
+  var settings = require('./settings')(options);
+
+  this.popup = $(options.view || templates.authentication());
+  this.okButton = this.popup.find(options.okEl || '.authPopupButton');
+  this.userIdInput = this.popup.find(options.useridEl || 'input.userid');
+  this.authUserIdInput = this.popup.find(options.authUseridEl || 'input.authUserid');
+  this.passwordInput = this.popup.find(options.passwordEl || 'input.password');
+  this.alert = this.popup.find(options.alertEl || '.alert');
+
+  this.settingsUserId = options.settingsUserId || settings.userId;
+  this.settingsAuthenticationUserId = options.authenticationUserId || settings.authenticationUserId;
+  this.settingsPassword = options.settingsPassword || settings.password;
+  this.configurationRegister = options.configurationRegister || configuration.register;
 
   this.visible = false;
-  this.options = options || {};
-
   this.registerListeners();
 }
 
@@ -22,7 +31,7 @@ Authentication.prototype = {
 
     events.on("registrationFailed", function(e) {
       var statusCode = e.data.response.status_code;
-      if ((statusCode === 403 && self.options.settingsUserId() && !self.options.settingsPassword()) || self.options.configurationRegister) {
+      if ((statusCode === 403 && self.settingsUserId && !self.settingsPassword()) || self.configurationRegister) {
         self.setVisible(true);
       }
     });
@@ -34,24 +43,19 @@ Authentication.prototype = {
         return;
       }
       var authUserId = self.authUserIdInput.val();
-      //        if (!authUserId)
-      //        {
-      //          self.alert.text("Invalid Auth User ID").fadeIn(10).fadeOut(4000);
-      //          return;
-      //        }
       var password = self.passwordInput.val();
       self.setVisible(false);
-      self.options.onAuthenticate({
+      events.emit('authenticate', {
         userId: userId,
         authenticationUserId: authUserId,
         password: password
-      });
+      })
       events.once("registered", function() {
-        if (authUserId && self.options.settingsUserId() !== authUserId) {
-          self.options.settingsAuthenticationUserId(authUserId);
+        if (authUserId && self.settingsUserId() !== authUserId) {
+          self.settingsAuthenticationUserId(authUserId);
         }
-        self.options.settingsUserId(userId);
-        self.options.settingsPassword(password);
+        self.settingsUserId(userId);
+        self.settingsPassword(password);
       });
     });
 
@@ -69,8 +73,8 @@ Authentication.prototype = {
   setVisible: function(visible) {
     this.visible = visible;
 
-    this.authUserIdInput.val(this.options.settingsAuthenticationUserId());
-    this.userIdInput.val(this.options.settingsUserId());
+    this.authUserIdInput.val(this.settingsAuthenticationUserId());
+    this.userIdInput.val(this.settingsUserId());
 
     events.emit('viewChanged');
   }

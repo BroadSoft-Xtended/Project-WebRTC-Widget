@@ -1,0 +1,95 @@
+.settingsPopup.table.collapse.fixed.fadeable.popup
+  .row
+    ul.tabs
+      li
+        a(href='#tab1')
+          span.icon-cog
+          | Configure
+      li
+        a(href='#tab2')
+          span.icon-th
+          | Layout
+    #tab1
+      .settingDisplayNameRow.row
+        span.cell Display Name
+        input.settingDisplayName.cell(type='text', value='')
+      .settingAuthenticationUseridRow.row
+        span.cell Auth User ID
+        input.settingAuthenticationUserid.cell(type='text', value='')
+      .settingUseridRow.row
+        span.cell User ID
+        input.settingUserid.cell(type='text', value='')
+      .settingPasswordRow.row
+        span.cell Password
+        input.settingPassword.cell(type='password', value='')
+      .settingHDRow.row
+        span.cell Start in HD
+        input.settingHD.cell(type='checkbox')
+        br
+      .settingAutoAnswerRow.row
+        span.cell Auto Answer
+        input.settingAutoAnswer.cell(type='checkbox')
+      .settingBandwidthRow.row
+        span.cell Bandwidth
+        span.cell
+          input.settingBandwidthLow.short(type='text', maxlength='4', value='', placeholder='low')
+          input.settingBandwidthMed.short(type='text', maxlength='4', value='', placeholder='medium')
+          input.settingBandwidthHigh.short(type='text', maxlength='4', value='', placeholder='high')
+      .row
+        span.cell
+          a.btn.sign-in(href='', title='Sign In') Sign In
+          a.btn.sign-out(href='', title='Sign Out') Sign Out
+    #tab2
+      .settingSelfViewDisableRow.row
+        span.cell Disable Self View
+        input.settingSelfViewDisable.cell(type='checkbox')
+      //
+        <div class="row">
+        <span class="cell">Window Zoom</span>
+        <input class="settingZoom cell short" type="text" maxlength="4" value=""/>
+        </div>
+        <div class="row">
+        <span class="cell">Self View Window</span>
+        <span class="cell">
+        <input class="settingLocalVideoTop short" type="text" maxlength="4" value=""/><span> top </span>
+        <input class="settingLocalVideoLeft short" type="text" maxlength="4" value=""/><span> left </span>
+        </span>
+        </div>
+        <div class="row">
+        <span class="cell">Call History Window</span>
+        <span class="cell">
+        <input class="settingCallHistoryTop short" type="text" maxlength="4" value=""/><span> top </span>
+        <input class="settingCallHistoryLeft short" type="text" maxlength="4" value=""/><span> left </span>
+        </span>
+        </div>
+        <div class="row">
+        <span class="cell">Call Stats Window</span>
+        <span class="cell">
+        <input class="settingCallStatsTop short" type="text" maxlength="4" value=""/><span> top </span>
+        <input class="settingCallStatsLeft short" type="text" maxlength="4" value=""/><span> left </span>
+        </span>
+        </div>
+        <div class="row">
+        <span class="cell">Page Color</span>
+        <input class="settingColor cell" type="color" /><br>
+        </div>
+      .settingResolutionRow
+        // <span class="cell">Resolution</span>
+        .row
+          span.settingResolutionTypeRow.cell Mode
+          select.resolutionTypeSelect.cell
+        .row
+          span.settingResolutionDisplayRow.cell Resolution
+          span.cell
+            select.resolutionDisplayStandardSelect.resolutionSubType
+            select.resolutionDisplayWidescreenSelect.resolutionSubType
+        .row
+          span.settingResolutionEncodingRow.cell Encoding
+          span.cell
+            select.resolutionEncodingStandardSelect.resolutionSubType
+            select.resolutionEncodingWidescreenSelect.resolutionSubType
+      .row
+        span.cell
+          a.btn.saveSettings(href='', title='Save Settings') Save Settings
+          a.clear(href='', title='Reset Settings') Reset Settings
+

@@ -1,18 +1,7 @@
 .settingsPopup
   display none
-  background #333333
   padding 2px
-  border 2px solid #DDDDDD
   position absolute
-  top 5px
-  left 5px
-  overflow-x hidden
-  overflow-y scroll
-  width 435
-  height 180
-  box-shadow 0px 0px 10px #999999
-  border-radius 3px
-  font-size 20px
   line-height 28px
   z-index 99
   border 1px solid #3c3c3c
@@ -46,7 +35,7 @@
     font-size 13px
     margin-left 14px
   select
-  	margin-left 14px  
+    margin-left 14px
   .tabs
     span
       margin-right 5px
@@ -72,31 +61,31 @@
     &:hover
       color #017EAD
   .saveSettings
- 	  display inline-block
-	.resolutionSubType
-	  display none
+    display inline-block
+  .resolutionSubType
+    display none
   .tabs
     width 250px
     padding-left 0
-	  li
-	    list-style none
-	    display inline
-	  a
-	    padding 5px 10px
-	    display inline-block
-	    background #494949
-	    color #fff
-	    text-decoration none
-	    &.active
-	      background #04AFF0
-	      color #fff
+    li
+      list-style none
+      display inline
+    a
+      padding 5px 10px
+      display inline-block
+      background #494949
+      color #fff
+      text-decoration none
+      &.active
+        background #04AFF0
+        color #fff
   .tabs ~div p, .tabs ~div h3
-	  margin-bottom 15px
-	  color #999
-	  font-size 14px
-	.tabs & ~ div
-	    padding 10px
-	    margin-bottom 10px
+    margin-bottom 15px
+    color #999
+    font-size 14px
+  .tabs & ~ div
+      padding 10px
+      margin-bottom 10px
 
 .enable-mute.unmuted.started .muteAudioIcon,
 .enable-mute.muted.started .unmuteAudioIcon,
@@ -116,13 +105,13 @@
 .enable-screen-sharing.screen-sharing .stopShareScreen,
 .enable-file-share.started .file_share,
 .enable-settings .settings
-	{fadeIn}
-	
+  {fadeIn}
+
 .enable-transfer.started.transfer-visible .transferPopup,
 .enable-dialpad.dialpad-shown .dialpad,
 .enable-settings.settings-shown .settingsPopup
   {fadeInPopup}
-  
+
 .enable-screen-sharing.screen-sharing .shareScreen, .enable-screen-sharing.screen-sharing-off .stopShareScreen,
 .enable-mute.connected .muteAudioIcon, .enable-mute.disconnected .muteAudioIcon,
 .enable-mute.connected .unmuteAudioIcon, .enable-mute.disconnected .unmuteAudioIcon,
@@ -141,7 +130,7 @@
   {fadeOut}
   
 .enable-file-share .fileshare-container
-    display table
+  display table
 
 .settings
   margin-top 12px !important
@@ -149,7 +138,7 @@
     margin 0
     font-size 18px
     color #FFF
-    
+
 .client:not(.enable-mute) .cell-muteAudio,
 .client:not(.enable-transfer) .cell-transfer,
 .client:not(.enable-hold) .cell-hold,

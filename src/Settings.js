@@ -1,9 +1,8 @@
+
 module.exports = Settings;
 
-var events = require('./EventBus');
-var debug = require('debug')('settings');
-var debugerror = require('debug')('settings:ERROR');
-debugerror.log = console.warn.bind(console);
+var debug = function(msg){ require('./debug')('sipstack')(msg); }
+var events = require('./eventbus');
 var WebRTC_C = require('./Constants');
 var Utils = require('./Utils');
 
@@ -424,7 +423,7 @@ Settings.prototype = {
       this.resolutionType.val(WebRTC_C.WIDESCREEN);
       resolutionWidescreen.val(resolution);
     } else {
-      debugerror('no resolution type for ' + resolution);
+      debug('no resolution type for ' + resolution);
     }
     this.updateResolutionSelectVisibility();
   },

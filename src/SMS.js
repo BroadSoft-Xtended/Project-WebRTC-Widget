@@ -1,7 +1,7 @@
 module.exports = SMS;
 
-var events = require('./EventBus');
-var debug = require('debug')('sms');
+var events = require('./eventbus');
+var debug = function(msg){ require('./debug')('sms')(msg); }
 var SMSProvider = require('./SMSProvider');
 var DateFormat = require('./DateFormat');
 var Utils = require('./Utils');

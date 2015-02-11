@@ -9,8 +9,8 @@ var C = {
 
 FileShare.C = C;
 
-var events = require('./EventBus');
-var debug = require('debug')('fileshare');
+var events = require('./eventbus');
+var debug = function(msg){ require('./debug')('fileshare')(msg); }
 var Utils = require('./Utils');
 
 function FileShare(element, sipStack) {

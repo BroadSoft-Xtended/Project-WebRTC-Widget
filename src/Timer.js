@@ -1,6 +1,8 @@
 module.exports = Timer;
 
-var debug = require('debug')('timer');
+var debug = function(msg){
+  require('./debug')('timer')(msg);
+}
 var Utils = require('./Utils');
 
 function Timer(client, stats, configuration) {

@@ -1,10 +1,11 @@
-var Client = require('./Client');
-var Utils = require('./Utils');
+var Client = require('./client');
+var ExSIP = require('exsip');
+var Utils = require('./utils');
 var ClientConfig = require('../js/client-config.js.default');
 var WebRTC = {
   Client: Client,
   Utils: Utils,
-  Sound: require('./Sound')
+  Sound: require('./sound')
 };
 
 module.exports = WebRTC;
@@ -74,35 +75,29 @@ $.cssHooks.backgroundColor = {
   }
 };
 
+var currentScript = $('script').last();
 $(document).ready(function() {
-  var nodes = $("script[src*='webrtc-bundle']");
-  if (nodes.length === 0) {
-    console.error('no <script> with webrtc-bundle.js found');
-    return;
-  }
-
   window.BroadSoftWebRTC = window.BroadSoftWebRTC || {};
   window.BroadSoftWebRTC.clients = [];
 
-  $.each(nodes, function(i, node) {
-    node = $(node);
-    if (!node.text()) {
-      return;
-    }
-    var configData = JSON.parse(node.text());
-    console.log("script config : ", configData);
-    var clientConfig = Utils.clone(ClientConfig);
-    var config = $.extend({}, clientConfig, configData);
-    console.log("merged config : ", config);
-    var client = new Client(config, node.parent());
-    var styleData = node.data();
-    if (styleData) {
-      client.updateCss(styleData);
-    }
-    client.src = node[0].src;
-    node.remove();
-    window.BroadSoftWebRTC.clients.push(client);
-  });
+  if (!currentScript.text()) {
+    return;
+  }
+  var configData = JSON.parse(currentScript.text());
+  console.log("script config : ", configData);
+  var clientConfig = Utils.clone(ClientConfig);
+  var options = $.extend({}, clientConfig, configData);
+  console.log("options : ", options);
+  options.id = options.id || Utils.rstring();
+  options.parent = currentScript.parent();
+  var client = new Client(options);
+  var styleData = currentScript.data();
+  if (styleData) {
+    client.updateCss(styleData);
+  }
+  client.src = currentScript[0].src;
+  currentScript.remove();
+  window.BroadSoftWebRTC.clients.push(client);
 });
 
 (function($) {

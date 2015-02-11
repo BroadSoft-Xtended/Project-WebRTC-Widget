@@ -12,10 +12,9 @@ var fs = require('fs');
 var styles = fs.readFileSync(__dirname + '/../styles/bundle.min.css', 'utf-8');
 var templates = require('../js/templates');
 var ejs = require('ejs');
-var events = require('./EventBus');
-var debug = require('debug')('client');
-var debugerror = require('debug')('client:ERROR');
-debugerror.log = console.warn.bind(console);
+var $ = require('jquery');
+var events;
+var debug;
 var Configuration = require('./Configuration');
 var SIPStack = require('./SIPStack');
 var Video = require('./Video');
@@ -36,23 +35,37 @@ var Utils = require('./Utils');
 var ExSIP = require('exsip');
 var ClientConfig = require('../js/client-config.js.default');
 
-function Client(config, element) {
-  this.config = config;
-  if (element) {
-    this.appendTo($(element));
+function Client(options) {
+  this.options = options;
+  events = require('./eventbus')(options);
+  debug = require('./debug')(options);
+
+  this.updateCss();
+
+  this.wrapper = $('<div/>', {
+    class: 'webrtc-wrapper'
+  });
+
+  this.wrapper.html(options.view || templates.webrtc());
+
+  this.client = this.wrapper.find(options.clientEl || '.client');
+  this.setup(options);
+
+  if (options.parent) {
+    this.appendTo($(options.parent));
   }
 }
 
 Client.prototype = {
-  setup: function() {
+  setup: function(options) {
     var self = this;
-    this.main = this.client.find(".main");
-    this.muteAudioIcon = this.client.find('.muteAudioIcon');
-    this.unmuteAudioIcon = this.client.find('.unmuteAudioIcon');
-    this.hangup = this.client.find(".hangup");
-    this.callControl = this.client.find(".callControl");
-    this.destination = this.callControl.find("input.destination");
-    this.callButton = this.client.find('.call');
+    this.main = this.client.find(options.mainEl || '.main');
+    this.muteAudioIcon = this.client.find(options.muteAudioEl || '.muteAudioIcon');
+    this.unmuteAudioIcon = this.client.find(options.mainEl || '.unmuteAudioIcon');
+    this.hangup = this.client.find(options.hangupEl || '.hangup');
+    this.callControl = this.client.find(options.callControlEl || '.callControl');
+    this.destination = this.callControl.find(options.destinationEl || 'input.destination');
+    this.callButton = this.client.find(options.callEl || '.call');
     this.reInvitePopup = this.client.find('.reInvitePopup');
     this.acceptReInviteCall = this.client.find(".acceptReInviteCall");
     this.rejectReInviteCall = this.client.find(".rejectReInviteCall");
@@ -83,8 +96,8 @@ Client.prototype = {
     this.screenSharingUnsupported = this.client.find(".screen_sharing_unsupported");
 
 
-    this.config = this.config || Utils.clone(ClientConfig);
-    this.configuration = new Configuration(this.config);
+    this.options = this.options || Utils.clone(ClientConfig);
+    this.configuration = new Configuration(this.options);
     this.sipStack = new SIPStack(this.configuration);
     this.sound = new Sound(this.sipStack, this.configuration);
     this.video = new Video(this.client.find('.video'), this.sipStack, {
@@ -102,9 +115,6 @@ Client.prototype = {
     this.whiteboard = new Whiteboard(this, this.client.find(".whiteboard"), this.sipStack);
     this.fileShare = new FileShare(this, this.client.find(".file_share"), this.sipStack);
     this.authentication = new Authentication(this.client.find(".authPopup"), {
-      onAuthenticate: function(data) {
-        self.sipStack.init(data);
-      },
       configurationRegister: self.configuration.register,
       settingsUserId: self.settings.userId,
       settingsAuthenticationUserId: self.settings.authenticationUserId,
@@ -124,19 +134,7 @@ Client.prototype = {
     this.init();
   },
   appendTo: function(parent) {
-    this.updateCss();
-
-    this.wrapper = $('<div/>', {
-      class: 'webrtc-wrapper'
-    });
     parent.append(this.wrapper);
-
-    var renderData = {};
-    var html = ejs.render(templates.webrtc(), renderData);
-    this.wrapper.html(html);
-
-    this.client = this.wrapper.find('.client');
-    this.setup();
   },
   updateCss: function(styleData) {
     this.styleData = styleData || {};
@@ -216,7 +214,7 @@ Client.prototype = {
       }
     }
     // Fade in UI elements
-    this.client.find(".remoteVideo, .videoBar").fadeIn(1000);
+    this.client.find(".videoBar").fadeIn(1000);
     if (this.configuration.enableCallControl) {
       this.callControl.fadeIn(1000);
     } else {
@@ -262,7 +260,7 @@ Client.prototype = {
   // URL call
   callUri: function(destinationToValidate) {
     if (this.sipStack.getCallState() !== SIPStack.C.STATE_CONNECTED) {
-      debug('Already in call with state : ' + this.sipStack.getCallState());
+      this.debug('Already in call with state : ' + this.sipStack.getCallState());
       return;
     }
     if (destinationToValidate === "") {
@@ -272,11 +270,11 @@ Client.prototype = {
 
     var destination = this.validateDestination(destinationToValidate);
     if (destination === false) {
-      debug("destination is not valid : " + destinationToValidate);
+      this.debug("destination is not valid : " + destinationToValidate);
       return;
     }
 
-    debug("calling destination : " + destination);
+    this.debug("calling destination : " + destination);
 
     this.message(this.configuration.messageCall, "success");
 
@@ -286,8 +284,8 @@ Client.prototype = {
 
   setClientConfig: function(clientConfig) {
     var connectionChanged = this.configuration.websocketsServers[0].ws_uri !== clientConfig.websocketsServers[0].ws_uri;
-    jQuery.extend(this.config, clientConfig);
-    jQuery.extend(this.configuration, this.config);
+    jQuery.extend(this.options, clientConfig);
+    jQuery.extend(this.configuration, this.options);
     this.guiStart();
     this.updateClientClass();
     if (connectionChanged) {
@@ -324,7 +322,7 @@ Client.prototype = {
 
   onLoad: function() {
     var self = this;
-    debug("onLoad");
+    this.debug("onLoad");
 
     this.sipStack.init();
 
@@ -470,7 +468,7 @@ Client.prototype = {
       self.onSessionStarted(e.sender);
       var dtmfTones = Utils.parseDTMFTones(self.configuration.destination);
       if (dtmfTones && e.data && !e.data.isReconnect) {
-        debug("DTMF tones found in destination - sending DTMF tones : " + dtmfTones);
+        this.debug("DTMF tones found in destination - sending DTMF tones : " + dtmfTones);
         self.sipStack.sendDTMF(dtmfTones);
       }
       //remove configuration.destination to avoid multiple calls
@@ -593,7 +591,7 @@ Client.prototype = {
     });
     events.on('newDTMF', function(e) {
       var digit = e.data.tone;
-      debug('DTMF sent : ' + digit);
+      this.debug('DTMF sent : ' + digit);
       if (!digit) {
         return;
       }
@@ -802,7 +800,7 @@ Client.prototype = {
   },
 
   onSessionStarted: function(sender) {
-    debug("setting active session to " + sender.id);
+    this.debug("setting active session to " + sender.id);
     this.sipStack.activeSession = sender;
     this.video.updateSessionStreams(sender);
     this.client.find('.stats-container').attr('id', this.sipStack.getSessionId() + '-1');
@@ -834,7 +832,7 @@ Client.prototype = {
     var encodingHeight = this.settings.getResolutionEncodingHeight();
     var videoWidth = this.video.localWidth();
     var videoHeight = this.video.localHeight();
-    debug("validating video resolution " + videoWidth + "," + videoHeight + " to match selected encoding " + encodingWidth + "," + encodingHeight);
+    this.debug("validating video resolution " + videoWidth + "," + videoHeight + " to match selected encoding " + encodingWidth + "," + encodingHeight);
     if (!videoWidth && !videoHeight) {
       return;
     }
@@ -842,7 +840,7 @@ Client.prototype = {
     if (encodingWidth !== videoWidth || encodingHeight !== videoHeight) {
       var msg = "Video resolution " + videoWidth + "," + videoHeight + " does not match selected encoding " + encodingWidth + "," + encodingHeight;
       //        this.message(msg, "alert");
-      debugerror(msg);
+      this.debug(msg);
     }
   },
 
@@ -871,7 +869,7 @@ Client.prototype = {
     });
     script += dataStrs.join(' ');
 
-    var config = $.extend({}, this.config);
+    var config = $.extend({}, this.options);
     Object.keys(config).forEach(function(key) {
       var value = config[key];
       var defaultValue = ClientConfig[key];

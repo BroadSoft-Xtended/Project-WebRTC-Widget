@@ -1,9 +1,9 @@
 module.exports = XMPP;
 
-var events = require('./EventBus');
-var debug = require('debug')('xmpp');
-var debugerror = require('debug')('xmpp:ERROR');
-debugerror.log = console.warn.bind(console);
+var events = require('./eventbus');
+var debug = function(msg){
+  require('./debug')('xmpp')(msg);
+}
 
 function XMPP(client) {
   this.client = client;
@@ -27,7 +27,7 @@ XMPP.prototype = {
         });
         this.registerListeners();
       } catch (e) {
-        debugerror("Could not init XMPP chat : " + e);
+        debug("Could not init XMPP chat : " + e);
       }
     }
   },

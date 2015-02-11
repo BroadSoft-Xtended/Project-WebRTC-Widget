@@ -2,7 +2,9 @@ var Utils = {
   clone: function(obj) {
     return JSON.parse(JSON.stringify(obj));
   },
-
+  rstring: function() { 
+    return Math.random().toString().slice(2,8); 
+  },
   dataURItoBlob: function(dataURI) {
     // convert base64 to raw binary data held in a string
     // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this

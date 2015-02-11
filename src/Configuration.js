@@ -25,8 +25,8 @@ var Flags = {
 
 Configuration.Flags = Flags;
 
-var events = require('./EventBus');
-var debug = require('debug')('configuration');
+var events = require('./eventbus');
+var debug = function(msg){ require('./debug')('configuration')(msg); }
 var Utils = require('./Utils');
 var WebRTC_C = require('./Constants');
 var ExSIP = require('exsip');
@@ -236,10 +236,6 @@ Configuration.prototype = {
 
   setSettings: function(settings) {
     this.settings = settings;
-  },
-
-  isDebug: function() {
-    return this.debug === true;
   },
 
   isHD: function() {

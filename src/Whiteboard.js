@@ -1,6 +1,6 @@
 module.exports = Whiteboard;
 
-var events = require('./EventBus');
+var events = require('./eventbus');
 
 function Whiteboard(client, element, sipStack) {
   this.whiteboard = element;

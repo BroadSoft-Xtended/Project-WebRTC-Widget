@@ -1,7 +1,9 @@
 module.exports = Video;
 
-var events = require('./EventBus');
-var debug = require('debug')('video');
+var events = require('./eventbus');
+var debug = function(msg){
+  require('./debug')('video')(msg);
+}
 
 function Video(element, sipStack, options) {
   this.ui = element;

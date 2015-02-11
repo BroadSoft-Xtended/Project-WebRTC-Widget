@@ -817,21 +817,21 @@ a.disabled {
   overflow: auto;
   margin-bottom: 10px;
 }
-.history-row:hover,
-.history-row.active {
+.callHistory .content .history-row:hover,
+.callHistory .content .history-row.active {
   background: #353535;
 }
-.history-row {
+.callHistory .content .history-row {
   cursor: pointer;
   position: relative;
 }
-.row {
+.callHistory .content .history-row .row {
   display: block;
   margin: 0;
   position: relative;
   height: 46px;
 }
-.row .hist-direction {
+.callHistory .content .history-row .hist-direction {
   position: absolute;
   color: #3da005;
   left: 3px;
@@ -839,10 +839,10 @@ a.disabled {
   font-size: 18px;
   top: 6px;
 }
-.row .hist-direction .icon-arrow-down-thick {
+.callHistory .content .history-row .icon-arrow-down-thick {
   color: #e9651d;
 }
-.row .hist-destination {
+.callHistory .content .history-row .hist-destination {
   position: absolute;
   color: #b3b3b3;
   left: 25px;
@@ -851,12 +851,7 @@ a.disabled {
   text-decoration: none;
   top: 6px;
 }
-.row .hist-date {
-  position: absolute;
-  color: #0082ff;
-  left: 20px;
-  font-family: arial;
-  font-size: 10px;
+.callHistory .content .history-row .hist-date {
   position: absolute;
   color: #b3b3b3;
   left: 26px;
@@ -864,12 +859,7 @@ a.disabled {
   font-size: 10px;
   top: 29px;
 }
-.row .hist-length {
-  position: absolute;
-  color: #0082ff;
-  left: 205px;
-  font-family: arial;
-  font-size: 10px;
+.callHistory .content .history-row .hist-length {
   position: absolute;
   color: #b3b3b3;
   left: 104px;
@@ -877,43 +867,26 @@ a.disabled {
   font-size: 10px;
   top: 29px;
 }
-.hist-details-arrow {
+.callHistory .content .history-row .hist-details-arrow {
   position: absolute;
   right: 8px;
   font-size: 16px;
   top: 14px;
 }
-.classHistoryActions {
-  padding-top: 2px;
-}
-.historyClear a {
-  text-decoration: none;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  background: #6f6f6f;
-  border-radius: 20px;
-  padding: 5px 10px;
-  margin-left: 15px;
-}
-.historyClear a:hover {
-  background: #4e4e4e;
-}
-.historyClose a {
+.callHistory .historyClose a {
   color: #04aff0;
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
   margin-left: 8px;
 }
-.historyClose a:hover {
+.callHistory .historyClose a:hover {
   color: #017ead;
 }
-.callHistoryDetails {
+.callHistory .callHistoryDetails {
   background: #fff;
   width: 194px;
   height: auto;
-  border: none;
   clear: both;
   top: 0;
   bottom: -1;
@@ -926,7 +899,7 @@ a.disabled {
   border-top: none;
   overflow: auto;
 }
-.callHistoryDetails .callLink {
+.callHistory .callHistoryDetails .callLink {
   text-align: left;
   background: #6f6f6f;
   float: left;
@@ -937,7 +910,7 @@ a.disabled {
   border-radius: 50px;
   font-size: 14px !important;
 }
-.callHistoryDetails .historyDetailsClose {
+.callHistory .callHistoryDetails .historyDetailsClose {
   text-align: right;
   margin-top: 10px;
   text-align: right;
@@ -946,21 +919,37 @@ a.disabled {
   height: 26px;
   margin-top: 0;
 }
-.callHistoryDetails .historyDetailsClose .icon-ok {
+.callHistory .callHistoryDetails .historyDetailsClose .icon-ok {
   margin: 0px;
 }
-.callHistoryDetails .historyDetailsClose a {
+.callHistory .callHistoryDetails .historyDetailsClose a {
   text-decoration: none;
   outline-color: rgba(0,0,0,0);
   color: #aaa;
   font-size: 18px;
 }
-.callHistoryDetails .table {
+.callHistory .callHistoryDetails .table {
   font-size: 13px;
   padding-left: 8px;
 }
-.callHistoryDetails .table #history-dt-close-container {
+.callHistory .callHistoryDetails .table #history-dt-close-container {
   text-align: right;
+}
+.callHistory .classHistoryActions {
+  padding-top: 2px;
+}
+.callHistory .historyClear a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  background: #6f6f6f;
+  border-radius: 20px;
+  padding: 5px 10px;
+  margin-left: 15px;
+}
+.callHistory .historyClear a:hover {
+  background: #4e4e4e;
 }
 .callStats {
   display: none;
@@ -1034,7 +1023,7 @@ a.disabled {
 }
 
 .callStats {
-	color: <%= statsColor %>; 	
+  color: <%= statsColor %>;
 }
 .stats-graph-sub-container canvas {
   width: 100%;
@@ -1121,17 +1110,17 @@ a.disabled {
 .dialpad .history-button.active {
   color: #04aff0;
 }
-.dialpad-control-bar {
+.dialpad .dialpad-control-bar {
   margin-top: 6px;
 }
-.dialpad-control-bar .main-button {
+.dialpad .dialpad-control-bar .main-button {
   background: #3da005;
   border-radius: 14px;
   width: 70px;
   padding: 5px;
   margin: 0 auto;
 }
-.dialpad-control-bar a {
+.dialpad .dialpad-control-bar a {
   color: #fff;
   text-decoration: none;
   text-align: center;
@@ -1141,7 +1130,7 @@ a.disabled {
   font-weight: 700;
   letter-spacing: 1;
 }
-.dialpad-control-bar a span {
+.dialpad .dialpad-control-bar a span {
   margin-right: 5px;
 }
 .view-audioOnly .dialpad {
@@ -1298,8 +1287,7 @@ a.disabled {
   border: none;
   z-index: 1;
 }
-.remoteVideo {
-  display: none;
+.video .remoteVideo {
   position: absolute;
   top: 0%;
   left: 0%;
@@ -1321,8 +1309,7 @@ a.disabled {
   background: linear-gradient(to bottom, #181818 0%, #494949 100%);
   overflow: hidden;
 }
-.localVideo {
-  display: none;
+.video .localVideo {
   position: absolute;
   top: auto;
   left: 0;
@@ -1333,7 +1320,7 @@ a.disabled {
   background-color: transparent;
   z-index: 99;
 }
-.localVideo video {
+.video .localVideo video {
   border-radius: 0;
   box-shadow: none;
   background: #292929;
@@ -1343,7 +1330,7 @@ a.disabled {
   height: 100%;
   position: absolute;
 }
-.localVideo .inner {
+.video .localVideo .inner {
   margin: 5px;
   position: absolute;
   top: 0;
@@ -1420,156 +1407,10 @@ a.disabled {
 .view-audioOnly .video {
   display: none !important;
 }
-.videoBar {
-  display: none;
-  position: relative;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 40px;
-  background: #000;
-  background-image: -ms-linear-gradient(center top, #404040, #000);
-  background-image: linear-gradient(to bottom, #404040, #000);
-  background-image: -webkit-linear-gradient(#404040, #000);
-  background-image: -moz-linear-gradient(top, #404040, #000);
-  border-radius: 4px;
-  border: 2px solid #ddd;
-  box-shadow: 0px 0px 10px #000;
-  margin-top: 5px;
-  background-image: none;
-  border-radius: 0px;
-  border: none;
-  box-shadow: none;
-  margin-top: 0px;
-  background: #292929;
-  border-top: 1px solid #3c3c3c;
-}
-.videoBar .icon {
-  z-index: 10;
-  margin: 0px 2.5px;
-  position: absolute;
-}
-.videoBar .table {
-  height: 100%;
-  margin: 6px;
-  margin: 0;
-}
-.videoBar .cell {
-  position: relative;
-  top: 0px;
-  left: 0px;
-  width: 35px;
-  width: 36px;
-}
-.videoBar .cell .icon {
-  width: 100%;
-  text-align: center;
-  margin-top: 10px;
-  margin-right: 0;
-  margin-left: 0;
-}
-.videoBar .cell .icon a {
-  margin: 0;
-}
-.videoBar .cell:first-child {
-  padding: 0;
-}
-.videoBar span {
-  color: #808080;
-}
-.videoBar .unmuteAudio {
-  margin-top: -1px;
-}
-.videoBar .leftSpacer {
-  width: 8px;
-}
-.videoBar .cell-hangup {
-  width: 42px;
-}
-.videoBar .subtitle {
-  display: none;
-}
-.videoBar .cell-timer {
-  position: relative;
-  top: 0;
-  left: 0;
-  width: auto;
-}
-.videoBar .rightSpacer {
-  width: 8px;
-}
-.full-screen-expanded .videoBar {
-  top: auto !important;
-  bottom: 0px;
-  position: absolute;
-}
-.hangup,
-.fullScreen,
-.selfView,
-.muteAudioIcon,
-.dialpadIcon,
-.messages {
-  top: 0;
-  left: 0;
-}
-#videoBar #settings {
-  width: auto;
-  background-color: transparent;
-}
-.view-audioOnly .videoBar {
-  display: inline-block;
-  width: auto;
-}
-.view-audioOnly .videoBar .table {
-  table-layout: auto;
-  width: auto;
-}
-.view-audioOnly .cell-hangup {
-  width: 35px !important;
-}
-.view-conference .cell-hangup {
-  width: 30px !important;
-  top: 2px;
-}
-.view-conference .videoBar .cell .hangup {
-  margin-top: 0;
-  width: 140px;
-  background-color: #f00;
-  border-radius: 5px;
-  margin-left: 10px;
-  height: 36px;
-  line-height: 14px;
-}
-.view-conference .hangup .subtitle {
-  display: block !important;
-  font-size: 14px;
-  color: #fff;
-}
-.videoBar .icon,
-.videoBar a {
-  font-size: 20px;
-  color: #808080;
-  text-decoration: none;
-}
-.videoBar .hold,
-.videoBar .resume {
-  margin-top: -1px;
-}
 .settingsPopup {
   display: none;
-  background: #333;
   padding: 2px;
-  border: 2px solid #ddd;
   position: absolute;
-  top: 5px;
-  left: 5px;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  width: 435;
-  height: 180;
-  box-shadow: 0px 0px 10px #999;
-  border-radius: 3px;
-  font-size: 20px;
   line-height: 28px;
   z-index: 99;
   border: 1px solid #3c3c3c;
@@ -1641,35 +1482,35 @@ a.disabled {
 .settingsPopup .saveSettings {
   display: inline-block;
 }
-.resolutionSubType {
+.settingsPopup .resolutionSubType {
   display: none;
 }
-.tabs {
+.settingsPopup .tabs {
   width: 250px;
   padding-left: 0;
 }
-li {
+.settingsPopup .tabs li {
   list-style: none;
   display: inline;
 }
-a {
+.settingsPopup .tabs a {
   padding: 5px 10px;
   display: inline-block;
   background: #494949;
   color: #fff;
   text-decoration: none;
 }
-a.active {
+.settingsPopup .tabs a.active {
   background: #04aff0;
   color: #fff;
 }
-.tabs ~div p,
-.tabs ~div h3 {
+.settingsPopup .tabs ~div p,
+.settingsPopup .tabs ~div h3 {
   margin-bottom: 15px;
   color: #999;
   font-size: 14px;
 }
-.tabs  ~ div {
+.tabs .settingsPopup ~ div {
   padding: 10px;
   margin-bottom: 10px;
 }
@@ -1755,15 +1596,16 @@ a.active {
   top: 40px;
   left: 378px;
 }
-.simple_sketch {
+.whiteboard .simple_sketch {
   border-radius: 4px;
   border: 2px solid #ddd;
   box-shadow: 0px 0px 10px #999;
+  background-color: #fff;
 }
-background-color white .tools {
+.whiteboard .tools {
   padding-bottom: 10px;
 }
-background-color white .tools a {
+.whiteboard .tools a {
   border: 1px solid #000;
   height: 30px;
   line-height: 30px;
@@ -1775,7 +1617,7 @@ background-color white .tools a {
   color: #000;
   font-weight: bold;
 }
-background-color white .tools a.selected {
+.whiteboard .tools a.selected {
   border-color: #f00;
   border-width: 3px;
 }
@@ -1847,7 +1689,6 @@ background-color white .tools a.selected {
   speak: none;
   text-decoration: none;
   margin: 0 0.35em 0 0;
-  font-size: 25px;
 }
 .icon a:before {
   color: #fff;
@@ -2016,12 +1857,147 @@ background-color white .tools a.selected {
 }
 
 	.icon-highlightable:hover{
-	color: <%= iconHightlightColor %>;        
+	color: <%= iconHightlightColor %>;
 	}
 
 	.icon a:hover, .icon span:hover, .videoBar a:hover {
-		color: <%= iconHightlightColor %>;    
+		color: <%= iconHightlightColor %>;
 	}
+.videoBar {
+  display: none;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 40px;
+  background: #000;
+  background-image: -ms-linear-gradient(center top, #404040, #000);
+  background-image: linear-gradient(to bottom, #404040, #000);
+  background-image: -webkit-linear-gradient(#404040, #000);
+  background-image: -moz-linear-gradient(top, #404040, #000);
+  border-radius: 4px;
+  border: 2px solid #ddd;
+  box-shadow: 0px 0px 10px #000;
+  margin-top: 5px;
+  background-image: none;
+  border-radius: 0px;
+  border: none;
+  box-shadow: none;
+  margin-top: 0px;
+  background: #292929;
+  border-top: 1px solid #3c3c3c;
+}
+.videoBar .icon {
+  z-index: 10;
+  margin: 0px 2.5px;
+  position: absolute;
+}
+.videoBar .table {
+  height: 100%;
+  margin: 6px;
+  margin: 0;
+}
+.videoBar .cell {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 35px;
+  width: 36px;
+}
+.videoBar .cell .icon {
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+  margin-right: 0;
+  margin-left: 0;
+}
+.videoBar .cell .icon a {
+  margin: 0;
+}
+.videoBar .cell:first-child {
+  padding: 0;
+}
+.videoBar span {
+  color: #808080;
+}
+.videoBar .unmuteAudio {
+  margin-top: -1px;
+}
+.videoBar .leftSpacer {
+  width: 8px;
+}
+.videoBar .cell-hangup {
+  width: 42px;
+}
+.videoBar .subtitle {
+  display: none;
+}
+.videoBar .cell-timer {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: auto;
+}
+.videoBar .rightSpacer {
+  width: 8px;
+}
+.full-screen-expanded .videoBar {
+  top: auto !important;
+  bottom: 0px;
+  position: absolute;
+}
+.hangup,
+.fullScreen,
+.selfView,
+.muteAudioIcon,
+.dialpadIcon,
+.messages {
+  top: 0;
+  left: 0;
+}
+#videoBar #settings {
+  width: auto;
+  background-color: transparent;
+}
+.view-audioOnly .videoBar {
+  display: inline-block;
+  width: auto;
+}
+.view-audioOnly .videoBar .table {
+  table-layout: auto;
+  width: auto;
+}
+.view-audioOnly .cell-hangup {
+  width: 35px !important;
+}
+.view-conference .cell-hangup {
+  width: 30px !important;
+  top: 2px;
+}
+.view-conference .videoBar .cell .hangup {
+  margin-top: 0;
+  width: 140px;
+  background-color: #f00;
+  border-radius: 5px;
+  margin-left: 10px;
+  height: 36px;
+  line-height: 14px;
+}
+.view-conference .hangup .subtitle {
+  display: block !important;
+  font-size: 14px;
+  color: #fff;
+}
+.videoBar .icon,
+.videoBar a {
+  font-size: 20px;
+  color: #808080;
+  text-decoration: none;
+}
+.videoBar .hold,
+.videoBar .resume {
+  margin-top: -1px;
+}
 .sms {
   display: none;
   position: absolute;
@@ -2208,19 +2184,19 @@ authPopup #alert {
   font-size: 14px;
 }
 
-	.normal {
-	  color: <%= infoMessageColor %>;        
-	}
-	.success {
-	  color: <%= successMessageColor %>;        
-	}
-	.warning {
-	  color: <%= successMessageColor %>;        
-	}
-	.alert {
-	  color: <%= alertMessageColor %>;        
-	}
-.fileshare-container {
+.normal {
+  color: <%= infoMessageColor %>;
+}
+.success {
+  color: <%= successMessageColor %>;
+}
+.warning {
+  color: <%= successMessageColor %>;
+}
+.alert {
+  color: <%= alertMessageColor %>;
+}
+.client .fileshare-container {
   display: none;
 }
 .client:not(.started) .file_share {

@@ -1,0 +1,56 @@
+.callHistory
+  .content
+  .classHistoryActions
+    //
+      <span class="historyBack">
+      <a href="" title="Previous" class="icon-arrow-up-thick"></a>
+      </span>
+    span.historyClear
+      a(href='', title='Clear History') Clear
+    span.historyClose
+      a(href='', title='Close History') Close
+    //
+      <span class="historyForward">
+      <a href="" title="Next" class="icon-arrow-down-thick"></a>
+      </span>
+  .callHistoryDetails.popup
+    #history-dt-close-container
+      span.historyDetailsClose.cell
+        a.icon-cancel3(href='', title='Close')
+    .table
+      .row
+        .cell Resolution In : 
+        .resolutionIn.cell.default-color
+      .row
+        .cell Resolution Out : 
+        .resolutionOut.cell.default-color
+      .row
+        .cell Bitrate In : 
+        .bitrateIn.cell.default-color
+      .row
+        .cell Bitrate Out : 
+        .bitrateOut.cell.default-color
+      .row
+        .cell Frame Rate In : 
+        .frameRateIn.cell.default-color
+      .row
+        .cell Frame Rate Out : 
+        .frameRateOut.cell.default-color
+      .row
+        .cell Audio Lost : 
+        .audioLostPer.cell.default-color %
+      .row
+        .cell Video Out : 
+        .videoLostPer.cell.default-color %
+      .row
+        .cell Jitter : 
+        .jitter.cell.default-color
+    .actions.table
+      a.callLink.cell(href='', title='Call')
+.historyRowSample
+  .row
+    a.hist-destination(href='', title='Number')
+    span.hist-direction
+    span.hist-date
+    span.hist-length
+    span.hist-details-arrow.icon-angle-right

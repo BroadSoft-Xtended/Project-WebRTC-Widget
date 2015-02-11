@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 PATH := node_modules/.bin:$(PATH)
 
+MEDIA_FILES := $(shell glob-cli "media/**/*")
 JS_FILES := $(shell glob-cli "src/**/*.js")
 JADE_FILES := $(shell glob-cli "templates/**/*.jade")
 STYLUS_FILES := $(shell glob-cli "styles/**/*.styl")
@@ -8,20 +9,17 @@ STYLUS_FILES := $(shell glob-cli "styles/**/*.styl")
 
 all: build
 
-build: dist/webrtc-bundle.js
+build: dist/webrtc-bundle.min.js
 
 
 
 ## Build browserified files #######################################################
 TRANSFORMS := -t brfs
 
-dist/webrtc-bundle.js: dist/webrtc.js
+dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
 	uglifyjs js/3rdparty.js $< > $@
 
-dist/webrtc.js: dist/webrtc.dev.js
-	uglifyjs $< > $@
-
-dist/webrtc.dev.js: $(JS_FILES) js/templates.js styles/bundle.min.css
+dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js styles/bundle.min.css $(MEDIA_FILES)
 	browserify $(TRANSFORMS) src/WebRTC.js > $@
 
 ## Compile styles ##################################################################

@@ -1,10 +1,10 @@
 module.exports = SMSProvider;
 
 var ExSIP = require('exsip');
-var events = require('./EventBus');
-var debug = require('debug')('smsprovider');
-var debugerror = require('debug')('client:ERROR');
-debugerror.log = console.warn.bind(console);
+var events = require('./eventbus');
+var debug = function(msg){
+  require('./debug')('smsprovider')(msg);
+}
 
 function SMSProvider() {
   this.init();
@@ -35,14 +35,14 @@ SMSProvider.prototype = {
             successCallback(msg);
           }
         } else {
-          debugerror("Response failed : " + ExSIP.Utils.toString(msg));
+          debug("Response failed : " + ExSIP.Utils.toString(msg));
           if (failureCallback) {
             failureCallback(msg.status.message);
           }
         }
       })
       .fail(function(jqXHR, textStatus) {
-        debugerror('Response error : ' + textStatus);
+        debug('Response error : ' + textStatus);
         if (failureCallback) {
           failureCallback(textStatus);
         }
