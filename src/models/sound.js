@@ -1,4 +1,4 @@
-module.exports = Sound;
+module.exports = require('../factory')(Sound);
 
 var $ = require('jquery');
 var fs = require('fs');
@@ -20,56 +20,56 @@ function Sound(options, eventbus, configuration, sipstack) {
     eventbus.on("userMediaUpdated", function() {
       self.updateLocalAudio();
     });
-  },
+  };
 
   self.setMuted = function(m) {
     muted = m;
-    eventbus.emit('viewChanged');
-    this.updateLocalAudio();
-  },
+    eventbus.viewChanged(self);
+    self.updateLocalAudio();
+  };
 
   self.updateLocalAudio = function() {
-    this.enableLocalAudio(!muted);
-  },
+    self.enableLocalAudio(!muted);
+  };
 
   self.enableLocalAudio = function(enabled) {
-    var localStreams = this.sipStack.getLocalStreams();
+    var localStreams = sipstack.getLocalStreams();
     if (!localStreams || localStreams.length === 0) {
       return;
     }
     var localMedia = localStreams[0];
     var localAudio = localMedia.getAudioTracks()[0];
     localAudio.enabled = enabled;
-  },
+  };
 
   self.pause = function() {
     soundOut.pause();
     soundOutDTMF.pause();
-  },
+  };
 
   self.playDtmfRingback = function() {
-    this.playDtmf("dtmf-ringback", {
+    self.playDtmf("dtmf-ringback", {
       loop: true
     });
-  },
+  };
 
   self.playRingtone = function() {
-    this.play("ringtone", {
+    self.play("ringtone", {
       loop: true
     });
-  },
+  };
 
   self.playDtmfTone = function(tone) {
-    this.playDtmf("dtmf-" + tone);
-  },
+    self.playDtmf("dtmf-" + tone);
+  };
 
   self.playClick = function() {
-    this.play("click");
-  },
+    self.play("click");
+  };
 
   self.play = function(media, options) {
-    this.playTone(soundOut, media, options);
-  },
+    self.playTone(soundOut, media, options);
+  };
 
   self.playTone = function(audioSource, media, options) {
     // avoid restarting same playing audio
@@ -85,11 +85,11 @@ function Sound(options, eventbus, configuration, sipstack) {
       audioSource.removeAttribute("loop");
     }
     audioSource.play();
-  },
+  };
 
   self.playDtmf = function(media, options) {
-    this.playTone(soundOutDTMF, media, options);
-  }
+    self.playTone(soundOutDTMF, media, options);
+  };
 
   return self;
 }

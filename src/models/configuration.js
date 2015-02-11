@@ -1,4 +1,4 @@
-module.exports = Configuration;
+module.exports = require('../factory')(Configuration);
 
 var Flags = {
   enableHD: 1,
@@ -25,16 +25,20 @@ var Flags = {
 
 Configuration.Flags = Flags;
 
-var events = require('./eventbus');
-var debug = function(msg){ require('./debug')('configuration')(msg); }
-var Utils = require('./Utils');
-var WebRTC_C = require('./Constants');
+var Utils = require('../Utils');
+var WebRTC_C = require('../Constants');
 var ExSIP = require('exsip');
+var jQuery = $ = require('jquery');
+require('jquery.cookie')
+// TODO : hack to test in node js directly
+if(typeof document === 'undefined') {
+  document = {};
+}
+function Configuration(options, eventbus, debug) {
+  var self = {};
 
-function Configuration(configObj) {
-  debug('window.location.search : ' + window.location.search);
-  debug('configuration options : ' + ExSIP.Utils.toString(configObj));
-  jQuery.extend(this, configObj);
+  debug('configuration options : ' + ExSIP.Utils.toString(options));
+  jQuery.extend(this, options);
 
   // Default URL variables
   if (Utils.getSearchVariable("disableMessages")) {
@@ -57,10 +61,8 @@ function Configuration(configObj) {
     this.setClientConfigFlags(parseInt(features, 10));
   }
   this.bodyBackgroundColor = $('body').css('backgroundColor');
-}
 
-Configuration.prototype = {
-  getClientConfigFlags: function() {
+  self.getClientConfigFlags = function() {
     var flags = 0;
     for (var flag in Flags) {
       var value = Flags[flag];
@@ -69,8 +71,8 @@ Configuration.prototype = {
       }
     }
     return flags;
-  },
-  setClientConfigFlags: function(flags) {
+  };
+  self.setClientConfigFlags = function(flags) {
     for (var flag in Flags) {
       var value = Flags[flag];
       if (flags & value) {
@@ -79,12 +81,12 @@ Configuration.prototype = {
         this[flag] = false;
       }
     }
-  },
-  isAudioOnlyView: function() {
+  };
+  self.isAudioOnlyView = function() {
     var views = this.getViews();
     return views.indexOf('audioOnly') !== -1;
-  },
-  getViews: function() {
+  };
+  self.getViews = function() {
     var view = Utils.getSearchVariable("view");
     var views = [];
     if (this.view) {
@@ -94,23 +96,23 @@ Configuration.prototype = {
       $.merge(views, view.split(' '));
     }
     return $.unique(views);
-  },
-  getBackgroundColor: function() {
+  };
+  self.getBackgroundColor = function() {
     return this.color || this.bodyBackgroundColor;
-  },
-  getPassword: function() {
+  };
+  self.getPassword = function() {
     return $.cookie('settingPassword');
-  },
-  isAutoAnswer: function() {
+  };
+  self.isAutoAnswer = function() {
     return this.settings.settingAutoAnswer.is(':checked');
-  },
-  getDTMFOptions: function() {
+  };
+  self.getDTMFOptions = function() {
     return {
       duration: WebRTC_C.DEFAULT_DURATION,
       interToneGap: WebRTC_C.DEFAULT_INTER_TONE_GAP
     };
-  },
-  getExSIPOptions: function() {
+  };
+  self.getExSIPOptions = function() {
     // Options Passed to ExSIP
     var options = {
       mediaConstraints: {
@@ -125,9 +127,9 @@ Configuration.prototype = {
       }
     };
     return options;
-  },
+  };
 
-  getMediaConstraints: function() {
+  self.getMediaConstraints = function() {
     if (this.client.isScreenSharing) {
       return {
         video: {
@@ -142,18 +144,18 @@ Configuration.prototype = {
         video: this.getVideoConstraints()
       };
     }
-  },
+  };
 
-  getVideoConstraints: function() {
+  self.getVideoConstraints = function() {
     if (this.isAudioOnlyView() || this.audioOnly) {
       return false;
     } else {
       var constraints = this.getResolutionConstraints();
       return constraints ? constraints : true;
     }
-  },
+  };
 
-  getResolutionConstraints: function() {
+  self.getResolutionConstraints = function() {
     if (this.hd === true) {
       return {
         mandatory: {
@@ -184,9 +186,9 @@ Configuration.prototype = {
         return false;
       }
     }
-  },
+  };
 
-  getExSIPConfig: function(data) {
+  self.getExSIPConfig = function(data) {
     data = data || {};
     var userid = data.userId || $.cookie('settingUserId') || this.networkUserId || Utils.randomUserid();
 
@@ -219,9 +221,9 @@ Configuration.prototype = {
       config.register = false;
     }
     return config;
-  },
+  };
 
-  getRtcMediaHandlerOptions: function() {
+  self.getRtcMediaHandlerOptions = function() {
     var options = {
       reuseLocalMedia: this.enableConnectLocalMedia,
       videoBandwidth: this.settings.getBandwidth(),
@@ -232,27 +234,30 @@ Configuration.prototype = {
       }
     };
     return options;
-  },
+  };
 
-  setSettings: function(settings) {
+  self.setSettings = function(settings) {
     this.settings = settings;
-  },
+  };
 
-  isHD: function() {
+  self.isHD = function() {
     return this.enableHD === true && this.hd === true;
-  },
+  };
 
-  isWidescreen: function() {
+  self.isWidescreen = function() {
     return this.isHD() || this.settings.resolutionType.val() === WebRTC_C.WIDESCREEN;
-  },
+  };
 
-  setResolutionDisplay: function(resolutionDisplay) {
+  self.setResolutionDisplay = function(resolutionDisplay) {
     this.hd = false;
     this.settings.setResolutionDisplay(resolutionDisplay);
-    events.emit('viewChanged');
-  },
+    eventbus.viewChanged(self);
+  };
 
-  getResolutionDisplay: function() {
+  self.getResolutionDisplay = function() {
     return this.isHD() ? WebRTC_C.R_1280x720 : this.settings.getResolutionDisplay();
-  }
-};
+  }  
+
+  return self;
+}
+

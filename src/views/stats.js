@@ -1,40 +1,23 @@
-module.exports = Stats;
+module.exports = require('../factory')(StatsView);
 
-function Stats(client, sipStack, configuration) {
-  this.ui = client.find('.callStats');
+function StatsView(options, eventbus, configuration, sipstack) {
+  var self = {};
 
-  this.statsToggled = false;
-  this.sipStack = sipStack;
-  this.configuration = configuration;
+  self.__proto__ = PopupView(eventbus);
 
-  this.initialize();
-}
+  self.elements = ['statsVar'];
 
-Stats.prototype = {
-  toggle: function() {
-    if (this.configuration.enableCallStats) {
-      if (this.statsToggled === false) {
-        this.ui.fadeIn(100);
-      } else if (this.statsToggled === true) {
-        this.ui.fadeOut(100);
-      }
-    }
-    this.statsToggled = !this.statsToggled;
-  },
-
-  getReportById: function(reports, id) {
+  self.getReportById = function(reports, id) {
     for (var i = 0; i < reports.length; i++) {
       if (reports[i].id === id) {
         return reports[i];
       }
     }
     return null;
-  },
+  };
 
-  processStats: function() {
-    var self = this;
-
-    var peerConnection = this.sipStack.activeSession.rtcMediaHandler.peerConnection;
+  self.processStats = function() {
+    var peerConnection = sipstack.activeSession.rtcMediaHandler.peerConnection;
 
     peerConnection.getStats(function(stats) {
       var results = stats.result();
@@ -72,9 +55,9 @@ Stats.prototype = {
       };
       addStats(data);
     });
-  },
+  };
 
-  getDataSerie: function(type, label, sessionId) {
+  self.getDataSerie = function(type, label, sessionId) {
     var dataSeries = getDataSeriesByLabel(sessionId || this.sipStack.getSessionId(), type, label);
     var result;
     for (var i = 0; i < dataSeries.length; i++) {
@@ -84,21 +67,21 @@ Stats.prototype = {
       }
     }
     return result;
-  },
+  };
 
-  getStatValues: function(type, label, sessionId) {
+  self.getStatValues = function(type, label, sessionId) {
     var dataSerie = this.getDataSerie(type, label, sessionId);
     return dataSerie ? dataSerie.dataPoints_.map(function(e) {
       return e.value;
     }) : null;
-  },
+  };
 
-  getStatAvg: function(type, label, sessionId) {
+  self.getStatAvg = function(type, label, sessionId) {
     var dataSerie = this.getDataSerie(type, label, sessionId);
     return dataSerie ? dataSerie.getAvg() : null;
-  },
+  };
 
-  setSelected: function(id, parentSelector, selected) {
+  self.setSelected = function(id, parentSelector, selected) {
     if (arguments.length === 2) {
       selected = true;
     }
@@ -114,22 +97,22 @@ Stats.prototype = {
     }
     var classNames = classes.join(" ");
     $(parentSelector).attr('class', classNames);
+  };
 
-  },
-
-  getValue: function(type, name) {
+  self.getValue = function(type, name) {
     return $('[data-type="' + type + '"][data-var="' + name + '"]').text();
-  },
+  };
 
-  getAvg: function(type, name) {
+  self.getAvg = function(type, name) {
     return Math.round(($('[data-type="' + type + '"][data-var="' + name + '"]').attr("data-avg") * 100)) / 100.0;
-  },
+  };
 
-  initialize: function() {
-    var self = this;
-    $("a.stats-var").click(function() {
-      var index = $(".stats-var").index($(this)[0]);
+  self.listeners = function() {
+    self.statsVar.click(function() {
+      var index = self.statsVar.index($(this)[0]);
       self.setSelected("stats" + index, this.callStats);
     });
-  }
-};
+  };
+
+  return self;
+}

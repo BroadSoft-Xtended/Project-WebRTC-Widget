@@ -1,16 +1,16 @@
 .sms
-  .smsView
-    .table.fixed.smsLoginForm
+  .view
+    .table.fixed.loginForm
       .row
         label.cell Name:
-        input.cell.smsName(type='text', name='name', placeholder='Email or TN')
+        input.cell.name(type='text', name='name', placeholder='Email or TN')
       .row
         label.cell Password:
-        input.cell.smsPassword(type='password', name='password')
+        input.cell.password(type='password', name='password')
       .row
         .cell
-        input.cell.smsLogin(type='button', value='Log In')
-    .smsInbox
+        input.cell.login(type='button', value='Log In')
+    .inbox
       fieldset
         legend Inbox
         .inner
@@ -21,16 +21,16 @@
               .cell.title.from From
               .cell.title.body Message
               .cell.title.actions
-            .content
-    .smsSendForm
+            .inboxContent
+    .sendForm
       div
         div
           span To
-          input.smsSendTo(type='text', placeholder='US Phone Number')
+          input.sendTo(type='text', placeholder='US Phone Number')
           span Text
-          input.smsSendBody(type='text', placeholder='Message to Send')
-          input.smsSendButton(type='button', value='Send SMS')
-    #sample.sms-inbox-item.sms-inbox-item-sample.row
+          input.sendBody(type='text', placeholder='Message to Send')
+          input.sendButton(type='button', value='Send SMS')
+    #sample.inboxItem.inboxItemSample.row
       .status.cell
       .time.cell
       .from.cell
@@ -46,6 +46,6 @@
         .text
       .actions.cell
         a.icon-trash.icon-highlightable(href='javascript:;', title='Delete SMS')
-  .smsStatus
-    span.content
+  .status
+    span.statusContent
 

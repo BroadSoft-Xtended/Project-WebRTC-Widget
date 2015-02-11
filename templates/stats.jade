@@ -1,4 +1,4 @@
-.callStats
+.stats
   .stats-container
   .table.fixed.collapse
     .heading
@@ -7,45 +7,45 @@
     .row
       .cell
         | Bitrate out: 
-        a.stats-var(href='javascript:;', data-type='video', data-var='kiloBitsSentPerSecond')
+        a.statsVar(href='javascript:;', data-type='video', data-var='kiloBitsSentPerSecond')
         |  kb/s
       .cell
         | Bitrate out: 
-        a.stats-var(href='javascript:;', data-type='audio', data-var='kiloBitsSentPerSecond')
+        a.statsVar(href='javascript:;', data-type='audio', data-var='kiloBitsSentPerSecond')
         |  kb/s
     .row
       .cell
         | Bitrate in: 
-        a.stats-var(href='javascript:;', data-type='video', data-var='kiloBitsReceivedPerSecond')
+        a.statsVar(href='javascript:;', data-type='video', data-var='kiloBitsReceivedPerSecond')
         |  kb/s
       .cell
         | Bitrate in: 
-        a.stats-var(href='javascript:;', data-type='audio', data-var='kiloBitsReceivedPerSecond')
+        a.statsVar(href='javascript:;', data-type='audio', data-var='kiloBitsReceivedPerSecond')
         |  kb/s
     .row
       .cell
         | Lost: 
-        a.stats-var(href='javascript:;', data-type='video', data-var='packetsLost')
+        a.statsVar(href='javascript:;', data-type='video', data-var='packetsLost')
         |  packets (
-        a.stats-var(href='javascript:;', data-type='video', data-var='packetsLostPer')
+        a.statsVar(href='javascript:;', data-type='video', data-var='packetsLostPer')
         |  %)
       .cell
         | Lost: 
-        a.stats-var(href='javascript:;', data-type='audio', data-var='packetsLost')
+        a.statsVar(href='javascript:;', data-type='audio', data-var='packetsLost')
         |  packets (
-        a.stats-var(href='javascript:;', data-type='audio', data-var='packetsLostPer')
+        a.statsVar(href='javascript:;', data-type='audio', data-var='packetsLostPer')
         |  %)
     .row
       .cell
         | Frame rate out: 
-        a.stats-var(href='javascript:;', data-type='video', data-var='googFrameRateSent')
+        a.statsVar(href='javascript:;', data-type='video', data-var='googFrameRateSent')
         |  in: 
-        a.stats-var(href='javascript:;', data-type='video', data-var='googFrameRateReceived')
+        a.statsVar(href='javascript:;', data-type='video', data-var='googFrameRateReceived')
       .cell
         | Audio Level out: 
-        a.stats-var(href='javascript:;', data-type='audio', data-var='audioInputLevel')
+        a.statsVar(href='javascript:;', data-type='audio', data-var='audioInputLevel')
         |  in: 
-        a.stats-var(href='javascript:;', data-type='audio', data-var='audioOutputLevel')
+        a.statsVar(href='javascript:;', data-type='audio', data-var='audioOutputLevel')
     .row.spacer
     .heading
       .cell Resolution
@@ -53,18 +53,18 @@
     .row
       .cell
         | In: 
-        span.stats-var(data-type='video', data-var='googFrameWidthReceived')
+        span.statsVar(data-type='video', data-var='googFrameWidthReceived')
         |  x 
-        span.stats-var(data-type='video', data-var='googFrameHeightReceived')
+        span.statsVar(data-type='video', data-var='googFrameHeightReceived')
         |  Out: 
-        span.stats-var(data-type='video', data-var='googFrameWidthSent')
+        span.statsVar(data-type='video', data-var='googFrameWidthSent')
         |  x 
-        span.stats-var(data-type='video', data-var='googFrameHeightSent')
+        span.statsVar(data-type='video', data-var='googFrameHeightSent')
       .cell
         span.statsDelay
           | Delay: 
-          a.stats-var(href='javascript:;', data-type='audio', data-var='googRtt')
+          a.statsVar(href='javascript:;', data-type='audio', data-var='googRtt')
         |  Jitter: 
-        a.stats-var(href='javascript:;', data-type='audio', data-var='googJitterReceived')
+        a.statsVar(href='javascript:;', data-type='audio', data-var='googJitterReceived')
     .row.spacer
 

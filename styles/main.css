@@ -596,6 +596,98 @@ body {
   font-family: 'Open Sans', Arial, sans-serif;
   -webkit-font-smoothing: antialiased !important;
 }
+.button:active {
+  color: #04aff0;
+  background: -webkit-gradient(linear, left top, right bottom, from(#7cdd07), to(#faa51a));
+  background: linear-gradient(to bottom left, #7cdd07, #faa51a);
+}
+.button:hover {
+  box-shadow: 0px 0px 10px #999;
+}
+.popup {
+  display: none;
+  background: #333;
+  padding: 10px;
+  border: 2px solid #ddd;
+  float: left;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  box-shadow: 0px 0px 10px #999;
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 18px;
+  z-index: 100;
+}
+.popup .actions {
+  text-align: right;
+}
+.popup .title {
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+}
+.ui-widget-content.ui-dialog {
+  display: none;
+  color: #999;
+  font-size: 22px;
+  background: #333;
+  padding: 10px;
+  border: 2px solid #ddd;
+  box-shadow: 0px 0px 10px #999;
+  border-radius: 3px;
+  z-index: 99;
+}
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+.unsupported {
+  position: absolute;
+  top: 240px;
+  left: 30px;
+  width: 600px;
+  background-color: #191414;
+  text-align: center;
+  display: none;
+  color: #fff;
+  z-index: 10;
+}
+#screen_sharing_unsupported {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  margin: 10px;
+  background: #f00;
+}
+#screen_sharing_unsupported {
+  display: none;
+}
+#screen_sharing_unsupported span {
+  text-decoration: underline;
+}
+.historyRowSample {
+  display: none;
+}
+.default-color {
+  color: #2ba6cb;
+}
+[id$="sample"] {
+  display: none !important;
+}
+#javascript_disabled {
+  display: block;
+  background-color: #fff;
+  color: #000;
+}
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  background-color: #999;
+  opacity: 0.5;
+}
 .main {
   position: relative;
   top: 0px;
@@ -685,105 +777,13 @@ body {
 .full-screen-expanded .main {
   height: 100%;
 }
-.button:active {
-  color: #04aff0;
-  background: -webkit-gradient(linear, left top, right bottom, from(#7cdd07), to(#faa51a));
-  background: linear-gradient(to bottom left, #7cdd07, #faa51a);
-}
-.button:hover {
-  box-shadow: 0px 0px 10px #999;
-}
-.popup {
-  display: none;
-  background: #333;
-  padding: 10px;
-  border: 2px solid #ddd;
-  float: left;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
-  box-shadow: 0px 0px 10px #999;
-  border-radius: 3px;
-  font-size: 14px;
-  line-height: 18px;
-  z-index: 100;
-}
-.popup .actions {
-  text-align: right;
-}
-.popup .title {
-  font-weight: bold;
-  font-size: 16px;
-  color: #fff;
-}
-.ui-widget-content.ui-dialog {
-  display: none;
-  color: #999;
-  font-size: 22px;
-  background: #333;
-  padding: 10px;
-  border: 2px solid #ddd;
-  box-shadow: 0px 0px 10px #999;
-  border-radius: 3px;
-  z-index: 99;
-}
-.no-close .ui-dialog-titlebar-close {
-  display: none;
-}
-.unsupported {
-  position: absolute;
-  top: 240px;
-  left: 30px;
-  width: 600px;
-  background-color: #191414;
-  text-align: center;
-  display: none;
-  color: #fff;
-  z-index: 10;
-}
-#screen_sharing_unsupported {
-  position: relative;
-  top: 0px;
-  left: 0px;
-  margin: 10px;
-  background: #f00;
-}
-#screen_sharing_unsupported {
-  display: none;
-}
-#screen_sharing_unsupported span {
-  text-decoration: underline;
-}
 .client .row:before,
 .client .row:after {
-  display: none;
-}
-.historyRowSample {
   display: none;
 }
 .client.view-audioOnly {
   display: inline-block;
   width: auto;
-}
-.default-color {
-  color: #2ba6cb;
-}
-[id$="sample"] {
-  display: none !important;
-}
-#javascript_disabled {
-  display: block;
-  background-color: #fff;
-  color: #000;
-}
-a.disabled {
-  pointer-events: none;
-  cursor: default;
-  background-color: #999;
-  opacity: 0.5;
 }
 .callHistory {
   display: none;
@@ -951,7 +951,7 @@ a.disabled {
 .callHistory .historyClear a:hover {
   background: #4e4e4e;
 }
-.callStats {
+.stats {
   display: none;
   position: absolute;
   top: 10px;
@@ -969,7 +969,7 @@ a.disabled {
   z-index: 200;
   padding: 10px;
 }
-.callStats .statsVideo {
+.stats .statsVideo {
   position: absolute;
   white-space: pre-wrap;
   color: #0082ff;
@@ -978,7 +978,7 @@ a.disabled {
   font-size: 18px;
   text-decoration: none;
 }
-.callStats .statsAudio {
+.stats .statsAudio {
   position: absolute;
   white-space: pre-wrap;
   color: #0082ff;
@@ -988,13 +988,13 @@ a.disabled {
   font-size: 18px;
   text-decoration: none;
 }
-.callStats a {
+.stats a {
   color: #2ba6cb;
 }
-.callStats .spacer {
+.stats .spacer {
   height: 15px;
 }
-.callStats .statsDelay {
+.stats .statsDelay {
   display: none;
 }
 .stats-table-container,
@@ -1097,7 +1097,7 @@ a.disabled {
   font-size: 30px;
   vertical-align: middle;
 }
-.dialpad .history-button {
+.dialpad .historyButton {
   font-size: 16px !important;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -1107,7 +1107,7 @@ a.disabled {
   top: 5px;
   width: 25px;
 }
-.dialpad .history-button.active {
+.dialpad .historyButton.active {
   color: #04aff0;
 }
 .dialpad .dialpad-control-bar {
@@ -1287,7 +1287,7 @@ a.disabled {
   border: none;
   z-index: 1;
 }
-.video .remoteVideo {
+.video .remote {
   position: absolute;
   top: 0%;
   left: 0%;
@@ -1350,13 +1350,13 @@ a.disabled {
 .standard .video {
   padding-bottom: 75%;
 }
-:-webkit-full-screen .remoteVideo {
+:-webkit-full-screen .remote {
   z-index: 1;
 }
 :-webkit-full-screen .localVideo {
   z-index: 2;
 }
-:-webkit-full-screen .remoteVideo,
+:-webkit-full-screen .remote,
 :-webkit-full-screen .localVideo {
   border: none;
   border-radius: 0;
@@ -1366,7 +1366,7 @@ a.disabled {
   transform: none;
   box-shadow: 0 0 1px rgba(0,0,0,0.05);
 }
-.started .remoteVideo {
+.started .remote {
   box-shadow: 0 0 1px rgba(0,0,0,0.1);
 }
 .connected .watermark-icon {
@@ -1479,7 +1479,7 @@ a.disabled {
 .settingsPopup .clear:hover {
   color: #017ead;
 }
-.settingsPopup .saveSettings {
+.settingsPopup .save {
   display: inline-block;
 }
 .settingsPopup .resolutionSubType {
@@ -1538,6 +1538,7 @@ a.disabled {
 }
 .enable-transfer.started.transfer-visible .transferPopup,
 .enable-dialpad.dialpad-shown .dialpad,
+.enable-sms.sms-shown .sms,
 .enable-settings.settings-shown .settingsPopup {
   transition: all 1s linear;
   opacity: 1;
@@ -1559,6 +1560,8 @@ a.disabled {
 .enable-dialpad.dialpad-hidden .dialpadIconHide,
 .enable-dialpad.dialpad-shown .dialpadIconShow,
 .enable-dialpad.dialpad-hidden .dialpad,
+.enable-sms.sms-hidden .sms,
+.enable-stats.stats-hidden .stats,
 .enable-transfer.connected .transfer,
 .enable-transfer.disconnected .transfer,
 .enable-transfer.transfer-hidden .transferPopup,
@@ -1596,7 +1599,7 @@ a.disabled {
   top: 40px;
   left: 378px;
 }
-.whiteboard .simple_sketch {
+.whiteboard .canvas {
   border-radius: 4px;
   border: 2px solid #ddd;
   box-shadow: 0px 0px 10px #999;
@@ -1932,7 +1935,7 @@ a.disabled {
 .videoBar .subtitle {
   display: none;
 }
-.videoBar .cell-timer {
+.videoBar .cellTimer {
   position: relative;
   top: 0;
   left: 0;
@@ -2004,62 +2007,62 @@ a.disabled {
   top: 10px;
   right: 10px;
 }
-.sms .smsView {
+.sms .view {
   padding: 10px;
   border-radius: 4px;
   border: 2px solid #ddd;
   box-shadow: 0px 0px 10px #999;
 }
-.sms .smsLoginForm {
+.sms .loginForm {
   width: 250px;
 }
-.sms .smsSendForm {
+.sms .sendForm {
   width: 600px;
   display: none;
 }
-.sms .smsSendBody {
+.sms .sendBody {
   width: 339px;
 }
-.sms .smsInbox {
+.sms .inbox {
   width: 600px;
   display: none;
 }
-.sms .smsInbox .inner {
+.sms .inbox .inner {
   max-height: 250px;
   overflow: auto;
 }
-.sms .smsInbox .cell {
+.sms .inbox .cell {
   padding: 5px;
 }
-.sms .smsInbox .from {
+.sms .inbox .from {
   width: 100px;
 }
-.sms .smsInbox .status {
+.sms .inbox .status {
   width: 50px;
 }
-.sms .smsInbox .time {
+.sms .inbox .time {
   width: 135px;
 }
-.sms .smsInbox .body {
+.sms .inbox .body {
   word-wrap: break-word;
 }
-.sms .smsInbox .body > div {
+.sms .inbox .body > div {
   display: none;
 }
-.sms .smsInbox .sms-inbox-item.image .body .image span {
+.sms .inbox .inboxItem.image .body .image span {
   margin-right: 5px;
 }
-.sms .smsInbox .actions {
+.sms .inbox .actions {
   width: 15px;
 }
-.sms .smsInbox .icon-trash {
+.sms .inbox .icon-trash {
   font-size: 15px;
 }
-.sms .smsStatus {
+.sms .status {
   display: none;
   text-align: right;
 }
-.sms .smsStatus .content {
+.sms .status .statusContent {
   text-align: right;
   border: 1px solid #c3c3c3;
   background-color: #e3e2e2;
@@ -2070,20 +2073,20 @@ a.disabled {
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-.sms .smsStatus.error {
+.sms .status.error {
   color: #f00;
 }
-.sms .smsInbox .sms-inbox-item.text .body .text,
-.sms .smsInbox .sms-inbox-item.image .body .image,
-.sms .smsInbox .sms-inbox-item.video .body .video,
-.sms .smsInbox .sms-inbox-item.audio .body .audio {
+.sms .inbox .inboxItem.text .body .text,
+.sms .inbox .inboxItem.image .body .image,
+.sms .inbox .inboxItem.video .body .video,
+.sms .inbox .inboxItem.audio .body .audio {
   display: block;
 }
-.sms .smsInbox .sms-inbox-item.audio .body .audio audio,
-.sms .smsInbox .sms-inbox-item.video .body .video video {
+.sms .inbox .inboxItem.audio .body .audio audio,
+.sms .inbox .inboxItem.video .body .video video {
   width: 100%;
 }
-.smsInbox .content {
+.inbox .inboxContent {
   display: table-row-group;
 }
 authPopup {
@@ -2119,7 +2122,7 @@ authPopup button {
   font-size: 12px;
   width: 200px;
 }
-authPopup #alert {
+authPopup .alert {
   font-size: 20px;
   text-align: center;
   color: #f00;

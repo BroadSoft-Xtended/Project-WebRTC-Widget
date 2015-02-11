@@ -34,53 +34,7 @@
     &:focus
       outline none
 
-.callPopup
-  padding 0
-  background #292929
-  border 1px solid #3c3c3c
-  box-shadow none
-  width 220px
-  border-radius 0
-  height 168px
-  span
-    color #999999
-    font-size 22px
-  .incomingCallTitle
-    display block
-    padding 8px
-    font-size 18px
-    font-weight bold
-    background #3c3c3c
-    margin-bottom 18px
-    color #E4E4E4
-  .acceptIncomingCall
-    background #3DA005
-    border none
-    border-radius 20px
-    padding 5px 10px
-    font-size 14px
-    color #FFF
-    margin-left 12px
-  #rejectIncomingCallContainer
-    text-align right
-    button
-      background #FF0000
-      border none
-      border-radius 20px
-      padding 5px 10px
-      font-size 14px
-      color #FFF
-      margin-right 12px
-
-.started .holdAndAnswerButton,
-.started .dropAndAnswerButton,
-.client:not(.started) .acceptIncomingCall
-  display inline-block
-
-.holdAndAnswerButton, .dropAndAnswerButton, .acceptIncomingCall
-  display none
-      
-.callPopup, .reInvitePopup
+.reInvitePopup
   width 170px
   height 137px
 
@@ -103,13 +57,7 @@
   top auto
   left auto
   
-.incomingCallName, .incomingCallUser
-  display block
-  margin-left 10px
-  margin-bottom 18px
-  
-.reInvite .reInvitePopup,
-.incomingCall .callPopup
+.reInvite .reInvitePopup
   {fadeInPopup}
   
 .reInvite-done .reInvitePopup

@@ -10,7 +10,7 @@
     border none
     z-index 1
 
-  .remoteVideo
+  .remote
     position absolute
     top 0%
     left 0%
@@ -76,12 +76,12 @@
     padding-bottom 75%
 
 :-webkit-full-screen
-  .remoteVideo
+  .remote
     z-index 1
   .localVideo
     z-index 2
 
-:-webkit-full-screen .remoteVideo, :-webkit-full-screen .localVideo
+:-webkit-full-screen .remote, :-webkit-full-screen .localVideo
   border none
   border-radius 0
 
@@ -90,7 +90,7 @@
     display none
     transform none
     box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
-  .remoteVideo
+  .remote
     box-shadow 0 0 1px rgba(0, 0, 0, 0.1)
 
 .connected

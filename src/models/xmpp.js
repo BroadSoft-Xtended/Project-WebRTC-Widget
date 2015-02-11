@@ -1,19 +1,10 @@
-module.exports = XMPP;
+module.exports = require('../factory')(Sound);
 
-var events = require('./eventbus');
-var debug = function(msg){
-  require('./debug')('xmpp')(msg);
-}
+function XMPP(options, debug, eventbus, configuration) {
+  var self = {};
 
-function XMPP(client) {
-  this.client = client;
-
-  this.init();
-}
-
-XMPP.prototype = {
   init: function() {
-    if (ClientConfig.enableXMPP) {
+    if (configuration.enableXMPP) {
       try {
         converse.initialize({
           auto_list_rooms: false,
@@ -25,22 +16,25 @@ XMPP.prototype = {
           show_controlbox_by_default: true,
           xhr_user_search: false
         });
-        this.registerListeners();
       } catch (e) {
         debug("Could not init XMPP chat : " + e);
       }
     }
   },
-  registerListeners: function() {
+  self.listeners = function() {
     var self = this;
-    events.on("started", function() {
+    eventbus.on("started", function() {
       self.statusBeforeCall = converse.getStatus();
       debug('status before call : ' + self.statusBeforeCall);
       converse.setStatus('dnd');
     });
-    events.on("ended", function() {
+    eventbus.on("ended", function() {
       debug('reset status to : ' + self.statusBeforeCall);
       converse.setStatus(self.statusBeforeCall);
     });
   }
-};
+
+  self.init();
+  
+  return self;
+}

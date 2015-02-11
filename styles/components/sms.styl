@@ -3,19 +3,19 @@
   position absolute
   top 10px
   right 10px
-  .smsView
+  .view
     padding 10px
     border-radius 4px
     border 2px solid #DDDDDD
     box-shadow 0px 0px 10px #999999
-  .smsLoginForm
+  .loginForm
     width 250px
-  .smsSendForm
+  .sendForm
     width 600px
     display none
-  .smsSendBody
+  .sendBody
     width 339px
-  .smsInbox
+  .inbox
     width 600px
     display none
     .inner
@@ -33,7 +33,7 @@
       word-wrap break-word
       & > div
         display none
-    .sms-inbox-item
+    .inboxItem
       &.image
         .body
           .image
@@ -43,10 +43,10 @@
       width 15px
     .icon-trash
       font-size 15px
-  .smsStatus
+  .status
     display none
     text-align right
-    .content
+    .statusContent
       text-align right
       border 1px solid #c3c3c3
       background-color #e3e2e2
@@ -59,14 +59,14 @@
     &.error
       color red
 
-.sms .smsInbox .sms-inbox-item.text .body .text, .sms .smsInbox .sms-inbox-item.image .body .image,
-.sms .smsInbox .sms-inbox-item.video .body .video, .sms .smsInbox .sms-inbox-item.audio .body .audio
+.sms .inbox .inboxItem.text .body .text, .sms .inbox .inboxItem.image .body .image,
+.sms .inbox .inboxItem.video .body .video, .sms .inbox .inboxItem.audio .body .audio
   display block
 
-.sms .smsInbox .sms-inbox-item.audio .body .audio audio,
-.sms .smsInbox .sms-inbox-item.video .body .video video
+.sms .inbox .inboxItem.audio .body .audio audio,
+.sms .inbox .inboxItem.video .body .video video
   width 100%
 
-.smsInbox
-  .content
+.inbox
+  .inboxContent
     display table-row-group

@@ -1,27 +1,44 @@
-module.exports = require('./factory')(VideoBar)
+module.exports = require('../factory')(VideoBarView)
 
 var events;
 
-function VideoBar(options) {
-  events = require('./eventbus')(options);
+function VideoBarView(options, eventbus, sound, transferView, settingsView, dialpadView, timerView) {
+  var self = {};
 
-  options = options.videobar || options;
-  this.view = $(options.view || templates.videobar());
-  this.accept = this.view.find(options.acceptEl || '.acceptTransfer');
-  this.reject = this.popup.find(options.rejectEl || '.rejectTransfer');
-  this.targetInput = this.popup.find(options.targetEl || '.transferTarget');
-  this.typeAttended = this.popup.find(options.attendedEl || '.transferTypeAttended');
+  self.elements = ['transfer', 'settings', 'dialpadIconShow', 'dialpadIconHide', 'cellTimer'];
 
-  this.visible = false;
-  this.client = client;
-  this.sound = sound;
-  this.sipStack = sipStack;
-  this.configuration = configuration;
+    self.fullScreenExpandIcon = self.client.find(".fullScreenExpand");
+    self.fullScreenContractIcon = self.client.find(".fullScreenContract");
+    self.dialpadShowIcon = self.client.find(".dialpadIconShow");
+    self.dialpadHideIcon = self.client.find(".dialpadIconHide");
+    self.muteAudioIcon = self.client.find(options.muteAudioEl || '.muteAudioIcon');
+    self.unmuteAudioIcon = self.client.find(options.mainEl || '.unmuteAudioIcon');
+    self.selfViewEnableIcon = self.client.find(".selfViewEnable");
+    self.selfViewDisableIcon = self.client.find(".selfViewDisable");
+    self.shareScreen = self.client.find(".shareScreen");
+    self.stopShareScreen = self.client.find(".stopShareScreen");
+    self.hangup = self.client.find(options.hangupEl || '.hangup');
 
-  this.registerListeners();
+  var toggleView = function(e, popup) {
+    e.preventDefault();
+    sound.playClick();
+    popup.toggle();
+  };
+
+  self.listeners = function() {
+    self.transfer.bind('click', function(e) {
+      toggleView(e, transferView);
+    });
+    self.settings.bind('click', function(e) {
+      toggleView(e, settingsView);
+    });
+    self.dialpadIconShow.bind('click', function(e) {
+      toggleView(e, dialpadView);
+    });
+    self.dialpadIconHide.bind('click', function(e) {
+      toggleView(e, dialpadView);
+    });
+  };
+
+  return self;
 }
-
-VideoBar.prototype = {
-  registerListeners: function() {
-  }
-};

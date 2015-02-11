@@ -1,11 +1,12 @@
-var Client = require('./client');
 var ExSIP = require('exsip');
+var jQuery = jquery = $ = require('jquery');
+var Client = require('./client');
 var Utils = require('./utils');
 var ClientConfig = require('../js/client-config.js.default');
 var WebRTC = {
   Client: Client,
   Utils: Utils,
-  Sound: require('./sound')
+  Sound: require('./models/sound')
 };
 
 module.exports = WebRTC;

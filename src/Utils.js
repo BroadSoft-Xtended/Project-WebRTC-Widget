@@ -50,7 +50,10 @@ var Utils = {
   /* Pull the URL variables out of URL */
   getSearchVariable: function(variable)
   {
-    var search = decodeURIComponent(window.location.search.substring(1));
+    if(typeof location === 'undefined') {
+      return false;
+    }
+    var search = decodeURIComponent($(location).attr('search').substring(1));
     var vars = search.split("&");
     for (var i=0;i<vars.length;i++)
     {

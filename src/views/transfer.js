@@ -1,44 +1,41 @@
 module.exports = require('../factory')(TransferView)
 
-var events;
+var PopupView = require('./popup');
 
-function TransferView(options) {
+function TransferView(options, sound, sipstack, eventbus, configuration, callcontrol) {
   var self = {};
 
-  self.visible = false;
-  self.attached = false;
+  self.__proto__ = PopupView(eventbus);
 
-  self.elements = ['accept', 'reject', 'targetInput', 'typeAttended'],
-  self.models = ['sound', 'sipstack', 'eventbus'],
+  self.elements = ['accept', 'reject', 'targetInput', 'typeAttended'];
+
   self.listeners = function() {
-    this.accept.bind('click', function(e) {
+    eventbus.on('viewChanged', function(e){
+      if(e.view === 'transfer' && e.visible) {
+        self.targetInput.focus();
+      }
+    });
+    self.accept.bind('click', function(e) {
       e.preventDefault();
-      self.sound.playClick();
+      sound.playClick();
       var targetInput = self.targetInput.val();
       if ($.isBlank(targetInput)) {
-        self.client.message(self.configuration.messageOutsideDomain, "alert");
+        eventbus.emit('message', {text: configuration.messageOutsideDomain, level: 'alert'});
         return;
       }
-      targetInput = self.client.validateDestination(targetInput);
-      self.setVisible(false);
-      self.sipstack.transfer(targetInput, self.typeAttended.is(':checked'));
+      targetInput = callcontrol.validateDestination(targetInput);
+      if(targetInput) {
+        self.setVisible(false);
+        sipstack.transfer(targetInput, self.typeAttended.is(':checked'));        
+      }
     });
 
-    this.reject.bind('click', function(e) {
+    self.reject.bind('click', function(e) {
       e.preventDefault();
-      self.sound.playClick();
+      sound.playClick();
       self.setVisible(false);
     });
-  },
+  };
 
-  self.setVisible = function(visible) {
-    if(!this.attached) {
-      this.view.appendTo($(document));
-      this.attached = true;
-    }
-    this.visible = visible;
-    this.eventbus.emit('viewChanged');
-  }
-
-  return self;  
+  return self;
 }

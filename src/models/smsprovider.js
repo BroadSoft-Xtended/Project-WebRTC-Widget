@@ -1,23 +1,17 @@
-module.exports = SMSProvider;
+module.exports = require('../factory')(SMSProvider);
 
 var ExSIP = require('exsip');
-var events = require('./eventbus');
-var debug = function(msg){
-  require('./debug')('smsprovider')(msg);
-}
 
-function SMSProvider() {
-  this.init();
-}
+function SMSProvider(eventbus, debug) {
+  var self = {};
 
-SMSProvider.prototype = {
-  send: function(type, restSuffix, jsonData, successCallback, failureCallback, isJsonp) {
+  self.send = function(type, restSuffix, jsonData, successCallback, failureCallback, isJsonp) {
     //      $.flXHRproxy.registerOptions("http://"+ClientConfig.smsHost+"/", {xmlResponseText:false});
     //      $.ajaxSetup({transport:'flXHRproxy'});
 
     var url = "http://" + ClientConfig.smsHost + "/" + ClientConfig.smsUser + "/" + restSuffix;
-    if (this.sessionid) {
-      url += ";jsessionid=" + this.sessionid;
+    if (self.sessionid) {
+      url += ";jsessionid=" + self.sessionid;
     }
     debug("Request to " + url + " : " + ExSIP.Utils.toString(jsonData));
     $.ajax({
@@ -47,23 +41,23 @@ SMSProvider.prototype = {
           failureCallback(textStatus);
         }
       });
-  },
+  };
 
-  getUpdate: function(onNotification, onFailure) {
+  self.getUpdate = function(onNotification, onFailure) {
     var onSuccess = function(msg) {
       debug("received notification : " + ExSIP.Utils.toString(msg));
       onNotification(msg.notifications);
     };
     var data = {
-      fid: this.name,
+      fid: self.name,
       platform: "fmc"
     };
-    this.send("GET", "getUpdate", data, onSuccess, onFailure, false);
-  },
-  sendSMS: function(desttnarray, body, onFailure) {
+    self.send("GET", "getUpdate", data, onSuccess, onFailure, false);
+  };
+  self.sendSMS = function(desttnarray, body, onFailure) {
     var onSuccess = function(msg) {
       debug("sent msg " + msg + " to " + desttnarray);
-      events.emit('smsSent', {
+      eventbus.emit('smsSent', {
         desttnarray: desttnarray,
         body: body
       });
@@ -72,36 +66,35 @@ SMSProvider.prototype = {
       desttnarray: desttnarray,
       body: body
     };
-    this.send("POST", "ua/msg/sms/send", data, onSuccess, onFailure);
-  },
-  remove: function(mids, onSuccess, onFailure) {
+    self.send("POST", "ua/msg/sms/send", data, onSuccess, onFailure);
+  };
+  self.remove = function(mids, onSuccess, onFailure) {
     var data = {
       mids: mids
     };
-    this.send("POST", "ua/msg/sms/delete", data, function() {
+    self.send("POST", "ua/msg/sms/delete", data, function() {
       debug("Deleted msgs : " + mids);
       if (onSuccess) {
         onSuccess();
       }
     }, onFailure);
-  },
-  readAll: function(onFailure) {
+  };
+  self.readAll = function(onFailure) {
     var onSuccess = function(msg) {
       debug("Read all mgs : " + ExSIP.Utils.toString(msg.messages));
-      events.emit('smsReadAll', {
+      eventbus.emit('smsReadAll', {
         messages: msg.messages
       });
     };
     var data = null;
-    this.send("GET", "ua/msg/sms/all", data, onSuccess, onFailure);
-  },
-  login: function(name, password, onFailure) {
-    var self = this;
+    self.send("GET", "ua/msg/sms/all", data, onSuccess, onFailure);
+  };
+  self.login = function(name, password, onFailure) {
     var onSuccess = function(msg) {
       self.sessionid = msg.sessionid;
       self.name = name;
       debug("Logged in " + name + " : " + msg.sessionid);
-      events.emit('smsLoggedIn');
+      eventbus.emit('smsLoggedIn');
     };
     var data = {
       spcode: ClientConfig.smsSpcode,
@@ -109,22 +102,8 @@ SMSProvider.prototype = {
       name: name,
       platform: "fmc"
     };
-    this.send("POST", "ua/login", data, onSuccess, onFailure);
-  },
+    self.send("POST", "ua/login", data, onSuccess, onFailure);
+  };
 
-  init: function() {
-    this.registerListeners();
-  },
-  registerListeners: function() {
-    //      var self = this;
-    //      this.eventBus.on("started", function(e){
-    //        self.statusBeforeCall = converse.getStatus();
-    //        debug('status before call : '+self.statusBeforeCall, self.client.configuration);
-    //        converse.setStatus('dnd');
-    //      });
-    //      this.eventBus.on("ended", function(e){
-    //        debug('reset status to : '+self.statusBeforeCall, self.client.configuration);
-    //        converse.setStatus(self.statusBeforeCall);
-    //      });
-  }
-};
+  return self;
+}
