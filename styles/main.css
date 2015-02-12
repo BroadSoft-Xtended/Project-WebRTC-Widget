@@ -1028,7 +1028,7 @@ a.disabled {
 .stats-graph-sub-container canvas {
   width: 100%;
 }
-.stats-container {
+.statsContainer {
   margin-bottom: 18px;
 }
 .dialpad {
@@ -1175,6 +1175,35 @@ a.disabled {
 .callControl input:focus {
   outline: none;
 }
+.transferPopup {
+  color: #fff;
+  width: 280px;
+  height: 60px;
+}
+.transferTarget {
+  width: 200px;
+}
+.call {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 25px;
+  left: 265px;
+  display: block;
+  position: static;
+  top: auto;
+  left: auto;
+}
+.client:not(.connected) .call {
+  transition: all 1s linear;
+  opacity: 0;
+  z-index: -1;
+}
+.enable-call-control .callControl {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 20;
+}
 .callPopup {
   padding: 0;
   background: #292929;
@@ -1228,29 +1257,9 @@ a.disabled {
 .acceptIncomingCall {
   display: none;
 }
-.callPopup,
-.reInvitePopup {
+.callPopup {
   width: 170px;
   height: 137px;
-}
-.transferPopup {
-  color: #fff;
-  width: 280px;
-  height: 60px;
-}
-.transferTarget {
-  width: 200px;
-}
-.call {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 25px;
-  left: 265px;
-  display: block;
-  position: static;
-  top: auto;
-  left: auto;
 }
 .incomingCallName,
 .incomingCallUser {
@@ -1258,18 +1267,21 @@ a.disabled {
   margin-left: 10px;
   margin-bottom: 18px;
 }
-.reInvite .reInvitePopup,
-.incomingCall .callPopup {
+.incomingcall-shown .callPopup {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 100;
+}
+.reInvitePopup {
+  width: 170px;
+  height: 137px;
+}
+.reInvite .reInvitePopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
 .reInvite-done .reInvitePopup {
-  transition: all 1s linear;
-  opacity: 0;
-  z-index: -1;
-}
-.client:not(.connected) .call {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1663,28 +1675,6 @@ a.disabled {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.quality {
-  display: none;
-  position: absolute;
-  z-index: 10;
-  top: 13px;
-  left: 15px;
-}
-.icon-quality:before {
-  color: #0f0;
-  opacity: 0.4;
-}
-.connection-status {
-  display: none;
-  position: absolute;
-  top: 13px;
-}
-.connected-icon {
-  right: 5px;
-}
-.registered-icon {
-  right: 40px;
-}
 .icon {
   cursor: pointer;
 }
@@ -1705,18 +1695,6 @@ a.disabled {
 }
 .icon-screen-sharing-off:before {
   content: "\e605";
-}
-.icon-quality1:before {
-  content: "\e007";
-}
-.icon-quality2:before {
-  content: "\e006";
-}
-.icon-quality3:before {
-  content: "\e005";
-}
-.icon-quality4:before {
-  content: "\e004";
 }
 .icon-link:before {
   content: "\e00b";
@@ -1784,14 +1762,6 @@ a.disabled {
 .icon-angle-right:before {
   content: "\f1fe";
 }
-.icon-link.exario,
-.icon-quality1.exario,
-.icon-quality2.exario,
-.icon-quality3.exario,
-.icon-quality4.exario {
-  font-family: 'Exario-Icon-Fonts' !important;
-  font-size: 20px !important;
-}
 .icon-call:before {
   content: "\e00e";
   color: #3b9e3b;
@@ -1816,10 +1786,6 @@ a.disabled {
 .view-audioOnly .fullScreenContract,
 .view-audioOnly .selfViewDisable,
 .view-audioOnly .selfViewEnable,
-.view-audioOnly .quality1,
-.view-audioOnly .quality2,
-.view-audioOnly .quality3,
-.view-audioOnly .quality4,
 .view-audioOnly .cell-fullScreen,
 .view-audioOnly .cell-selfView {
   display: none !important;
@@ -1866,6 +1832,46 @@ a.disabled {
 	.icon a:hover, .icon span:hover, .videoBar a:hover {
 		color: <%= iconHightlightColor %>;
 	}
+.connection-status {
+  display: none;
+  position: absolute;
+  top: 13px;
+}
+.connectedIcon {
+  right: 5px;
+}
+.registeredIcon {
+  right: 40px;
+}
+.quality {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 13px;
+  left: 15px;
+}
+.icon-quality:before {
+  color: #0f0;
+  opacity: 0.4;
+}
+.icon-quality1:before {
+  content: "\e007";
+}
+.icon-quality2:before {
+  content: "\e006";
+}
+.icon-quality3:before {
+  content: "\e005";
+}
+.icon-quality4:before {
+  content: "\e004";
+}
+.view-audioOnly .quality1,
+.view-audioOnly .quality2,
+.view-audioOnly .quality3,
+.view-audioOnly .quality4 {
+  display: none !important;
+}
 .videoBar {
   display: none;
   position: relative;

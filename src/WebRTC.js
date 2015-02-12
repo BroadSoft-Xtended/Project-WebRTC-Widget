@@ -1,6 +1,6 @@
 var ExSIP = require('exsip');
 var jQuery = jquery = $ = require('jquery');
-var Client = require('./client');
+var Client = require('./views/client');
 var Utils = require('./utils');
 var ClientConfig = require('../js/client-config.js.default');
 var WebRTC = {

@@ -2,7 +2,7 @@ module.exports = require('../factory')(SIPStack);
 
 var ExSIP = require('exsip');
 
-function SIPStack(options, eventbus, debug) {
+function SIPStack(options, eventbus, debug, configuration, callcontrol) {
   var self = {};
 
   var ua = null;
@@ -18,7 +18,30 @@ function SIPStack(options, eventbus, debug) {
     STATE_HELD: "held"
   };
 
+  var setActiveSession = function(session) {
+    self.debug("setting active session to " + session.id);
+    activeSession = session;
+  };
+
   self.listeners = function() {
+    eventbus.on("connected", function(e) {
+      self.updateUserMedia(function() {
+        if (configuration.destination) {
+          callcontrol.callUri(configuration.destination);
+        }
+      });
+    });
+    eventbus.on("resumed", function(e) {
+      setActiveSession(e.sender);
+    });
+    eventbus.on("started", function(e) {
+      setActiveSession(e.sender);
+      var dtmfTones = Utils.parseDTMFTones(configuration.destination);
+      if (dtmfTones && e.data && !e.data.isReconnect) {
+        debug("DTMF tones found in destination - sending DTMF tones : " + dtmfTones);
+        self.sendDTMF(dtmfTones);
+      }
+    });
     eventbus.on('authenticate', function(e) {
       self.init(e);
     });

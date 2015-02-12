@@ -26,7 +26,7 @@ function Page(number, callsValue) {
   self.number = number;
 
   return self;
-};
+}
 
 function Call(value) {
   var self = {};
@@ -61,8 +61,8 @@ function Call(value) {
     return values.join("|");
   };
 
-  return self;  
-};
+  return self;
+}
 
 function HistoryView(options, sound, stats, sipstack, configuration, eventbus, callcontrol) {
   var self = {};
@@ -95,7 +95,8 @@ function HistoryView(options, sound, stats, sipstack, configuration, eventbus, c
         width: "416px"
       });
       $(".history-row").removeClass("active");
-      $(self..addClass("active");
+      // TODO - missing property to activate
+      $(self).addClass("active");
     };
   };
 
@@ -162,14 +163,15 @@ function HistoryView(options, sound, stats, sipstack, configuration, eventbus, c
   };
 
   self.elements = ['content', 'historyForward', 'historyBack', 'callHistoryDetails', 'historyDetailsClose', 'resolutionIn',
-  'resolutionOut', 'bitrateIn', 'bitrateOut', 'frameRateIn', 'frameRateOut', 'audioLostPer', 'videoLostPer', 'jitter', 
-  'historyClear', 'callLink', 'historyRowSample'];
+    'resolutionOut', 'bitrateIn', 'bitrateOut', 'frameRateIn', 'frameRateOut', 'audioLostPer', 'videoLostPer', 'jitter',
+    'historyClear', 'callLink', 'historyRowSample', 'historyClose'
+  ];
 
   self.pages = function() {
     var pages = [];
     for (var i = 0; i < localStorage.length; i++) {
       var key = localStorage.key(i);
-      var regex = new RegExp(pagePrefix+'(.*)', 'g');
+      var regex = new RegExp(pagePrefix + '(.*)', 'g');
       var match = regex.exec(key);
       if (match !== null && match.length > 1) {
         var value = localStorage.getItem(key);
@@ -200,10 +202,20 @@ function HistoryView(options, sound, stats, sipstack, configuration, eventbus, c
   };
 
   self.listeners = function() {
-    eventbus.on('viewChanged', function(e){
-      if(e.view === 'history' && e.visible) {
+    eventbus.on("ended", function(e) {
+      self.persistCall(e.sender);
+    });
+    eventbus.on('modifier', function(e) {
+      if (e.which === 72) {
+        self.show();
+      }
+    });
+    eventbus.on('viewChanged', function(e) {
+      if (e.view === 'history' && e.visible) {
         updateContent();
-      } else if(e.view === 'settings' && e.visible) {
+      } else if (e.view === 'settings' && e.visible) {
+        self.hide();
+      } else if (e.view === 'dialpad' && !e.visible) {
         self.hide();
       }
     });
@@ -217,6 +229,12 @@ function HistoryView(options, sound, stats, sipstack, configuration, eventbus, c
       e.preventDefault();
       sound.playClick();
       self.setPageNumber(self.pageNumber - 1);
+    });
+
+    self.historyClose.bind('click', function(e) {
+      e.preventDefault();
+      sound.playClick();
+      self.hide();
     });
 
     self.historyDetailsClose.bind('click', function(e) {
@@ -294,4 +312,5 @@ function HistoryView(options, sound, stats, sipstack, configuration, eventbus, c
   };
 
   return self;
+
 }

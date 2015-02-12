@@ -25,6 +25,11 @@ function InboxItem(sms, message) {
     self.removeLink.bind('click', function() {
       sms.remove(message, self);
     });
+    eventbus.on('modifier', function(e) {
+      if (e.which === 84) {
+        self.show();
+      }
+    });
   };
   self.enableActions = function(enable) {
     self.removeLink.attr('disabled', !enable);

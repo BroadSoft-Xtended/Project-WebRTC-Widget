@@ -34,39 +34,62 @@ require('jquery.cookie')
 if(typeof document === 'undefined') {
   document = {};
 }
-function Configuration(options, eventbus, debug) {
+function Configuration(options, eventbus, debug, sipstack, settings) {
   var self = {};
 
   debug('configuration options : ' + ExSIP.Utils.toString(options));
-  jQuery.extend(this, options);
+  jQuery.extend(self, options);
 
+  var screenshare = false;
   // Default URL variables
   if (Utils.getSearchVariable("disableMessages")) {
-    this.enableMessages = false;
+    self.enableMessages = false;
   }
-  this.destination = this.destination || Utils.getSearchVariable("destination");
-  this.networkUserId = this.networkUserId || Utils.getSearchVariable("networkUserId");
-  this.hd = (Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
-  this.audioOnly = (Utils.getSearchVariable("audioOnly") === "true");
-  this.sipDisplayName = this.displayName || Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
-  if (this.sipDisplayName) {
-    this.sipDisplayName = this.sipDisplayName.replace(/%20/g, " ");
+  self.destination = self.destination || Utils.getSearchVariable("destination");
+  self.networkUserId = self.networkUserId || Utils.getSearchVariable("networkUserId");
+  self.hd = (Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
+  self.audioOnly = (Utils.getSearchVariable("audioOnly") === "true");
+  self.sipDisplayName = self.displayName || Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
+  if (self.sipDisplayName) {
+    self.sipDisplayName = self.sipDisplayName.replace(/%20/g, " ");
   }
-  this.maxCallLength = Utils.getSearchVariable("maxCallLength");
-  this.size = Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
-  this.color = Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor');
-  this.offerToReceiveVideo = true;
+  self.maxCallLength = Utils.getSearchVariable("maxCallLength");
+  self.size = Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
+  self.color = Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor');
+  self.offerToReceiveVideo = true;
   var features = Utils.getSearchVariable("features");
   if (features) {
-    this.setClientConfigFlags(parseInt(features, 10));
+    self.setClientConfigFlags(parseInt(features, 10));
   }
-  this.bodyBackgroundColor = $('body').css('backgroundColor');
+  self.bodyBackgroundColor = $('body').css('backgroundColor');
+
+  self.listeners = function(audioOnly) { 
+    eventbus.on('screenshare', function(e) {
+      self.screenshare = e.enabled;
+    });
+    eventbus.on("started", function(e) {
+      //remove configuration.destination to avoid multiple calls
+      delete self.destination;
+    });
+  };
+
+  self.setAudioOnlyOfferAndRec = function(audioOnly) { 
+    self.audioOnly = audioOnly;
+    self.offerToReceiveVideo = !audioOnly;
+    sipstack.updateUserMedia();
+  };
+
+  self.setAudioOnly = function(audioOnly) { 
+    self.audioOnly = audioOnly;
+    self.offerToReceiveVideo = true;
+    sipstack.updateUserMedia();
+  };
 
   self.getClientConfigFlags = function() {
     var flags = 0;
     for (var flag in Flags) {
       var value = Flags[flag];
-      if (this[flag]) {
+      if (self[flag]) {
         flags |= value;
       }
     }
@@ -76,21 +99,21 @@ function Configuration(options, eventbus, debug) {
     for (var flag in Flags) {
       var value = Flags[flag];
       if (flags & value) {
-        this[flag] = true;
+        self[flag] = true;
       } else {
-        this[flag] = false;
+        self[flag] = false;
       }
     }
   };
   self.isAudioOnlyView = function() {
-    var views = this.getViews();
+    var views = self.getViews();
     return views.indexOf('audioOnly') !== -1;
   };
   self.getViews = function() {
     var view = Utils.getSearchVariable("view");
     var views = [];
-    if (this.view) {
-      $.merge(views, this.view.split(' '));
+    if (self.view) {
+      $.merge(views, self.view.split(' '));
     }
     if (view) {
       $.merge(views, view.split(' '));
@@ -98,13 +121,13 @@ function Configuration(options, eventbus, debug) {
     return $.unique(views);
   };
   self.getBackgroundColor = function() {
-    return this.color || this.bodyBackgroundColor;
+    return self.color || self.bodyBackgroundColor;
   };
   self.getPassword = function() {
     return $.cookie('settingPassword');
   };
   self.isAutoAnswer = function() {
-    return this.settings.settingAutoAnswer.is(':checked');
+    return self.settings.settingAutoAnswer.is(':checked');
   };
   self.getDTMFOptions = function() {
     return {
@@ -117,12 +140,12 @@ function Configuration(options, eventbus, debug) {
     var options = {
       mediaConstraints: {
         audio: true,
-        video: this.getVideoConstraints()
+        video: self.getVideoConstraints()
       },
       createOfferConstraints: {
         mandatory: {
           OfferToReceiveAudio: true,
-          OfferToReceiveVideo: !this.isAudioOnlyView() && this.offerToReceiveVideo
+          OfferToReceiveVideo: !self.isAudioOnlyView() && self.offerToReceiveVideo
         }
       }
     };
@@ -130,7 +153,7 @@ function Configuration(options, eventbus, debug) {
   };
 
   self.getMediaConstraints = function() {
-    if (this.client.isScreenSharing) {
+    if (self.screenshare) {
       return {
         video: {
           mandatory: {
@@ -141,22 +164,22 @@ function Configuration(options, eventbus, debug) {
     } else {
       return {
         audio: true,
-        video: this.getVideoConstraints()
+        video: self.getVideoConstraints()
       };
     }
   };
 
   self.getVideoConstraints = function() {
-    if (this.isAudioOnlyView() || this.audioOnly) {
+    if (self.isAudioOnlyView() || self.audioOnly) {
       return false;
     } else {
-      var constraints = this.getResolutionConstraints();
+      var constraints = self.getResolutionConstraints();
       return constraints ? constraints : true;
     }
   };
 
   self.getResolutionConstraints = function() {
-    if (this.hd === true) {
+    if (self.hd === true) {
       return {
         mandatory: {
           minWidth: 1280,
@@ -164,8 +187,8 @@ function Configuration(options, eventbus, debug) {
         }
       };
     } else {
-      var width = this.settings.getResolutionEncodingWidth();
-      var height = this.settings.getResolutionEncodingHeight();
+      var width = self.settings.getResolutionEncodingWidth();
+      var height = self.settings.getResolutionEncodingHeight();
       if (width && height) {
         if (height <= 480) {
           return {
@@ -190,31 +213,31 @@ function Configuration(options, eventbus, debug) {
 
   self.getExSIPConfig = function(data) {
     data = data || {};
-    var userid = data.userId || $.cookie('settingUserId') || this.networkUserId || Utils.randomUserid();
+    var userid = data.userId || $.cookie('settingUserId') || self.networkUserId || Utils.randomUserid();
 
     var sip_uri = encodeURI(userid);
     if ((sip_uri.indexOf("@") === -1)) {
-      sip_uri = (sip_uri + "@" + this.domainFrom);
+      sip_uri = (sip_uri + "@" + self.domainFrom);
     }
 
     var config = {
       'uri': sip_uri,
       'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
-      'ws_servers': this.websocketsServers,
-      'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
-      'trace_sip': this.debug,
-      'enable_ims': this.enableIms,
-      'p_asserted_identity': this.pAssertedIdentity,
-      'enable_datachannel': this.enableWhiteboard || this.enableFileShare
+      'ws_servers': self.websocketsServers,
+      'stun_servers': 'stun:' + self.stunServer + ':' + self.stunPort,
+      'trace_sip': self.debug,
+      'enable_ims': self.enableIms,
+      'p_asserted_identity': self.pAssertedIdentity,
+      'enable_datachannel': self.enableWhiteboard || self.enableFileShare
     };
 
     // Add Display Name if set
-    if (this.sipDisplayName) {
-      config.display_name = this.sipDisplayName;
+    if (self.sipDisplayName) {
+      config.display_name = self.sipDisplayName;
     }
 
     // do registration if setting User ID or configuration register is set
-    if ($.cookie('settingUserId') || this.register) {
+    if ($.cookie('settingUserId') || self.register) {
       config.register = true;
       config.password = data.password || $.cookie('settingPassword');
     } else {
@@ -225,9 +248,9 @@ function Configuration(options, eventbus, debug) {
 
   self.getRtcMediaHandlerOptions = function() {
     var options = {
-      reuseLocalMedia: this.enableConnectLocalMedia,
-      videoBandwidth: this.settings.getBandwidth(),
-      disableICE: this.disableICE,
+      reuseLocalMedia: self.enableConnectLocalMedia,
+      videoBandwidth: self.settings.getBandwidth(),
+      disableICE: self.disableICE,
       RTCConstraints: {
         'optional': [],
         'mandatory': {}
@@ -236,26 +259,22 @@ function Configuration(options, eventbus, debug) {
     return options;
   };
 
-  self.setSettings = function(settings) {
-    this.settings = settings;
-  };
-
   self.isHD = function() {
-    return this.enableHD === true && this.hd === true;
+    return self.enableHD === true && self.hd === true;
   };
 
   self.isWidescreen = function() {
-    return this.isHD() || this.settings.resolutionType.val() === WebRTC_C.WIDESCREEN;
+    return self.isHD() || self.settings.resolutionType.val() === WebRTC_C.WIDESCREEN;
   };
 
   self.setResolutionDisplay = function(resolutionDisplay) {
-    this.hd = false;
-    this.settings.setResolutionDisplay(resolutionDisplay);
+    self.hd = false;
+    self.settings.setResolutionDisplay(resolutionDisplay);
     eventbus.viewChanged(self);
   };
 
   self.getResolutionDisplay = function() {
-    return this.isHD() ? WebRTC_C.R_1280x720 : this.settings.getResolutionDisplay();
+    return self.isHD() ? WebRTC_C.R_1280x720 : self.settings.getResolutionDisplay();
   }  
 
   return self;

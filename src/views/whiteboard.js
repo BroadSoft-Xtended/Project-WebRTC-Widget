@@ -18,6 +18,11 @@ function WhiteboardView(options, eventbus, sipstack) {
 
   self.listeners = function() {
     self.initCanvas();
+    eventbus.on('modifier', function(e){
+      if(e.which === 87) {
+        self.show();
+      }
+    });
     eventbus.on("dataReceived", function(e) {
       var data = e.data;
       var regex = /^whiteboard:/;

@@ -2,11 +2,19 @@ module.exports = require('../factory')(TimerView);
 
 var Utils = require('../Utils');
 
-function TimerView(options, debug, statsView, configuration) {
+function TimerView(options, debug, eventbus, statsView, configuration) {
   var self = {};
 
   self.callTimer = null;
   self.startTime = null;
+
+  self.listeners = function() {
+    eventbus.on("started", function(e) {
+      if (e.data && !e.data.isReconnect) {
+        self.start();
+      }
+    });
+  };
 
   self.start = function() {
     if (self.callTimer) {

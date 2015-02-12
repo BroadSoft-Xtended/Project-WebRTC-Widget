@@ -1,6 +1,6 @@
 module.exports = require('../factory')(VideoView);
 
-function VideoView(options, sipstack, eventbus, debug, settingsView) {
+function VideoView(options, sipstack, eventbus, debug, settingsView, historyView) {
   var self = {}; 
   self.elements = ['local', 'remote'];
 
@@ -21,11 +21,20 @@ function VideoView(options, sipstack, eventbus, debug, settingsView) {
   };
 
   self.listeners = function() {
+    self.view.bind("click", function(e) {
+      historyView.hide();
+    });
     self.local.bind("playing", function() {
       validateUserMediaResolution();
     });
     eventbus.on("userMediaUpdated", function(e) {
       self.updateStreams([e && e.localStream], []);
+    });
+    eventbus.on("resumed", function(e) {
+      self.updateSessionStreams(e.sender);
+    });
+    eventbus.on("started", function(e) {
+      self.updateSessionStreams(e.sender);
     });
   };
 

@@ -11,15 +11,39 @@ function Sound(options, eventbus, configuration, sipstack) {
   var muted = false;
 
   self.listeners = function() {
+    eventbus.on("progress", function(e) {
+      self.playDtmfRingback();
+    });
+    eventbus.on("failed", function(e) {
+      sound.pause();
+    });
     eventbus.on("resumed", function() {
+      self.pause();
       self.updateLocalAudio();
     });
     eventbus.on("started", function() {
+      self.pause();
       self.updateLocalAudio();
     });
     eventbus.on("userMediaUpdated", function() {
       self.updateLocalAudio();
     });
+    eventbus.on('newDTMF', function(e) {
+      var digit = e.data.tone;
+      debug('DTMF sent : ' + digit);
+      if (!digit) {
+        return;
+      }
+      var file = null;
+      if (digit === "*") {
+        file = "star";
+      } else if (digit === "#") {
+        file = "pound";
+      } else {
+        file = digit;
+      }
+      self.playDtmfTone(file);
+    });    
   };
 
   self.setMuted = function(m) {

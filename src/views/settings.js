@@ -60,6 +60,11 @@ function Settings(options, configuration, sound, sipStack, eventbus, debug) {
         self.reload();
       }
     });
+    eventbus.on("viewChanged", function() {
+      if(e.view === 'dialpad' && e.visible) {
+        self.hide();
+      }
+    });
     eventbus.on("registered", function() {
       self.enableRegistration(true);
     });

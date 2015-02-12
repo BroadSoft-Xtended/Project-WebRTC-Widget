@@ -112,6 +112,14 @@ function StatsView(options, eventbus, configuration, sipstack) {
       var index = self.statsVar.index($(this)[0]);
       self.setSelected("stats" + index, this.callStats);
     });
+    eventbus.on('modifier', function(e){
+      if(e.which === 83) {
+        self.show();
+      }
+    });
+    eventbus.on("started", function(e) {
+      self.statsContainer.attr('id', sipstack.getSessionId() + '-1');
+    });
   };
 
   return self;
