@@ -342,10 +342,6 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
       }
     });
     eventbus.on("disconnected", function(e) {
-      if (configuration.enableConnectionIcon) {
-        self.connectedIcon.removeClass("success");
-        self.connectedIcon.addClass("alert").fadeIn(100);
-      }
       self.endCall();
     });
     eventbus.on("failed", function(e) {
@@ -363,28 +359,14 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     });
     eventbus.on("registrationFailed", function(e) {
       self.updateClientClass();
-      if (configuration.enableRegistrationIcon) {
-        //$("#registered").removeClass("success");
-        self.registeredIcon.addClass("alert").fadeIn(100);
-      }
-      var statusCode = e.data.response.status_code;
     });
     eventbus.on("registered", function(e) {
       self.updateClientClass();
-      if (configuration.enableRegistrationIcon) {
-        self.registeredIcon.removeClass("alert");
-        self.registeredIcon.addClass("success").fadeIn(10).fadeOut(3000);
-      }
     });
     eventbus.on("unregistered", function(e) {
       self.updateClientClass();
     });
     eventbus.on("connected", function(e) {
-      if (configuration.enableConnectionIcon) {
-        self.connectedIcon.removeClass("alert");
-        self.connectedIcon.addClass("success").fadeIn(10).fadeOut(3000);
-      }
-
       sipstack.updateUserMedia(function() {
         if (configuration.destination) {
           self.callUri(configuration.destination);
