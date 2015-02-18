@@ -1,6 +1,7 @@
 var jsdom = require('mocha-jsdom');
 var fs = require('fs');
 expect = require('expect');
+ExSIP = require('exsip');
 
 jsdom({
   src: [
@@ -19,6 +20,11 @@ Object.defineProperties(global, {
   settingsview: {
     get: function(){
       return global.instances.settingsview_test;
+    }
+  },
+  reinvite: {
+    get: function(){
+      return global.instances.reinviteview_test;
     }
   },
   sipstack: {
@@ -49,6 +55,26 @@ Object.defineProperties(global, {
   callcontrol: {
     get: function(){
       return global.instances.callcontrol_test;
+    }
+  },
+  video: {
+    get: function(){
+      return global.instances.videoview_test;
+    }
+  },
+  dialpad: {
+    get: function(){
+      return global.instances.dialpadview_test;
+    }
+  },
+  eventbus: {
+    get: function(){
+      return global.instances.eventbus_test;
+    }
+  },
+  videobar: {
+    get: function(){
+      return global.instances.videobarview_test;
     }
   }
 });

@@ -12,9 +12,9 @@ function ReinviteView(options, eventbus) {
   self.listeners = function() {
     eventbus.on("reInvite", function(e) {
       self.show();
-      var incomingCallName = e.data.request.from.display_name;
-      var incomingCallUser = e.data.request.from.uri.user;
-      var title = e.data.audioAdd ? "Adding Audio" : "Adding Video";
+      var incomingCallName = e.request.from.display_name;
+      var incomingCallUser = e.request.from.uri.user;
+      var title = e.audioAdd ? "Adding Audio" : "Adding Video";
       eventbus.message(title, "success");    
       self.incomingCallName.text(incomingCallName);
       self.incomingCallUser.text(incomingCallUser);
@@ -22,12 +22,12 @@ function ReinviteView(options, eventbus) {
       self.acceptReInviteCall.off("click");
       self.acceptReInviteCall.on("click", function() {
         self.hide();
-        e.data.session.acceptReInvite();
+        e.session.acceptReInvite();
       });
       self.rejectReInviteCall.off("click");
       self.rejectReInviteCall.on("click", function() {
         self.hide();
-        e.data.session.rejectReInvite();
+        e.session.rejectReInvite();
       });
     });
   };

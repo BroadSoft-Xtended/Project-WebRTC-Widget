@@ -7,7 +7,7 @@ function StatsView(options, eventbus, configuration, sipstack) {
 
   self.__proto__ = PopupView(options, self, eventbus);
 
-  self.elements = ['statsVar'];
+  self.elements = ['statsVar', 'statsContainer'];
 
   self.getReportById = function(reports, id) {
     for (var i = 0; i < reports.length; i++) {

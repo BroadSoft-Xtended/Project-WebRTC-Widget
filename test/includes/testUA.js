@@ -19,7 +19,7 @@ module.exports = {
     }
   },
 
-  emitReInvite: function(client) {
+  emitReInvite: function() {
     sipstack.ua.emit("onReInvite", sipstack.ua, {
       session: {acceptReInvite: function(){reInviteAccepted = true;},
         rejectReInvite: function(){reInviteRejected = true;}},
@@ -31,6 +31,7 @@ module.exports = {
 
   connect: function() {
     sipstack.ua.isConnected = function(){return true;};
+    console.log('######## connected');
     sipstack.ua.emit('connected', sipstack.ua);
   },
 
@@ -98,6 +99,7 @@ module.exports = {
     session.unhold = function(success){console.log("unhold"); session.resumed(); if(success){success();}}
     session.terminate = function(options){console.log("terminate"); session.ended('local');}
     session.answer = function(options){console.log("answer"); answerOptions = options; session.started('local');}
+    session.changeSession = function(options, success){console.log("changeSession"); session.started('local'); success();}
     return session;
   },
 
@@ -105,6 +107,10 @@ module.exports = {
     session = session || this.incomingSession();
     var request = {to_tag: "1234567", from_tag: "7654321", from: {display_name: "Incoming DisplayName", uri: {user: "Incoming User"}}};
     sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session, request: request});
+  },
+
+  createLocalMedia: function(){
+    return {stop: function(){}, getAudioTracks: function(){return [{}];}};
   },
 
   mockSound: function(){
@@ -127,11 +133,13 @@ module.exports = {
   },
 
   mockWebRTC: function(){
+    var self = this;
     ExSIP.WebRTC.RTCPeerConnection = function(){
       console.log('-- RTCPeerConnection.new()');
       return {
         localDescription: null,
         remoteDescription: null,
+        createDTMFSender: function(){console.log('createDTMFSender'); return {}},
         close: function(){console.log("-- RTCPeerConnection.close()")},
         setRemoteDescription: function(description, success, failure){console.log("-- RTCPeerConnection.setRemoteDescription() : "+ExSIP.Utils.toString(description));this.remoteDescription = description; if(success){success();}},
         addStream: function(){console.log("-- RTCPeerConnection.addStream()")},
@@ -142,7 +150,7 @@ module.exports = {
     };
     ExSIP.WebRTC.getUserMedia = function(constraints, success, failure){
       console.log('-- getUserMedia ');
-      success({});
+      success(self.createLocalMedia());
     };
     ExSIP.WebRTC.isSupported = true;
     ExSIP.UA.prototype.recoverTransport = function(){console.log("--recoverTransport");}

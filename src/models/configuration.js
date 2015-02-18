@@ -43,7 +43,19 @@ function Configuration(options, eventbus, debug, settings) {
   var offerToReceiveVideo = true;
   var bodyBackgroundColor = $('body').css('backgroundColor');
   
+  // TODO - refactor to not have to specify each config prop but use from options
   self.props = {
+
+    messageEnded: {value: function(){return options.messageEnded}},
+    messageResume: {value: function(){return options.messageResume}},
+    messageHold: {value: function(){return options.messageHold}},
+    messageStarted: {value: function(){return options.messageStarted}},
+    messageConnectionFailed: {value: function(){return options.messageConnectionFailed}},
+    messageProgress: {value: function(){return options.messageProgress}},
+    messageRegistrationFailed: {value: function(){return options.messageRegistrationFailed}},
+    messageRegistered: {value: function(){return options.messageRegistered}},
+    messageUnregistered: {value: function(){return options.messageUnregistered}},
+    messageConnected: {value: function(){return options.messageConnected}},
     enableConnectLocalMedia: {value: function(){return options.enableConnectLocalMedia}},
     allowOutside: {value: function(){return options.allowOutside}},
     domainFrom: {value: function(){debug('domainFrom : '+options.domainFrom); return options.domainFrom}},

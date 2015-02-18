@@ -2,15 +2,14 @@ module.exports = CallControl;
 
 var $ = require('jquery');
 var fs = require('fs');
+var C = require('../Constants');
 
 function CallControl(options, eventbus, configuration, sipstack, debug) {
   var self = {};
 
 
   self.listeners = function() {
-    debug('------------- : callcontrol.listeners : '+configuration.destination);
     eventbus.on('userMediaUpdated', function(e) {
-    debug('------------- : userMediaUpdated : '+configuration.destination);
       if (configuration.destination) {
         self.callUri(configuration.destination);
       }
@@ -58,7 +57,8 @@ function CallControl(options, eventbus, configuration, sipstack, debug) {
 
   // URL call
   self.callUri = function(destinationToValidate) {
-    if (sipstack.getCallState() !== sipstack.C.STATE_CONNECTED) {
+    console.log('sipstack.C.STATE_CONNECTED : '+sipstack.C);
+    if (sipstack.getCallState() !== C.STATE_CONNECTED) {
       debug('Already in call with state : ' + sipstack.getCallState());
       return;
     }
@@ -76,7 +76,6 @@ function CallControl(options, eventbus, configuration, sipstack, debug) {
     debug("calling destination : " + destination);
 
     eventbus.message(configuration.messageCall, 'success');
-    eventbus.calling(destination);
 
     // Start the Call
     sipstack.call(destination);

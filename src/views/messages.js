@@ -13,9 +13,14 @@ function MessagesView(options, eventbus, configuration) {
     if (!configuration.enableMessages) {
       return;
     }
+    console.log('message : '+text, level);
     var messageEl = self[level];
     messageEl.stop(true, true).fadeOut();
     messageEl.text(text).fadeIn(10).fadeOut(10000);
+  };
+
+  self.getRemoteUser = function(rtcSession) {
+    return rtcSession.remote_identity.uri.user || rtcSession.remote_identity.uri.host;
   };
 
   self.listeners = function() {
@@ -44,7 +49,7 @@ function MessagesView(options, eventbus, configuration) {
       self.message(msg, "alert");
     });
     eventbus.on("failed", function(e) {
-      var error = e.data.cause;
+      var error = e.cause;
       self.message(error, "alert");
     });
     eventbus.on("progress", function(e) {

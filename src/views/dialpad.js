@@ -2,7 +2,7 @@ module.exports = DialpadView
 
 var PopupView = require('./popup');
 
-function DialpadView(options, eventbus, callcontrol, historyView) {
+function DialpadView(options, eventbus, callcontrol, historyView, videobarView) {
   var self = {};
 
   self.__proto__ = PopupView(options, self, eventbus);
@@ -17,10 +17,10 @@ function DialpadView(options, eventbus, callcontrol, historyView) {
       return null;
     };
     eventbus.on("disconnected", function(e) {
-      self.endCall();
+      videobarView.endCall();
     });
     eventbus.on("failed", function(e) {
-      self.endCall({
+      videobarView.endCall({
         rtcSession: e.sender
       });
     });
@@ -30,7 +30,7 @@ function DialpadView(options, eventbus, callcontrol, historyView) {
       self.processDigitInput(e.target.textContent);
     });
     eventbus.on("ended", function(e) {
-      self.endCall({
+      videobarView.endCall({
         rtcSession: e.sender
       });
     });

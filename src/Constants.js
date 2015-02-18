@@ -1,4 +1,10 @@
 var C = {
+    // RTCSession states
+  STATE_CONNECTED: "connected",
+  STATE_DISCONNECTED: "disconnected",
+  STATE_CALLING: "calling",
+  STATE_STARTED: "started",
+  STATE_HELD: "held",
   WIDESCREEN: 'widescreen',
   STANDARD: 'standard',
   R_1280x720: '1280x720',

@@ -3,10 +3,8 @@ module.exports = Settings;
 var WebRTC_C = require('../Constants');
 var Utils = require('../Utils');
 
-function Settings(options, configuration, settingsView) {
+function Settings(options, configuration, settingsView, eventbus, debug) {
   var self = {};
-  var eventbus = require('../factory')(require('./eventbus'))(options);
-  var debug = require('../factory')(require('./debug'))(options);
   self.view = settingsView;
   
   var updatePageColor = function() {

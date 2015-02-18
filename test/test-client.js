@@ -115,8 +115,8 @@ describe('client', function() {
     };
     var event = jQuery.Event("keypress");
     event.keyCode = 13;
-    client.destination.trigger(event);
-    ok(called);
+    dialpad.destination.trigger(event);
+    expect(called).toExist();
   });
   it('call and press enter on destination input', function() {
     var called = false;
@@ -129,9 +129,9 @@ describe('client', function() {
     };
     var event = jQuery.Event("keypress");
     event.keyCode = 13;
-    client.destination.val("1000@domain.to");
-    client.destination.trigger(event);
-    ok(!called);
+    dialpad.destination.val("1000@domain.to");
+    dialpad.destination.trigger(event);
+    expect(!called).toExist();
   });
   it('click callButton twice', function() {
     var called = false;
@@ -147,191 +147,191 @@ describe('client', function() {
       });
       return session;
     };
-    client.destination.val("1000@domain.to");
-    client.callButton.trigger("click");
-    ok(called);
+    dialpad.destination.val("1000@domain.to");
+    dialpad.call.trigger("click");
+    expect(called).toExist();
     called = false;
-    client.callButton.trigger("click");
-    ok(!called);
+    dialpad.call.trigger("click");
+    expect(!called).toExist();
   });
   it('reInvite popup', function() {
     client = create(config);
-    testUA.isVisible(client.reInvitePopup, false);
+    testUA.isVisible(reinvite.view, false);
   });
   it('reInvite popup after incoming reInvite', function() {
     config.enableAutoAcceptReInvite = false;
     client = create(config);
-    testUA.emitReInvite(client);
-    testUA.isVisible(client.reInvitePopup, true);
+    testUA.emitReInvite();
+    testUA.isVisible(reinvite.view, true);
   });
   it('reInvite popup after incoming reInvite and accept clicked', function() {
     config.enableAutoAcceptReInvite = false;
     client = create(config);
-    testUA.emitReInvite(client);
-    client.acceptReInviteCall.trigger("click");
-    testUA.isVisible(client.reInvitePopup, false);
-    ok(reInviteAccepted, "should have accepted the reInvite")
+    testUA.emitReInvite();
+    reinvite.acceptReInviteCall.trigger("click");
+    testUA.isVisible(reinvite.view, false);
+    expect(reInviteAccepted).toExist("should have accepted the reInvite")
   });
   it('reInvite popup after incoming reInvite and reject clicked', function() {
     config.enableAutoAcceptReInvite = false;
     client = create(config);
-    testUA.emitReInvite(client);
-    client.rejectReInviteCall.trigger("click");
-    testUA.isVisible(client.reInvitePopup, false);
-    ok(reInviteRejected, "should have rejected the reInvite")
+    testUA.emitReInvite();
+    reinvite.rejectReInviteCall.trigger("click");
+    testUA.isVisible(reinvite.view, false);
+    expect(reInviteRejected).toExist("should have rejected the reInvite");
   });
   it('muteAudio', function() {
     client = create(config);
-    testUA.isVisible(client.muteAudioIcon, false);
+    testUA.isVisible(videobar.muteAudioIcon, false);
   });
   it('unmuteAudio', function() {
     client = create(config);
-    testUA.isVisible(client.unmuteAudioIcon, false);
+    testUA.isVisible(videobar.unmuteAudioIcon, false);
   });
   it('hangup', function() {
     client = create(config);
-    testUA.isVisible(client.hangup, false);
+    testUA.isVisible(videobar.hangup, false);
   });
   it('muteAudio on call started', function() {
     client = create(config);
     testUA.startCall();
-    testUA.isVisible(client.muteAudioIcon, true);
+    testUA.isVisible(videobar.muteAudioIcon, true);
   });
   it('muteAudio on mute triggered', function() {
     client = create(config);
     testUA.startCall();
-    client.muteAudioIcon.trigger("click");
-    testUA.isVisible(client.muteAudioIcon, false);
-    client.unmuteAudioIcon.trigger("click");
-    testUA.isVisible(client.muteAudioIcon, true);
+    videobar.muteAudioIcon.trigger("click");
+    testUA.isVisible(videobar.muteAudioIcon, false);
+    videobar.unmuteAudioIcon.trigger("click");
+    testUA.isVisible(videobar.muteAudioIcon, true);
   });
   it('unmuteAudio on mute triggered', function() {
     client = create(config);
     testUA.startCall();
-    client.muteAudioIcon.trigger("click");
-    testUA.isVisible(client.unmuteAudioIcon, true);
-    client.unmuteAudioIcon.trigger("click");
-    testUA.isVisible(client.unmuteAudioIcon, false);
+    videobar.muteAudioIcon.trigger("click");
+    testUA.isVisible(videobar.unmuteAudioIcon, true);
+    videobar.unmuteAudioIcon.trigger("click");
+    testUA.isVisible(videobar.unmuteAudioIcon, false);
   });
   it('fullScreen icon', function() {
     config.enableFullScreen = true;
     client = create(config);
-    testUA.isVisible(client.fullScreenExpandIcon, true);
-    testUA.isVisible(client.fullScreenContractIcon, false);
+    testUA.isVisible(videobar.fullScreenExpandIcon, true);
+    testUA.isVisible(videobar.fullScreenContractIcon, false);
   });
   it('fullScreen icon with enableFullScreen = false', function() {
     config.enableFullScreen = false;
     client = create(config);
-    testUA.isVisible(client.fullScreenExpandIcon, false);
-    testUA.isVisible(client.fullScreenContractIcon, false);
+    testUA.isVisible(videobar.fullScreenExpandIcon, false);
+    testUA.isVisible(videobar.fullScreenContractIcon, false);
   });
   it('fullScreen icon after click', function() {
     config.enableFullScreen = true;
     client = create(config);
-    client.fullScreenExpandIcon.trigger('click');
-    testUA.isVisible(client.fullScreenExpandIcon, false);
-    testUA.isVisible(client.fullScreenContractIcon, true);
-    client.fullScreenContractIcon.trigger('click');
-    testUA.isVisible(client.fullScreenExpandIcon, true);
-    testUA.isVisible(client.fullScreenContractIcon, false);
+    videobar.fullScreenExpandIcon.trigger('click');
+    testUA.isVisible(videobar.fullScreenExpandIcon, false);
+    testUA.isVisible(videobar.fullScreenContractIcon, true);
+    videobar.fullScreenContractIcon.trigger('click');
+    testUA.isVisible(videobar.fullScreenExpandIcon, true);
+    testUA.isVisible(videobar.fullScreenContractIcon, false);
   });
   it('selfView icon', function() {
     config.enableSelfView = true;
     client = create(config);
-    testUA.isVisible(client.selfViewEnableIcon, false);
-    testUA.isVisible(client.selfViewDisableIcon, true);
-    testUA.isVisible(client.video.localHolder, true);
+    testUA.isVisible(videobar.selfViewEnableIcon, false);
+    testUA.isVisible(videobar.selfViewDisableIcon, true);
+    testUA.isVisible(video.localHolder, true);
   });
   it('selfView icon with enableSelfView = false', function() {
     config.enableSelfView = false;
     client = create(config);
-    testUA.isVisible(client.selfViewEnableIcon, false);
-    testUA.isVisible(client.selfViewDisableIcon, false);
-    testUA.isVisible(client.video.localHolder, false);
+    testUA.isVisible(videobar.selfViewEnableIcon, false);
+    testUA.isVisible(videobar.selfViewDisableIcon, false);
+    testUA.isVisible(video.localHolder, false);
   });
   it('selfView icon after click', function() {
     config.enableSelfView = true;
     client = create(config);
-    client.selfViewDisableIcon.trigger('click');
-    testUA.isVisible(client.selfViewEnableIcon, true);
-    testUA.isVisible(client.selfViewDisableIcon, false);
-    testUA.isVisible(client.video.localHolder, false);
-    client.selfViewEnableIcon.trigger('click');
-    testUA.isVisible(client.selfViewEnableIcon, false);
-    testUA.isVisible(client.selfViewDisableIcon, true);
-    testUA.isVisible(client.video.localHolder, true);
+    videobar.selfViewDisableIcon.trigger('click');
+    testUA.isVisible(videobar.selfViewEnableIcon, true);
+    testUA.isVisible(videobar.selfViewDisableIcon, false);
+    testUA.isVisible(video.localHolder, false);
+    videobar.selfViewEnableIcon.trigger('click');
+    testUA.isVisible(videobar.selfViewEnableIcon, false);
+    testUA.isVisible(videobar.selfViewDisableIcon, true);
+    testUA.isVisible(video.localHolder, true);
   });
   it('dialpad icon', function() {
     config.enableDialpad = true;
     client = create(config);
-    testUA.isVisible(client.dialpadShowIcon, true);
-    testUA.isVisible(client.dialpadHideIcon, false);
-    testUA.isVisible(client.dialpad, false);
+    testUA.isVisible(videobar.dialpadShowIcon, true);
+    testUA.isVisible(videobar.dialpadHideIcon, false);
+    testUA.isVisible(dialpad.view, false);
   });
   it('dialpad icon with enableDialpad = false', function() {
     config.enableDialpad = false;
     client = create(config);
-    testUA.isVisible(client.dialpadShowIcon, false);
-    testUA.isVisible(client.dialpadHideIcon, false);
-    testUA.isVisible(client.dialpad, false);
+    testUA.isVisible(videobar.dialpadShowIcon, false);
+    testUA.isVisible(videobar.dialpadHideIcon, false);
+    testUA.isVisible(dialpad.view, false);
   });
   it('dialpad icon after click', function() {
     config.enableDialpad = true;
     client = create(config);
-    client.dialpadShowIcon.trigger('click');
-    testUA.isVisible(client.dialpadShowIcon, false);
-    testUA.isVisible(client.dialpadHideIcon, true);
-    testUA.isVisible(client.dialpad, true);
-    client.dialpadHideIcon.trigger('click');
-    testUA.isVisible(client.dialpadShowIcon, true);
-    testUA.isVisible(client.dialpadHideIcon, false);
-    testUA.isVisible(client.dialpad, false);
+    videobar.dialpadShowIcon.trigger('click');
+    testUA.isVisible(videobar.dialpadShowIcon, false);
+    testUA.isVisible(videobar.dialpadHideIcon, true);
+    testUA.isVisible(dialpad.view, true);
+    videobar.dialpadHideIcon.trigger('click');
+    testUA.isVisible(videobar.dialpadShowIcon, true);
+    testUA.isVisible(videobar.dialpadHideIcon, false);
+    testUA.isVisible(dialpad.view, false);
   });
   it('dialpad icon after click and in call', function() {
     config.enableDialpad = true;
     client = create(config);
     testUA.startCall();
-    testUA.isVisible(client.hangup, true);
-    client.dialpadShowIcon.trigger('click');
-    testUA.isVisible(client.hangup, true);
-    client.dialpadHideIcon.trigger('click');
-    testUA.isVisible(client.hangup, true);
+    testUA.isVisible(videobar.hangup, true);
+    videobar.dialpadShowIcon.trigger('click');
+    testUA.isVisible(videobar.hangup, true);
+    videobar.dialpadHideIcon.trigger('click');
+    testUA.isVisible(videobar.hangup, true);
   });
   it('hangup on call started', function() {
     client = create(config);
     testUA.startCall();
-    testUA.isVisible(client.hangup, true);
+    testUA.isVisible(videobar.hangup, true);
   });
   it('muteAudio on call started and disabled muted', function() {
     config.enableMute = false;
     client = create(config);
     testUA.startCall();
-    testUA.isVisible(client.muteAudioIcon, false);
+    testUA.isVisible(videobar.muteAudioIcon, false);
   });
   it('unmuteAudio on call started and disabled muted', function() {
     config.enableMute = false;
     client = create(config);
     testUA.startCall();
-    testUA.isVisible(client.unmuteAudioIcon, false);
+    testUA.isVisible(videobar.unmuteAudioIcon, false);
   });
   it('muteAudio on call ended', function() {
     client = create(config);
     testUA.startCall();
     testUA.endCall();
-    testUA.isVisible(client.muteAudioIcon, false);
+    testUA.isVisible(videobar.muteAudioIcon, false);
   });
   it('unmuteAudio on call ended', function() {
     client = create(config);
     testUA.startCall();
-    client.muteAudioIcon.trigger("click");
+    videobar.muteAudioIcon.trigger("click");
     testUA.endCall();
-    testUA.isVisible(client.unmuteAudioIcon, false);
+    testUA.isVisible(videobar.unmuteAudioIcon, false);
   });
   it('hangup on call ended', function() {
     client = create(config);
     testUA.startCall();
     testUA.endCall();
-    testUA.isVisible(client.hangup, false);
+    testUA.isVisible(videobar.hangup, false);
   });
   it('hangup on calling', function() {
     client = create(config);
@@ -341,8 +341,8 @@ describe('client', function() {
     callcontrol.callUri("1000@webrtc.domain.to");
     testUA.newCall();
     expect(sipstack.getCallState()).toEqual("calling");
-    testUA.isVisible(client.hangup, true);
-    expect(client.callButton.css('opacity')).toEqual("0");
+    testUA.isVisible(videobar.hangup, true);
+    expect(dialpad.call.css('opacity')).toEqual("0");
   });
   it('hangup on failed', function() {
     client = create(config);
@@ -351,8 +351,8 @@ describe('client', function() {
     }
     testUA.failCall();
     expect(sipstack.getCallState()).toEqual("connected");
-    testUA.isVisible(client.hangup, false);
-    expect(client.callButton.css('opacity')).toEqual("1");
+    testUA.isVisible(videobar.hangup, false);
+    expect(dialpad.call.css('opacity')).toEqual("1");
   });
   it('getUserMedia failed', function() {
     var alertCalled = false;
@@ -360,8 +360,9 @@ describe('client', function() {
     client.showErrorPopup = function() {
       alertCalled = true;
     }
-    client.eventBus.on("calling", function(evt) {
-      evt.sender.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
+    eventbus.on("calling", function(e) {
+      console.log('--------- calling', e);
+      e.session.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
     });
     testUA.connect();
     callcontrol.callUri("1000@webrtc.domain.to");
@@ -371,7 +372,7 @@ describe('client', function() {
     config.enableMessages = true;
     client = create(config);
     testUA.disconnect();
-    expect(messages.text().trim()).toEqual('Connection failed');
+    expect(messages.alert.text().trim()).toEqual('Connection failed');
   });
   it('on invalid destination and connected', function() {
     var config = {};
@@ -381,7 +382,7 @@ describe('client', function() {
     config.allowOutside = false;
     client = create(config);
     testUA.connect();
-    expect(messages.text().trim()).toEqual('Invalid Destination      Connected');
+    expect(messages.success.text().trim()).toEqual('Connected');
   });
   it('on disconnect for 503 with retryAfter', function() {
     config.enableMessages = true;
@@ -391,6 +392,6 @@ describe('client', function() {
       reason: 'Service Unavailable',
       retryAfter: 30
     });
-    expect(messages.text().trim()).toEqual('Service Unavailable - Retrying in 30 seconds');
+    expect(messages.alert.text().trim()).toEqual('Service Unavailable - Retrying in 30 seconds');
   });
 });

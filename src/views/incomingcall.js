@@ -28,7 +28,7 @@ function IncomingCallView(options, eventbus, sound, sipstack) {
 
   self.listeners = function() {
     eventbus.on("failed", function(e) {
-      var error = e.data.cause;
+      var error = e.cause;
       if (error === ExSIP.C.causes.CANCELED) {
         self.hide();
       }

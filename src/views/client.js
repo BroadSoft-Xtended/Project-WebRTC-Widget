@@ -75,17 +75,6 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     }
   };
 
-  // Initial startup
-  self.checkEndCallURL = function() {
-    if (configuration.endCallURL && !configuration.disabled) {
-      window.location = configuration.endCallURL;
-    }
-  };
-
-  self.getRemoteUser = function(rtcSession) {
-    return rtcSession.remote_identity.uri.user || rtcSession.remote_identity.uri.host;
-  };
-
   self.listeners = function() {
     $(document).unbind('keypress').bind('keypress', function(e) {});
     $(document).unbind('keydown').bind('keydown', function(event) {
@@ -104,7 +93,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
       self.updateClientClass();
     });
     eventbus.on("failed", function(e) {
-      var error = e.data.cause;
+      var error = e.cause;
       if (error === "User Denied Media Access") {
         self.showErrorPopup("WebRTC was not able to access your microphone/camera!");
       }

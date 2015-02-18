@@ -3,8 +3,18 @@ module.exports = EventBus;
 var ee = require('event-emitter');
 
 function EventBus() {
-	var self = ee({});
+	var self = {};
 
+	var emitter = ee({});
+	self.on = function(type, listener){
+		emitter.on(type, listener);
+	};
+	self.once = function(type, listener){
+		emitter.once(type, listener);
+	};
+	self.emit = function(type, obj){
+		emitter.emit(type, obj);
+	};
 	self.message = function(text, level) {
 		self.emit('message', {
 			text: text,
@@ -17,9 +27,10 @@ function EventBus() {
 			view: view._name.replace(/view$/i, '')
 		});
 	};
-	self.calling = function(destination) {
+	self.calling = function(destination, session) {
 		self.emit('calling', {
-			destination: destination
+			destination: destination,
+			session: session
 		});
 	};
 	self.modifier = function(which) {

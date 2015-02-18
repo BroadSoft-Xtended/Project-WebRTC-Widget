@@ -1,27 +1,18 @@
 module.exports = SIPStack;
 
 var ExSIP = require('exsip');
+var C = require('../Constants');
 
 function SIPStack(options, eventbus, debug, configuration, settings) {
   var self = {};
 
   self.ua = null;
-  var activeSession = null;
+  self.activeSession = null;
   var sessions = [];
-
-  var C = self.C = {
-    // RTCSession states
-    STATE_CONNECTED: "connected",
-    STATE_DISCONNECTED: "disconnected",
-    STATE_CALLING: "calling",
-    STATE_STARTED: "started",
-    STATE_HELD: "held"
-  };
 
   var setActiveSession = function(session) {
     debug("setting active session to " + session.id);
-    activeSession = session;
-    self.updateUserMedia();
+    self.activeSession = session;
   };
 
   self.listeners = function() {
@@ -50,16 +41,16 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     });
   };
   self.getLocalStreams = function() {
-    return activeSession ? activeSession.getLocalStreams() : null;
+    return self.activeSession ? self.activeSession.getLocalStreams() : null;
   };
   self.getRemoteStreams = function() {
-    return activeSession ? activeSession.getRemoteStreams() : null;
+    return self.activeSession ? self.activeSession.getRemoteStreams() : null;
   };
   self.getSessionId = function() {
-    return activeSession.id.replace(/\./g, '');
+    return self.activeSession.id.replace(/\./g, '');
   };
   self.terminateSession = function(session) {
-    session = session || activeSession;
+    session = session || self.activeSession;
     if (!session) {
       return;
     }
@@ -70,9 +61,9 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     if (session.status !== ExSIP.RTCSession.C.STATUS_TERMINATED) {
       session.terminate();
     }
-    if (session === activeSession) {
+    if (session === self.activeSession) {
       debug("clearing active session");
-      activeSession = null;
+      self.activeSession = null;
     }
     eventbus.viewChanged(self);
   };
@@ -84,7 +75,7 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     }
   };
   self.holdAndAnswer = function(session) {
-    var firstSession = activeSession;
+    var firstSession = self.activeSession;
     session.on('ended', function() {
       eventbus.emit('message', {text: 'Resuming with ' + firstSession.remote_identity.uri.user, level: 'normal'});
       debug("incoming call ended - unholding first call");
@@ -92,7 +83,7 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
         debug("unhold first call successful");
       });
     });
-    activeSession.hold(function() {
+    self.activeSession.hold(function() {
       debug("hold successful - answering incoming call");
       self.answer(session);
     });
@@ -101,20 +92,20 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     session.answer(configuration.getExSIPOptions());
   };
   self.hold = function(successCallback, failureCallback) {
-    if (activeSession) {
-      activeSession.hold(successCallback, failureCallback);
+    if (self.activeSession) {
+      self.activeSession.hold(successCallback, failureCallback);
     }
   };
   self.unhold = function(successCallback, failureCallback) {
-    if (activeSession) {
-      activeSession.unhold(successCallback, failureCallback);
+    if (self.activeSession) {
+      self.activeSession.unhold(successCallback, failureCallback);
     }
   };
   self.reconnectUserMedia = function(successCallback, failureCallback) {
     var onUserMediaUpdateSuccess = function(localMedia) {
       debug("reconnect user media successful");
-      if (activeSession) {
-        activeSession.changeSession({
+      if (self.activeSession) {
+        self.activeSession.changeSession({
           localMedia: localMedia
         }, function() {
           debug("session changed successfully");
@@ -133,10 +124,10 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     session.on('failed', function(e) {
       eventbus.emit('failed', e.data);
     });
-    eventbus.emit('calling', session);
+    eventbus.calling(destination, session);
   };
   self.sendDTMF = function(digit) {
-    activeSession.sendDTMF(digit, configuration.getDTMFOptions());
+    self.activeSession.sendDTMF(digit, configuration.getDTMFOptions());
   };
   self.isStarted = function() {
     return self.getCallState() === C.STATE_STARTED;
@@ -151,15 +142,15 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     return self.ua && self.ua.isRegistered();
   };
   self.sendData = function(data) {
-    if (activeSession) {
-      activeSession.sendData(data);
+    if (self.activeSession) {
+      self.activeSession.sendData(data);
     }
   };
   self.transfer = function(transferTarget, isAttended) {
     if (isAttended) {
-      self.ua.attendedTransfer(transferTarget, activeSession);
+      self.ua.attendedTransfer(transferTarget, self.activeSession);
     } else {
-      self.ua.transfer(transferTarget, activeSession);
+      self.ua.transfer(transferTarget, self.activeSession);
     }
   };
   self.updateRtcMediaHandlerOptions = function() {
@@ -174,7 +165,7 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
       if (sessions.length === 1 && !sessions[0].isStarted()) {
         return C.STATE_CALLING;
       } else {
-        if (activeSession && activeSession.isHeld()) {
+        if (self.activeSession && self.activeSession.isHeld()) {
           return C.STATE_STARTED + " " + C.STATE_HELD;
         } else {
           return C.STATE_STARTED;
@@ -189,16 +180,16 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     }
   };
   self.updateUserMedia = function(userMediaCallback, failureCallback) {
-    debug('updateUserMedia : '+configuration.disabled+', '+configuration.enableConnectLocalMedia+', '+activeSession);
-    if (!configuration.disabled && (configuration.enableConnectLocalMedia || activeSession)) {
+    debug('updateUserMedia : '+configuration.disabled+', '+configuration.enableConnectLocalMedia+', '+self.activeSession);
+    if (!configuration.disabled && (configuration.enableConnectLocalMedia || self.activeSession)) {
       // Connect to local stream
       var options = configuration.getExSIPOptions();
       debug("updating user media ...");
       self.ua.getUserMedia(options, function(localStream) {
         eventbus.emit('userMediaUpdated', localStream);
-        if (activeSession) {
+        if (self.activeSession) {
           debug("changing active session ...");
-          activeSession.changeSession({
+          self.activeSession.changeSession({
             localMedia: localStream,
             createOfferConstraints: options.createOfferConstraints
           }, function() {
@@ -226,13 +217,14 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
       debug("auto accepting reInvite");
       e.data.session.acceptReInvite();
     } else {
+      console.log('@@@@@@@@@@@@@ emit reinvite : ', e.data);
       eventbus.emit('reInvite', e.data);
     }
   };
 
   self.incomingCall = function(evt) {
     var session = evt.data.session;
-    if (!activeSession && configuration.isAutoAnswer()) {
+    if (!self.activeSession && configuration.isAutoAnswer()) {
       session.answer(configuration.getExSIPOptions());
     } else {
       eventbus.emit('incomingCall', evt);
@@ -260,10 +252,12 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
       // sipStack callbacks
       self.ua.on('connected', function(e) {
         eventbus.viewChanged(self);
+        var hasListeners = require('event-emitter/has-listeners');
+        debug('$$$$$$$$$$ connected : '+hasListeners(eventbus, 'connected'));
         eventbus.emit('connected', e);
       });
       self.ua.on('disconnected', function(e) {
-        eventbus.emit('viewChanged');
+        eventbus.viewChanged(self);
         eventbus.emit('disconnected', e);
       });
       self.ua.on('onReInvite', function(e) {
@@ -310,9 +304,9 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
         if (e.data.session.direction === "incoming") {
           self.incomingCall(e);
         } else {
-          if (!activeSession) {
+          if (!self.activeSession) {
             debug('new active session : ' + session.id);
-            activeSession = session;
+            self.activeSession = session;
           }
         }
       });
