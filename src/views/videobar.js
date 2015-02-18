@@ -1,4 +1,4 @@
-module.exports = require('../factory')(VideoBarView)
+module.exports = VideoBarView;
 
 var Icon = require('../Icon');
 var events;
@@ -41,6 +41,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
   self.enableScreenSharing = function(enabled) {
     self.isScreenSharing = enabled;
+    eventbus.screenshare(enabled);
     eventbus.viewChanged(self);
     if (enabled) {
       var onShareScreenSuccess = function(localMedia) {
@@ -149,17 +150,17 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
       sound.playClick();
       self.endCall();
       if (self.fullScreen) {
-        self.fullScreenContractIcon.click();
+        self.fullScreenContract.click();
       }
     });
 
-    self.fullScreenExpandIcon.bind('click', function(e) {
+    self.fullScreenExpand.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
       self.showFullScreen();
     });
 
-    self.fullScreenContractIcon.bind('click', function(e) {
+    self.fullScreenContract.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
       self.stopFullScreen();
@@ -168,13 +169,13 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
       self.updateFullScreen();
     });
 
-    self.selfViewDisableIcon.bind('click', function(e) {
+    self.selfViewDisable.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
       self.hideSelfView();
     });
 
-    self.selfViewEnableIcon.bind('click', function(e) {
+    self.selfViewEnable.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
       self.showSelfView();

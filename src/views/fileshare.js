@@ -1,4 +1,4 @@
-module.exports = require('../factory')(FileShareView)
+module.exports = FileShareView
 
 var Utils = require('../Utils');
 

@@ -1,9 +1,9 @@
-module.exports = require('../factory')(WhiteboardView);
+module.exports = WhiteboardView;
 
 function WhiteboardView(options, eventbus, sipstack) {
   var self = {};
 
-  self.__proto__ = PopupView(eventbus);
+  self.__proto__ = PopupView(options, self, eventbus);
 
   self.elements = ['canvas', 'tools'];
 

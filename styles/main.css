@@ -1247,15 +1247,15 @@ a.disabled {
   color: #fff;
   margin-right: 12px;
 }
-.started .holdAndAnswerButton,
-.started .dropAndAnswerButton,
-.client:not(.started) .acceptIncomingCall {
-  display: inline-block;
-}
 .holdAndAnswerButton,
 .dropAndAnswerButton,
 .acceptIncomingCall {
   display: none;
+}
+.started .holdAndAnswerButton,
+.started .dropAndAnswerButton,
+.client:not(.started) .acceptIncomingCall {
+  display: inline-block;
 }
 .callPopup {
   width: 170px;
@@ -2209,6 +2209,16 @@ authPopup .alert {
   display: none;
 }
 .client:not(.started) .file_share {
+  transition: all 1s linear;
+  opacity: 0;
+  z-index: -1;
+}
+.enable-xmpp.xmpp-shown .xmpp {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 100;
+}
+.enable-xmpp.xmpp-hidden .xmpp {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;

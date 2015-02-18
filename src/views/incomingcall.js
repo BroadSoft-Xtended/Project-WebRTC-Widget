@@ -1,12 +1,13 @@
-module.exports = require('../factory')(IncomingCallView)
+module.exports = IncomingCallView
 
 var Utils = require('../Utils');
 var ExSIP = require('exsip');
+var PopupView = require('./popup');
 
 function IncomingCallView(options, eventbus, sound, sipstack) {
   var self = {};
 
-  self.__proto__ = PopupView(eventbus);
+  self.__proto__ = PopupView(options, self, eventbus);
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptIncomingCall', 'rejectIncomingCall', 'holdAndAnswerButton', 'dropAndAnswerButton'];
 

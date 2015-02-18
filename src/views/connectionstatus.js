@@ -1,4 +1,4 @@
-module.exports = require('../factory')(ConnectionStatusView)
+module.exports = ConnectionStatusView
 
 var Utils = require('../Utils');
 var ExSIP = require('exsip');

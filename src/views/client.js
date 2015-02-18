@@ -1,4 +1,4 @@
-module.exports = require('../factory')(ClientView);
+module.exports = ClientView;
 
 var fs = require('fs');
 var styles = fs.readFileSync(__dirname + '/../../styles/bundle.min.css', 'utf-8');
@@ -8,12 +8,14 @@ var Icon = require('../Icon');
 var WebRTC_C = require('../Constants');
 var Utils = require('../Utils');
 var ExSIP = require('exsip');
+require('../models/eventbus');
 var ClientConfig = require('../../js/client-config.js.default');
 
-function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol) {
+function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authenticationview, 
+  xmppView, incomingcallView, reinviteView, messagesView, settings) {
   var self = {};
 
-  self.elements = ['main', 'errorPopup'];
+  self.elements = ['client', 'main', 'errorPopup'];
 
   options = options || Utils.clone(ClientConfig);
   self.visibilities = {};
@@ -33,8 +35,8 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     }
   };
 
-  self.init = function() {
-    var unsupported = Utils.compatibilityCheck(this);
+  self.init = function(options) {
+    var unsupported = Utils.compatibilityCheck(configuration);
     if (unsupported) {
       $('#unsupported').html(unsupported).show();
     }
@@ -44,19 +46,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
       $('#whiteboard_unsupported').html(whiteboardUnsupported).show();
     }
 
-    // Allow some windows to be draggable, required jQuery.UI
-    if (configuration.enableWindowDrag) {
-      $(function() {
-        self.video.localHolder.draggable({
-          snap: ".remoteVideo,.videoBar",
-          containment: ".main",
-          snapTolerance: 200,
-          stop: function(event, ui) {
-            self.settings.updateViewPositions();
-          }
-        });
-      });
-    }
+    self.updateCss();
 
     self.updateClientClass();
 
@@ -101,7 +91,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     $(document).unbind('keydown').bind('keydown', function(event) {
       var isModifier = event.altKey;
       if (isModifier) {
-        if (self.transferView.targetInput.is(event.target)) {
+        if (transferview.targetInput.is(event.target)) {
           return;
         }
 
@@ -128,14 +118,6 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     eventbus.on("unregistered", function(e) {
       self.updateClientClass();
     });
-
-    self.updateCss();
-
-    if (options.parent) {
-      self.appendTo($(options.parent));
-    }
-
-    self.init();
   };
 
   // Buttons
@@ -223,6 +205,9 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     if (configuration.enableStats) {
       classes.push("enable-stats");
     }
+    if (configuration.enableXMPP) {
+      classes.push("enable-xmpp");
+    }
     var views = configuration.getViews();
     if (views && views.length > 0) {
       views.map(function(view) {
@@ -264,12 +249,12 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     } else {
       classes.push("screen-sharing-off");
     }
-    if (self.transfer.visible) {
+    if (transferview.visible) {
       classes.push("transfer-visible");
     } else {
       classes.push("transfer-hidden");
     }
-    if (self.authentication.visible) {
+    if (authenticationview.visible) {
       classes.push("auth-visible");
     } else {
       classes.push("auth-hidden");
@@ -279,3 +264,5 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 
   return self;
 }
+
+exports.constructor = ClientView;

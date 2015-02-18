@@ -1,11 +1,9 @@
-// module.exports = EventBus;
-module.exports = require('../factory')(EventBus);
+module.exports = EventBus;
 
-var util = require('util');
-var events = require('events');
+var ee = require('event-emitter');
 
 function EventBus() {
-	var self = this;
+	var self = ee({});
 
 	self.message = function(text, level) {
 		self.emit('message', {
@@ -34,10 +32,12 @@ function EventBus() {
 			enabled: enabled
 		});
 	};
-
-	events.EventEmitter.call(this);
+	self.signIn = function() {
+		self.emit('signIn');
+	};
+	self.signOut = function() {
+		self.emit('signOut');
+	};
 
 	return self;
 }
-
-util.inherits(EventBus, events.EventEmitter);

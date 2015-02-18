@@ -5,18 +5,15 @@ describe('call waiting', function() {
     setUp();
     testUA.mockWebRTC();
     testUA.mockSound();
-    ClientConfig.domainTo = "domain.to";
-    ClientConfig.domainFrom = "domain.from";
-    ClientConfig.enableTransfer = true;
-    ClientConfig.enableCallStats = false;
+    config = {domainTo: 'domain.to', domainFrom: 'domain.from', enabledTransfer: true, enableCallStats: false};
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
       console.log("enableLocalAudio : " + enable);
     }
   });
 
-  it('1st incoming call', function() {
-    ClientConfig.enableAutoAnswer = false;
-    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+  it('1st incoming call:', function() {
+    config.enableAutoAnswer = false;
+    client = create(config);   
     testUA.connect();
     var session = testUA.incomingSession();
     var answerOptions = "";
@@ -26,17 +23,21 @@ describe('call waiting', function() {
     }
     testUA.incomingCall(session);
     expect(answerOptions).toEqual("", "Answer should not have been called");
-    expect(client.incomingCallName.text()).toEqual("Incoming DisplayName");
-    expect(client.incomingCallUser.text()).toEqual("Incoming User");
-    testUA.isVisible(client.callPopup, true);
-    expect(client.dropAndAnswerButton.is(":visible")).toEqual(false);
-    expect(client.holdAndAnswerButton.is(":visible")).toEqual(false);
-    expect(client.acceptIncomingCall.is(":visible")).toEqual(true);
+    expect(incomingcall.incomingCallName.text()).toEqual("Incoming DisplayName");
+    expect(incomingcall.incomingCallUser.text()).toEqual("Incoming User");
+    expect(incomingcall.visible).toEqual(true);
+    console.log('client.client : ', client.client.attr('class'));
+    testUA.isVisible(incomingcall.view, true);
+    expect(incomingcall.dropAndAnswerButton.css('display')).toEqual('none');
+    expect(incomingcall.dropAndAnswerButton.is(":visible")).toEqual(false);
+    expect(incomingcall.acceptIncomingCall.css('display')).toEqual('inline-block');
+    expect(incomingcall.holdAndAnswerButton.css('display')).toEqual('none');
+    expect(incomingcall.dropAndAnswerButton.is(":visible")).toEqual(false);
   });
 
   it('incoming call and cancel', function() {
-    ClientConfig.enableAutoAnswer = false;
-    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    config.enableAutoAnswer = false;
+    client = create(config);   
     testUA.connect();
     var session = testUA.incomingSession();
     var answerOptions = "";
@@ -52,8 +53,8 @@ describe('call waiting', function() {
   });
 
   it('1st incoming call with enableAutoAnswer', function() {
-    ClientConfig.enableAutoAnswer = true;
-    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    config.enableAutoAnswer = true;
+    client = create(config);   
     client.settings.settingAutoAnswer.prop('checked', true);
     testUA.connect();
     var session = testUA.incomingSession();
@@ -68,8 +69,8 @@ describe('call waiting', function() {
   });
 
   it('2nd incoming call with enableAutoAnswer', function() {
-    ClientConfig.enableAutoAnswer = true;
-    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    config.enableAutoAnswer = true;
+    client = create(config);   
     testUA.connect();
     testUA.startCall();
     var session = testUA.incomingSession();
@@ -89,8 +90,8 @@ describe('call waiting', function() {
   });
 
   it('2nd incoming call and hold+answer click', function() {
-    ClientConfig.enableAutoAnswer = true;
-    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    config.enableAutoAnswer = true;
+    client = create(config);   
     testUA.connect();
     var outgoingSession = testUA.outgoingSession();
     testUA.startCall(outgoingSession);
@@ -103,17 +104,17 @@ describe('call waiting', function() {
     }
     testUA.incomingCall(incomingSession);
 
-    ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active");
-    deepEqual(client.sipStack.sessions.length, 2);
+    ok(sipstack.activeSession === outgoingSession, "Outgoing session should be active");
+    deepEqual(sipstack.sessions.length, 2);
     client.holdAndAnswerButton.trigger("click");
-    ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
-    deepEqual(client.sipStack.sessions.length, 2);
+    ok(sipstack.activeSession === incomingSession, "Incoming session should be active");
+    deepEqual(sipstack.sessions.length, 2);
     expect(answerOptions).toNotEqual("", "Answer should have been called");
   });
 
   it('2nd incoming call and hold+answer click and resume 1st call after 2nd ends', function() {
-    ClientConfig.enableAutoAnswer = true;
-    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    config.enableAutoAnswer = true;
+    client = create(config);   
     testUA.connect();
     var outgoingSession = testUA.outgoingSession();
     testUA.startCall(outgoingSession);
@@ -121,15 +122,15 @@ describe('call waiting', function() {
     testUA.incomingCall(incomingSession);
 
     client.holdAndAnswerButton.trigger("click");
-    ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
+    ok(sipstack.activeSession === incomingSession, "Incoming session should be active");
     client.hangup.trigger("click");
-    ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active again");
-    expect(client.sipStack.sessions.length).toEqual(1);
+    ok(sipstack.activeSession === outgoingSession, "Outgoing session should be active again");
+    expect(sipstack.sessions.length).toEqual(1);
   });
 
   it('2nd incoming call and drop+answer click', function() {
-    ClientConfig.enableAutoAnswer = true;
-    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    config.enableAutoAnswer = true;
+    client = create(config);   
     testUA.connect();
     var outgoingSession = testUA.outgoingSession();
     testUA.startCall(outgoingSession);
@@ -141,17 +142,17 @@ describe('call waiting', function() {
     }
     testUA.incomingCall(incomingSession);
 
-    ok(client.sipStack.activeSession === outgoingSession, "Outgoing session should be active");
-    deepEqual(client.sipStack.sessions.length, 2);
+    ok(sipstack.activeSession === outgoingSession, "Outgoing session should be active");
+    deepEqual(sipstack.sessions.length, 2);
     client.dropAndAnswerButton.trigger("click");
-    ok(client.sipStack.activeSession === incomingSession, "Incoming session should be active");
-    deepEqual(client.sipStack.sessions.length, 1);
+    ok(sipstack.activeSession === incomingSession, "Incoming session should be active");
+    deepEqual(sipstack.sessions.length, 1);
     expect(answerOptions).toNotEqual("", "Answer should have been called");
   });
 
   it('call and hangup and incoming call', function() {
-    ClientConfig.enableAutoAnswer = false;
-    client = new WebRTC.Client(ClientConfig, '#testWrapper');
+    config.enableAutoAnswer = false;
+    client = create(config);   
     testUA.connect();
     testUA.startCall();
     testUA.endCall();

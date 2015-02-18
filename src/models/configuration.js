@@ -1,4 +1,4 @@
-module.exports = require('../factory')(Configuration);
+module.exports = Configuration;
 
 var Flags = {
   enableHD: 1,
@@ -29,39 +29,72 @@ var Utils = require('../Utils');
 var WebRTC_C = require('../Constants');
 var ExSIP = require('exsip');
 var jQuery = $ = require('jquery');
-require('jquery.cookie')
 // TODO : hack to test in node js directly
 if(typeof document === 'undefined') {
   document = {};
 }
-function Configuration(options, eventbus, debug, sipstack, settings) {
+function Configuration(options, eventbus, debug, settings) {
   var self = {};
+  options = options || {};
 
-  debug('configuration options : ' + ExSIP.Utils.toString(options));
   jQuery.extend(self, options);
 
   var screenshare = false;
-  // Default URL variables
-  if (Utils.getSearchVariable("disableMessages")) {
-    self.enableMessages = false;
-  }
-  self.destination = self.destination || Utils.getSearchVariable("destination");
-  self.networkUserId = self.networkUserId || Utils.getSearchVariable("networkUserId");
-  self.hd = (Utils.getSearchVariable("hd") === "true") || $.cookie('settingHD');
-  self.audioOnly = (Utils.getSearchVariable("audioOnly") === "true");
-  self.sipDisplayName = self.displayName || Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
-  if (self.sipDisplayName) {
-    self.sipDisplayName = self.sipDisplayName.replace(/%20/g, " ");
-  }
-  self.maxCallLength = Utils.getSearchVariable("maxCallLength");
-  self.size = Utils.getSearchVariable("size") || $.cookie('settingSize') || 1;
-  self.color = Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor');
-  self.offerToReceiveVideo = true;
-  var features = Utils.getSearchVariable("features");
-  if (features) {
-    self.setClientConfigFlags(parseInt(features, 10));
-  }
-  self.bodyBackgroundColor = $('body').css('backgroundColor');
+  var offerToReceiveVideo = true;
+  var bodyBackgroundColor = $('body').css('backgroundColor');
+  
+  self.props = {
+    enableConnectLocalMedia: {value: function(){return options.enableConnectLocalMedia}},
+    allowOutside: {value: function(){return options.allowOutside}},
+    domainFrom: {value: function(){debug('domainFrom : '+options.domainFrom); return options.domainFrom}},
+    domainTo: {value: function(){return options.domainTo}},
+    destination: {
+      value: function(){return options.destination || Utils.getSearchVariable("destination");}
+    },
+    networkUserId: {
+      value: function(){return options.networkUserId || Utils.getSearchVariable("networkUserId");}
+    },
+    hd: {
+      value: function(){return Utils.getSearchVariable("hd") === "true" || $.cookie('settingHD');}
+    },
+    audioOnly: {
+      value: function(){return Utils.getSearchVariable("audioOnly") === "true";}
+    },
+    sipDisplayName: {
+      value: function(){
+        var name = options.displayName || Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
+        if (name) {
+          name = name.replace(/%20/g, " ");
+        }
+        return name;
+      }
+    },
+    maxCallLength: {
+      value: function(){return Utils.getSearchVariable("maxCallLength");}
+    },
+    size: {
+      value: function(){return Utils.getSearchVariable("size") || $.cookie('settingsize') || 1;}
+    },
+    color: {
+      value: function(){return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor');}
+    },
+    enableMessages: {
+      value: function(){return !(!!Utils.getSearchVariable("disableMessages"));}
+    },
+    features: {
+      value: function(){
+        var features = Utils.getSearchVariable("features");
+        if (features) {
+         self.setClientConfigFlags(parseInt(features, 10));
+        }
+      }
+    }
+  };
+
+  self.init = function(options) { 
+    debug('configuration options : ' + ExSIP.Utils.toString(options));
+    debug('configuration : ' + ExSIP.Utils.toString(self));
+  };
 
   self.listeners = function(audioOnly) { 
     eventbus.on('screenshare', function(e) {
@@ -75,13 +108,13 @@ function Configuration(options, eventbus, debug, sipstack, settings) {
 
   self.setAudioOnlyOfferAndRec = function(audioOnly) { 
     self.audioOnly = audioOnly;
-    self.offerToReceiveVideo = !audioOnly;
+    offerToReceiveVideo = !audioOnly;
     sipstack.updateUserMedia();
   };
 
   self.setAudioOnly = function(audioOnly) { 
     self.audioOnly = audioOnly;
-    self.offerToReceiveVideo = true;
+    offerToReceiveVideo = true;
     sipstack.updateUserMedia();
   };
 
@@ -127,7 +160,7 @@ function Configuration(options, eventbus, debug, sipstack, settings) {
     return $.cookie('settingPassword');
   };
   self.isAutoAnswer = function() {
-    return self.settings.settingAutoAnswer.is(':checked');
+    return settings.autoAnswer;
   };
   self.getDTMFOptions = function() {
     return {
@@ -145,7 +178,7 @@ function Configuration(options, eventbus, debug, sipstack, settings) {
       createOfferConstraints: {
         mandatory: {
           OfferToReceiveAudio: true,
-          OfferToReceiveVideo: !self.isAudioOnlyView() && self.offerToReceiveVideo
+          OfferToReceiveVideo: !self.isAudioOnlyView() && offerToReceiveVideo
         }
       }
     };
@@ -187,8 +220,8 @@ function Configuration(options, eventbus, debug, sipstack, settings) {
         }
       };
     } else {
-      var width = self.settings.getResolutionEncodingWidth();
-      var height = self.settings.getResolutionEncodingHeight();
+      var width = settings.getResolutionEncodingWidth();
+      var height = settings.getResolutionEncodingHeight();
       if (width && height) {
         if (height <= 480) {
           return {
@@ -249,7 +282,7 @@ function Configuration(options, eventbus, debug, sipstack, settings) {
   self.getRtcMediaHandlerOptions = function() {
     var options = {
       reuseLocalMedia: self.enableConnectLocalMedia,
-      videoBandwidth: self.settings.getBandwidth(),
+      videoBandwidth: settings.getBandwidth(),
       disableICE: self.disableICE,
       RTCConstraints: {
         'optional': [],
@@ -260,21 +293,22 @@ function Configuration(options, eventbus, debug, sipstack, settings) {
   };
 
   self.isHD = function() {
+    // console.log('isHD : '+self.enabledHD+', '+self.hd);
     return self.enableHD === true && self.hd === true;
   };
 
   self.isWidescreen = function() {
-    return self.isHD() || self.settings.resolutionType.val() === WebRTC_C.WIDESCREEN;
+    return self.isHD() || settings.resolutionType === WebRTC_C.WIDESCREEN;
   };
 
   self.setResolutionDisplay = function(resolutionDisplay) {
     self.hd = false;
-    self.settings.setResolutionDisplay(resolutionDisplay);
+    settings.setResolutionDisplay(resolutionDisplay);
     eventbus.viewChanged(self);
   };
 
   self.getResolutionDisplay = function() {
-    return self.isHD() ? WebRTC_C.R_1280x720 : self.settings.getResolutionDisplay();
+    return self.isHD() ? WebRTC_C.R_1280x720 : settings.getResolutionDisplay();
   }  
 
   return self;

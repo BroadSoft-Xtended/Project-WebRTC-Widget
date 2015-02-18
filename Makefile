@@ -17,7 +17,7 @@ build: dist/webrtc-bundle.min.js
 TRANSFORMS := -t brfs
 
 dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
-	uglifyjs js/3rdparty.js $< > $@
+	uglifyjs $< > $@
 
 dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js styles/bundle.min.css $(MEDIA_FILES)
 	browserify $(TRANSFORMS) src/WebRTC.js > $@

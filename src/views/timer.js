@@ -1,4 +1,4 @@
-module.exports = require('../factory')(TimerView);
+module.exports = TimerView;
 
 var Utils = require('../Utils');
 
@@ -7,6 +7,12 @@ function TimerView(options, debug, eventbus, statsView, configuration) {
 
   self.callTimer = null;
   self.startTime = null;
+
+  self.elements = ['text'];
+
+  self.init = function() {
+    self.updateText();
+  };
 
   self.listeners = function() {
     eventbus.on("started", function(e) {
@@ -60,8 +66,6 @@ function TimerView(options, debug, eventbus, statsView, configuration) {
       }
     };
   }
-
-  self.updateText();
 
   return self;
 }

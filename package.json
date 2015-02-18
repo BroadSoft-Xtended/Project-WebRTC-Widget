@@ -15,8 +15,16 @@
     "ejs": "1.0.0",
     "debug": "2.1.1",
     "exsip": "exsip",
-    "brfs": "~1.3.0",
-    "stacktrace-js": "~0.6.4"
+    "brfs": "1.3.0",
+    "stacktrace-js": "0.6.4",
+    "jquery": "2.1.3",
+    "jquery-ui": "1.10.5",
+    "stanza.io": "7.0.7",
+    "otalk-chat-input-view": "1.1.0",
+    "ampersand-grouped-collection-view": "1.2.1",
+    "node-stringprep": "0.7.0",
+    "ampersand-view": "7.2.0",
+    "event-emitter": "0.3.3"
   },
   "devDependencies": {
     "grunt": "0.4.4",

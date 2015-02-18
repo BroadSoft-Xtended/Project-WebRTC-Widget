@@ -1,4 +1,4 @@
-module.exports = require('../factory')(MessagesView)
+module.exports = MessagesView
 
 var Utils = require('../Utils');
 var ExSIP = require('exsip');

@@ -1,15 +1,16 @@
-#unsupported.unsupported
-#whiteboard_unsupported.unsupported
-#screen_sharing_unsupported.unsupported
-  | Could not retrieve screen capture. Do you have it enabled?
-  br
-  |   Open link to check : 
-  span chrome://flags/#enable-usermedia-screen-capture
-noscript
-  #javascript_disabled.unsupported
-    | JavaScript must be enabled to load the WebRTC client
-#conversejs
-#client.client
-  .main
-    .errorPopup
+.wrapper
+	#unsupported.unsupported
+	#whiteboard_unsupported.unsupported
+	#screen_sharing_unsupported.unsupported
+		| Could not retrieve screen capture. Do you have it enabled?
+		br
+		| Open link to check : 
+		span chrome://flags/#enable-usermedia-screen-capture
+	noscript
+		#javascript_disabled.unsupported
+			| JavaScript must be enabled to load the WebRTC client
+	#conversejs
+	#client.client
+		.main
+			.errorPopup
 

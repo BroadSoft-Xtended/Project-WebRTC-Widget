@@ -21,7 +21,7 @@
 
     // client.jade compiled template
     templatizer["client"] = function tmpl_client() {
-        return '<div id="unsupported" class="unsupported"></div><div id="whiteboard_unsupported" class="unsupported"></div><div id="screen_sharing_unsupported" class="unsupported">Could not retrieve screen capture. Do you have it enabled?<br/>  Open link to check : <span>chrome://flags/#enable-usermedia-screen-capture</span></div><noscript><div id="javascript_disabled" class="unsupported">JavaScript must be enabled to load the WebRTC client</div></noscript><div id="conversejs"></div><div id="client" class="client"><div class="main"><div class="errorPopup"></div></div></div>';
+        return '<div class="wrapper"><div id="unsupported" class="unsupported"></div><div id="whiteboard_unsupported" class="unsupported"></div><div id="screen_sharing_unsupported" class="unsupported">Could not retrieve screen capture. Do you have it enabled?<br/>Open link to check : <span>chrome://flags/#enable-usermedia-screen-capture</span></div><noscript><div id="javascript_disabled" class="unsupported">JavaScript must be enabled to load the WebRTC client</div></noscript><div id="conversejs"></div><div id="client" class="client"><div class="main"><div class="errorPopup"></div></div></div></div>';
     };
 
     // connectionstatus.jade compiled template
@@ -102,6 +102,11 @@
     // whiteboard.jade compiled template
     templatizer["whiteboard"] = function tmpl_whiteboard() {
         return '<div class="whiteboard"><div class="tools"><a href=".canvas" data-tool="marker" class="tooltype">Marker</a><a href=".canvas" data-tool="eraser" class="tooltype">Eraser</a></div><canvas width="600" height="400" class="canvas"></canvas></div>';
+    };
+
+    // xmpp.jade compiled template
+    templatizer["xmpp"] = function tmpl_xmpp() {
+        return '<div class="xmpp"><div class="table fixed loginForm"><div class="row"><label class="cell">Name:</label><input type="text" name="name" placeholder="Email" class="cell name"/></div><div class="row"><label class="cell">Password:</label><input type="password" name="password" class="cell password"/></div><div class="row"><div class="cell"></div><input type="button" value="Log In" class="cell login"/></div></div><div class="content"></div><div class="messages"></div></div>';
     };
 
     return templatizer;

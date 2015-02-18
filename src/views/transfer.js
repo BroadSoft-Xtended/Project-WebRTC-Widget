@@ -1,11 +1,11 @@
-module.exports = require('../factory')(TransferView)
+module.exports = TransferView;
 
 var PopupView = require('./popup');
 
 function TransferView(options, sound, sipstack, eventbus, configuration, callcontrol) {
   var self = {};
 
-  self.__proto__ = PopupView(eventbus);
+  self.__proto__ = PopupView(options, self, eventbus);
 
   self.elements = ['accept', 'reject', 'targetInput', 'typeAttended'];
 

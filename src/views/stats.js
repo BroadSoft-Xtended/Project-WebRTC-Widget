@@ -1,9 +1,11 @@
-module.exports = require('../factory')(StatsView);
+module.exports = StatsView;
+
+var PopupView = require('./popup');
 
 function StatsView(options, eventbus, configuration, sipstack) {
   var self = {};
 
-  self.__proto__ = PopupView(eventbus);
+  self.__proto__ = PopupView(options, self, eventbus);
 
   self.elements = ['statsVar'];
 
@@ -50,7 +52,7 @@ function StatsView(options, eventbus, configuration, sipstack) {
       }
       var data = {
         "lid": 1,
-        "pid": self.sipStack.getSessionId(),
+        "pid": self.sipstack.getSessionId(),
         "reports": reports
       };
       addStats(data);
@@ -58,7 +60,7 @@ function StatsView(options, eventbus, configuration, sipstack) {
   };
 
   self.getDataSerie = function(type, label, sessionId) {
-    var dataSeries = getDataSeriesByLabel(sessionId || this.sipStack.getSessionId(), type, label);
+    var dataSeries = getDataSeriesByLabel(sessionId || this.sipstack.getSessionId(), type, label);
     var result;
     for (var i = 0; i < dataSeries.length; i++) {
       var dataSerie = dataSeries[i];

@@ -1,32 +1,28 @@
-module.exports = require('../factory')(AuthenticationView)
+module.exports = AuthenticationView;
 
 var $ = require('jquery');
 var PopupView = require('./popup');
 
-function AuthenticationView(options, eventbus, settings, configuration) {
+function AuthenticationView(options, eventbus, settings, configuration, debug) {
   var self = {};
 
-  self.__proto__ = PopupView(eventbus);
-
-  var settingsUserId = options.settingsUserId || settings.userId;
-  var settingsAuthenticationUserId = options.authenticationUserId || settings.authenticationUserId;
-  var settingsPassword = options.settingsPassword || settings.password;
-  var configurationRegister = options.configurationRegister || configuration.register;
+  self.__proto__ = PopupView(options, self, eventbus);
 
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
 
   self.listeners = function() {
     eventbus.on('registrationFailed', function(e) {
       var statusCode = e.data.response.status_code;
-      if ((statusCode === 403 && settingsUserId && !settingsPassword()) || configurationRegister) {
+      debug('registration failed : '+statusCode+', '+settings.userid+', '+settings.password);
+      if ((statusCode === 403 && settings.userid && !settings.password) || configuration.register) {
         self.setVisible(true);
       }
     });
 
     eventbus.on('viewChanged', function(e) {
       if(e.view === 'authentication' && e.visible) {
-        authUserid.val(settingsAuthenticationUserId());
-        userid.val(settingsUserId());
+        self.authUserid.val(settings.authenticationUserid);
+        self.userid.val(settings.userid);
       }
     });
 
@@ -45,11 +41,11 @@ function AuthenticationView(options, eventbus, settings, configuration) {
         password: password
       })
       eventbus.once("registered", function() {
-        if (authUserId && settingsUserId() !== authUserId) {
-          settingsAuthenticationUserId(authUserId);
+        if (authUserId && settings.userid !== authUserId) {
+          settings.authenticationUserid = authUserId;
         }
-        settingsUserId(userId);
-        settingsPassword(password);
+        settings.userid = userId;
+        settings.password = password;
       });
     });
 

@@ -1,4 +1,4 @@
-module.exports = require('../factory')(SMSProvider);
+module.exports = SMSProvider;
 
 var ExSIP = require('exsip');
 

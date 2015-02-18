@@ -1,9 +1,11 @@
-module.exports = require('../factory')(ReinviteView)
+module.exports = ReinviteView
+
+var PopupView = require('./popup');
 
 function ReinviteView(options, eventbus) {
   var self = {};
 
-  self.__proto__ = PopupView(eventbus);
+  self.__proto__ = PopupView(options, self, eventbus);
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptReInviteCall', 'rejectReInviteCall', 'title'];
 

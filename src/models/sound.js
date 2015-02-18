@@ -1,4 +1,4 @@
-module.exports = require('../factory')(Sound);
+module.exports = Sound;
 
 var $ = require('jquery');
 var fs = require('fs');
@@ -6,16 +6,21 @@ var fs = require('fs');
 function Sound(options, eventbus, configuration, sipstack) {
   var self = {};
 
-  var soundOut = $('<audio>', {volume: configuration.volumeClick}).appendTo('body');
-  var soundOutDTMF = $('<audio>', {volume: configuration.volumeDTMF}).appendTo('body');
+  var soundOut;
+  var soundOutDTMF;
   var muted = false;
+  
+  self.init = function() {
+    soundOut = $('<audio>', {volume: configuration.volumeClick}).appendTo($('body'));
+    soundOutDTMF = $('<audio>', {volume: configuration.volumeDTMF}).appendTo($('body'));
+  };
 
   self.listeners = function() {
     eventbus.on("progress", function(e) {
       self.playDtmfRingback();
     });
     eventbus.on("failed", function(e) {
-      sound.pause();
+      self.pause();
     });
     eventbus.on("resumed", function() {
       self.pause();
@@ -67,8 +72,8 @@ function Sound(options, eventbus, configuration, sipstack) {
   };
 
   self.pause = function() {
-    soundOut.pause();
-    soundOutDTMF.pause();
+    soundOut.trigger('pause');
+    soundOutDTMF.trigger('pause');
   };
 
   self.playDtmfRingback = function() {
@@ -97,18 +102,18 @@ function Sound(options, eventbus, configuration, sipstack) {
 
   self.playTone = function(audioSource, media, options) {
     // avoid restarting same playing audio
-    if (audioSource.getAttribute("src") === media && !audioSource.paused) {
+    if (audioSource.attr("src") === media && !audioSource[0].paused) {
       return;
     }
     options = options || {};
-    var media = fs.readFileSync(__dirname + '/../../media/'+media, 'base64');
-    audioSource.setAttribute("src", media);
+    var media = fs.readFileSync(__dirname + '/../../media/'+media+'.ogg', 'base64');
+    audioSource.attr("src", media);
     if (options.loop) {
-      audioSource.setAttribute("loop", "true");
+      audioSource.attr("loop", "true");
     } else {
-      audioSource.removeAttribute("loop");
+      audioSource.attr('loop', '');
     }
-    audioSource.play();
+    audioSource.trigger('play');
   };
 
   self.playDtmf = function(media, options) {

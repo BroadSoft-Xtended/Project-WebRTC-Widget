@@ -1,3 +1,5 @@
+var adapter = require('./adapter');
+
 var Utils = {
   clone: function(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -23,6 +25,13 @@ var Utils = {
     // write the ArrayBuffer to a blob, and you're done
     var blob = new Blob([ab], {type: mimeString});
     return blob;
+  },
+
+  camelize: function (str) {
+    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+      if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+      return index == 0 ? match.toLowerCase() : match.toUpperCase();
+    });
   },
 
   format: function(seconds)
@@ -114,7 +123,7 @@ var Utils = {
     }
   },
 
-  compatibilityCheck: function(client)
+  compatibilityCheck: function(configuration)
   {
     var isChrome = this.isChrome();
     var isFirefox = this.isFirefox();
@@ -138,7 +147,7 @@ var Utils = {
         return "Your version of Firefox must be upgraded to at least version 22y<br>" +
           "Please go to: <a href='http://www.mozilla.org'>http://www.mozilla.org</a>";
       }
-      client.configuration.enableStats = false;
+      configuration.enableStats = false;
     }
   },
 
@@ -148,17 +157,15 @@ var Utils = {
   },
 
   majorVersion: function(){
-    return detect.parse(navigator.userAgent).browser.major;
+    return adapter.webrtcDetectedVersion;
   },
 
   isChrome: function(){
-    var ua = detect.parse(navigator.userAgent);
-    return (/chrom(e|ium)/).test(ua.browser.family.toLowerCase());
+    return adapter.webrtcDetectedBrowser === 'chrome';
   },
 
   isFirefox: function(){
-    var ua = detect.parse(navigator.userAgent);
-    return (/firefox/).test(ua.browser.family.toLowerCase());
+    return adapter.webrtcDetectedBrowser === 'firefox';
   },
 
   rebindListeners: function(type, elements, listener){

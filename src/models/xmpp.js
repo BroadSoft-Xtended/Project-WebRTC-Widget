@@ -1,40 +1,41 @@
-module.exports = require('../factory')(Sound);
+module.exports = XMPP;
 
-function XMPP(options, debug, eventbus, configuration) {
+var XMPP = require('stanza.io');
+
+function XMPP(options, debug, eventbus) {
   var self = {};
 
-  init: function() {
-    if (configuration.enableXMPP) {
-      try {
-        converse.initialize({
-          auto_list_rooms: false,
-          auto_subscribe: false,
-          bosh_service_url: 'https://bind.opkode.im', // Please use this connection manager only for testing purposes
-          hide_muc_server: false,
-          i18n: locales.en, // Refer to ./locale/locales.js to see which locales are supported
-          prebind: false,
-          show_controlbox_by_default: true,
-          xhr_user_search: false
-        });
-      } catch (e) {
-        debug("Could not init XMPP chat : " + e);
-      }
-    }
-  },
+  var client;
+  self.login = function(jid, password) {
+    client = XMPP.createClient({
+      jid: jid,
+      password: password,
+
+      // If you have a .well-known/host-meta.json file for your 
+      // domain, the connection transport config can be skipped. 
+
+      transport: 'bosh',
+      boshURL: 'broadsoft.com'
+        // (or `boshURL` if using 'bosh' as the transport) 
+    });
+    return client;
+  };
+
+  self.init = function() {
+  };
+
   self.listeners = function() {
     var self = this;
     eventbus.on("started", function() {
-      self.statusBeforeCall = converse.getStatus();
-      debug('status before call : ' + self.statusBeforeCall);
-      converse.setStatus('dnd');
+      // self.statusBeforeCall = converse.getStatus();
+      // debug('status before call : ' + self.statusBeforeCall);
+      // converse.setStatus('dnd');
     });
     eventbus.on("ended", function() {
-      debug('reset status to : ' + self.statusBeforeCall);
-      converse.setStatus(self.statusBeforeCall);
+      // debug('reset status to : ' + self.statusBeforeCall);
+      // converse.setStatus(self.statusBeforeCall);
     });
-  }
+  };
 
-  self.init();
-  
   return self;
 }

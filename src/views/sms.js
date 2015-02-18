@@ -1,4 +1,4 @@
-module.exports = require('../factory')(SMSView);
+module.exports = SMSView;
 
 var DateFormat = require('../DateFormat');
 var Utils = require('../Utils');
@@ -87,7 +87,7 @@ function InboxItem(sms, message) {
 function SMSView(options, eventbus, debug, smsprovider, sound) {
   var self = {};
 
-  self.__proto__ = PopupView(eventbus);
+  self.__proto__ = PopupView(options, self, eventbus);
 
   self.elements = ['status', 'statusContent', 'inbox', 'inboxContent', 'loginForm', 'loginLink', 'name', 'password', 'sendForm',
     'sendTo', 'sendBody', 'sendButton'

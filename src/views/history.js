@@ -1,4 +1,4 @@
-module.exports = require('../factory')(HistoryView)
+module.exports = HistoryView
 
 var Utils = require('../Utils');
 var PopupView = require('./popup');
@@ -64,10 +64,10 @@ function Call(value) {
   return self;
 }
 
-function HistoryView(options, sound, stats, sipstack, configuration, eventbus, callcontrol) {
+function HistoryView(options, sound, statsView, sipstack, configuration, eventbus, callcontrol) {
   var self = {};
 
-  self.__proto__ = PopupView(eventbus);
+  self.__proto__ = PopupView(options, self, eventbus);
 
   var pagePrefix = 'page_';
 

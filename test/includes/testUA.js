@@ -20,7 +20,7 @@ module.exports = {
   },
 
   emitReInvite: function(client) {
-    client.sipStack.ua.emit("onReInvite", client.sipStack.ua, {
+    sipstack.ua.emit("onReInvite", sipstack.ua, {
       session: {acceptReInvite: function(){reInviteAccepted = true;},
         rejectReInvite: function(){reInviteRejected = true;}},
       request: {from: {displayName: "test", uri: {user: "user"}}},
@@ -30,31 +30,31 @@ module.exports = {
   },
 
   connect: function() {
-    client.sipStack.ua.isConnected = function(){return true;};
-    client.sipStack.ua.emit('connected', client.sipStack.ua);
+    sipstack.ua.isConnected = function(){return true;};
+    sipstack.ua.emit('connected', sipstack.ua);
   },
 
   disconnect: function(data) {
-    client.sipStack.ua.isConnected = function(){return false;};
-    client.sipStack.ua.emit('disconnected', client.sipStack.ua, data);
+    sipstack.ua.isConnected = function(){return false;};
+    sipstack.ua.emit('disconnected', sipstack.ua, data);
   },
 
   registrationFailed: function(statusCode) {
-    client.sipStack.ua.emit('registrationFailed', client.sipStack.ua, {response: {status_code: (statusCode || 401)}});
+    sipstack.ua.emit('registrationFailed', sipstack.ua, {response: {status_code: (statusCode || 401)}});
   },
 
   registered: function() {
-    client.sipStack.ua.emit('registered', client.sipStack.ua, {response: {status_code: 200}});
+    sipstack.ua.emit('registered', sipstack.ua, {response: {status_code: 200}});
   },
 
   endCall: function() {
-    client.sipStack.activeSession.status = ExSIP.RTCSession.C.STATUS_TERMINATED;
-    client.sipStack.activeSession.emit('ended', client.sipStack.activeSession);
+    sipstack.activeSession.status = ExSIP.RTCSession.C.STATUS_TERMINATED;
+    sipstack.activeSession.emit('ended', sipstack.activeSession);
   },
 
   startCall: function(session) {
     session = session || this.outgoingSession();
-    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
+    sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session});
     session.started('local');
     return session;
   },
@@ -66,12 +66,12 @@ module.exports = {
 
   newCall: function(session) {
     session = session || this.outgoingSession();
-    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
+    sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session});
   },
 
   failCall: function(session) {
     session = session || this.outgoingSession();
-    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session});
+    sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session});
     session.failed('local', 'somemessage', 'somecause');
   },
 
@@ -93,7 +93,7 @@ module.exports = {
   },
 
   createSession: function(){
-    var session = new ExSIP.RTCSession(client.sipStack.ua);
+    var session = new ExSIP.RTCSession(sipstack.ua);
     session.hold = function(success){console.log("hold"); session.held(); if(success){success();}}
     session.unhold = function(success){console.log("unhold"); session.resumed(); if(success){success();}}
     session.terminate = function(options){console.log("terminate"); session.ended('local');}
@@ -104,7 +104,7 @@ module.exports = {
   incomingCall: function(session){
     session = session || this.incomingSession();
     var request = {to_tag: "1234567", from_tag: "7654321", from: {display_name: "Incoming DisplayName", uri: {user: "Incoming User"}}};
-    client.sipStack.ua.emit('newRTCSession', client.sipStack.ua, {session: session, request: request});
+    sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session, request: request});
   },
 
   mockSound: function(){
@@ -142,7 +142,7 @@ module.exports = {
     };
     ExSIP.WebRTC.getUserMedia = function(constraints, success, failure){
       console.log('-- getUserMedia ');
-      success();
+      success({});
     };
     ExSIP.WebRTC.isSupported = true;
     ExSIP.UA.prototype.recoverTransport = function(){console.log("--recoverTransport");}

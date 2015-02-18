@@ -1,10 +1,11 @@
-module.exports = require('../factory')(Debug)
+module.exports = Debug
 
 var stacktrace = require('stacktrace-js');
 var debug = require('debug');
 var enabled = {};
 
 function Debug(options) {
+	options = options || {};
 	var id = options && options.id || options || '';
 	if (options.debug) {
 		enabled[id] = '*:' + id;
@@ -14,13 +15,24 @@ function Debug(options) {
 	updateEnabled();
 
 	return function(msg) {
-		var caller = stacktrace().pop().match('(.*)@').pop();
-		var prefix = caller + ':' + id;
-		console.log('debug : ' + prefix + ':' + msg);
+		var prefix = (options.name || caller()) + ':' + id;
 		debug(prefix)(msg);
 	};
 }
 
+var caller = function(){
+	var list = stacktrace();
+	for(var i=list.length-1; i >= 0; i--) {
+		var match = null;
+		if((match = list[i].match(/([A-Z]\S*).*@/g))) {
+			if(match !== 'Object') {
+				return match;				
+			}
+		}
+	}
+
+	return stacktrace().pop().match('(.*)@').pop();
+}
 var updateEnabled = function() {
 	var values = [];
 	Object.keys(enabled).forEach(function(key) {

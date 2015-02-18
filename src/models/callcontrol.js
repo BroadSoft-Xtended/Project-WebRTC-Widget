@@ -1,4 +1,4 @@
-module.exports = require('../factory')(CallControl);
+module.exports = CallControl;
 
 var $ = require('jquery');
 var fs = require('fs');
@@ -8,6 +8,13 @@ function CallControl(options, eventbus, configuration, sipstack, debug) {
 
 
   self.listeners = function() {
+    debug('------------- : callcontrol.listeners : '+configuration.destination);
+    eventbus.on('userMediaUpdated', function(e) {
+    debug('------------- : userMediaUpdated : '+configuration.destination);
+      if (configuration.destination) {
+        self.callUri(configuration.destination);
+      }
+    })
   };
 
   self.formatDestination = function(destination, domainTo) {
@@ -25,9 +32,6 @@ function CallControl(options, eventbus, configuration, sipstack, debug) {
   };
 
   self.isValidDestination = function(destination, allowOutside, domainTo) {
-    if (destination.indexOf("sip:") === -1) {
-      destination = ("sip:" + destination);
-    }
     if (!allowOutside && !new RegExp("[.||@]" + domainTo).test(destination)) {
       return false;
     }
@@ -37,9 +41,16 @@ function CallControl(options, eventbus, configuration, sipstack, debug) {
 
   // Make sure destination allowed and in proper format
   self.validateDestination = function(destination) {
-    if(self.isValidDestination(destination, configuration.allowOutside, configuration.domainTo)) {
-      eventbus.emit('message', {text: configuration.messageOutsideDomain, level: 'alert'});
+    if (!self.isValidDestination(destination, configuration.allowOutside, configuration.domainTo)) {
+      eventbus.emit('message', {
+        text: configuration.messageOutsideDomain,
+        level: 'alert'
+      });
       return false;
+    }
+
+    if (destination.indexOf("sip:") === -1) {
+      destination = ("sip:" + destination);
     }
 
     return self.formatDestination(destination, configuration.domainTo);
