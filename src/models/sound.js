@@ -2,6 +2,24 @@ module.exports = Sound;
 
 var $ = require('jquery');
 var fs = require('fs');
+// TODO - refactor
+var medias = {};
+medias.click = fs.readFileSync(__dirname + '/../../media/click.ogg', 'base64');
+medias['dtmf-0'] = fs.readFileSync(__dirname + '/../../media/dtmf-0.ogg', 'base64');
+medias['dtmf-1'] = fs.readFileSync(__dirname + '/../../media/dtmf-1.ogg', 'base64');
+medias['dtmf-2'] = fs.readFileSync(__dirname + '/../../media/dtmf-2.ogg', 'base64');
+medias['dtmf-3'] = fs.readFileSync(__dirname + '/../../media/dtmf-3.ogg', 'base64');
+medias['dtmf-4'] = fs.readFileSync(__dirname + '/../../media/dtmf-4.ogg', 'base64');
+medias['dtmf-5'] = fs.readFileSync(__dirname + '/../../media/dtmf-5.ogg', 'base64');
+medias['dtmf-6'] = fs.readFileSync(__dirname + '/../../media/dtmf-6.ogg', 'base64');
+medias['dtmf-7'] = fs.readFileSync(__dirname + '/../../media/dtmf-7.ogg', 'base64');
+medias['dtmf-8'] = fs.readFileSync(__dirname + '/../../media/dtmf-8.ogg', 'base64');
+medias['dtmf-9'] = fs.readFileSync(__dirname + '/../../media/dtmf-9.ogg', 'base64');
+medias['dtmf-busy'] = fs.readFileSync(__dirname + '/../../media/dtmf-busy.ogg', 'base64');
+medias['dtmf-pound'] = fs.readFileSync(__dirname + '/../../media/dtmf-pound.ogg', 'base64');
+medias['dtmf-ringback'] = fs.readFileSync(__dirname + '/../../media/dtmf-ringback.ogg', 'base64');
+medias['dtmf-star'] = fs.readFileSync(__dirname + '/../../media/dtmf-star.ogg', 'base64');
+medias.ringtone = fs.readFileSync(__dirname + '/../../media/ringtone.ogg', 'base64');
 
 function Sound(options, eventbus, configuration, sipstack) {
   var self = {};
@@ -106,8 +124,7 @@ function Sound(options, eventbus, configuration, sipstack) {
       return;
     }
     options = options || {};
-    var media = fs.readFileSync(__dirname + '/../../media/'+media+'.ogg', 'base64');
-    audioSource.attr("src", media);
+    audioSource.attr("src", medias[media]);
     if (options.loop) {
       audioSource.attr("loop", "true");
     } else {

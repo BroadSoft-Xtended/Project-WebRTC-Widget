@@ -6,6 +6,8 @@ function EventBus() {
 	var self = {};
 
 	var emitter = ee({});
+	self.test = '121';
+	
 	self.on = function(type, listener){
 		emitter.on(type, listener);
 	};

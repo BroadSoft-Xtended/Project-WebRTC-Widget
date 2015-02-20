@@ -48,6 +48,10 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 
     self.updateCss();
 
+    videoView.view.appendTo(self.main);
+    videobarView.view.appendTo(self.main);
+    messagesView.view.appendTo(self.main);
+
     self.updateClientClass();
 
     $.cookie.raw = true;

@@ -1,5 +1,4 @@
 .videoBar
-  display none
   position relative
   top 0px
   left 0px
@@ -118,3 +117,11 @@
 
 .videoBar .hold, .videoBar .resume
   margin-top -1px
+  
+.started .hangup, .calling .hangup
+  {fadeIn}
+  
+.connected .hangup, .disconnected .hangup,
+.client.held .hold, .client:not(.started) .hold,
+.client:not(.held) .resume, .client:not(.started) .resume
+  {fadeOut}  

@@ -170,7 +170,10 @@ function args(options, constructor) {
 		} else {
 			var methods = Object.getOwnPropertyNames(obj);
 			var props = obj.elements || Object.keys(obj.props || {});
-			// console.log('factory : args : delegate :'+argName, methods, props);
+			if(argName.match(/view$/i)) {
+				props = props.concat(['view']);
+			}
+			console.log('factory : args : delegate :'+argName, methods, props);
 			arg = delegate(Factory(require(path)), options, methods, props);
 			arg._name = argName;
 		}

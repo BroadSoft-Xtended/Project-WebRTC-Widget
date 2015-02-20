@@ -219,14 +219,6 @@ font-face-inline('bsl_icons', 'bsl_icons', '../fonts')
   text-align center
   width 100%
 
-.started .hangup, .calling .hangup
-  {fadeIn}
-  
-.connected .hangup, .disconnected .hangup,
-.client.held .hold, .client:not(.started) .hold,
-.client:not(.held) .resume, .client:not(.started) .resume
-  {fadeOut}
-
 @css {
 	.icon-highlightable:hover{
   	color: <%= iconHightlightColor %>;
