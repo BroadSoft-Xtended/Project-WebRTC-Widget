@@ -6,7 +6,7 @@ var PopupView = require('./popup');
 function DialpadView(options, eventbus, callcontrol, historyView, videobarView) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, self, eventbus));
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['historyButton', 'destination', 'call', 'keys'];
 

@@ -1,11 +1,12 @@
 module.exports = StatsView;
 
 var PopupView = require('./popup');
+var Utils = require('../Utils');
 
 function StatsView(options, eventbus, configuration, sipstack) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['statsVar', 'statsContainer'];
 

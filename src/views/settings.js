@@ -7,7 +7,7 @@ var PopupView = require('./popup');
 function SettingsView(options, settings, configuration, sipstack, eventbus, debug, sound) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   var updateRowVisibility = function() {
     self.autoAnswerRow.toggle(configuration.enableAutoAnswer);

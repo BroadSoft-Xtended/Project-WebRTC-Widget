@@ -4,12 +4,13 @@ module.exports = XMPPView;
 // var GroupedCollectionView = require('ampersand-grouped-collection-view');
 // var ChatInputView = require('otalk-chat-input-view');
 var PopupView = require('./popup');
+var Utils = require('../Utils');
 var $ = require('jquery');
 
 function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['content', 'name', 'password', 'login', 'messages'];
 

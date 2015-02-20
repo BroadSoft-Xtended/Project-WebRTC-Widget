@@ -1,12 +1,13 @@
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
+var Utils = require('../Utils');
 var PopupView = require('./popup');
 
 function AuthenticationView(options, eventbus, settings, configuration, debug) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
 

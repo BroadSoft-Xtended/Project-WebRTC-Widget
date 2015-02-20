@@ -10,15 +10,15 @@ function PopupView(options, eventbus) {
   self.visible = false;
 
   self.show = function() {
-    self.setVisible(true);
+    this.setVisible(true);
   };
 
   self.hide = function() {
-    self.setVisible(false);
+    this.setVisible(false);
   };
 
   self.toggle = function() {
-    self.setVisible(!self.visible);
+    this.setVisible(!self.visible);
   };
 
   self.setVisible = function(visible) {
@@ -26,7 +26,7 @@ function PopupView(options, eventbus) {
       this.view.appendTo(global.instances['clientview_'+options.id].client);        
       attached = true;
     }
-    self.visible = visible;
+    this.visible = visible;
 
     eventbus.viewChanged(this);
   };

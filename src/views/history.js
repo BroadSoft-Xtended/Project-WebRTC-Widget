@@ -67,7 +67,7 @@ function Call(value) {
 function HistoryView(options, sound, statsView, sipstack, configuration, eventbus, callcontrol) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   var pagePrefix = 'page_';
 

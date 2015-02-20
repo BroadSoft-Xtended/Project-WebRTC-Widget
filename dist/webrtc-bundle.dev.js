@@ -79878,12 +79878,13 @@ function Prop(obj, prop) {
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
+var Utils = require('../Utils');
 var PopupView = require('./popup');
 
 function AuthenticationView(options, eventbus, settings, configuration, debug) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
 
@@ -79935,7 +79936,7 @@ function AuthenticationView(options, eventbus, settings, configuration, debug) {
 
   return self;
 }
-},{"./popup":478,"jquery":230}],471:[function(require,module,exports){
+},{"../Utils":455,"./popup":478,"jquery":230}],471:[function(require,module,exports){
 module.exports = ClientView;
 
 
@@ -80245,7 +80246,7 @@ var PopupView = require('./popup');
 function DialpadView(options, eventbus, callcontrol, historyView, videobarView) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, self, eventbus));
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['historyButton', 'destination', 'call', 'keys'];
 
@@ -80540,7 +80541,7 @@ function Call(value) {
 function HistoryView(options, sound, statsView, sipstack, configuration, eventbus, callcontrol) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   var pagePrefix = 'page_';
 
@@ -80797,7 +80798,7 @@ var PopupView = require('./popup');
 function IncomingCallView(options, eventbus, sound, sipstack) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptIncomingCall', 'rejectIncomingCall', 'holdAndAnswerButton', 'dropAndAnswerButton'];
 
@@ -80931,7 +80932,7 @@ module.exports = PopupView;
 
 var $ = require('jquery');
 
-function PopupView(options, parent, eventbus) {
+function PopupView(options, eventbus) {
   var self = {};
 
   var attached = false;
@@ -80939,25 +80940,25 @@ function PopupView(options, parent, eventbus) {
   self.visible = false;
 
   self.show = function() {
-    self.setVisible(true);
+    this.setVisible(true);
   };
 
   self.hide = function() {
-    self.setVisible(false);
+    this.setVisible(false);
   };
 
   self.toggle = function() {
-    self.setVisible(!self.visible);
+    this.setVisible(!self.visible);
   };
 
   self.setVisible = function(visible) {
     if (!attached) {
-      parent.view.appendTo(global.instances['clientview_'+options.id].client);        
+      this.view.appendTo(global.instances['clientview_'+options.id].client);        
       attached = true;
     }
-    self.visible = visible;
+    this.visible = visible;
 
-    eventbus.viewChanged(parent);
+    eventbus.viewChanged(this);
   };
 
   return self;
@@ -80967,11 +80968,12 @@ function PopupView(options, parent, eventbus) {
 module.exports = ReinviteView
 
 var PopupView = require('./popup');
+var Utils = require('../Utils');
 
 function ReinviteView(options, eventbus) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptReInviteCall', 'rejectReInviteCall', 'title'];
 
@@ -81000,7 +81002,7 @@ function ReinviteView(options, eventbus) {
 
   return self;
 }
-},{"./popup":478}],480:[function(require,module,exports){
+},{"../Utils":455,"./popup":478}],480:[function(require,module,exports){
 module.exports = SettingsView;
 
 var WebRTC_C = require('../Constants');
@@ -81010,7 +81012,7 @@ var PopupView = require('./popup');
 function SettingsView(options, settings, configuration, sipstack, eventbus, debug, sound) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   var updateRowVisibility = function() {
     self.autoAnswerRow.toggle(configuration.enableAutoAnswer);
@@ -81158,6 +81160,7 @@ module.exports = SMSView;
 
 var DateFormat = require('../DateFormat');
 var Utils = require('../Utils');
+var PopupView = require('./popup');
 
 function InboxItem(sms, message) {
   var self = {};
@@ -81243,7 +81246,7 @@ function InboxItem(sms, message) {
 function SMSView(options, eventbus, debug, smsprovider, sound) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['status', 'statusContent', 'inbox', 'inboxContent', 'loginForm', 'loginLink', 'name', 'password', 'sendForm',
     'sendTo', 'sendBody', 'sendButton'
@@ -81449,15 +81452,16 @@ function SMSView(options, eventbus, debug, smsprovider, sound) {
 
   return self;
 }
-},{"../DateFormat":453,"../Utils":455}],482:[function(require,module,exports){
+},{"../DateFormat":453,"../Utils":455,"./popup":478}],482:[function(require,module,exports){
 module.exports = StatsView;
 
 var PopupView = require('./popup');
+var Utils = require('../Utils');
 
 function StatsView(options, eventbus, configuration, sipstack) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['statsVar', 'statsContainer'];
 
@@ -81578,7 +81582,7 @@ function StatsView(options, eventbus, configuration, sipstack) {
 
   return self;
 }
-},{"./popup":478}],483:[function(require,module,exports){
+},{"../Utils":455,"./popup":478}],483:[function(require,module,exports){
 module.exports = TimerView;
 
 var Utils = require('../Utils');
@@ -81654,11 +81658,12 @@ function TimerView(options, debug, eventbus, statsView, configuration) {
 module.exports = TransferView;
 
 var PopupView = require('./popup');
+var Utils = require('../Utils');
 
 function TransferView(options, sound, sipstack, eventbus, configuration, callcontrol) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['accept', 'reject', 'targetInput', 'typeAttended'];
 
@@ -81692,7 +81697,7 @@ function TransferView(options, sound, sipstack, eventbus, configuration, callcon
 
   return self;
 }
-},{"./popup":478}],485:[function(require,module,exports){
+},{"../Utils":455,"./popup":478}],485:[function(require,module,exports){
 module.exports = VideoView;
 require('jquery-ui/draggable');
 
@@ -82007,10 +82012,13 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 },{"../Icon":454}],487:[function(require,module,exports){
 module.exports = WhiteboardView;
 
+var PopupView = require('./popup');
+var Utils = require('../Utils');
+
 function WhiteboardView(options, eventbus, sipstack) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['canvas', 'tools'];
 
@@ -82168,19 +82176,20 @@ function WhiteboardView(options, eventbus, sipstack) {
     return self.context.stroke();
   };
 }
-},{}],488:[function(require,module,exports){
+},{"../Utils":455,"./popup":478}],488:[function(require,module,exports){
 module.exports = XMPPView;
 
 // var View = require('ampersand-view');
 // var GroupedCollectionView = require('ampersand-grouped-collection-view');
 // var ChatInputView = require('otalk-chat-input-view');
 var PopupView = require('./popup');
+var Utils = require('../Utils');
 var $ = require('jquery');
 
 function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
   var self = {};
 
-  self.__proto__ = PopupView(options, self, eventbus);
+  Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['content', 'name', 'password', 'login', 'messages'];
 
@@ -82278,4 +82287,4 @@ function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
 
   return self;
 }
-},{"./popup":478,"jquery":230}]},{},[456]);
+},{"../Utils":455,"./popup":478,"jquery":230}]},{},[456]);
