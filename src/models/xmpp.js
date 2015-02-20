@@ -6,6 +6,15 @@ function XMPP(options, debug, eventbus) {
   var self = {};
 
   var client;
+
+  self.connect = function() {
+    client.connect();
+  };
+
+  self.getRoster = function(callback) {
+    client.getRoster(callback);
+  };
+
   self.login = function(jid, password) {
     client = XMPP.createClient({
       jid: jid,
@@ -15,7 +24,7 @@ function XMPP(options, debug, eventbus) {
       // domain, the connection transport config can be skipped. 
 
       transport: 'bosh',
-      boshURL: 'broadsoft.com'
+      boshURL: 'http://ums.ihs.broadsoft.com:5280'
         // (or `boshURL` if using 'bosh' as the transport) 
     });
     return client;

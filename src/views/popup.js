@@ -2,7 +2,7 @@ module.exports = PopupView;
 
 var $ = require('jquery');
 
-function PopupView(options, parent, eventbus) {
+function PopupView(options, eventbus) {
   var self = {};
 
   var attached = false;
@@ -23,12 +23,12 @@ function PopupView(options, parent, eventbus) {
 
   self.setVisible = function(visible) {
     if (!attached) {
-      parent.view.appendTo(global.instances['clientview_'+options.id].client);        
+      this.view.appendTo(global.instances['clientview_'+options.id].client);        
       attached = true;
     }
     self.visible = visible;
 
-    eventbus.viewChanged(parent);
+    eventbus.viewChanged(this);
   };
 
   return self;

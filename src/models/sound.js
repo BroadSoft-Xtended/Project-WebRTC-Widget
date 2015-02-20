@@ -124,11 +124,11 @@ function Sound(options, eventbus, configuration, sipstack) {
       return;
     }
     options = options || {};
-    audioSource.attr("src", medias[media]);
+    audioSource.attr("src", 'data:audio/ogg;base64,'+medias[media]);
     if (options.loop) {
-      audioSource.attr("loop", "true");
+      audioSource.attr('loop', 'true');
     } else {
-      audioSource.attr('loop', '');
+      audioSource.removeAttr('loop');
     }
     audioSource.trigger('play');
   };

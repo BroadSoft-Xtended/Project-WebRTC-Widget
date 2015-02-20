@@ -92,3 +92,15 @@
 .view-audioOnly
   .dialpad
     top 45px
+
+.enable-dialpad.dialpad-shown .dialpadIconHide,
+.enable-dialpad:not(.dialpad-shown) .dialpadIconShow
+  {fadeIn}
+
+.enable-dialpad.dialpad-shown .dialpad
+  {fadeInPopup}
+  
+.enable-dialpad:not(.dialpad-shown) .dialpadIconHide,
+.enable-dialpad.dialpad-shown .dialpadIconShow,
+.enable-dialpad:not(.dialpad-shown) .dialpad
+  {fadeOut}

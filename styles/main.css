@@ -1136,6 +1136,24 @@ a.disabled {
 .view-audioOnly .dialpad {
   top: 45px;
 }
+.enable-dialpad.dialpad-shown .dialpadIconHide,
+.enable-dialpad:not(.dialpad-shown) .dialpadIconShow {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 20;
+}
+.enable-dialpad.dialpad-shown .dialpad {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 100;
+}
+.enable-dialpad:not(.dialpad-shown) .dialpadIconHide,
+.enable-dialpad.dialpad-shown .dialpadIconShow,
+.enable-dialpad:not(.dialpad-shown) .dialpad {
+  transition: all 1s linear;
+  opacity: 0;
+  z-index: -1;
+}
 .callControl {
   display: none;
   position: relative;
@@ -1536,8 +1554,6 @@ a.disabled {
 .enable-self-view.self-view-enabled .selfViewDisable,
 .enable-self-view.self-view-disabled .selfViewEnable,
 .enable-self-view.self-view-enabled .localVideo,
-.enable-dialpad.dialpad-shown .dialpadIconHide,
-.enable-dialpad.dialpad-hidden .dialpadIconShow,
 .enable-call-control.connected .call,
 .enable-transfer.started .transfer,
 .enable-timer.started .timer,
@@ -1552,7 +1568,6 @@ a.disabled {
   z-index: 20;
 }
 .enable-transfer.started.transfer-visible .transferPopup,
-.enable-dialpad.dialpad-shown .dialpad,
 .enable-sms.sms-shown .sms,
 .enable-settings.settings-shown .settingsPopup {
   transition: all 1s linear;

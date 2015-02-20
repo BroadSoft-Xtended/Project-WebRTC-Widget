@@ -76,7 +76,6 @@ function Factory(constructor){
 var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var ARGUMENT_NAMES = /([^\s,]+)/g;
 
-var __slice = [].slice;
 
 function getId (options, name) {
 	var id = options;
@@ -87,24 +86,6 @@ function getId (options, name) {
 
 	id = name + '_' + id;
 	return id;
-};
-
-function extend () {
-  var consumer = arguments[0],
-      providers = __slice.call(arguments, 1),
-      key,
-      i,
-      provider;
-
-  for (i = 0; i < providers.length; ++i) {
-    provider = providers[i];
-    for (key in provider) {
-      if (provider.hasOwnProperty(key)) {
-        consumer[key] = provider[key];
-      };
-    };
-  };
-  return consumer;
 };
 
 function delegateFunction (toProvider, options) {

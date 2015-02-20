@@ -3,7 +3,7 @@ module.exports = VideoBarView;
 var Icon = require('../Icon');
 var events;
 
-function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, videoView, configuration) {
+function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, videoView, dialpadView, configuration) {
   var self = {};
 
   self.fullScreen = false;
