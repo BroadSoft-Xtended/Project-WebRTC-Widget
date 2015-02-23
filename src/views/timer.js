@@ -55,13 +55,13 @@ function TimerView(options, debug, eventbus, statsView, configuration) {
     self.startTime = new Date().getTime();
     return function() {
       var secs = self.getSeconds();
-      if (self.configuration.maxCallLength && secs >= self.configuration.maxCallLength) {
+      if (configuration.maxCallLength && secs >= configuration.maxCallLength) {
         self.client.terminateSessions();
         self.client.endCall();
         return;
       }
       self.updateText();
-      if (self.configuration.enableCallStats && Utils.isChrome()) {
+      if (configuration.enableCallStats && Utils.isChrome()) {
         self.statsView.processStats();
       }
     };

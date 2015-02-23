@@ -3,7 +3,7 @@ module.exports = DialpadView
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function DialpadView(options, eventbus, callcontrol, historyView, videobarView) {
+function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
@@ -56,10 +56,7 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView) 
     eventbus.on('viewChanged', function(e) {
       if (e.view === 'dialpad' && e.visible) {
         self.destination.focus();
-      }
-    });
-    eventbus.on('viewChanged', function(e) {
-      if (e.view === 'history') {
+      } else if (e.view === 'history') {
         if (e.visible) {
           self.historyButton.removeClass("active");
         } else {

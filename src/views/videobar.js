@@ -64,7 +64,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
   // Initial startup
   self.init = function() {
-    self.toggleSelfView(self.selfViewVisible);
+    toggleSelfView(self.selfViewVisible);
   };
 
   self.checkEndCallURL = function() {

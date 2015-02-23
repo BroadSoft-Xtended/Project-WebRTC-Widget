@@ -86,6 +86,9 @@ localStorage.setItem = function (key, val) {
 localStorage.getItem = function (key) {
     return this[key];
 }
+localStorage.key = function (index) {
+    return Object.keys(this)[index];
+}
 Object.defineProperty(localStorage, 'length', {
     get: function () { return Object.keys(this).length - 2; }
 });

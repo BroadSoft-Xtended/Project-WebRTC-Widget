@@ -1183,6 +1183,7 @@ a.disabled {
   top: auto;
   left: auto;
 }
+.client.calling .call,
 .client:not(.connected) .call {
   transition: all 1s linear;
   opacity: 0;
@@ -1589,22 +1590,6 @@ a.disabled {
 }
 .enable-screen-sharing.screenshare-shown .shareScreen,
 .enable-screen-sharing:not(.screenshare-shown) .stopShareScreen {
-  transition: all 1s linear;
-  opacity: 0;
-  z-index: -1;
-}
-.enable-mute.sound-shown.started .muteAudioIcon,
-.enable-mute:not(.sound-shown).started .unmuteAudioIcon {
-  transition: all 1s linear;
-  opacity: 1;
-  z-index: 20;
-}
-.enable-mute.connected .muteAudioIcon,
-.enable-mute.disconnected .muteAudioIcon,
-.enable-mute.connected .unmuteAudioIcon,
-.enable-mute.disconnected .unmuteAudioIcon,
-.enable-mute:not(.sound-shown) .muteAudioIcon,
-.enable-mute.sound-shown .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -2072,6 +2057,20 @@ a.disabled {
 .client:not(.enable-shareScreen) .cell-shareScreen,
 .client:not(.enable-call-control) .callControl {
   display: none !important;
+}
+.enable-mute:not(.sound-shown).started .muteAudioIcon,
+.enable-mute.sound-shown.started .unmuteAudioIcon {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 20;
+}
+.enable-mute:not(.started) .muteAudioIcon,
+.enable-mute:not(.started) .unmuteAudioIcon,
+.enable-mute.sound-shown.started .muteAudioIcon,
+.enable-mute:not(.sound-shown).started .unmuteAudioIcon {
+  transition: all 1s linear;
+  opacity: 0;
+  z-index: -1;
 }
 .sms {
   display: none;

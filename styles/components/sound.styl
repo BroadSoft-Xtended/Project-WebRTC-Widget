@@ -1,11 +1,9 @@
-.enable-mute.sound-shown.started .muteAudioIcon,
-.enable-mute:not(.sound-shown).started .unmuteAudioIcon
+.enable-mute:not(.sound-shown).started .muteAudioIcon,
+.enable-mute.sound-shown.started .unmuteAudioIcon
   {fadeIn}
 
-.enable-mute.connected .muteAudioIcon, 
-.enable-mute.disconnected .muteAudioIcon,
-.enable-mute.connected .unmuteAudioIcon, 
-.enable-mute.disconnected .unmuteAudioIcon,
-.enable-mute:not(.sound-shown) .muteAudioIcon, 
-.enable-mute.sound-shown .unmuteAudioIcon
+.enable-mute:not(.started) .muteAudioIcon, 
+.enable-mute:not(.started) .unmuteAudioIcon,
+.enable-mute.sound-shown.started .muteAudioIcon, 
+.enable-mute:not(.sound-shown).started .unmuteAudioIcon
   {fadeOut}

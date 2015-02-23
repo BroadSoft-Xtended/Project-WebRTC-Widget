@@ -3,6 +3,8 @@ var WebRTC = require('../../src/WebRTC');
 
 module.exports = {
   isVisible: function(element, visible) {
+    // fix caching bug with jsdom and css() by calling _clearMemoizedQueries();
+    element[0]._clearMemoizedQueries();
     var isPopup = element.attr('class').indexOf('popup') !== -1;
     expect(element.css('opacity')).toEqual(visible ? "1" : "0");
     expect(element.css('zIndex')).toEqual(visible ? (isPopup ? "100" : "20") : "-1");

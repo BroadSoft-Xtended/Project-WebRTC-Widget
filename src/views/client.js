@@ -1,7 +1,7 @@
 module.exports = ClientView;
 
 var fs = require('fs');
-var styles = fs.readFileSync(__dirname + '/../../styles/bundle.min.css', 'utf-8');
+var styles = fs.readFileSync(__dirname + '/../../styles/main.css', 'utf-8');
 var ejs = require('ejs');
 var $ = jQuery = require('jquery');
 var Icon = require('../Icon');

@@ -322,9 +322,18 @@ describe('client', function() {
   });
   it('unmuteAudio on call ended', function() {
     client = create(config);
+    testUA.isVisible(videobar.muteAudioIcon, false);
+    testUA.isVisible(videobar.unmuteAudioIcon, false);
+    testUA.connect();
     testUA.startCall();
+    testUA.isVisible(videobar.muteAudioIcon, true);
+    testUA.isVisible(videobar.unmuteAudioIcon, false);
     videobar.muteAudioIcon.trigger("click");
+    testUA.isVisible(videobar.unmuteAudioIcon, true);
+    testUA.isVisible(videobar.muteAudioIcon, false);
     testUA.endCall();
+    expect(sipstack.getCallState()).toEqual("connected");
+    testUA.isVisible(videobar.muteAudioIcon, false);
     testUA.isVisible(videobar.unmuteAudioIcon, false);
   });
   it('hangup on call ended', function() {
@@ -338,6 +347,7 @@ describe('client', function() {
     sipstack.ua.isConnected = function() {
       return true;
     }
+    dialpad.show();
     callcontrol.callUri("1000@webrtc.domain.to");
     testUA.newCall();
     expect(sipstack.getCallState()).toEqual("calling");
@@ -349,6 +359,7 @@ describe('client', function() {
     sipstack.ua.isConnected = function() {
       return true;
     }
+    dialpad.show();
     testUA.failCall();
     expect(sipstack.getCallState()).toEqual("connected");
     testUA.isVisible(videobar.hangup, false);

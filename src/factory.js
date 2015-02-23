@@ -62,11 +62,11 @@ function Factory(constructor){
 					require('./'+type+'prop')(object, prop).define();
 				});
 			}
+			object.listeners && object.listeners();
 			constructorArgs.forEach(function(arg){
 				arg._init && arg._init();
 			});
 			object.init && object.init(options);
-			object.listeners && object.listeners();
 
 		}
 		return global.instances[id];

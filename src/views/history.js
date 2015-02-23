@@ -110,15 +110,15 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
     } else {
       call.direction = "down";
     }
-    call.resolutionIn = stats.getValue("video", "googFrameWidthReceived") + "x" + stats.getValue("video", "googFrameHeightReceived");
-    call.resolutionOut = stats.getValue("video", "googFrameWidthSent") + "x" + stats.getValue("video", "googFrameHeightSent");
-    call.bitrateIn = stats.getAvg("video", "kiloBitsReceivedPerSecond");
-    call.bitrateOut = stats.getAvg("video", "kiloBitsSentPerSecond");
-    call.frameRateIn = stats.getAvg("video", "googFrameRateReceived");
-    call.frameRateOut = stats.getAvg("video", "googFrameRateSent");
-    call.audioLostPer = stats.getAvg("audio", "packetsLostPer");
-    call.videoLostPer = stats.getAvg("video", "packetsLostPer");
-    call.jitter = stats.getAvg("audio", "googJitterReceived");
+    call.resolutionIn = statsView.getValue("video", "googFrameWidthReceived") + "x" + statsView.getValue("video", "googFrameHeightReceived");
+    call.resolutionOut = statsView.getValue("video", "googFrameWidthSent") + "x" + statsView.getValue("video", "googFrameHeightSent");
+    call.bitrateIn = statsView.getAvg("video", "kiloBitsReceivedPerSecond");
+    call.bitrateOut = statsView.getAvg("video", "kiloBitsSentPerSecond");
+    call.frameRateIn = statsView.getAvg("video", "googFrameRateReceived");
+    call.frameRateOut = statsView.getAvg("video", "googFrameRateSent");
+    call.audioLostPer = statsView.getAvg("audio", "packetsLostPer");
+    call.videoLostPer = statsView.getAvg("video", "packetsLostPer");
+    call.jitter = statsView.getAvg("audio", "googJitterReceived");
     call.length = Utils.format(Math.round(Math.abs((rtcSession.end_time - start) / 1000)));
     return call;
   };
