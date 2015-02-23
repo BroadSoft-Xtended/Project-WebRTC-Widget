@@ -34,14 +34,6 @@
     &:focus
       outline none
 
-.transferPopup
-  color white
-  width 280px
-  height 60px
-
-.transferTarget
-  width 200px
-  
 .call
   display none
   position absolute
@@ -56,5 +48,6 @@
 .client:not(.connected) .call
   {fadeOut}
   
+.enable-call-control.connected .call,
 .enable-call-control .callControl
   {fadeIn}

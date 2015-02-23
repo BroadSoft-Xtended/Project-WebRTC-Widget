@@ -32,16 +32,9 @@ authPopup
     text-align center
     color #FF0000
 
-.sign-in, .sign-out
-  display none
-
-.client:not(.registered) .sign-in,
-.client.registered .sign-out
-  display block
-
-.client:not(.disconnected).auth-visible .authPopup
+.client:not(.disconnected).auth-shown .authPopup
   {fadeInPopup}
 
-.client.disconnected .authPopup, .client.auth-hidden .authPopup
+.client.disconnected .authPopup, .client:not(.auth-shown) .authPopup
   {fadeOut}
 

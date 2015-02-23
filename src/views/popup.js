@@ -18,7 +18,7 @@ function PopupView(options, eventbus) {
   };
 
   self.toggle = function() {
-    this.setVisible(!self.visible);
+    this.setVisible(!this.visible);
   };
 
   self.setVisible = function(visible) {

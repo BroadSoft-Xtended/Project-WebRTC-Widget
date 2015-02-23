@@ -26,7 +26,7 @@ function EventBus() {
 	self.viewChanged = function(view) {
 		self.emit('viewChanged', {
 			visible: view.visible,
-			view: view._name.replace(/view$/i, '')
+			view: view.name || view._name.replace(/view$/i, '')
 		});
 	};
 	self.calling = function(destination, session) {

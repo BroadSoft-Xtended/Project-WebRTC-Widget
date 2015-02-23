@@ -1,0 +1,15 @@
+#screen_sharing_unsupported
+  {unsupported}
+  
+#screen_sharing_unsupported
+  display none
+  span
+    text-decoration underline
+
+.enable-screen-sharing:not(.screenshare-shown) .shareScreen,
+.enable-screen-sharing.screenshare-shown .stopShareScreen
+  {fadeIn}
+
+.enable-screen-sharing.screenshare-shown .shareScreen, 
+.enable-screen-sharing:not(.screenshare-shown) .stopShareScreen
+  {fadeOut}

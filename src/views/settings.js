@@ -10,18 +10,18 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
   Utils.extend(self, PopupView(options, eventbus));
 
   var updateRowVisibility = function() {
-    self.autoAnswerRow.toggle(configuration.enableAutoAnswer);
-    self.selfViewDisableRow.toggle(!configuration.hasOwnProperty("enableSelfView"));
-    self.hdRow.toggle(!configuration.hasOwnProperty("enableHD"));
-    self.resolutionRow.toggle(!configuration.hasOwnProperty("displayResolution") || !configuration.hasOwnProperty("encodingResolution"));
-    self.resolutionDisplayRow.toggle(!configuration.hasOwnProperty("displayResolution"));
-    self.resolutionEncodingRow.toggle(!configuration.hasOwnProperty("encodingResolution"));
-    self.resolutionTypeRow.toggle(!configuration.hasOwnProperty("displayResolution") && !configuration.hasOwnProperty("encodingResolution"));
-    self.bandwidthLow.toggle(!configuration.hasOwnProperty("bandwidthLow"));
-    self.bandwidthMed.toggle(!configuration.hasOwnProperty("bandwidthMed"));
-    self.bandwidthHigh.toggle(!configuration.hasOwnProperty("bandwidthHigh"));
-    self.bandwidthRow.toggle(!configuration.hasOwnProperty("bandwidthLow") || !configuration.hasOwnProperty("bandwidthMed") || !configuration.hasOwnProperty("bandwidthHigh"));
-    self.displayNameRow.toggle(!configuration.hasOwnProperty("displayName"));
+    self.autoAnswerRow.toggleClass('hidden', configuration.hasOwnProperty("enableAutoAnswer"));
+    self.selfViewDisableRow.toggleClass('hidden', configuration.hasOwnProperty("enableSelfView"));
+    self.hdRow.toggleClass('hidden', configuration.hasOwnProperty("enableHD"));
+    self.resolutionRow.toggleClass('hidden', configuration.hasOwnProperty("displayResolution") && configuration.hasOwnProperty("encodingResolution"));
+    self.resolutionDisplayRow.toggleClass('hidden', configuration.hasOwnProperty("displayResolution"));
+    self.resolutionEncodingRow.toggleClass('hidden', configuration.hasOwnProperty("encodingResolution"));
+    self.resolutionTypeRow.toggleClass('hidden', configuration.hasOwnProperty("displayResolution") || configuration.hasOwnProperty("encodingResolution"));
+    self.bandwidthLow.toggleClass('hidden', configuration.hasOwnProperty("bandwidthLow"));
+    self.bandwidthMed.toggleClass('hidden', configuration.hasOwnProperty("bandwidthMed"));
+    self.bandwidthHigh.toggleClass('hidden', configuration.hasOwnProperty("bandwidthHigh"));
+    self.bandwidthRow.toggleClass('hidden', configuration.hasOwnProperty("bandwidthLow") && configuration.hasOwnProperty("bandwidthMed") && configuration.hasOwnProperty("bandwidthHigh"));
+    self.displayNameRow.toggleClass('hidden', configuration.hasOwnProperty("displayName"));
   };
 
   self.elements = ['localVideoTop', 'localVideoLeft', 'userid', 'password', 'save', 'authenticationUserid', 'signIn', 'signOut',
@@ -113,21 +113,21 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
       sipstack.updateUserMedia();
     });
     self.tabs.each(function() {
-      var $active, $content, $links = $(this).find('a');
-      $active = $($links.filter('[href="' + location.hash + '"]')[0] || $links[0]);
-      $active.addClass('active');
-      $content = $($active[0].hash);
-      $links.not($active).each(function() {
+      var active, activeTabSel, links = $(this).find('a');
+      active = $(links.filter('[href="' + location.hash + '"]')[0] || links[0]);
+      active.addClass('active');
+      activeTabSel = active[0].hash;
+      links.not(active).each(function() {
         $(this.hash).hide();
       });
       $(this).on('click', 'a', function(e) {
-        $active.removeClass('active');
-        $content.hide();
-        $active = $(this);
-        $content = $(self.hash);
-        $active.addClass('active');
-        $content.show();
         e.preventDefault();
+        active.removeClass('active');
+        $(activeTabSel).hide();
+        active = $(this);
+        activeTabSel = this.hash;
+        active.addClass('active');
+        $(activeTabSel).show();
       });
     });
   };

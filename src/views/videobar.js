@@ -7,16 +7,39 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
   var self = {};
 
   self.fullScreen = false;
-  self.selfViewEnabled = true;
   self.isScreenSharing = false;
+  self.muted = false;
+  self.selfViewVisible = true;
 
   self.elements = ['transfer', 'settings', 'dialpadIconShow', 'dialpadIconHide', 'cellTimer', 'hangup', 'fullScreenExpand', 'fullScreenContract',
     'muteAudioIcon', 'unmuteAudioIcon', 'selfViewEnable', 'selfViewDisable', 'shareScreen', 'stopShareScreen', 'hold', 'resume'
   ];
 
-  var toggleView = function(e, popup) {
-    e.preventDefault();
-    sound.playClick();
+  var clickHander = function(callback){
+    return function(e) {
+      e.preventDefault();
+      sound.playClick();
+      callback();
+    }
+  }
+  var toggleSelfView = function(selfViewVisible) {
+    self.selfViewVisible = selfViewVisible || !self.selfViewVisible;
+    eventbus.viewChanged({visible: self.selfViewVisible, name: 'video'});
+  };
+
+  var toggleSound = function() {
+    self.enableSound(!self.muted);
+  };
+
+  var toggleShareScreen = function() {
+    self.enableScreenSharing(!self.isScreenSharing);
+  };
+
+  var toggleFullScreen = function() {
+    self.enableFullScreen(!self.fullScreen);
+  };
+
+  var togglePopup = function(popup) {
     popup.toggle();
   };
 
@@ -40,6 +63,10 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
   };
 
   // Initial startup
+  self.init = function() {
+    self.toggleSelfView(self.selfViewVisible);
+  };
+
   self.checkEndCallURL = function() {
     if (configuration.endCallURL && !configuration.disabled) {
       window.location = configuration.endCallURL;
@@ -49,7 +76,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
   self.enableScreenSharing = function(enabled) {
     self.isScreenSharing = enabled;
     eventbus.screenshare(enabled);
-    eventbus.viewChanged(self);
+    eventbus.viewChanged({visible: enabled, name: 'screenshare'});
     if (enabled) {
       var onShareScreenSuccess = function(localMedia) {
         localMedia.onended = function() {
@@ -85,130 +112,86 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
     sipstack.unhold(enable, enable);
   };
 
-  self.hideSelfView = function() {
-    self.selfViewEnabled = false;
-    eventbus.viewChanged(self);
-  };
-
-  self.stopFullScreen = function() {
-    if (document.webkitCancelFullScreen) {
-      document.webkitCancelFullScreen();
+  self.enableFullScreen = function(enable) {
+    if(!enable) {
+      if (document.webkitCancelFullScreen) {
+        document.webkitCancelFullScreen();
+      }
+    } else {
+      if (document.webkitRequestFullScreen) {
+        document.webkitRequestFullScreen();
+      }      
     }
-    self.fullScreen = false;
-    eventbus.viewChanged(self);
-  };
-
-  self.showSelfView = function() {
-    self.selfViewEnabled = true;
-    eventbus.viewChanged(self);
+    self.fullScreen = enable;
+    eventbus.viewChanged({name: 'fullscreen', visible: enable});
   };
 
   self.updateFullScreen = function() {
-    self.fullScreen = document.fullscreen || document.mozFullScreen || document.webkitIsFullScreen;
-    self.updateClientClass();
+    var enable = document.fullscreen || document.mozFullScreen || document.webkitIsFullScreen;
+    self.enableFullScreen(enable);
   };
 
-  self.showFullScreen = function() {
-    if (self.client[0].webkitRequestFullScreen) {
-      self.client[0].webkitRequestFullScreen();
-    }
-    self.fullScreen = true;
-    eventbus.viewChanged(self);
+  self.enableSound = function(enable) {
+    sound.setMuted(!enable);
+    eventbus.viewChanged({name: 'sound', visible: enable});
   };
-
-  self.muteAudio = function() {
-    sound.setMuted(true);
-  };
-
-  self.unmuteAudio = function() {
-    sound.setMuted(false);
-  };
-
 
   self.listeners = function() {
     self.hold = new Icon(self.hold, sound);
     self.resume = new Icon(self.resume, sound);
 
-    self.transfer.bind('click', function(e) {
-      toggleView(e, transferView);
+    self.transfer.bind('click', clickHander(function() {
+      togglePopup(transferView);
+    }));
+    self.settings.bind('click', clickHander(function() {
+      togglePopup(settingsView);
+    }));
+    self.dialpadIconShow.bind('click', clickHander(function() {
+      togglePopup(dialpadView);
+    }));
+    self.dialpadIconHide.bind('click', clickHander(function() {
+      togglePopup(dialpadView);
+    }));
+    self.shareScreen.bind('click', clickHander(function() {
+      toggleShareScreen();
+    }));
+    self.stopShareScreen.bind('click', clickHander(function() {
+      toggleShareScreen();
+    }));
+    self.fullScreenExpand.bind('click', clickHander(function() {
+      toggleFullScreen();
+    }));
+    self.fullScreenContract.bind('click', clickHander(function() {
+      toggleFullScreen();
+    }));
+    self.selfViewDisable.bind('click', clickHander(function() {
+      toggleSelfView();
+    }));
+    self.selfViewEnable.bind('click', clickHander(function() {
+      toggleSelfView();
+    }));
+    self.muteAudioIcon.bind('click', clickHander(function() {
+      toggleSound();
+    }));
+    self.unmuteAudioIcon.bind('click', clickHander(function() {
+      toggleSound();
+    }));
+    self.hold.onClick(function(e) {
+      self.holdCall();
     });
-    self.settings.bind('click', function(e) {
-      toggleView(e, settingsView);
+    self.resume.onClick(function(e) {
+      self.resumeCall();
     });
-    self.dialpadIconShow.bind('click', function(e) {
-      toggleView(e, dialpadView);
-    });
-    self.dialpadIconHide.bind('click', function(e) {
-      toggleView(e, dialpadView);
-    });
-    self.shareScreen.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
-      self.enableScreenSharing(true);
-    });
-    self.stopShareScreen.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
-      self.enableScreenSharing(false);
-    });
-
-    self.hangup.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
+    self.hangup.bind('click', clickHander(function() {
       self.endCall();
       if (self.fullScreen) {
         self.fullScreenContract.click();
       }
-    });
+    }));
 
-    self.fullScreenExpand.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
-      self.showFullScreen();
-    });
-
-    self.fullScreenContract.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
-      self.stopFullScreen();
-    });
     $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange', function(e) {
       self.updateFullScreen();
     });
-
-    self.selfViewDisable.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
-      self.hideSelfView();
-    });
-
-    self.selfViewEnable.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
-      self.showSelfView();
-    });
-
-    self.hold.onClick(function(e) {
-      self.holdCall();
-    });
-
-    self.resume.onClick(function(e) {
-      self.resumeCall();
-    });
-
-    self.muteAudioIcon.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
-      self.muteAudio();
-    });
-
-    self.unmuteAudioIcon.bind('click', function(e) {
-      e.preventDefault();
-      sound.playClick();
-      self.unmuteAudio();
-    });
-
-
   };
 
   return self;

@@ -88,6 +88,42 @@ function getId (options, name) {
 	return id;
 };
 
+function createDelegate (options, name, argName) {
+	var path;
+	if (argName.match(/view$/i)) {
+		path = './views/' + argName.replace(/view$/i, '');
+	} else {
+		path = './models/' + argName;
+	}
+
+	if (argName === 'debug') {
+		options.name = name;
+	}
+	
+	var argConstructor = require(path);
+	var obj = argConstructor();
+	if(typeof obj === 'function') {
+		// console.log('factory : args : delegateFunction :'+argName);
+		return delegateFunction(Factory(require(path)), options);
+	} else {
+		var propertyNames = Object.getOwnPropertyNames(obj);
+		var methods = propertyNames.filter(function(propName){
+			return typeof obj[propName] === 'function';
+		});
+		var props = propertyNames.filter(function(propName){
+			return typeof obj[propName] !== 'function';
+		});
+		props = props.concat(obj.elements || Object.keys(obj.props || {}));
+		if(argName.match(/view$/i)) {
+			props = props.concat(['view']);
+		}
+		// console.log('factory : args : delegate :'+argName, methods, props);
+		var arg = delegate(Factory(require(path)), options, methods, props);
+		arg._name = argName;
+		return arg;
+	}
+};
+
 function delegateFunction (toProvider, options) {
 	var _toProvider;
   return function () {
@@ -96,15 +132,16 @@ function delegateFunction (toProvider, options) {
   };
 };
 
+// TODO - make props implicit from property names (as currently generated on create)
 function delegate (toProvider, options, methods, props, receiver) {
 	receiver = receiver || {};
 	methods = methods || Object.getOwnPropertyNames(toProvider);
 	var _toProvider;
   methods.forEach(function (method) {
-    receiver[method] = function () {
-    	_toProvider = _toProvider || toProvider(options);
-      return _toProvider[method].apply(receiver, arguments);
-    };
+		receiver[method] = function () {
+			_toProvider = _toProvider || toProvider(options);
+		  return _toProvider[method].apply(receiver, arguments);
+		};
   });
   props.forEach(function (prop) {
   	Object.defineProperty(receiver, prop, {
@@ -131,33 +168,8 @@ function args(options, constructor) {
 		if (argName === 'options') {
 			return options;
 		}
-
-		var path;
-		if (argName.match(/view$/i)) {
-			path = './views/' + argName.replace(/view$/i, '');
-		} else {
-			if (argName === 'debug') {
-				options.name = name;
-			}
-			path = './models/' + argName;
-		}
-		
-		var arg;
-		var argConstructor = require(path);
-		var obj = argConstructor();
-		if(typeof obj === 'function') {
-			// console.log('factory : args : delegateFunction :'+argName);
-			arg = delegateFunction(Factory(require(path)), options);
-		} else {
-			var methods = Object.getOwnPropertyNames(obj);
-			var props = obj.elements || Object.keys(obj.props || {});
-			if(argName.match(/view$/i)) {
-				props = props.concat(['view']);
-			}
-			console.log('factory : args : delegate :'+argName, methods, props);
-			arg = delegate(Factory(require(path)), options, methods, props);
-			arg._name = argName;
-		}
+		var name = functionName(constructor);
+		var arg = createDelegate(options, name, argName);
 		// var argId = getId(options, functionName(argConstructor));
 		// console.log('factory : args : global.instances '+argId);
 		// global.instances[argId] = arg;

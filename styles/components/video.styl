@@ -4,11 +4,6 @@
   left 0px
   width 100%
   height auto
-  &:-webkit-full-screen
-    position absolute
-    height 100%
-    border none
-    z-index 1
 
   .remote
     position absolute
@@ -60,13 +55,6 @@
       left 0
 
 
-.full-screen-expanded
-  .video
-    padding-bottom 0
-    bottom 40px
-    position absolute
-    height auto !important
-
 .widescreen
   .video
     padding-bottom 56.25%
@@ -74,16 +62,6 @@
 .standard
   .video
     padding-bottom 75%
-
-:-webkit-full-screen
-  .remote
-    z-index 1
-  .localVideo
-    z-index 2
-
-:-webkit-full-screen .remote, :-webkit-full-screen .localVideo
-  border none
-  border-radius 0
 
 .started
   .watermark-icon
@@ -137,3 +115,13 @@
 
 .view-audioOnly .video
   display none !important
+  
+.enable-self-view.video-shown .selfViewDisable,
+.enable-self-view:not(.video-shown) .selfViewEnable,
+.enable-self-view.video-shown .localVideo
+  {fadeIn}
+
+.enable-self-view:not(.video-shown) .selfViewDisable,
+.enable-self-view.video-shown .selfViewEnable,
+.enable-self-view:not(.video-shown) .localVideo
+  {fadeOut}

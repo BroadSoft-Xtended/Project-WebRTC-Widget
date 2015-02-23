@@ -219,39 +219,9 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     if (configuration.selfViewLocation) {
       classes.push("selfView-" + configuration.selfViewLocation);
     }
-    if (sound.muted) {
-      classes.push("muted");
-    } else {
-      classes.push("unmuted");
-    }
-    if (self.selfViewEnabled) {
-      classes.push("self-view-enabled");
-    } else {
-      classes.push("self-view-disabled");
-    }
     Object.keys(self.visibilities).forEach(function(view) {
       classes.push(view + '-' + (self.visibilities[view] ? 'shown' : 'hidden'));
     });
-    if (self.fullScreen) {
-      classes.push("full-screen-expanded");
-    } else {
-      classes.push("full-screen-contracted");
-    }
-    if (self.isScreenSharing) {
-      classes.push("screen-sharing");
-    } else {
-      classes.push("screen-sharing-off");
-    }
-    if (transferview.visible) {
-      classes.push("transfer-visible");
-    } else {
-      classes.push("transfer-hidden");
-    }
-    if (authenticationview.visible) {
-      classes.push("auth-visible");
-    } else {
-      classes.push("auth-hidden");
-    }
     self.client.attr("class", classes.join(" "));
   };
 

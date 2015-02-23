@@ -1,0 +1,18 @@
+.transferPopup
+  color white
+  width 280px
+  height 60px
+
+.transferTarget
+  width 200px
+  
+.enable-transfer.started .transfer
+  {fadeIn}
+
+.enable-transfer.started.transfer-shown .transferPopup
+  {fadeInPopup}
+
+.enable-transfer.connected .transfer, 
+.enable-transfer.disconnected .transfer,
+.enable-transfer.not(.transfer-shown) .transferPopup
+  {fadeOut}
