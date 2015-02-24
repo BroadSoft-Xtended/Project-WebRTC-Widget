@@ -43,6 +43,7 @@ function Prop(obj, prop) {
 	self.define = function(){
 		Object.defineProperty(obj, self._name, {
 			writeable: false,
+			configurable: true,
 			get: prop.get || self.__get,
 			set: prop.set || self.__set
 		});	

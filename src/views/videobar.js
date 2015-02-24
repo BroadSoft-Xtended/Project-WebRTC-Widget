@@ -8,7 +8,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
   self.fullScreen = false;
   self.isScreenSharing = false;
-  self.muted = false;
+  self.soundEnabled = true;
   self.selfViewVisible = true;
 
   self.elements = ['transfer', 'settings', 'dialpadIconShow', 'dialpadIconHide', 'cellTimer', 'hangup', 'fullScreenExpand', 'fullScreenContract',
@@ -27,8 +27,8 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
     eventbus.viewChanged({visible: self.selfViewVisible, name: 'video'});
   };
 
-  var toggleSound = function() {
-    self.enableSound(!self.muted);
+  var toggleSound = function(soudEnabled) {
+    self.enableSound(soudEnabled || !self.soundEnabled);
   };
 
   var toggleShareScreen = function() {
@@ -65,6 +65,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
   // Initial startup
   self.init = function() {
     toggleSelfView(self.selfViewVisible);
+    toggleSound(self.soundEnabled);
   };
 
   self.checkEndCallURL = function() {
@@ -132,6 +133,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
   };
 
   self.enableSound = function(enable) {
+    self.soundEnabled = enable;
     sound.setMuted(!enable);
     eventbus.viewChanged({name: 'sound', visible: enable});
   };

@@ -96,6 +96,7 @@ Object.defineProperty(localStorage, 'length', {
 setUp = function(){
   testUA = require('./testUA');
   Utils = require('../../src/Utils');
+  Constants = require('../../src/Constants');
   WebRTC = require('../../src/WebRTC');
   Client = require('../../src/views/client');
   ClientConfig = require('../../js/client-config.js.default');

@@ -37,67 +37,65 @@ function Configuration(options, eventbus, debug, settings) {
   var self = {};
   options = options || {};
 
-  jQuery.extend(self, options);
-
   var screenshare = false;
   var offerToReceiveVideo = true;
   var bodyBackgroundColor = $('body').css('backgroundColor');
   
   // TODO - refactor to not have to specify each config prop but use from options
   self.props = {
-    enableHD: {value: function(){return options.enableHD}},
-    enableCallControl: {value: function(){return options.enableCallControl}},
-    enableCallTimer: {value: function(){return options.enableCallTimer}},
-    enableCallHistory: {value: function(){return options.enableCallHistory}},
-    enableFullScreen: {value: function(){return options.enableFullScreen}},
-    enableSelfView: {value: function(){return options.enableSelfView}},
-    enableCallStats: {value: function(){return options.enableCallStats}},
-    enableDialpad: {value: function(){return options.enableDialpad}},
-    enableMute: {value: function(){return options.enableMute}},
-    enableRegistrationIcon: {value: function(){return options.enableRegistrationIcon}},
-    enableConnectionIcon: {value: function(){return options.enableConnectionIcon}},
-    enableWindowDrag: {value: function(){return options.enableWindowDrag}},
-    enableAutoAcceptReInvite: {value: function(){return options.enableAutoAcceptReInvite}},
-    enableConnectLocalMedia: {value: function(){return options.enableConnectLocalMedia}},
-    enableIms: {value: function(){return options.enableIms}},
-    enableSettings: {value: function(){return options.enableSettings}},
-    enableAutoAnswer: {value: function(){return options.enableAutoAnswer}},
-    enableTransfer: {value: function(){return options.enableTransfer}},
-    enableHold: {value: function(){return options.enableHold}},
-    pAssertedIdentity: {value: function(){return options.pAssertedIdentity}},
-    disableICE: {value: function(){return options.disableICE}},
-    volumeClick: {value: function(){return options.volumeClick}},
-    volumeDTMF: {value: function(){return options.volumeDTMF}},
-    websocketsServers: {value: function(){return options.websocketsServers}},
-    stunServer: {value: function(){return options.stunServer}},
-    stunPort: {value: function(){return options.stunPort}},
-    allowOutside: {value: function(){return options.allowOutside}},
-    domainFrom: {value: function(){debug('domainFrom : '+options.domainFrom); return options.domainFrom}},
-    domainTo: {value: function(){return options.domainTo}},
-    endCallURL: {value: function(){return options.endCallURL}},
-    bandwidthLow: {value: function(){return options.bandwidthLow}},
-    bandwidthMed: {value: function(){return options.bandwidthMed}},
-    bandwidthHigh: {value: function(){return options.bandwidthHigh}},
-    expires: {value: function(){return options.expires}},
-    debug: {value: function(){return options.debug}},
-    encodingResolution: {value: function(){return options.encodingResolution}},
-    displayResolution: {value: function(){return options.displayResolution}},
-    view: {value: function(){return options.view}},
-    selfViewLocation: {value: function(){return options.selfViewLocation}},
-    register: {value: function(){return options.register}},
-    messageEnded: {value: function(){return options.messageEnded}},
-    messageResume: {value: function(){return options.messageResume}},
-    messageHold: {value: function(){return options.messageHold}},
-    messageStarted: {value: function(){return options.messageStarted}},
-    messageConnected: {value: function(){return options.messageConnected}},
-    messageConnectionFailed: {value: function(){return options.messageConnectionFailed}},
-    messageProgress: {value: function(){return options.messageProgress}},
-    messageRegistrationFailed: {value: function(){return options.messageRegistrationFailed}},
-    messageRegistered: {value: function(){return options.messageRegistered}},
-    messageUnregistered: {value: function(){return options.messageUnregistered}},
-    messageOutsideDomain: {value: function(){return options.messageOutsideDomain}},
-    messageEmptyDestination: {value: function(){return options.messageEmptyDestination}},
-    messageGetUserMedia: {value: function(){return options.messageGetUserMedia}},
+    // enableHD: {value: function(){return options.enableHD}},
+    // enableCallControl: {value: function(){return options.enableCallControl}},
+    // enableCallTimer: {value: function(){return options.enableCallTimer}},
+    // enableCallHistory: {value: function(){return options.enableCallHistory}},
+    // enableFullScreen: {value: function(){return options.enableFullScreen}},
+    // enableSelfView: {value: function(){return options.enableSelfView}},
+    // enableCallStats: {value: function(){return options.enableCallStats}},
+    // enableDialpad: {value: function(){return options.enableDialpad}},
+    // enableMute: {value: function(){return options.enableMute}},
+    // enableRegistrationIcon: {value: function(){return options.enableRegistrationIcon}},
+    // enableConnectionIcon: {value: function(){return options.enableConnectionIcon}},
+    // enableWindowDrag: {value: function(){return options.enableWindowDrag}},
+    // enableAutoAcceptReInvite: {value: function(){return options.enableAutoAcceptReInvite}},
+    // enableConnectLocalMedia: {value: function(){return options.enableConnectLocalMedia}},
+    // enableIms: {value: function(){return options.enableIms}},
+    // enableSettings: {value: function(){return options.enableSettings}},
+    // enableAutoAnswer: {value: function(){return options.enableAutoAnswer}},
+    // enableTransfer: {value: function(){return options.enableTransfer}},
+    // enableHold: {value: function(){return options.enableHold}},
+    // pAssertedIdentity: {value: function(){return options.pAssertedIdentity}},
+    // disableICE: {value: function(){return options.disableICE}},
+    // volumeClick: {value: function(){return options.volumeClick}},
+    // volumeDTMF: {value: function(){return options.volumeDTMF}},
+    // websocketsServers: {value: function(){return options.websocketsServers}},
+    // stunServer: {value: function(){return options.stunServer}},
+    // stunPort: {value: function(){return options.stunPort}},
+    // allowOutside: {value: function(){return options.allowOutside}},
+    // domainFrom: {value: function(){debug('domainFrom : '+options.domainFrom); return options.domainFrom}},
+    // domainTo: {value: function(){return options.domainTo}},
+    // endCallURL: {value: function(){return options.endCallURL}},
+    // bandwidthLow: {value: function(){return options.bandwidthLow}},
+    // bandwidthMed: {value: function(){return options.bandwidthMed}},
+    // bandwidthHigh: {value: function(){return options.bandwidthHigh}},
+    // expires: {value: function(){return options.expires}},
+    // debug: {value: function(){return options.debug}},
+    // encodingResolution: {value: function(){return options.encodingResolution}},
+    // displayResolution: {value: function(){return options.displayResolution}},
+    // view: {value: function(){return options.view}},
+    // selfViewLocation: {value: function(){return options.selfViewLocation}},
+    // register: {value: function(){return options.register}},
+    // messageEnded: {value: function(){return options.messageEnded}},
+    // messageResume: {value: function(){return options.messageResume}},
+    // messageHold: {value: function(){return options.messageHold}},
+    // messageStarted: {value: function(){return options.messageStarted}},
+    // messageConnected: {value: function(){return options.messageConnected}},
+    // messageConnectionFailed: {value: function(){return options.messageConnectionFailed}},
+    // messageProgress: {value: function(){return options.messageProgress}},
+    // messageRegistrationFailed: {value: function(){return options.messageRegistrationFailed}},
+    // messageRegistered: {value: function(){return options.messageRegistered}},
+    // messageUnregistered: {value: function(){return options.messageUnregistered}},
+    // messageOutsideDomain: {value: function(){return options.messageOutsideDomain}},
+    // messageEmptyDestination: {value: function(){return options.messageEmptyDestination}},
+    // messageGetUserMedia: {value: function(){return options.messageGetUserMedia}},
     destination: {
       value: function(){return options.destination || Utils.getSearchVariable("destination");}
     },
@@ -140,6 +138,14 @@ function Configuration(options, eventbus, debug, settings) {
       }
     }
   };
+
+  Object.keys(options).forEach(function(key) {
+    self.props[key] = {
+      value: function(){
+        return options[key];
+      }
+    };
+  });
 
   self.init = function(options) { 
     debug('configuration options : ' + ExSIP.Utils.toString(options));

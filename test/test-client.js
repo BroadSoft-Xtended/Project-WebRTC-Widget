@@ -44,17 +44,14 @@ describe('client', function() {
     expect(client.client.attr('class').split(" ")[1]).toEqual("r" + WebRTC.C.R_1280x720);
   });
   it('resolution class for resolution setting', function() {
-    delete config.displayResolution;
-    delete config.encodingResolution;
+    config.displayResolution = '';
+    config.encodingResolution = '';
     WebRTC.Utils.getSearchVariable = function(name) {
       return name === "hd" ? "false" : false;
     }
     $.cookie("settingResolutionDisplay", WebRTC.C.R_960x720);
     $.cookie("settingResolutionEncoding", WebRTC.C.R_320x240);
     client = create(config);
-    console.log('settings : '+settings.resolutionType);
-    console.log('settings.getResolutionDisplay : '+settings.getResolutionDisplay());
-    console.log('settingsview : '+settingsview.resolutionType.val());
     expect(client.client.attr('class').split(" ")[1]).toEqual("r" + WebRTC.C.R_960x720);
   });
   it('destination configuration and enableConnectLocalMedia = false', function() {
@@ -65,8 +62,7 @@ describe('client', function() {
     callcontrol.callUri = function(destination) {
       destinationCalled = destination;
     };
-    testUA.connect();
-    testUA.startCall();
+    testUA.connectAndStartCall();
     sipstack.ua.isConnected = function() {
       return true;
     };
@@ -88,8 +84,7 @@ describe('client', function() {
     callcontrol.callUri = function(destination) {
       destinationCalled = destination;
     };
-    testUA.connect();
-    testUA.startCall();
+    testUA.connectAndStartCall();
     sipstack.ua.isConnected = function() {
       return true;
     };
@@ -121,8 +116,8 @@ describe('client', function() {
   it('call and press enter on destination input', function() {
     var called = false;
     client = create(config);
-    testUA.startCall();
-    expect(sipstack.getCallState()).toEqual(WebRTC.SIPStack.C.STATE_STARTED);
+    testUA.connectAndStartCall();
+    expect(sipstack.getCallState()).toEqual(Constants.STATE_STARTED);
     sipstack.call = function(destination) {
       console.log('call');
       called = true;
@@ -194,129 +189,124 @@ describe('client', function() {
   });
   it('muteAudio on call started', function() {
     client = create(config);
-    testUA.startCall();
+    testUA.connectAndStartCall();
     testUA.isVisible(videobar.muteAudioIcon, true);
   });
   it('muteAudio on mute triggered', function() {
     client = create(config);
-    testUA.startCall();
+    testUA.connectAndStartCall();
     videobar.muteAudioIcon.trigger("click");
+    console.log('!!!!!!!!!!! : '+client.client.attr('class'))
     testUA.isVisible(videobar.muteAudioIcon, false);
-    videobar.unmuteAudioIcon.trigger("click");
-    testUA.isVisible(videobar.muteAudioIcon, true);
-  });
-  it('unmuteAudio on mute triggered', function() {
-    client = create(config);
-    testUA.startCall();
-    videobar.muteAudioIcon.trigger("click");
     testUA.isVisible(videobar.unmuteAudioIcon, true);
     videobar.unmuteAudioIcon.trigger("click");
     testUA.isVisible(videobar.unmuteAudioIcon, false);
+    testUA.isVisible(videobar.muteAudioIcon, true);
   });
   it('fullScreen icon', function() {
     config.enableFullScreen = true;
     client = create(config);
-    testUA.isVisible(videobar.fullScreenExpandIcon, true);
-    testUA.isVisible(videobar.fullScreenContractIcon, false);
+    testUA.isVisible(videobar.fullScreenExpand, true);
+    testUA.isVisible(videobar.fullScreenContract, false);
   });
   it('fullScreen icon with enableFullScreen = false', function() {
     config.enableFullScreen = false;
     client = create(config);
-    testUA.isVisible(videobar.fullScreenExpandIcon, false);
-    testUA.isVisible(videobar.fullScreenContractIcon, false);
+    testUA.isVisible(videobar.fullScreenExpand, false);
+    testUA.isVisible(videobar.fullScreenContract, false);
   });
   it('fullScreen icon after click', function() {
     config.enableFullScreen = true;
     client = create(config);
-    videobar.fullScreenExpandIcon.trigger('click');
-    testUA.isVisible(videobar.fullScreenExpandIcon, false);
-    testUA.isVisible(videobar.fullScreenContractIcon, true);
-    videobar.fullScreenContractIcon.trigger('click');
-    testUA.isVisible(videobar.fullScreenExpandIcon, true);
-    testUA.isVisible(videobar.fullScreenContractIcon, false);
+    videobar.fullScreenExpand.trigger('click');
+    testUA.isVisible(videobar.fullScreenExpand, false);
+    testUA.isVisible(videobar.fullScreenContract, true);
+    videobar.fullScreenContract.trigger('click');
+    testUA.isVisible(videobar.fullScreenExpand, true);
+    testUA.isVisible(videobar.fullScreenContract, false);
   });
   it('selfView icon', function() {
     config.enableSelfView = true;
     client = create(config);
-    testUA.isVisible(videobar.selfViewEnableIcon, false);
-    testUA.isVisible(videobar.selfViewDisableIcon, true);
-    testUA.isVisible(video.localHolder, true);
+    testUA.isVisible(videobar.selfViewEnable, false);
+    testUA.isVisible(videobar.selfViewDisable, true);
+    testUA.isVisible(video.localVideo, true);
   });
   it('selfView icon with enableSelfView = false', function() {
     config.enableSelfView = false;
     client = create(config);
-    testUA.isVisible(videobar.selfViewEnableIcon, false);
-    testUA.isVisible(videobar.selfViewDisableIcon, false);
-    testUA.isVisible(video.localHolder, false);
+    testUA.isVisible(videobar.selfViewEnable, false);
+    testUA.isVisible(videobar.selfViewDisable, false);
+    testUA.isVisible(video.localVideo, false);
   });
   it('selfView icon after click', function() {
     config.enableSelfView = true;
     client = create(config);
-    videobar.selfViewDisableIcon.trigger('click');
-    testUA.isVisible(videobar.selfViewEnableIcon, true);
-    testUA.isVisible(videobar.selfViewDisableIcon, false);
-    testUA.isVisible(video.localHolder, false);
-    videobar.selfViewEnableIcon.trigger('click');
-    testUA.isVisible(videobar.selfViewEnableIcon, false);
-    testUA.isVisible(videobar.selfViewDisableIcon, true);
-    testUA.isVisible(video.localHolder, true);
+    videobar.selfViewDisable.trigger('click');
+    testUA.isVisible(videobar.selfViewEnable, true);
+    testUA.isVisible(videobar.selfViewDisable, false);
+    testUA.isVisible(video.localVideo, false);
+    videobar.selfViewEnable.trigger('click');
+    testUA.isVisible(videobar.selfViewEnable, false);
+    testUA.isVisible(videobar.selfViewDisable, true);
+    testUA.isVisible(video.localVideo, true);
   });
   it('dialpad icon', function() {
     config.enableDialpad = true;
     client = create(config);
-    testUA.isVisible(videobar.dialpadShowIcon, true);
-    testUA.isVisible(videobar.dialpadHideIcon, false);
-    testUA.isVisible(dialpad.view, false);
+    testUA.isVisible(videobar.dialpadIconShow, true);
+    testUA.isVisible(videobar.dialpadIconHide, false);
+    expect(dialpad.visible).toEqual(false);
   });
   it('dialpad icon with enableDialpad = false', function() {
     config.enableDialpad = false;
     client = create(config);
-    testUA.isVisible(videobar.dialpadShowIcon, false);
-    testUA.isVisible(videobar.dialpadHideIcon, false);
-    testUA.isVisible(dialpad.view, false);
+    testUA.isVisible(videobar.dialpadIconShow, false);
+    testUA.isVisible(videobar.dialpadIconHide, false);
+    expect(dialpad.visible).toEqual(false);
   });
   it('dialpad icon after click', function() {
     config.enableDialpad = true;
     client = create(config);
-    videobar.dialpadShowIcon.trigger('click');
-    testUA.isVisible(videobar.dialpadShowIcon, false);
-    testUA.isVisible(videobar.dialpadHideIcon, true);
-    testUA.isVisible(dialpad.view, true);
-    videobar.dialpadHideIcon.trigger('click');
-    testUA.isVisible(videobar.dialpadShowIcon, true);
-    testUA.isVisible(videobar.dialpadHideIcon, false);
-    testUA.isVisible(dialpad.view, false);
+    videobar.dialpadIconShow.trigger('click');
+    testUA.isVisible(videobar.dialpadIconShow, false);
+    testUA.isVisible(videobar.dialpadIconHide, true);
+    expect(dialpad.visible).toEqual(true);
+    videobar.dialpadIconHide.trigger('click');
+    testUA.isVisible(videobar.dialpadIconShow, true);
+    testUA.isVisible(videobar.dialpadIconHide, false);
+    expect(dialpad.visible).toEqual(false);
   });
   it('dialpad icon after click and in call', function() {
     config.enableDialpad = true;
     client = create(config);
-    testUA.startCall();
+    testUA.connectAndStartCall();
     testUA.isVisible(videobar.hangup, true);
-    videobar.dialpadShowIcon.trigger('click');
+    videobar.dialpadIconShow.trigger('click');
     testUA.isVisible(videobar.hangup, true);
-    videobar.dialpadHideIcon.trigger('click');
+    videobar.dialpadIconHide.trigger('click');
     testUA.isVisible(videobar.hangup, true);
   });
   it('hangup on call started', function() {
     client = create(config);
-    testUA.startCall();
+    testUA.connectAndStartCall();
     testUA.isVisible(videobar.hangup, true);
   });
   it('muteAudio on call started and disabled muted', function() {
     config.enableMute = false;
     client = create(config);
-    testUA.startCall();
+    testUA.connectAndStartCall();
     testUA.isVisible(videobar.muteAudioIcon, false);
   });
   it('unmuteAudio on call started and disabled muted', function() {
     config.enableMute = false;
     client = create(config);
-    testUA.startCall();
+    testUA.connectAndStartCall();
     testUA.isVisible(videobar.unmuteAudioIcon, false);
   });
   it('muteAudio on call ended', function() {
     client = create(config);
-    testUA.startCall();
+    testUA.connectAndStartCall();
     testUA.endCall();
     testUA.isVisible(videobar.muteAudioIcon, false);
   });
@@ -324,8 +314,7 @@ describe('client', function() {
     client = create(config);
     testUA.isVisible(videobar.muteAudioIcon, false);
     testUA.isVisible(videobar.unmuteAudioIcon, false);
-    testUA.connect();
-    testUA.startCall();
+    testUA.connectAndStartCall();
     testUA.isVisible(videobar.muteAudioIcon, true);
     testUA.isVisible(videobar.unmuteAudioIcon, false);
     videobar.muteAudioIcon.trigger("click");
@@ -338,7 +327,7 @@ describe('client', function() {
   });
   it('hangup on call ended', function() {
     client = create(config);
-    testUA.startCall();
+    testUA.connectAndStartCall();
     testUA.endCall();
     testUA.isVisible(videobar.hangup, false);
   });

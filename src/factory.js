@@ -101,7 +101,7 @@ function createDelegate (options, name, argName) {
 	}
 	
 	var argConstructor = require(path);
-	var obj = argConstructor();
+	var obj = argConstructor(options);
 	if(typeof obj === 'function') {
 		// console.log('factory : args : delegateFunction :'+argName);
 		return delegateFunction(Factory(require(path)), options);

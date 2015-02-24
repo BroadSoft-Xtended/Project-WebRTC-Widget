@@ -1318,7 +1318,6 @@ a.disabled {
   width: 25%;
   height: 25%;
   background-color: transparent;
-  z-index: 99;
 }
 .video .localVideo video {
   border-radius: 0;
@@ -1925,7 +1924,6 @@ a.disabled {
   border-top: 1px solid #3c3c3c;
 }
 .videoBar .icon {
-  z-index: 10;
   margin: 0px 2.5px;
   position: absolute;
 }
@@ -2058,16 +2056,16 @@ a.disabled {
 .client:not(.enable-call-control) .callControl {
   display: none !important;
 }
-.enable-mute:not(.sound-shown).started .muteAudioIcon,
-.enable-mute.sound-shown.started .unmuteAudioIcon {
+.enable-mute.sound-shown.started .muteAudioIcon,
+.enable-mute:not(.sound-shown).started .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
 .enable-mute:not(.started) .muteAudioIcon,
 .enable-mute:not(.started) .unmuteAudioIcon,
-.enable-mute.sound-shown.started .muteAudioIcon,
-.enable-mute:not(.sound-shown).started .unmuteAudioIcon {
+.enable-mute:not(.sound-shown).started .muteAudioIcon,
+.enable-mute.sound-shown.started .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;

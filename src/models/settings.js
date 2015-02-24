@@ -46,7 +46,6 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
     location.reload(0);
   };
   self.getResolutionDisplay = function() {
-    debug('+++++++++++++'+$.cookie('settingResolutionDisplay'));
     return self.getResolution("resolutionDisplayStandard", "resolutionDisplayWidescreen");
   };
   self.getResolutionEncoding = function() {
@@ -189,9 +188,6 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
         self.setResolution(resolution, "resolutionDisplayStandard", "resolutionDisplayWidescreen")
       },
       value: function(){
-            debug('+++++++++++++ : '+configuration.displayResolution);
-            debug('+++++++++++++ : '+$.cookie('settingResolutionDisplay'));
-
         return configuration.displayResolution || $.cookie('settingResolutionDisplay') || WebRTC_C.DEFAULT_RESOLUTION_DISPLAY
       }
     },

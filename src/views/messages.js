@@ -13,7 +13,6 @@ function MessagesView(options, eventbus, configuration) {
     if (!configuration.enableMessages) {
       return;
     }
-    console.log('message : '+text, level);
     var messageEl = self[level];
     messageEl.stop(true, true).fadeOut();
     messageEl.text(text).fadeIn(10).fadeOut(10000);

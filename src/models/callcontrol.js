@@ -57,7 +57,6 @@ function CallControl(options, eventbus, configuration, sipstack, debug) {
 
   // URL call
   self.callUri = function(destinationToValidate) {
-    console.log('sipstack.C.STATE_CONNECTED : '+sipstack.C);
     if (sipstack.getCallState() !== C.STATE_CONNECTED) {
       debug('Already in call with state : ' + sipstack.getCallState());
       return;

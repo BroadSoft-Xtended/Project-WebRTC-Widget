@@ -31,6 +31,11 @@ module.exports = {
     });
   },
 
+  connectAndStartCall: function() {
+    this.connect();
+    this.startCall();
+  },
+
   connect: function() {
     sipstack.ua.isConnected = function(){return true;};
     console.log('######## connected');

@@ -180,11 +180,9 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     }
   };
   self.updateUserMedia = function(userMediaCallback, failureCallback) {
-    debug('updateUserMedia : '+configuration.disabled+', '+configuration.enableConnectLocalMedia+', '+self.activeSession);
     if (!configuration.disabled && (configuration.enableConnectLocalMedia || self.activeSession)) {
       // Connect to local stream
       var options = configuration.getExSIPOptions();
-      debug("updating user media ...");
       self.ua.getUserMedia(options, function(localStream) {
         eventbus.emit('userMediaUpdated', localStream);
         if (self.activeSession) {
@@ -217,7 +215,6 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
       debug("auto accepting reInvite");
       e.data.session.acceptReInvite();
     } else {
-      console.log('@@@@@@@@@@@@@ emit reinvite : ', e.data);
       eventbus.emit('reInvite', e.data);
     }
   };
@@ -253,7 +250,6 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
       self.ua.on('connected', function(e) {
         eventbus.viewChanged(self);
         var hasListeners = require('event-emitter/has-listeners');
-        debug('$$$$$$$$$$ connected : '+hasListeners(eventbus, 'connected'));
         eventbus.emit('connected', e);
       });
       self.ua.on('disconnected', function(e) {
