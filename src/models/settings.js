@@ -14,7 +14,14 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
   };
 
   var isStarted = false;
-  self.changed = false;
+  var _changed = false;
+  var changed = function() {
+    if (!isStarted) {
+      self.reload();
+    } else {
+      _changed = true;
+    }
+  };
 
   self.init = function(options) {
     updatePageColor();
@@ -23,7 +30,7 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
   self.listeners = function() {
     eventbus.on("ended", function() {
       isStarted = false;
-      if (self.changed) {
+      if (_changed) {
         self.reload();
       }
     });
@@ -96,18 +103,10 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
     }
     settingsView.updateResolutionSelectVisibility();
   };
-
-  self.changed = function() {
-    if (!isStarted) {
-      self.reload();
-    } else {
-      self.changed = true;
-    }
-  };
   self.save = function() {
     self.persist();
     settingsView.hide();
-    self.changed();
+    changed();
   };
   self.signIn = function() {
     self.persist();

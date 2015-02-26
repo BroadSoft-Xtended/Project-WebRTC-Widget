@@ -132,8 +132,9 @@ font-face-inline('bsl_icons', 'bsl_icons', '../fonts')
 .icon-dialpadShow:before, .icon-dialpadShow:hover:before, .icon-dialpadHide:before, .icon-dialpadHide:hover:before
   content "\ed3b"
 
-.icon-hangup:before, .icon-hangup:hover:before
+a.icon-hangup:before, a.icon-hangup:hover:before
   content "\e600"
+  color #FF0000
 
 .icon-clock
   &:before
@@ -180,16 +181,11 @@ font-face-inline('bsl_icons', 'bsl_icons', '../fonts')
   &:before
     content "\f1fe"
 
-.icon-call
+a.icon-call
   &:before
     content "\e00e"
     color #3B9E3B
 
-.icon-hangup
-  &:before
-    content "\e00f"
-    color #FF0000
-    
 .view-conference .icon-hangup:before, .view-conference .icon-hangup:hover:before
   color white !important
 

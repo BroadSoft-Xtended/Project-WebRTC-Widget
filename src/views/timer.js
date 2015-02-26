@@ -2,7 +2,7 @@ module.exports = TimerView;
 
 var Utils = require('../Utils');
 
-function TimerView(options, debug, eventbus, statsView, configuration) {
+function TimerView(options, debug, eventbus, statsView, configuration, sipstack, videobarView) {
   var self = {};
 
   self.callTimer = null;
@@ -56,13 +56,13 @@ function TimerView(options, debug, eventbus, statsView, configuration) {
     return function() {
       var secs = self.getSeconds();
       if (configuration.maxCallLength && secs >= configuration.maxCallLength) {
-        self.client.terminateSessions();
-        self.client.endCall();
+        sipstack.terminateSessions();
+        videobarView.endCall();
         return;
       }
       self.updateText();
       if (configuration.enableCallStats && Utils.isChrome()) {
-        self.statsView.processStats();
+        statsView.processStats();
       }
     };
   }

@@ -2,8 +2,9 @@ module.exports = SIPStack;
 
 var ExSIP = require('exsip');
 var C = require('../Constants');
+var Utils = require('../Utils');
 
-function SIPStack(options, eventbus, debug, configuration, settings) {
+function SIPStack(options, eventbus, configuration, settings, debug) {
   var self = {};
 
   self.ua = null;

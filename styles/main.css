@@ -1744,9 +1744,10 @@ a.disabled {
 .icon-dialpadHide:hover:before {
   content: "\ed3b";
 }
-.icon-hangup:before,
-.icon-hangup:hover:before {
+a.icon-hangup:before,
+a.icon-hangup:hover:before {
   content: "\e600";
+  color: #f00;
 }
 .icon-clock:before {
   content: "\e634";
@@ -1801,13 +1802,9 @@ a.disabled {
 .icon-angle-right:before {
   content: "\f1fe";
 }
-.icon-call:before {
+a.icon-call:before {
   content: "\e00e";
   color: #3b9e3b;
-}
-.icon-hangup:before {
-  content: "\e00f";
-  color: #f00;
 }
 .view-conference .icon-hangup:before,
 .view-conference .icon-hangup:hover:before {

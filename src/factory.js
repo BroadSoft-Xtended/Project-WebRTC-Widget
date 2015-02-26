@@ -97,7 +97,7 @@ function createDelegate (options, name, argName) {
 	}
 
 	if (argName === 'debug') {
-		options.name = name;
+		return require(path)($.extend({}, options, {name: name}));
 	}
 	
 	var argConstructor = require(path);

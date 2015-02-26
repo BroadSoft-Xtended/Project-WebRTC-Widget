@@ -55,8 +55,6 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     self.updateClientClass();
 
     $.cookie.raw = true;
-
-    sipstack.init();
   };
 
   self.showErrorPopup = function(error) {
@@ -78,7 +76,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     $(document).unbind('keydown').bind('keydown', function(event) {
       var isModifier = event.altKey;
       if (isModifier) {
-        if (transferview.targetInput.is(event.target)) {
+        if (transferview.target.is(event.target)) {
           return;
         }
         eventbus.modifier(event.which);
