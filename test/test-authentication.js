@@ -29,11 +29,11 @@ describe('mocha tests', function () {
     expect(sipstack.ua.configuration.uri.toString()).toEqual( 'sip:12345@' + config.domainFrom);
     expect(sipstack.ua.configuration.authorization_user).toEqual( '12345');
     expect(settings.userid).toEqual('12345', 'should NOT change settings userId : '+settings.userid);
-    expect(settings.authenticationUserid).toEqual(undefined, 'should NOT set settings authenticationUserId : '+settings.authenticationUserid);
-    expect(settings.password).toEqual(undefined, 'should NOT set settings password : '+settings.password);
+    expect(settings.authenticationUserid).toEqual('', 'should NOT set settings authenticationUserId : '+settings.authenticationUserid);
+    expect(settings.password).toEqual('', 'should NOT set settings password : '+settings.password);
     testUA.registered();
     expect(settings.userid).toEqual('12345', 'should NOT change settings userId : '+settings.userid);
-    expect(settings.authenticationUserid).toEqual(undefined, 'should NOT set settings authenticationUserId as same as userId : '+settings.authenticationUserid);
+    expect(settings.authenticationUserid).toEqual('', 'should NOT set settings authenticationUserId as same as userId : '+settings.authenticationUserid);
     expect(settings.password).toEqual('121212', 'should set settings password : '+settings.password);
     tearDown();
   });
@@ -55,7 +55,7 @@ describe('mocha tests', function () {
     expect(sipstack.ua.configuration.authorization_user).toEqual( '54321');
     expect(settings.userid).toEqual('12345', 'should NOT change settings userId');
     expect(settings.authenticationUserid).toEqual('54321', 'should NOT change settings authenticationUserId');
-    expect(settings.password).toEqual(null, 'should NOT set settings password : '+settings.password);
+    expect(settings.password).toEqual('', 'should NOT set settings password : '+settings.password);
     testUA.registered();
     expect(settings.userid).toEqual('12345', 'should NOT change settings userId');
     expect(settings.authenticationUserid).toEqual('54321', 'should NOT change settings authenticationUserId as same as userId');

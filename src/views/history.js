@@ -1,6 +1,7 @@
 module.exports = HistoryView
 
 var Utils = require('../Utils');
+var Constants = require('../Constants');
 var PopupView = require('./popup');
 
 function Page(number, callsValue) {
@@ -71,10 +72,21 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
 
   var pagePrefix = 'page_';
 
-  var pageNumber = 0;
-  var callsPerPage = 10;
-  var maxPages = 25;
-  var rows = [];
+  var _pageNumber = 0;
+  Object.defineProperty(self, 'pageNumber', 
+    {
+      get: function() {
+        return _pageNumber;
+      },
+      set: function(value) {
+        _pageNumber = value;
+        updateContent();
+      }
+    }
+  );
+  self.callsPerPage = 10;
+  self.maxPages = 25;
+  self.rows = [];
 
   var callDetailsHandler = function(call) {
     return function(e) {
@@ -90,8 +102,8 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
       self.jitter.text(call.jitter);
       self.callLink.attr("data-destination", call.destinationWithoutSip());
       self.callLink.text("Call " + call.destinationWithoutSip());
-      self.callHistoryDetails.fadeIn(100);
-      self.callHistory.css({
+      self.callHistoryDetails.show();
+      self.view.css({
         width: "416px"
       });
       $(".history-row").removeClass("active");
@@ -167,6 +179,12 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
     'historyClear', 'callLink', 'historyRowSample', 'historyClose'
   ];
 
+  self.pagesAsString = function() {
+    return self.pages().map(function(page){
+      return page.callsAsString();
+    });
+  };
+
   self.pages = function() {
     var pages = [];
     for (var i = 0; i < localStorage.length; i++) {
@@ -195,12 +213,6 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
     return calls;
   };
 
-
-  self.setPageNumber = function(pageNumber) {
-    self.pageNumber = pageNumber;
-    updateContent();
-  };
-
   self.listeners = function() {
     eventbus.on("ended", function(e) {
       self.persistCall(e.sender);
@@ -222,13 +234,13 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
     self.historyForward.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
-      self.setPageNumber(self.pageNumber + 1);
+      self.pageNumber = self.pageNumber + 1;
     });
 
     self.historyBack.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
-      self.setPageNumber(self.pageNumber - 1);
+      self.pageNumber = self.pageNumber - 1;
     });
 
     self.historyClose.bind('click', function(e) {
@@ -239,22 +251,22 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
 
     self.historyDetailsClose.bind('click', function(e) {
       e.preventDefault();
-      self.callHistoryDetails.fadeOut(100);
-      self.callHistory.css({
+      self.callHistoryDetails.hide();
+      self.view.css({
         width: "200px"
       });
     });
 
     self.callLink.bind('click', function(e) {
       e.preventDefault();
-      if (sipstack.getCallState() === sipstack.C.STATE_CONNECTED) {
+      if (sipstack.getCallState() === Constants.STATE_CONNECTED) {
         sound.playClick();
         var destination = self.callLink.attr("data-destination");
         callcontrol.callUri(destination);
-        self.callHistory.css({
+        self.view.css({
           width: "200px"
         });
-        self.callHistory.fadeOut(100);
+        self.view.hide();
       }
       self.callHistoryDetails.hide();
     });
@@ -266,7 +278,7 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
       for (var i = 0; i < pages.length; i++) {
         localStorage.removeItem(pagePrefix + (pages[i].number));
       }
-      self.setPageNumber(0);
+      self.pageNumber = 0;
     });
   };
 

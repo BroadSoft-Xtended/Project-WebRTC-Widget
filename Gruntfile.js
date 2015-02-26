@@ -48,7 +48,6 @@ module.exports = function(grunt) {
           "jQuery": true,
           "RTCPeerConnection": true,
           "ExSIP": true,
-          "detect": true,
           "ClientConfig": true,
           "addStats": true,
           "getDataSeriesByLabel": true,
@@ -74,7 +73,7 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/<%= pkg.name %>-<%= pkg.version %>.min.js': ['dist/<%= pkg.name %>-<%= pkg.version %>.js'],
-          'js/3rdparty.js': ['js/stats.js', 'js/detect-2.1.5.js', 'js/FileSaver.js'],
+          'js/3rdparty.js': ['js/stats.js', 'js/FileSaver.js'],
           'dist/<%= pkg.name %>-bundle-<%= pkg.version %>.min.js': ['js/3rdparty.js', 'js/client-config.js.default', 'js/exsip.js', 
           'dist/<%= pkg.name %>-<%= pkg.version %>.min.js']
         }

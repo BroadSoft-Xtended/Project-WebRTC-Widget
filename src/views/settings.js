@@ -134,10 +134,10 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
 
   self.updateResolutionSelectVisibility = function() {
     var resolutionType = self.resolutionType.val();
-    self.resolutionDisplayStandard.toggle(resolutionType === WebRTC_C.STANDARD);
-    self.resolutionEncodingStandard.toggle(resolutionType === WebRTC_C.STANDARD);
-    self.resolutionDisplayWidescreen.toggle(resolutionType === WebRTC_C.WIDESCREEN);
-    self.resolutionEncodingWidescreen.toggle(resolutionType === WebRTC_C.WIDESCREEN);
+    self.resolutionDisplayStandard.toggleClass('hidden', resolutionType !== WebRTC_C.STANDARD);
+    self.resolutionEncodingStandard.toggleClass('hidden', resolutionType !== WebRTC_C.STANDARD);
+    self.resolutionDisplayWidescreen.toggleClass('hidden', resolutionType !== WebRTC_C.WIDESCREEN);
+    self.resolutionEncodingWidescreen.toggleClass('hidden', resolutionType !== WebRTC_C.WIDESCREEN);
   };
   self.enableRegistration = function(enable) {
     self.signIn.removeClass("disabled");

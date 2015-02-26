@@ -1,105 +1,179 @@
-module( "SMS", {
-  setup: function() {
-    TestWebrtc.Helpers.mockWebRTC();
-    TestWebrtc.Helpers.mockSound();
-    TestWebrtc.Helpers.mockSMSProvider();
-    ClientConfig.smsEnabled = true;
-  }, teardown: function() {
-    ClientConfig.smsEnabled = false;
-  }
-});
+require('./includes/common');
+describe('SMS', function() {
 
-test('loginLink clicked', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  var loginName = "", loginPassword = "";
-  client.sms.smsProvider.login = function(name, password) {
-    loginName = name;
-    loginPassword = password;
-  };
-  client.sms.view.show();
-  strictEqual(client.sms.loginForm.is(':visible'), true);
-  strictEqual(client.sms.inbox.is(':visible'), false);
-  client.sms.nameInput.val("12345678");
-  client.sms.passwordInput.val("9876");
-  client.sms.loginLink.trigger('click');
-  strictEqual(loginName, '12345678');
-  strictEqual(loginPassword, '9876');
-});
+  beforeEach(function() {
+    setUp();
+    testUA.mockWebRTC();
+    testUA.mockSound();
+    config = {
+      smsEnabled: true
+    };
+  });
 
-test('login successful', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  var readAllCalled = false;
-  client.sms.smsProvider.readAll = function() {
-    readAllCalled = true;
-  };
-  client.sms.smsProvider.login = function(name, password) {
-    client.eventBus.smsLoggedIn(client.sms);
-  };
-  client.sms.view.show();
-  client.sms.nameInput.val("12345678");
-  client.sms.passwordInput.val("9876");
-  client.sms.loginLink.trigger('click');
-  strictEqual(client.sms.loginForm.is(':visible'), false);
-  strictEqual(client.sms.inbox.is(':visible'), true);
-  strictEqual(readAllCalled, true);
-});
+  it('loginLink clicked', function() {
+    client = create(config)
+    testUA.mockSMSProvider();
+    var loginName = "",
+      loginPassword = "";
+    smsprovider.login = function(name, password) {
+      loginName = name;
+      loginPassword = password;
+    };
+    sms.view.show();
+    expect(sms.loginForm.hasClass('hidden')).toEqual(false);
+    expect(sms.inbox.hasClass('hidden')).toEqual(true);
+    sms.name.val("12345678");
+    sms.password.val("9876");
+    sms.loginLink.trigger('click');
+    expect(loginName).toEqual('12345678');
+    expect(loginPassword).toEqual('9876');
+  });
 
-test('received messages', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.eventBus.smsLoggedIn(client.sms);
-  client.eventBus.smsReadAll(client.sms, {messages: [
-    {"mid":274907,"type":"sms","time":1394749434000,"stime":1394749434000,"status":"N","body":"BS: Test sending msg to cpa-dev-prod ","tn":"12403649086","rawtn":"12403649086","name":"","dir":"I"},
-    {"mid":274910,"type":"sms","time":1394749434005,"stime":1394749434005,"status":"N","body":"BS: Test sending msg to cpa-dev-prod 2","tn":"12403649086","rawtn":"12403649086","name":"","dir":"I"},
-    {"mid":274905,"type":"sms","time":1394749314000,"stime":1394749314000,"status":"R","body":"BS: Test sending msg to cca-prod ","tn":"12403649086","rawtn":"12403649086","name":"","dir":"O"}
-  ]});
-  strictEqual(client.sms.inboxItems.length, 2);
-  strictEqual(client.sms.inboxItems[1].message.mid, 274907);
-  strictEqual(client.sms.inboxItems[1].from.text(), "12403649086");
-  strictEqual(client.sms.inboxItems[1].status.text(), "New");
-  // strictEqual(client.sms.inboxItems[1].time.text(), "03/13/2014 16:23:54");
-  strictEqual(client.sms.inboxItems[1].bodyText.text(), "BS: Test sending msg to cpa-dev-prod");
-});
+  it('login successful', function() {
+    client = create(config)
+    testUA.mockSMSProvider();
+    var readAllCalled = false;
+    smsprovider.readAll = function() {
+      readAllCalled = true;
+    };
+    smsprovider.login = function(name, password) {
+      eventbus.emit('smsLoggedIn');
+    };
+    sms.view.show();
+    sms.name.val("12345678");
+    sms.password.val("9876");
+    sms.loginLink.trigger('click');
+    expect(sms.loginForm.hasClass('hidden')).toEqual(true);
+    expect(sms.inbox.hasClass('hidden')).toEqual(false);
+    expect(readAllCalled).toEqual(true);
+  });
 
-test('delete message', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  var removeCalled = false;
-  window.confirm = function(){ return true;}
-  client.sms.smsProvider.remove = function(mids, onSuccess, onFailure) {
-    removeCalled = true;
-    onSuccess();
-  };
+  it('received messages', function() {
+    client = create(config)
+    testUA.mockSMSProvider();
+    sms.show();
+    eventbus.emit('smsLoggedIn');
+    eventbus.emit('smsReadAll', {
+      messages: [{
+        "mid": 274907,
+        "type": "sms",
+        "time": 1394749434000,
+        "stime": 1394749434000,
+        "status": "N",
+        "body": "BS: Test sending msg to cpa-dev-prod ",
+        "tn": "12403649086",
+        "rawtn": "12403649086",
+        "name": "",
+        "dir": "I"
+      }, {
+        "mid": 274910,
+        "type": "sms",
+        "time": 1394749434005,
+        "stime": 1394749434005,
+        "status": "N",
+        "body": "BS: Test sending msg to cpa-dev-prod 2",
+        "tn": "12403649086",
+        "rawtn": "12403649086",
+        "name": "",
+        "dir": "I"
+      }, {
+        "mid": 274905,
+        "type": "sms",
+        "time": 1394749314000,
+        "stime": 1394749314000,
+        "status": "R",
+        "body": "BS: Test sending msg to cca-prod ",
+        "tn": "12403649086",
+        "rawtn": "12403649086",
+        "name": "",
+        "dir": "O"
+      }]
+    });
+    expect(sms.inboxItems.length).toEqual(2);
+    expect(sms.inboxItems[1].message.mid).toEqual(274907);
+    expect(sms.inboxItems[1].from.text()).toEqual("12403649086");
+    expect(sms.inboxItems[1].time.text()).toEqual( "03/13/2014 16:23:54");
+    expect(sms.inboxItems[1].status.text()).toEqual("New");
+    expect(sms.inboxItems[1].bodyText.text()).toEqual("BS: Test sending msg to cpa-dev-prod");
+  });
 
-  client.eventBus.smsLoggedIn(client.sms);
-  client.eventBus.smsReadAll(client.sms, {messages: [
-    {"mid":274907,"type":"sms","time":1394749434000,"stime":1394749434000,"status":"N","body":"BS: Test sending msg to cpa-dev-prod ","tn":"12403649086","rawtn":"12403649086","name":"","dir":"I"},
-    {"mid":274910,"type":"sms","time":1394749434005,"stime":1394749434005,"status":"N","body":"BS: Test sending msg to cpa-dev-prod 2","tn":"12403649086","rawtn":"12403649086","name":"","dir":"I"},
-    {"mid":274905,"type":"sms","time":1394749314000,"stime":1394749314000,"status":"R","body":"BS: Test sending msg to cca-prod ","tn":"12403649086","rawtn":"12403649086","name":"","dir":"O"}
-  ]});
-  strictEqual($('#274910').length, 1);
-  client.sms.inboxItems[0].removeLink.trigger('click');
-  strictEqual($('#274910').length, 0);
-  strictEqual(removeCalled, true);
-  strictEqual(client.sms.status.is(':visible'), false);
-});
+  it('delete message', function() {
+    client = create(config)
+    testUA.mockSMSProvider();
+    var removeCalled = false;
+    window.confirm = function() {
+      return true;
+    }
+    smsprovider.remove = function(mids, onSuccess, onFailure) {
+      removeCalled = true;
+      onSuccess();
+    };
+    sms.show();
+    eventbus.emit('smsLoggedIn');
+    eventbus.emit('smsReadAll', {
+      messages: [{
+        "mid": 274907,
+        "type": "sms",
+        "time": 1394749434000,
+        "stime": 1394749434000,
+        "status": "N",
+        "body": "BS: Test sending msg to cpa-dev-prod ",
+        "tn": "12403649086",
+        "rawtn": "12403649086",
+        "name": "",
+        "dir": "I"
+      }, {
+        "mid": 274910,
+        "type": "sms",
+        "time": 1394749434005,
+        "stime": 1394749434005,
+        "status": "N",
+        "body": "BS: Test sending msg to cpa-dev-prod 2",
+        "tn": "12403649086",
+        "rawtn": "12403649086",
+        "name": "",
+        "dir": "I"
+      }, {
+        "mid": 274905,
+        "type": "sms",
+        "time": 1394749314000,
+        "stime": 1394749314000,
+        "status": "R",
+        "body": "BS: Test sending msg to cca-prod ",
+        "tn": "12403649086",
+        "rawtn": "12403649086",
+        "name": "",
+        "dir": "O"
+      }]
+    });
+    expect(sms.inboxContent.find('#274910').length).toEqual(1);
+    sms.inboxItems[0].removeLink.trigger('click');
+    expect(sms.inboxContent.find('#274910').length).toEqual(0);
+    expect(removeCalled).toEqual(true);
+    expect(sms.status.hasClass('hidden')).toEqual(true);
+  });
 
-test('send message', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  var sendToArray = "", sendBody = "";
-  client.sms.smsProvider.sendSMS = function(toArray, body) {
-    sendToArray = toArray;
-    sendBody = body;
-    client.eventBus.smsSent(client.sms);
-  };
-  client.eventBus.smsLoggedIn(client.sms);
-  client.sms.sendButton.trigger('click');
-  strictEqual(client.sms.statusContent.text(), "Please enter a phone number to send to\nPlease enter a text to send");
+  it('send message', function() {
+    client = create(config)
+    testUA.mockSMSProvider();
+    var sendToArray = "",
+      sendBody = "";
+    smsprovider.sendSMS = function(toArray, body) {
+      sendToArray = toArray;
+      sendBody = body;
+      eventbus.emit('smsSent');
+    };
+    eventbus.emit('smsLoggedIn');
+    sms.sendButton.trigger('click');
+    expect(sms.statusContent.text()).toEqual("Please enter a phone number to send to\nPlease enter a text to send");
 
-  client.sms.sendTo.val('1234567890');
-  client.sms.sendBody.val('some text');
-  client.sms.sendButton.trigger('click');
-  deepEqual(sendToArray, ['1234567890']);
-  strictEqual(sendBody, 'some text');
-  strictEqual(client.sms.status.is(':visible'), false);
-  strictEqual(client.sms.sendBody.val(), '');
-  strictEqual(client.sms.sendTo.val(), '');
+    sms.sendTo.val('1234567890');
+    sms.sendBody.val('some text');
+    sms.sendButton.trigger('click');
+    expect(sendToArray).toEqual(['1234567890']);
+    expect(sendBody).toEqual('some text');
+    expect(sms.status.hasClass('hidden')).toEqual(true);
+    expect(sms.sendBody.val()).toEqual('');
+    expect(sms.sendTo.val()).toEqual('');
+  });
 });

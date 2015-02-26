@@ -1,32 +1,36 @@
-module( "Timer", {
-  setup: function() {
-    TestWebrtc.Helpers.mockWebRTC();
-  }, teardown: function() {
-  }
-});
-test('format', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.timer.text.text(), '00:00:00');
-  var timerFunction = client.timer.runningTimer();
+require('./includes/common');
+describe('timer', function() {
+
+  beforeEach(function() {
+    setUp();
+    config = {};
+    testUA.mockWebRTC();
+  });
+
+it('format', function() {
+  client = create(config)
+  expect(timer.text.text()).toEqual( '00:00:00');
+  var timerFunction = timer.runningTimer();
   timerFunction();
-  strictEqual(client.timer.text.text(), '00:00:00');
+  expect(timer.text.text()).toEqual( '00:00:00');
 });
-test('timer on call started with enableCallTimer = true', function() {
-  ClientConfig.enableCallTimer = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.isVisible(client.timer.text, false);
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.timer.text, true);
-  TestWebrtc.Helpers.endCall();
-  TestWebrtc.Helpers.isVisible(client.timer.text, false);
-  strictEqual(client.timer.text.text(), '00:00:00');
+it('timer on call started with enableCallTimer = true', function() {
+  config.enableCallTimer = true;
+  client = create(config)
+  testUA.isVisible(timer.view, false);
+  testUA.startCall();
+  testUA.isVisible(timer.view, true);
+  testUA.endCall();
+  testUA.isVisible(timer.view, false);
+  expect(timer.text.text()).toEqual( '00:00:00');
 });
-test('timer on call started with enableCallTimer = false', function() {
-  ClientConfig.enableCallTimer = false;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.isVisible(client.timer.text, false);
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.timer.text, false);
-  TestWebrtc.Helpers.endCall();
-  TestWebrtc.Helpers.isVisible(client.timer.text, false);
+it('timer on call started with enableCallTimer = false', function() {
+  config.enableCallTimer = false;
+  client = create(config)
+  testUA.isVisible(timer.view, false);
+  testUA.startCall();
+  testUA.isVisible(timer.view, false);
+  testUA.endCall();
+  testUA.isVisible(timer.view, false);
+});
 });

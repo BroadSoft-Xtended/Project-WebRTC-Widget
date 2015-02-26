@@ -30,13 +30,13 @@ function TimerView(options, debug, eventbus, statsView, configuration) {
 
     var timer = self.runningTimer();
     self.callTimer = setInterval(timer, 1000);
-    debug("started timer interval : " + self.callTimer);
+    debug("started timer interval");
   },
 
   self.stop = function() {
     self.startTime = null;
     clearInterval(self.callTimer);
-    debug("cleared timer interval : " + self.callTimer);
+    debug("cleared timer interval");
     self.callTimer = null;
     self.updateText();
   },

@@ -1,90 +1,90 @@
-module( "Hold/Resume", {
-  setup: function() {
-    TestWebrtc.Helpers.mockWebRTC();
-    TestWebrtc.Helpers.mockSound();
-    ClientConfig.domainTo = "domain.to";
-    ClientConfig.domainFrom = "domain.from";
-    ClientConfig.enableTransfer = true;
-    ClientConfig.enableCallStats = false;
+require('./includes/common');
+describe('hold/resume', function() {
+
+  beforeEach(function() {
+    setUp();
+    testUA.mockWebRTC();
+    testUA.mockSound();
+    config = {domainTo: "domain.to", domainFrom: "domain.from", enableTransfer: true, enableCallStats: false};
     WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
-  }, teardown: function() {
-  }
+  });
+
+it('hold icon', function() {
+  client = create(config)
+  testUA.isVisible(videobar.hold.element, false);
 });
-test('hold icon', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.isVisible(client.hold, false);
+it('resume icon', function() {
+  client = create(config)
+  testUA.isVisible(videobar.resume.element, false);
 });
-test('resume icon', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.isVisible(client.resume, false);
-});
-test('hold icon on call started with enableHold is false', function() {
-  ClientConfig.enableHold = false;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.hold, false);
+it('hold icon on call started with enableHold is false', function() {
+  config.enableHold = false;
+  client = create(config)
+  testUA.startCall();
+  testUA.isVisible(videobar.hold.element, false);
 });
 
-test('hold icon on call started with enableHold is true', function() {
-  ClientConfig.enableHold = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.hold, true);
+it('hold icon on call started with enableHold is true', function() {
+  config.enableHold = true;
+  client = create(config)
+  testUA.startCall();
+  testUA.isVisible(videobar.hold.element, true);
 });
-test('resume icon on call started with enableHold is false', function() {
-  ClientConfig.enableHold = false;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.resume, false);
+it('resume icon on call started with enableHold is false', function() {
+  config.enableHold = false;
+  client = create(config)
+  testUA.startCall();
+  testUA.isVisible(videobar.resume.element, false);
 });
-test('resume icon on call started with enableHold is true', function() {
-  ClientConfig.enableHold = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.isVisible(client.resume, false);
+it('resume icon on call started with enableHold is true', function() {
+  config.enableHold = true;
+  client = create(config)
+  testUA.startCall();
+  testUA.isVisible(videobar.resume.element, false);
 });
-test('hold icon after call held', function() {
-  ClientConfig.enableHold = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  client.hold.element.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.hold, false);
+it('hold icon after call held', function() {
+  config.enableHold = true;
+  client = create(config)
+  testUA.startCall();
+  videobar.hold.element.trigger("click");
+  testUA.isVisible(videobar.hold.element, false);
 });
-test('resume icon after call held', function() {
-  ClientConfig.enableHold = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  client.hold.element.trigger("click");
-  strictEqual(client.hold.disabled, false);
-  TestWebrtc.Helpers.isVisible(client.resume, true);
+it('resume icon after call held', function() {
+  config.enableHold = true;
+  client = create(config)
+  testUA.startCall();
+  videobar.hold.element.trigger("click");
+  expect(videobar.hold.disabled).toEqual( false);
+  testUA.isVisible(videobar.resume.element, true);
 });
-test('hold icon after call resumed', function() {
-  ClientConfig.enableHold = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  client.hold.element.trigger("click");
-  client.resume.element.trigger("click");
-  strictEqual(client.resume.disabled, false);
-  TestWebrtc.Helpers.isVisible(client.hold, true);
+it('hold icon after call resumed', function() {
+  config.enableHold = true;
+  client = create(config)
+  testUA.startCall();
+  videobar.hold.element.trigger("click");
+  videobar.resume.element.trigger("click");
+  expect(videobar.resume.disabled).toEqual( false);
+  testUA.isVisible(videobar.hold.element, true);
 });
-test('resume icon after call resumed', function() {
-  ClientConfig.enableHold = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  client.hold.element.trigger("click");
-  client.resume.element.trigger("click");
-  TestWebrtc.Helpers.isVisible(client.resume, false);
+it('resume icon after call resumed', function() {
+  config.enableHold = true;
+  client = create(config)
+  testUA.startCall();
+  videobar.hold.element.trigger("click");
+  videobar.resume.element.trigger("click");
+  testUA.isVisible(videobar.resume.element, false);
 });
-test('hold icon on call ended', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  TestWebrtc.Helpers.endCall();
-  TestWebrtc.Helpers.isVisible(client.hold, false);
+it('hold icon on call ended', function() {
+  client = create(config)
+  testUA.startCall();
+  testUA.endCall();
+  testUA.isVisible(videobar.hold.element, false);
 });
-test('resume icon on call ended', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.startCall();
-  client.hold.element.trigger("click");
-  TestWebrtc.Helpers.endCall();
-  TestWebrtc.Helpers.isVisible(client.resume, false);
+it('resume icon on call ended', function() {
+  client = create(config)
+  testUA.startCall();
+  videobar.hold.element.trigger("click");
+  testUA.endCall();
+  testUA.isVisible(videobar.resume.element, false);
+});
 });

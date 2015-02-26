@@ -38,7 +38,6 @@ module.exports = {
 
   connect: function() {
     sipstack.ua.isConnected = function(){return true;};
-    console.log('######## connected');
     sipstack.ua.emit('connected', sipstack.ua);
   },
 
@@ -127,11 +126,11 @@ module.exports = {
   },
 
   mockSMSProvider: function(){
-    WebRTC.SMSProvider.prototype.remove = function(){console.log('remove');}
-    WebRTC.SMSProvider.prototype.sendSMS = function(){console.log('sendSMS');}
-    WebRTC.SMSProvider.prototype.login = function(){console.log('login');}
-    WebRTC.SMSProvider.prototype.readAll = function(){console.log('readAll');}
-    WebRTC.SMSProvider.prototype.getUpdate = function(){console.log('getUpdate');}
+    smsprovider.remove = function(){console.log('remove');}
+    smsprovider.sendSMS = function(){console.log('sendSMS');}
+    smsprovider.login = function(){console.log('login');}
+    smsprovider.readAll = function(){console.log('readAll');}
+    smsprovider.getUpdate = function(){console.log('getUpdate');}
   },
 
   mockLocation: function(){
@@ -156,7 +155,6 @@ module.exports = {
       }
     };
     ExSIP.WebRTC.getUserMedia = function(constraints, success, failure){
-      console.log('-- getUserMedia ');
       success(self.createLocalMedia());
     };
     ExSIP.WebRTC.isSupported = true;

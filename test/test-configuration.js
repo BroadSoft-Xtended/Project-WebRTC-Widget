@@ -1,257 +1,264 @@
-module( "Configuration", {
-  setup: function() {
-    TestWebrtc.Helpers.mockSound();
-    TestWebrtc.Helpers.mockLocation();
+require('./includes/common');
+describe('configuration', function() {
+
+  beforeEach(function() {
+    setUp();
+    testUA.mockWebRTC();
+    testUA.mockSound();
+    // testUA.mockLocation();
     WebRTC.Utils.getSearchVariable = function(name){ return false;}
     $.cookie("settingResolutionDisplay", "");
     $.cookie("settingResolutionEncoding", "");
-    ClientConfig.enableCallStats = false;
-  }, teardown: function() {
-    client.settings.clear();
-  }
-});
-test('websocketsServers', function() {
-  ClientConfig.websocketsServers = [
+    config = {enableCallStats: false, domainTo: 'domain.to', domainFrom: 'domain.from'};
+  });
+  // afterEach(function() {
+  //   settings.clear();
+  // });
+
+it('websocketsServers', function() {
+  config.websocketsServers = [
     {'ws_uri':'ws://webrtc-gw1.broadsoft.com:8060', 'weight':0},
     {'ws_uri':'ws://webrtc-gw2.broadsoft.com:8060', 'weight':0},
     {'ws_uri':'ws://webrtc-gw.broadsoft.com:8060', 'weight':0}];
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.sipStack.ua.configuration.ws_servers.length, 3);
+  client = create(config);
+  expect(sipstack.ua.configuration.ws_servers.length).toEqual( 3);
 });
-test('networkUserId set', function() {
-  ClientConfig.networkUserId = '8323303809';
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.sipStack.ua.configuration.authorization_user, '8323303809');
-  strictEqual(client.sipStack.ua.configuration.uri.toString(), 'sip:8323303809@'+ClientConfig.domainFrom);
-  ClientConfig.networkUserId = undefined;
+it('networkUserId set', function() {
+  config.networkUserId = '8323303809';
+  client = create(config);
+  expect(sipstack.ua.configuration.authorization_user).toEqual( '8323303809');
+  expect(sipstack.ua.configuration.uri.toString()).toEqual( 'sip:8323303809@'+config.domainFrom);
+  config.networkUserId = undefined;
 });
-test('WEBRTC-41 : networkUserId and userId set', function() {
-  ClientConfig.networkUserId = '8323303809';
+it('WEBRTC-41 : networkUserId and userId set', function() {
+  config.networkUserId = '8323303809';
   WebRTC.Utils.getSearchVariable = function(name){ return name === "userid" ? "8323303810" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.sipStack.ua.configuration.authorization_user, '8323303809', "networkUserId takes precendence over userid");
-  ClientConfig.networkUserId = undefined;
+  client = create(config);
+  expect(sipstack.ua.configuration.authorization_user).toEqual('8323303809', "networkUserId takes precendence over userid");
+  config.networkUserId = undefined;
 });
-test('enableIms = true', function() {
-  ClientConfig.enableIms = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.sipStack.ua.configuration.enable_ims, true);
+it('enableIms = true', function() {
+  config.enableIms = true;
+  client = create(config);
+  expect(sipstack.ua.configuration.enable_ims).toEqual( true);
 });
-test('enableIms = false', function() {
-  ClientConfig.enableIms = false;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.sipStack.ua.configuration.enable_ims, false);
+it('enableIms = false', function() {
+  config.enableIms = false;
+  client = create(config);
+  expect(sipstack.ua.configuration.enable_ims).toEqual( false);
 });
-test('userid', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  ok("chooses random userid", client.configuration.userid !== undefined);
+it('userid:', function() {
+  client = create(config);
+  expect(sipstack.ua.configuration.uri !== undefined).toEqual(true);
 });
-test('getExSIPConfig() with userid with empty spaces', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.userId('my user id');
-  strictEqual(client.configuration.getExSIPConfig().uri, "my%20user%20id@domain.from");
+it('getExSIPConfig() with userid with empty spaces', function() {
+  client = create(config);
+  settings.userid = 'my user id';
+  expect(configuration.getExSIPConfig().uri).toEqual( "my%20user%20id@domain.from");
 });
-test('destination', function() {
-  ClientConfig.enableConnectLocalMedia = true;
-  ClientConfig.domainTo = "domain.to";
-  ClientConfig.allowOutside = true;
+it('destination', function() {
+  config.enableConnectLocalMedia = true;
+  config.domainTo = "domain.to";
+  config.allowOutside = true;
   WebRTC.Utils.getSearchVariable = function(name){ return name === "destination" ? "8323303810" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
+  client = create(config);
   var calledDestination = '';
-  client.sipStack.call = function(destination){calledDestination = destination;};
-  client.sipStack.ua.getUserMedia = function(options, success, failure, force){success();};
+  sipstack.call = function(destination){calledDestination = destination;};
+  sipstack.ua.getUserMedia = function(options, success, failure, force){success();};
 
-  TestWebrtc.Helpers.connect();
-  strictEqual(calledDestination, "sip:8323303810@domain.to");
+  testUA.connect();
+  expect(calledDestination).toEqual( "sip:8323303810@domain.to");
 });
-test('WEBRTC-35 : destination with dtmf tones', function() {
-  ClientConfig.enableConnectLocalMedia = true;
-  ClientConfig.domainTo = "domain.to";
-  ClientConfig.allowOutside = true;
+it('WEBRTC-35 : destination with dtmf tones:', function() {
+  config.enableConnectLocalMedia = true;
+  config.domainTo = "domain.to";
+  config.allowOutside = true;
   WebRTC.Utils.getSearchVariable = function(name){ return name === "destination" ? "8323303810,,123132" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
+  client = create(config);
   var calledDestination = '', sentTones = '';
-  client.sipStack.call = function(destination){calledDestination = destination;};
-  client.sipStack.sendDTMF = function(tones){sentTones = tones;};
-  client.sipStack.ua.getUserMedia = function(options, success, failure, force){success();};
+  sipstack.call = function(destination){calledDestination = destination;};
+  sipstack.sendDTMF = function(tones){sentTones = tones;};
+  sipstack.ua.getUserMedia = function(options, success, failure, force){success();};
 
-  TestWebrtc.Helpers.connect();
-  strictEqual(calledDestination, "sip:8323303810@domain.to");
+  testUA.connect();
+  expect(calledDestination).toEqual( "sip:8323303810@domain.to");
 
-  var session = TestWebrtc.Helpers.startCall();
-  strictEqual(sentTones, ",,123132");
+  var session = testUA.startCall();
+  expect(sentTones).toEqual(",,123132");
 
   sentTones = '';
 
-  TestWebrtc.Helpers.reconnectCall(session);
-  strictEqual(sentTones, "", "Should NOT send the dtmf again");
+  testUA.reconnectCall(session);
+  expect(sentTones).toEqual("", "Should NOT send the dtmf again");
 });
-test('WEBRTC-35 : destination with dtmf tones and #', function() {
-  ClientConfig.enableConnectLocalMedia = true;
-  ClientConfig.domainTo = "domain.to";
-  ClientConfig.allowOutside = true;
+it('WEBRTC-35 : destination with dtmf tones and #', function() {
+  config.enableConnectLocalMedia = true;
+  config.domainTo = "domain.to";
+  config.allowOutside = true;
   WebRTC.Utils.getSearchVariable = function(name){ return name === "destination" ? "8323303810,,123132#" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
+  client = create(config);
   var calledDestination = '', sentTones = '';
-  client.sipStack.call = function(destination){calledDestination = destination;};
-  client.sipStack.sendDTMF = function(tones){sentTones = tones;};
-  client.sipStack.ua.getUserMedia = function(options, success, failure, force){success();};
+  sipstack.call = function(destination){calledDestination = destination;};
+  sipstack.sendDTMF = function(tones){sentTones = tones;};
+  sipstack.ua.getUserMedia = function(options, success, failure, force){success();};
 
-  TestWebrtc.Helpers.connect();
-  strictEqual(calledDestination, "sip:8323303810@domain.to");
+  testUA.connect();
+  expect(calledDestination).toEqual( "sip:8323303810@domain.to");
 
-  TestWebrtc.Helpers.startCall();
-  strictEqual(sentTones, ",,123132#");
+  testUA.startCall();
+  expect(sentTones).toEqual(",,123132#");
 });
-test('WEBRTC-35 : destination with dtmf tones and domain', function() {
-  ClientConfig.enableConnectLocalMedia = true;
-  ClientConfig.domainTo = "domain.to";
-  ClientConfig.allowOutside = true;
+it('WEBRTC-35 : destination with dtmf tones and domain', function() {
+  config.enableConnectLocalMedia = true;
+  config.domainTo = "domain.to";
+  config.allowOutside = true;
   WebRTC.Utils.getSearchVariable = function(name){ return name === "destination" ? "8323303810,,123132@some.domain" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
+  client = create(config);
   var calledDestination = '', sentTones = '';
-  client.sipStack.call = function(destination){calledDestination = destination;};
-  client.sipStack.sendDTMF = function(tones){sentTones = tones;};
-  client.sipStack.ua.getUserMedia = function(options, success, failure, force){success();};
+  sipstack.call = function(destination){calledDestination = destination;};
+  sipstack.sendDTMF = function(tones){sentTones = tones;};
+  sipstack.ua.getUserMedia = function(options, success, failure, force){success();};
 
-  TestWebrtc.Helpers.connect();
-  strictEqual(calledDestination, "sip:8323303810@some.domain");
+  testUA.connect();
+  expect(calledDestination).toEqual( "sip:8323303810@some.domain");
 
-  TestWebrtc.Helpers.startCall();
-  strictEqual(sentTones, ",,123132");
+  testUA.startCall();
+  expect(sentTones).toEqual(",,123132");
 });
-test('getExSIPOptions', function() {
-  delete ClientConfig.encodingResolution;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.settings.audioOnly, undefined);
+it('getExSIPOptions', function() {
+  delete config.encodingResolution;
+  client = create(config);
+  expect(settings.audioOnly).toEqual( undefined);
 
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 640, maxHeight: 480 }}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
   };
-  deepEqual(client.configuration.getExSIPOptions(), options);
+  expect(configuration.getExSIPOptions()).toEqual( options);
 });
-test('getExSIPOptions with resolution', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.audioOnly, false);
-  strictEqual(client.configuration.hd, undefined);
-  client.settings.setResolutionEncoding('320x240');
+it('getExSIPOptions with resolution', function() {
+  client = create(config);
+  expect(configuration.audioOnly).toEqual( false);
+  expect(configuration.hd).toEqual( undefined);
+  settings.setResolutionEncoding('320x240');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 320, maxHeight: 240 }}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
   };
-  deepEqual(client.configuration.getExSIPOptions(), options);
+  expect(configuration.getExSIPOptions()).toEqual( options);
 });
-test('getExSIPOptions with view = audioOnly', function() {
-  ClientConfig.view = 'audioOnly';
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
+it('getExSIPOptions with view = audioOnly', function() {
+  config.view = 'audioOnly';
+  client = create(config);
   var options = {
     mediaConstraints: { audio: true, video: false},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:false}}
   };
-  deepEqual(client.configuration.getExSIPOptions(), options);
-  delete ClientConfig.view;
+  expect(configuration.getExSIPOptions()).toEqual( options);
+  delete config.view;
 });
-test('getExSIPOptions with resolution 960x720', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.audioOnly, false);
-  strictEqual(client.configuration.hd, undefined);
-  client.settings.setResolutionEncoding('960x720');
+it('getExSIPOptions with resolution 960x720', function() {
+  client = create(config);
+  expect(configuration.audioOnly).toEqual( false);
+  expect(configuration.hd).toEqual( undefined);
+  settings.setResolutionEncoding('960x720');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 960, minHeight: 720 }}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
   };
-  deepEqual(client.configuration.getExSIPOptions(), options);
+  expect(configuration.getExSIPOptions()).toEqual( options);
 });
-test('getExSIPOptions with hd=true', function() {
+it('getExSIPOptions with hd=true', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "true" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.audioOnly, false);
-  strictEqual(client.configuration.hd, true);
-  client.settings.setResolutionEncoding('960x720');
+  client = create(config);
+  expect(configuration.audioOnly).toEqual( false);
+  expect(configuration.hd).toEqual( true);
+  settings.setResolutionEncoding('960x720');
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 1280, minHeight: 720 }}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
   };
-  deepEqual(client.configuration.getExSIPOptions(), options);
+  expect(configuration.getExSIPOptions()).toEqual( options);
 });
-test('setClientConfigFlags', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  var flags = client.configuration.getClientConfigFlags();
+it('setClientConfigFlags', function() {
+  client = create(config);
+  var flags = configuration.getClientConfigFlags();
 
-  for(var flag in WebRTC.Configuration.Flags) {
+  for(var flag in configuration.Flags) {
     setClientConfigFlagAndAssert(flag);
   }
 
-  client.configuration.setClientConfigFlags(flags);
+  configuration.setClientConfigFlags(flags);
 });
-test('features url parameter', function() {
+it('features url parameter', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "features" ? "524287" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.getClientConfigFlags(), 524287);
+  client = create(config);
+  expect(configuration.getClientConfigFlags()).toEqual( 524287);
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
 });
-test('setResolutionDisplay', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.getResolutionDisplay(), WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
-  client.configuration.setResolutionDisplay(WebRTC.C.R_1280x720);
-  strictEqual(client.configuration.getResolutionDisplay(), WebRTC.C.R_1280x720);
-  strictEqual(client.client.attr('class').indexOf("r"+WebRTC.C.R_1280x720) !== -1, true, "Should contain new resolution display as class name");
+it('setResolutionDisplay', function() {
+  client = create(config);
+  expect(configuration.getResolutionDisplay()).toEqual( WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
+  configuration.setResolutionDisplay(WebRTC.C.R_1280x720);
+  expect(configuration.getResolutionDisplay()).toEqual( WebRTC.C.R_1280x720);
+  expect(client.client.attr('class').indexOf("r"+WebRTC.C.R_1280x720) !== -1).toEqual(true, "Should contain new resolution display as class name");
 });
-test('with view url param', function() {
+it('with view url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "view" ? "audioOnly" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  deepEqual(client.configuration.getViews(), ['audioOnly']);
+  config.view = ''
+  client = create(config);
+  expect(configuration.getViews()).toEqual( ['audioOnly']);
 });
-test('with ClientConfig.view param', function() {
+it('with config.view param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
-  ClientConfig.view = 'audioOnly';
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  deepEqual(client.configuration.getViews(), ['audioOnly']);
-  delete ClientConfig.view;
+  config.view = 'audioOnly';
+  client = create(config);
+  expect(configuration.getViews()).toEqual( ['audioOnly']);
+  delete config.view;
 });
-test('with ClientConfig.view param and url params', function() {
+it('with config.view param and url params', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "view" ? "centered" : false;}
-  ClientConfig.view = 'audioOnly';
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  deepEqual(client.configuration.getViews(), ['audioOnly', 'centered']);
-  delete ClientConfig.view;
+  config.view = 'audioOnly';
+  client = create(config);
+  expect(configuration.getViews()).toEqual( ['audioOnly', 'centered']);
+  delete config.view;
 });
-test('without color url param', function() {
+it('without color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.getBackgroundColor(), "#ffffff");
-  strictEqual($('body').css('backgroundColor'), '#ffffff');
+  client = create(config);
+  expect(configuration.getBackgroundColor()).toEqual( "#ffffff");
+  expect($('body').css('backgroundColor')).toEqual( '#ffffff');
 });
-test('with color url param', function() {
+it('with color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "red" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.getBackgroundColor(), '#ff0000');
-  strictEqual($('body').css('backgroundColor'), '#ff0000');
+  client = create(config);
+  expect(configuration.getBackgroundColor()).toEqual( '#ff0000');
+  expect($('body').css('backgroundColor')).toEqual( '#ff0000');
 });
-test('with color url param as hex', function() {
+it('with color url param as hex', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "d0d0d0" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.getBackgroundColor(), '#d0d0d0');
-  strictEqual($('body').css('backgroundColor'), '#d0d0d0');
+  client = create(config);
+  expect(configuration.getBackgroundColor()).toEqual( '#d0d0d0');
+  expect($('body').css('backgroundColor')).toEqual( '#d0d0d0');
 });
-test('with color url param as transparent', function() {
+it('with color url param as transparent', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "transparent" : false;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.getBackgroundColor(), 'transparent');
-  strictEqual($('body').css('backgroundColor'), '#000000');
+  client = create(config);
+  expect(configuration.getBackgroundColor()).toEqual( 'transparent');
+  expect($('body').css('backgroundColor')).toEqual( 'transparent');
 });
 
 
 function setClientConfigFlagAndAssert(flagName) {
-  var flagValue = WebRTC.Configuration.Flags[flagName];
-  client.configuration.setClientConfigFlags(flagValue);
+  var flagValue = configuration.Flags[flagName];
+  configuration.setClientConfigFlags(flagValue);
   assertClientConfigFlags([flagName], true);
-  strictEqual(client.configuration.getClientConfigFlags(), flagValue);
+  expect(configuration.getClientConfigFlags()).toEqual( flagValue);
 }
 
 function assertClientConfigFlags(names, enabled) {
   for(var i=0; i<names.length; i++) {
-    strictEqual(client.configuration[names[i]], enabled, "Should be "+(enabled ? "enabled" : "disabled")+" : "+names[i]);
+    expect(configuration[names[i]]).toEqual(enabled, "Should be "+(enabled ? "enabled" : "disabled")+" : "+names[i]);
   }
 }
+});

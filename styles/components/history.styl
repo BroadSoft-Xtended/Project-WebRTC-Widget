@@ -1,5 +1,4 @@
 .callHistory
-	display none
 	position absolute
 	width 200px
 	height 258px
@@ -140,3 +139,9 @@
 			margin-left 15px
 			&:hover
 				background #4E4E4E
+
+.enable-history.history-shown .callHistory
+	{fadeInPopup}
+
+.enable-history:not(.history-shown) .callHistory
+	{fadeOut}

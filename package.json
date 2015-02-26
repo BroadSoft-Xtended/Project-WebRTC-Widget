@@ -24,7 +24,8 @@
     "ampersand-grouped-collection-view": "1.2.1",
     "node-stringprep": "0.7.0",
     "ampersand-view": "7.2.0",
-    "event-emitter": "0.3.3"
+    "event-emitter": "0.3.3",
+    "jquery.cookie": "~1.4.1"
   },
   "devDependencies": {
     "grunt": "0.4.4",

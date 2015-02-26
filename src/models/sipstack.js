@@ -8,7 +8,7 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
 
   self.ua = null;
   self.activeSession = null;
-  var sessions = [];
+  self.sessions = [];
 
   var setActiveSession = function(session) {
     debug("setting active session to " + session.id);
@@ -30,8 +30,10 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     });
     eventbus.on("started", function(e) {
       setActiveSession(e.sender);
+    });
+    eventbus.once("started", function(e) {
       var dtmfTones = Utils.parseDTMFTones(configuration.destination);
-      if (dtmfTones && e.data && !e.data.isReconnect) {
+      if (dtmfTones) {
         debug("DTMF tones found in destination - sending DTMF tones : " + dtmfTones);
         self.sendDTMF(dtmfTones);
       }
@@ -54,9 +56,9 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     if (!session) {
       return;
     }
-    var index = sessions.indexOf(session);
+    var index = self.sessions.indexOf(session);
     if (index !== -1) {
-      sessions.splice(index, index + 1);
+      self.sessions.splice(index, index + 1);
     }
     if (session.status !== ExSIP.RTCSession.C.STATUS_TERMINATED) {
       session.terminate();
@@ -69,7 +71,7 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
   };
   self.terminateSessions = function() {
     var allSessions = [];
-    allSessions = allSessions.concat(sessions);
+    allSessions = allSessions.concat(self.sessions);
     for (var i = 0; i < allSessions.length; i++) {
       self.terminateSession(allSessions[i]);
     }
@@ -161,8 +163,8 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
     self.ua.setRtcMediaHandlerOptions(configuration.getRtcMediaHandlerOptions());
   };
   self.getCallState = function() {
-    if (sessions.length > 0) {
-      if (sessions.length === 1 && !sessions[0].isStarted()) {
+    if (self.sessions.length > 0) {
+      if (self.sessions.length === 1 && !self.sessions[0].isStarted()) {
         return C.STATE_CALLING;
       } else {
         if (self.activeSession && self.activeSession.isHeld()) {
@@ -221,7 +223,7 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
 
   self.incomingCall = function(evt) {
     var session = evt.data.session;
-    if (!self.activeSession && configuration.isAutoAnswer()) {
+    if (!self.activeSession && settings.autoAnswer) {
       session.answer(configuration.getExSIPOptions());
     } else {
       eventbus.emit('incomingCall', evt);
@@ -262,7 +264,7 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
       });
       self.ua.on('newRTCSession', function(e) {
         var session = e.data.session;
-        sessions.push(session);
+        self.sessions.push(session);
         eventbus.viewChanged(self);
 
         // call event handlers
@@ -270,7 +272,9 @@ function SIPStack(options, eventbus, debug, configuration, settings) {
           eventbus.emit('progress', e);
         });
         session.on('failed', function(e) {
-          eventbus.emit('failed', e);
+          var data = e.data;
+          data.sender = e.sender;
+          eventbus.emit('failed', data);
         });
         session.on('started', function(e) {
           eventbus.viewChanged(self);

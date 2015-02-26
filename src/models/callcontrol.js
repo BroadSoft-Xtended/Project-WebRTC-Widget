@@ -9,11 +9,16 @@ function CallControl(options, eventbus, configuration, sipstack, debug) {
 
 
   self.listeners = function() {
-    eventbus.on('userMediaUpdated', function(e) {
-      if (configuration.destination) {
+    if (!configuration.enableConnectLocalMedia && configuration.destination) {
+      eventbus.once("connected", function(e) {
         self.callUri(configuration.destination);
-      }
-    })
+      });
+    } else if(configuration.destination){
+      eventbus.once('userMediaUpdated', function(e) {
+        self.callUri(configuration.destination);
+      });
+    }
+
   };
 
   self.formatDestination = function(destination, domainTo) {

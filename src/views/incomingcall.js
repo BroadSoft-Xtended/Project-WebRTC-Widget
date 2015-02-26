@@ -35,8 +35,9 @@ function IncomingCallView(options, eventbus, sound, sipstack) {
     });
 
     eventbus.on("incomingCall", function(evt) {
-      var incomingCallName = evt.data.request.from.display_name;
-      var incomingCallUser = evt.data.request.from.uri.user;
+      var from = evt.data && evt.data.request && evt.data.request.from || {};
+      var incomingCallName = from.display_name || '';
+      var incomingCallUser = from.uri && from.uri.user || '';
       eventbus.message("Incoming Call", "success");
       self.show();
       self.incomingCallName.text(incomingCallName);

@@ -13,11 +13,15 @@ function Prop(obj, prop) {
 		}
 	};
 
+	var isCheckbox = function() {
+		return data.attr && data.attr('type') === 'checkbox';
+	};
+
 	self.__get = function(){
-		if(data.val) {
-			return data.val();
-		} else if(data.prop) {
+		if(isCheckbox()) {
 			return data.prop('checked');
+		} else if(data.val) {
+			return data.val();
 		} else {
 			return data()
 		}
@@ -31,10 +35,10 @@ function Prop(obj, prop) {
 		if(prop.default && !value) {
 			value = prop.default;
 		}
-		if(data.val) {
-			data.val(value);
-		} else if(data.prop) {
+		if(isCheckbox()) {
 			data.prop('checked', value);
+		} else if(data.val) {
+			data.val(value);
 		} else {
 			data(value);
 		}

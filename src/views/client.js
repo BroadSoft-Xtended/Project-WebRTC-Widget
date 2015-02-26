@@ -12,7 +12,7 @@ require('../models/eventbus');
 var ClientConfig = require('../../js/client-config.js.default');
 
 function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authenticationview, 
-  xmppView, incomingcallView, reinviteView, messagesView, settings) {
+  xmppView, incomingcallView, reinviteView, messagesView, settings, smsView) {
   var self = {};
 
   self.elements = ['client', 'main', 'errorPopup'];
@@ -57,12 +57,6 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     $.cookie.raw = true;
 
     sipstack.init();
-
-    if (!configuration.enableConnectLocalMedia && configuration.destination) {
-      eventbus.once("connected", function(e) {
-        callcontrol.callUri(configuration.destination);
-      });
-    }
   };
 
   self.showErrorPopup = function(error) {
@@ -87,7 +81,6 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
         if (transferview.targetInput.is(event.target)) {
           return;
         }
-
         eventbus.modifier(event.which);
       }
     });
@@ -164,6 +157,9 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     }
     if (configuration.enableMute) {
       classes.push("enable-mute");
+    }
+    if (configuration.enableCallHistory) {
+      classes.push("enable-history");
     }
     if (configuration.enableShareScreen) {
       classes.push("enable-shareScreen");

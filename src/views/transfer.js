@@ -8,26 +8,26 @@ function TransferView(options, sound, sipstack, eventbus, configuration, callcon
 
   Utils.extend(self, PopupView(options, eventbus));
 
-  self.elements = ['accept', 'reject', 'targetInput', 'typeAttended'];
+  self.elements = ['accept', 'reject', 'target', 'typeAttended'];
 
   self.listeners = function() {
     eventbus.on('viewChanged', function(e){
       if(e.view === 'transfer' && e.visible) {
-        self.targetInput.focus();
+        self.target.focus();
       }
     });
     self.accept.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
-      var targetInput = self.targetInput.val();
-      if ($.isBlank(targetInput)) {
+      var target = self.target.val();
+      if ($.isBlank(target)) {
         eventbus.emit('message', {text: configuration.messageOutsideDomain, level: 'alert'});
         return;
       }
-      targetInput = callcontrol.validateDestination(targetInput);
-      if(targetInput) {
+      target = callcontrol.validateDestination(target);
+      if(target) {
         self.setVisible(false);
-        sipstack.transfer(targetInput, self.typeAttended.is(':checked'));        
+        sipstack.transfer(target, self.typeAttended.is(':checked'));        
       }
     });
 

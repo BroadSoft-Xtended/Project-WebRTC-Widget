@@ -19,7 +19,9 @@ C.dateMarkers = {
   w: ['getDay', function(v) {
     return C.dayNames[v];
   }],
-  y: ['getFullYear'],
+  y: ['getFullYear', function(v) {
+    return v;
+  }],
   H: ['getHours', function(v) {
     return C.zeroPad(v);
   }],

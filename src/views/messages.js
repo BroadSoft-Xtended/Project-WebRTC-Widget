@@ -58,6 +58,7 @@ function MessagesView(options, eventbus, configuration) {
       self.message(e.text, e.level);
     });
     eventbus.on("registrationFailed", function(e) {
+      var statusCode = e.data.response.status_code;
       var msg = statusCode;
       if (statusCode === 403) {
         msg = "403 Authentication Failure";

@@ -9,7 +9,8 @@ var WebRTC = {
   Client: Client,
   Utils: Utils,
   C: Constants,
-  Sound: require('./models/sound')
+  Sound: require('./models/sound'),
+  Settings: require('./models/settings')
 };
 
 module.exports = WebRTC;
@@ -27,57 +28,57 @@ Object.defineProperties(WebRTC, {
   }
 });
 
-// jQuery.fn.putCursorAtEnd = function() {
+jQuery.fn.putCursorAtEnd = function() {
 
-//   return this.each(function() {
+  return this.each(function() {
 
-//     $(this).focus();
+    $(this).focus();
 
-//     // If this function exists...
-//     if (this.setSelectionRange) {
-//       // ... then use it (Doesn't work in IE)
+    // If this function exists...
+    if (this.setSelectionRange) {
+      // ... then use it (Doesn't work in IE)
 
-//       // Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
-//       var len = $(this).val().length * 2;
+      // Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
+      var len = $(this).val().length * 2;
 
-//       this.setSelectionRange(len, len);
+      this.setSelectionRange(len, len);
 
-//     } else {
-//       // ... otherwise replace the contents with itself
-//       // (Doesn't work in Google Chrome)
+    } else {
+      // ... otherwise replace the contents with itself
+      // (Doesn't work in Google Chrome)
 
-//       $(this).val($(this).val());
+      $(this).val($(this).val());
 
-//     }
+    }
 
-//     // Scroll to the bottom, in case we're in a tall textarea
-//     // (Necessary for Firefox and Google Chrome)
-//     this.scrollTop = 999999;
+    // Scroll to the bottom, in case we're in a tall textarea
+    // (Necessary for Firefox and Google Chrome)
+    this.scrollTop = 999999;
 
-//   });
+  });
 
-// };
+};
 
-// $.cssHooks.backgroundColor = {
-//   get: function(elem) {
-//     var bg = null;
-//     if (elem.currentStyle) {
-//       bg = elem.currentStyle.backgroundColor;
-//     } else if (window.getComputedStyle) {
-//       bg = document.defaultView.getComputedStyle(elem,
-//         null).getPropertyValue("background-color");
-//     }
-//     if (bg.search("rgb") === -1 || bg === 'transparent') {
-//       return bg;
-//     } else {
-//       bg = bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+).*\)$/);
-//       var hex = function(x) {
-//         return ("0" + parseInt(x, 10).toString(16)).slice(-2);
-//       };
-//       return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
-//     }
-//   }
-// };
+$.cssHooks.backgroundColor = {
+  get: function(elem) {
+    var bg = null;
+    if (elem.currentStyle) {
+      bg = elem.currentStyle.backgroundColor;
+    } else if (window.getComputedStyle) {
+      bg = document.defaultView.getComputedStyle(elem,
+        null).getPropertyValue("background-color");
+    }
+    if (bg.search("rgb") === -1 || bg === 'transparent') {
+      return bg;
+    } else {
+      bg = bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+).*\)$/);
+      var hex = function(x) {
+        return ("0" + parseInt(x, 10).toString(16)).slice(-2);
+      };
+      return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
+    }
+  }
+};
 
 var currentScript = $('script').last();
 $(document).ready(function() {

@@ -1,19 +1,26 @@
-module( "Incoming Call", {
-  setup: function() {
-    TestWebrtc.Helpers.mockWebRTC();
-    TestWebrtc.Helpers.mockSound();
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
-  }, teardown: function() {
-  }
-});
+require('./includes/common');
+describe('incoming call', function() {
 
-test('window.onbeforeunload', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.connect();
-  var session = TestWebrtc.Helpers.incomingSession();
-  var terminated = false;
-  session.terminate = function(options){terminated = true;}
-  TestWebrtc.Helpers.incomingCall(session);
-  window.onbeforeunload();
-  strictEqual(terminated, true, "Should terminate the incoming session");
+  beforeEach(function() {
+    setUp();
+    testUA.mockWebRTC();
+    testUA.mockSound();
+    config = {};
+    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
+      console.log("enableLocalAudio : " + enable);
+    }
+  });
+
+  it('window.onbeforeunload', function() {
+    client = create(config)
+    testUA.connect();
+    var session = testUA.incomingSession();
+    var terminated = false;
+    session.terminate = function(options) {
+      terminated = true;
+    }
+    testUA.incomingCall(session);
+    window.onbeforeunload();
+    expect(terminated).toEqual(true, "Should terminate the incoming session");
+  });
 });

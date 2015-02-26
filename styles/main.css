@@ -608,7 +608,6 @@ body {
   box-shadow: 0px 0px 10px #999;
 }
 .popup {
-  display: none;
   background: #333;
   padding: 10px;
   border: 2px solid #ddd;
@@ -632,6 +631,12 @@ body {
   font-weight: bold;
   font-size: 16px;
   color: #fff;
+}
+.fadeable {
+  opacity: 0;
+  display: block;
+  z-index: -1;
+  backface-visibility: hidden;
 }
 .ui-widget-content.ui-dialog {
   display: none;
@@ -719,12 +724,6 @@ a.disabled {
 .client .group {
   display: table-row-group;
 }
-.client .fadeable {
-  opacity: 0;
-  display: block;
-  z-index: -1;
-  backface-visibility: hidden;
-}
 .client::-webkit-scrollbar {
   width: 8px;
 }
@@ -760,7 +759,6 @@ a.disabled {
   width: auto;
 }
 .callHistory {
-  display: none;
   position: absolute;
   width: 200px;
   height: 258px;
@@ -925,8 +923,17 @@ a.disabled {
 .callHistory .historyClear a:hover {
   background: #4e4e4e;
 }
+.enable-history.history-shown .callHistory {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 100;
+}
+.enable-history:not(.history-shown) .callHistory {
+  transition: all 1s linear;
+  opacity: 0;
+  z-index: -1;
+}
 .stats {
-  display: none;
   position: absolute;
   top: 10px;
   left: 660px;
@@ -1014,7 +1021,6 @@ a.disabled {
   padding: 15px;
   background: #292929;
   border: 1px solid #3c3c3c;
-  display: none;
   position: absolute;
   bottom: 40px;
   right: auto;
@@ -1200,13 +1206,28 @@ a.disabled {
   background: #292929;
   border: 1px solid #3c3c3c;
   box-shadow: none;
-  width: 220px;
   border-radius: 0;
-  height: 168px;
+  width: 170px;
+  height: 137px;
 }
 .callPopup span {
   color: #999;
   font-size: 22px;
+}
+.callPopup button {
+  background: #3da005;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 14px;
+  color: #fff;
+  margin-left: 12px;
+}
+.callPopup .incomingCallName,
+.callPopup .incomingCallUser {
+  display: block;
+  margin-left: 10px;
+  margin-bottom: 18px;
 }
 .callPopup .incomingCallTitle {
   display: block;
@@ -1217,51 +1238,28 @@ a.disabled {
   margin-bottom: 18px;
   color: #e4e4e4;
 }
-.callPopup .acceptIncomingCall {
-  background: #3da005;
-  border: none;
-  border-radius: 20px;
-  padding: 5px 10px;
-  font-size: 14px;
-  color: #fff;
-  margin-left: 12px;
+.callPopup .rejectIncomingCall {
+  background: #f00;
 }
 .callPopup #rejectIncomingCallContainer {
   text-align: right;
 }
-.callPopup #rejectIncomingCallContainer button {
-  background: #f00;
-  border: none;
-  border-radius: 20px;
-  padding: 5px 10px;
-  font-size: 14px;
-  color: #fff;
-  margin-right: 12px;
-}
-.holdAndAnswerButton,
-.dropAndAnswerButton,
-.acceptIncomingCall {
-  display: none;
-}
 .started .holdAndAnswerButton,
 .started .dropAndAnswerButton,
 .client:not(.started) .acceptIncomingCall {
-  display: inline-block;
-}
-.callPopup {
-  width: 170px;
-  height: 137px;
-}
-.incomingCallName,
-.incomingCallUser {
-  display: block;
-  margin-left: 10px;
-  margin-bottom: 18px;
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 20;
 }
 .incomingcall-shown .callPopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
+}
+.client:not(.incomingcall-shown) .callPopup {
+  transition: all 1s linear;
+  opacity: 0;
+  z-index: -1;
 }
 .reInvitePopup {
   width: 170px;
@@ -1404,11 +1402,9 @@ a.disabled {
   z-index: -1;
 }
 .settingsPopup {
-  display: none;
   padding: 2px;
   position: absolute;
   line-height: 28px;
-  z-index: 99;
   border: 1px solid #3c3c3c;
   background: #292929;
   border-radius: 0px;
@@ -1650,7 +1646,6 @@ a.disabled {
   z-index: -1;
 }
 .whiteboard {
-  display: none;
   position: absolute;
   top: 40px;
   left: 378px;
@@ -2071,7 +2066,6 @@ a.disabled {
   z-index: -1;
 }
 .sms {
-  display: none;
   position: absolute;
   top: 10px;
   right: 10px;
@@ -2106,7 +2100,7 @@ a.disabled {
 .sms .inbox .from {
   width: 100px;
 }
-.sms .inbox .status {
+.sms .inbox .statusCol {
   width: 50px;
 }
 .sms .inbox .time {
@@ -2218,7 +2212,6 @@ authPopup .alert {
   z-index: -1;
 }
 .timer {
-  display: none;
   position: absolute;
   top: 3px;
   left: 0px;
@@ -2236,7 +2229,11 @@ authPopup .alert {
   position: relative;
   margin-right: 10px;
 }
-.enable-timer.started .timer,
+.enable-timer.started .timer {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 20;
+}
 .client:not(.started) .timer {
   transition: all 1s linear;
   opacity: 0;

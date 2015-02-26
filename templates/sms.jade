@@ -9,14 +9,14 @@
         input.cell.password(type='password', name='password')
       .row
         .cell
-        input.cell.login(type='button', value='Log In')
-    .inbox
+        input.cell.loginLink(type='button', value='Log In')
+    .inbox.hidden
       fieldset
         legend Inbox
         .inner
           .table.fixed
             .row
-              .cell.title.status Status
+              .cell.title.statusCol Status
               .cell.title.time Received
               .cell.title.from From
               .cell.title.body Message
@@ -31,7 +31,7 @@
           input.sendBody(type='text', placeholder='Message to Send')
           input.sendButton(type='button', value='Send SMS')
     #sample.inboxItem.inboxItemSample.row
-      .status.cell
+      .statusCol.cell
       .time.cell
       .from.cell
       .body.cell

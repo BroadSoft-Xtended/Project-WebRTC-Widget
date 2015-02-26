@@ -106,18 +106,18 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
   };
   self.save = function() {
     self.persist();
-    view.hide();
+    settingsView.hide();
     self.changed();
   };
   self.signIn = function() {
     self.persist();
     eventbus.signIn();
-    view.enableRegistration(false);
+    settingsView.enableRegistration(false);
   };
   self.signOut = function() {
     eventbus.signOut();
     self.clearConfigurationCookies();
-    view.enableRegistration(false);
+    settingsView.enableRegistration(false);
   };
   self.resetLayout = function() {
     self.resolutionEncoding = WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
@@ -125,10 +125,10 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
     eventbus.viewChanged(self);
   };
   self.clearConfigurationCookies = function() {
-    $.removeCookie('settingDisplayName');
-    $.removeCookie('settingUserid');
-    $.removeCookie('settingAuthenticationUserid');
-    $.removeCookie('settingPassword');
+    $.removeCookie('settingsDisplayName');
+    $.removeCookie('settingsUserid');
+    $.removeCookie('settingsAuthenticationUserid');
+    $.removeCookie('settingsPassword');
   };
   self.clearConfiguration = function() {
     self.displayName = null;
@@ -155,40 +155,41 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
     authenticationUserid: true,
     resolutionType: true,
     displayName: {
-      value: function(){return configuration.sipDisplayName || $.cookie('settingDisplayName')}
+      value: function(){return configuration.sipDisplayName || $.cookie('settingsDisplayName')}
     },
     selfViewDisabled: {
-      value: function(){return $.cookie('selfViewDisable') === "true"}
+      value: function(){return $.cookie('settingsSelfViewDisable') === "true"}
     },
     hd: {
-      value: function(){return $.cookie('hd') === "true"}
+      value: function(){return $.cookie('settingsHd') === "true"}
     },
     bandwidthLow: {
-      value: function(){return configuration.bandwidthLow || $.cookie('settingBandwidthLow')}
+      value: function(){return configuration.bandwidthLow || $.cookie('settingsBandwidthLow')}
     },
     bandwidthMed: {
-      value: function(){return configuration.bandwidthMed || $.cookie('settingBandwidthMed')}
+      value: function(){return configuration.bandwidthMed || $.cookie('settingsBandwidthMed')}
     },
     bandwidthHigh: {
-      value: function(){return configuration.bandwidthHigh || $.cookie('settingBandwidthHigh')}
+      value: function(){return configuration.bandwidthHigh || $.cookie('settingsBandwidthHigh')}
     },
     color: {
-      value: function(){return configuration.getBackgroundColor()},
-      default: '#ffffff'
+      value: function(){return configuration.getBackgroundColor()}
     },
     resolutionDisplayStandard: true,
     resolutionDisplayWidescreen: true,
     resolutionEncodingStandard: true,
     resolutionEncodingWidescreen: true,
+    // TODO - look into better handle resolution properties 
     resolutionDisplay: {
       get: function(){
         return self.getResolution("resolutionDisplayStandard", "resolutionDisplayWidescreen");
       },
       set: function(resolution){
-        self.setResolution(resolution, "resolutionDisplayStandard", "resolutionDisplayWidescreen")
+        self.setResolution(resolution, "resolutionDisplayStandard", "resolutionDisplayWidescreen");
+        $.cookie('settingsResolutionDisplay', resolution);
       },
       value: function(){
-        return configuration.displayResolution || $.cookie('settingResolutionDisplay') || WebRTC_C.DEFAULT_RESOLUTION_DISPLAY
+        return configuration.displayResolution || $.cookie('settingsResolutionDisplay') || WebRTC_C.DEFAULT_RESOLUTION_DISPLAY
       }
     },
     resolutionEncoding: {
@@ -197,20 +198,24 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
       },
       set: function(resolution){
         self.setResolution(resolution, "resolutionEncodingStandard", "resolutionEncodingWidescreen")
+        $.cookie('settingsResolutionEncoding', resolution);
       },
-      value: function(){ return configuration.encodingResolution || $.cookie('settingResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;}
+      value: function(){ return configuration.encodingResolution || $.cookie('settingsResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;}
     },
     size: {
-      value: function(){return configuration.size || $.cookie('size')}
+      value: function(){return configuration.size || $.cookie('settingsSize')}
     },
     autoAnswer: {
-      value: function(){return $.cookie('autoAnswer') === "true"}
+      value: function(){
+        var value = configuration.enableAutoAnswer !== undefined ? configuration.enableAutoAnswer : $.cookie('settingsAutoAnswer') === "true";
+        return value;
+      }
     },
     windowPosition: {
       get: function() {
-        return ".localVideo" + "-" + self.localVideoTop.val() + "-" + self.localVideoLeft.val() + "|" +
-          ".callHistory" + "-" + self.callHistoryTop.val() + "-" + self.callHistoryLeft.val() + "|" +
-          ".callStats" + "-" + self.callStatsTop.val() + "-" + self.callStatsLeft.val();
+        return ".localVideo" + "-" + settingsView.localVideoTop.val() + "-" + settingsView.localVideoLeft.val() + "|" +
+          ".callHistory" + "-" + settingsView.callHistoryTop.val() + "-" + settingsView.callHistoryLeft.val() + "|" +
+          ".callStats" + "-" + settingsView.callStatsTop.val() + "-" + settingsView.callStatsLeft.val();
       },
       set: function(val) {}
     }

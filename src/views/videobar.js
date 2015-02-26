@@ -66,6 +66,9 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
   self.init = function() {
     toggleSelfView(self.selfViewVisible);
     toggleSound(self.soundEnabled);
+
+    timerView.view.appendTo(self.cellTimer);
+
   };
 
   self.checkEndCallURL = function() {

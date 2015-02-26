@@ -10,8 +10,9 @@ function InboxItem(sms, message) {
   self.cloned = sms.inboxItemSample.clone(false);
   self.cloned.removeClass('inboxItemSample');
   self.cloned.attr('id', message.mid);
+  self.message = message;
   self.from = self.cloned.find('.from');
-  self.status = self.cloned.find('.status');
+  self.status = self.cloned.find('.statusCol');
   self.time = self.cloned.find('.time');
   self.bodyText = self.cloned.find('.body .text');
   self.bodyImageLink = self.cloned.find('.body .image a');
@@ -91,7 +92,7 @@ function SMSView(options, eventbus, debug, smsprovider, sound) {
   Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['status', 'statusContent', 'inbox', 'inboxContent', 'loginForm', 'loginLink', 'name', 'password', 'sendForm',
-    'sendTo', 'sendBody', 'sendButton'
+    'sendTo', 'sendBody', 'sendButton', 'inboxItemSample'
   ];
   self.inboxItems = [];
 
@@ -116,13 +117,13 @@ function SMSView(options, eventbus, debug, smsprovider, sound) {
       self.onLoggedIn();
     });
     eventbus.on('smsSent', function() {
-      self.status.hide();
+      self.status.toggleClass('hidden', true);
       self.sendBody.val('');
       self.sendTo.val('');
       self.sendButton.attr('disabled', false);
     });
     eventbus.on('smsReadAll', function(e) {
-      self.status.hide();
+      self.status.toggleClass('hidden', true);
       var messages = e.messages;
 
       messages = messages.sort(function(a, b) {
@@ -137,7 +138,6 @@ function SMSView(options, eventbus, debug, smsprovider, sound) {
       //        });
       self.updateInbox(incomingMessages);
     });
-
     self.loginLink.bind('click', function(e) {
       e.preventDefault();
       self.login(self.name.val(), self.password.val());
@@ -170,7 +170,7 @@ function SMSView(options, eventbus, debug, smsprovider, sound) {
       inboxItem.enableActions(false);
     }
     smsprovider.remove([message.mid], function() {
-      self.status.hide();
+      self.status.toggleClass('hidden', true);
       inboxItem.remove();
     }, function(msg) {
       self.error("Deleting SMS failed : " + msg);
@@ -258,9 +258,9 @@ function SMSView(options, eventbus, debug, smsprovider, sound) {
   };
 
   self.onLoggedIn = function() {
-    self.loginForm.hide();
-    self.inbox.show();
-    self.sendForm.show();
+    self.loginForm.toggleClass('hidden', true);
+    self.inbox.toggleClass('hidden', false);
+    self.sendForm.toggleClass('hidden', false);
     self.enableUpdate(true);
     smsprovider.readAll(function(msg) {
       self.error("Fetching SMS failed : " + msg);
@@ -279,7 +279,7 @@ function SMSView(options, eventbus, debug, smsprovider, sound) {
   };
 
   self.setStatus = function(msg, type) {
-    self.status.show();
+    self.status.toggleClass('hidden', false);
     self.status.attr("class", type);
     self.statusContent.text(msg);
   };

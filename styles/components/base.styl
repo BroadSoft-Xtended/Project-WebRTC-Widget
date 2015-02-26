@@ -36,7 +36,6 @@ body
     box-shadow 0px 0px 10px #999
 
 .popup
-  display none
   background #333333
   padding 10px
   border 2px solid #DDDDDD
@@ -58,6 +57,12 @@ body
     font-weight bold
     font-size 16px
     color white
+
+.fadeable
+  opacity 0
+  display block
+  z-index -1
+  backface-visibility hidden
 
 .ui-widget-content
   &.ui-dialog

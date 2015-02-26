@@ -1,7 +1,7 @@
 require('./includes/common');
 describe('call waiting', function() {
 
-  before(function() {
+  beforeEach(function() {
     setUp();
     testUA.mockWebRTC();
     testUA.mockSound();
@@ -26,13 +26,10 @@ describe('call waiting', function() {
     expect(incomingcall.incomingCallName.text()).toEqual("Incoming DisplayName");
     expect(incomingcall.incomingCallUser.text()).toEqual("Incoming User");
     expect(incomingcall.visible).toEqual(true);
-    console.log('client.client : ', client.client.attr('class'));
     testUA.isVisible(incomingcall.view, true);
-    expect(incomingcall.dropAndAnswerButton.css('display')).toEqual('none');
-    expect(incomingcall.dropAndAnswerButton.is(":visible")).toEqual(false);
-    expect(incomingcall.acceptIncomingCall.css('display')).toEqual('inline-block');
-    expect(incomingcall.holdAndAnswerButton.css('display')).toEqual('none');
-    expect(incomingcall.dropAndAnswerButton.is(":visible")).toEqual(false);
+    testUA.isVisible(incomingcall.dropAndAnswerButton, false);
+    testUA.isVisible(incomingcall.holdAndAnswerButton, false);
+    testUA.isVisible(incomingcall.acceptIncomingCall, true);
   });
 
   it('incoming call and cancel', function() {
@@ -47,15 +44,15 @@ describe('call waiting', function() {
     }
     testUA.incomingCall(session);
     expect(answerOptions).toEqual("", "Answer should NOT have been called");
-    testUA.isVisible(client.callPopup, true);
+    testUA.isVisible(incomingcall.view, true);
     session.failed('remote', null, ExSIP.C.causes.CANCELED);
-    testUA.isVisible(client.callPopup, false);
+    testUA.isVisible(incomingcall.view, false);
   });
 
   it('1st incoming call with enableAutoAnswer', function() {
     config.enableAutoAnswer = true;
     client = create(config);   
-    client.settings.settingAutoAnswer.prop('checked', true);
+    testUA.isVisible(incomingcall.view, false);
     testUA.connect();
     var session = testUA.incomingSession();
     var answerOptions = "";
@@ -63,9 +60,10 @@ describe('call waiting', function() {
       console.log("answer");
       answerOptions = options;
     }
+    testUA.isVisible(incomingcall.view, false);
     testUA.incomingCall(session);
     expect(answerOptions).toNotEqual("", "Answer should have been called");
-    testUA.isVisible(client.callPopup, false, 'should not show call popup');
+    testUA.isVisible(incomingcall.view, false);
   });
 
   it('2nd incoming call with enableAutoAnswer', function() {
@@ -81,12 +79,12 @@ describe('call waiting', function() {
     }
     testUA.incomingCall(session);
     expect(answerOptions).toEqual("", "Answer should not have been called");
-    expect(client.incomingCallName.text()).toEqual("Incoming DisplayName");
-    expect(client.incomingCallUser.text()).toEqual("Incoming User");
-    testUA.isVisible(client.callPopup, true);
-    expect(client.dropAndAnswerButton.is(":visible")).toEqual(true);
-    expect(client.holdAndAnswerButton.is(":visible")).toEqual(true);
-    expect(client.acceptIncomingCall.is(":visible")).toEqual(false);
+    expect(incomingcall.incomingCallName.text()).toEqual("Incoming DisplayName");
+    expect(incomingcall.incomingCallUser.text()).toEqual("Incoming User");
+    testUA.isVisible(incomingcall.view, true);
+    testUA.isVisible(incomingcall.dropAndAnswerButton, true);
+    testUA.isVisible(incomingcall.holdAndAnswerButton, true);
+    testUA.isVisible(incomingcall.acceptIncomingCall, false);
   });
 
   it('2nd incoming call and hold+answer click', function() {
@@ -104,11 +102,11 @@ describe('call waiting', function() {
     }
     testUA.incomingCall(incomingSession);
 
-    ok(sipstack.activeSession === outgoingSession, "Outgoing session should be active");
-    deepEqual(sipstack.sessions.length, 2);
-    client.holdAndAnswerButton.trigger("click");
-    ok(sipstack.activeSession === incomingSession, "Incoming session should be active");
-    deepEqual(sipstack.sessions.length, 2);
+    expect(sipstack.activeSession === outgoingSession).toEqual(true, "Outgoing session should be active");
+    expect(sipstack.sessions.length).toEqual( 2);
+    incomingcall.holdAndAnswerButton.trigger("click");
+    expect(sipstack.activeSession === incomingSession).toEqual(true, "Incoming session should be active");
+    expect(sipstack.sessions.length).toEqual( 2);
     expect(answerOptions).toNotEqual("", "Answer should have been called");
   });
 
@@ -121,10 +119,10 @@ describe('call waiting', function() {
     var incomingSession = testUA.incomingSession();
     testUA.incomingCall(incomingSession);
 
-    client.holdAndAnswerButton.trigger("click");
-    ok(sipstack.activeSession === incomingSession, "Incoming session should be active");
-    client.hangup.trigger("click");
-    ok(sipstack.activeSession === outgoingSession, "Outgoing session should be active again");
+    incomingcall.holdAndAnswerButton.trigger("click");
+    expect(sipstack.activeSession === incomingSession).toEqual(true, "Incoming session should be active");
+    videobar.hangup.trigger("click");
+    expect(sipstack.activeSession === outgoingSession).toEqual(true, "Outgoing session should be active again");
     expect(sipstack.sessions.length).toEqual(1);
   });
 
@@ -142,11 +140,11 @@ describe('call waiting', function() {
     }
     testUA.incomingCall(incomingSession);
 
-    ok(sipstack.activeSession === outgoingSession, "Outgoing session should be active");
-    deepEqual(sipstack.sessions.length, 2);
-    client.dropAndAnswerButton.trigger("click");
-    ok(sipstack.activeSession === incomingSession, "Incoming session should be active");
-    deepEqual(sipstack.sessions.length, 1);
+    expect(sipstack.activeSession === outgoingSession).toEqual(true, "Outgoing session should be active");
+    expect(sipstack.sessions.length).toEqual( 2);
+    incomingcall.dropAndAnswerButton.trigger("click");
+    expect(sipstack.activeSession === incomingSession).toEqual(true, "Incoming session should be active");
+    expect(sipstack.sessions.length).toEqual( 1);
     expect(answerOptions).toNotEqual("", "Answer should have been called");
   });
 
@@ -157,9 +155,9 @@ describe('call waiting', function() {
     testUA.startCall();
     testUA.endCall();
     testUA.incomingCall();
-    testUA.isVisible(client.callPopup, true);
-    expect(client.dropAndAnswerButton.is(":visible")).toEqual(false);
-    expect(client.holdAndAnswerButton.is(":visible")).toEqual(false);
-    expect(client.acceptIncomingCall.is(":visible")).toEqual(true);
+    testUA.isVisible(incomingcall.view, true);
+    testUA.isVisible(incomingcall.acceptIncomingCall, true);
+    testUA.isVisible(incomingcall.dropAndAnswerButton, false);
+    testUA.isVisible(incomingcall.holdAndAnswerButton, false);
   });
 });

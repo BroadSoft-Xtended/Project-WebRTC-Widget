@@ -2,7 +2,6 @@ require('./includes/common');
 describe('client', function() {
 
   beforeEach(function() {
-    global.instances = {};
     setUp();
     testUA.mockWebRTC();
     testUA.mockSound();
@@ -49,8 +48,8 @@ describe('client', function() {
     WebRTC.Utils.getSearchVariable = function(name) {
       return name === "hd" ? "false" : false;
     }
-    $.cookie("settingResolutionDisplay", WebRTC.C.R_960x720);
-    $.cookie("settingResolutionEncoding", WebRTC.C.R_320x240);
+    $.cookie("settingsResolutionDisplay", WebRTC.C.R_960x720);
+    $.cookie("settingsResolutionEncoding", WebRTC.C.R_320x240);
     client = create(config);
     expect(client.client.attr('class').split(" ")[1]).toEqual("r" + WebRTC.C.R_960x720);
   });
@@ -361,7 +360,6 @@ describe('client', function() {
       alertCalled = true;
     }
     eventbus.on("calling", function(e) {
-      console.log('--------- calling', e);
       e.session.failed('local', null, ExSIP.C.causes.USER_DENIED_MEDIA_ACCESS);
     });
     testUA.connect();

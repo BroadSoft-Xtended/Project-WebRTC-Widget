@@ -17,6 +17,31 @@ Object.defineProperties(global, {
       return global.instances.settings_test;
     }
   },
+  stats: {
+    get: function(){
+      return global.instances.statsview_test;
+    }
+  },
+  timer: {
+    get: function(){
+      return global.instances.timerview_test;
+    }
+  },
+  smsprovider: {
+    get: function(){
+      return global.instances.smsprovider_test;
+    }
+  },
+  sms: {
+    get: function(){
+      return global.instances.smsview_test;
+    }
+  },
+  history: {
+    get: function(){
+      return global.instances.historyview_test;
+    }
+  },
   settingsview: {
     get: function(){
       return global.instances.settingsview_test;
@@ -67,6 +92,11 @@ Object.defineProperties(global, {
       return global.instances.dialpadview_test;
     }
   },
+  transfer: {
+    get: function(){
+      return global.instances.transferview_test;
+    }
+  },
   eventbus: {
     get: function(){
       return global.instances.eventbus_test;
@@ -80,6 +110,7 @@ Object.defineProperties(global, {
 });
 
 localStorage = {};
+var localStorageMethods = 5;
 localStorage.setItem = function (key, val) {
      this[key] = val + '';
 }
@@ -87,18 +118,31 @@ localStorage.getItem = function (key) {
     return this[key];
 }
 localStorage.key = function (index) {
-    return Object.keys(this)[index];
+    return Object.keys(this)[index + localStorageMethods];
+}
+localStorage.removeItem = function (key) {
+  delete this[key];
+};
+localStorage.clear = function () {
+  for(var i = this.length; i >= 0; i--) {
+    var key = this.key(i);
+    this.removeItem(key);
+  }
 }
 Object.defineProperty(localStorage, 'length', {
-    get: function () { return Object.keys(this).length - 2; }
+    get: function () { 
+      return Object.keys(this).length - localStorageMethods; 
+    }
 });
 
 setUp = function(){
+  global.instances = {};
   testUA = require('./testUA');
   Utils = require('../../src/Utils');
   Constants = require('../../src/Constants');
   WebRTC = require('../../src/WebRTC');
   Client = require('../../src/views/client');
+  Stats = require('../../src/views/stats');
   ClientConfig = require('../../js/client-config.js.default');
 }
 

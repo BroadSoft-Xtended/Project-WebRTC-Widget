@@ -25,14 +25,18 @@ function CookieProp(obj, prop, cookie, expires) {
  	};
 	self.__proto__.__set = function(value) {
 		superSet(value);
+		self.__persist(value);
+	};
+	self.__proto__.__persist = function(value) {
 		if (value) {
+			// console.log('set cookie value : '+cookie, value);
 			$.cookie(cookie, value, {
 				expires: expires
 			});
 		} else {
 			$.removeCookie(cookie);
 		}
-	};
+	}
 
 	return self;
 }

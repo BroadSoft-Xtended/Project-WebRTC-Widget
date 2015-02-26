@@ -1,219 +1,236 @@
-module( "Settings", {
-  setup: function() {
-    TestWebrtc.Helpers.mockSound();
-    TestWebrtc.Helpers.mockLocation();
-    TestWebrtc.Helpers.deleteAllCookies();
-    ClientConfig.enableCallStats = false;
-    $.cookie("settingPassword", "");
-  }, teardown: function() {
-  }
-});
-test('settings icon', function() {
-  ClientConfig.enableSettings = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
-  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
-});
-test('settings icon with enableSettings = false', function() {
-  ClientConfig.enableSettings = false;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, false);
-  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
-});
-test('settings icon after click', function() {
-  ClientConfig.enableSettings = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.settingsIcon.trigger('click');
-  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
-  TestWebrtc.Helpers.isVisible(client.settings.popup, true);
-  client.settings.settingsIcon.trigger('click');
-  TestWebrtc.Helpers.isVisible(client.settings.settingsIcon, true);
-  TestWebrtc.Helpers.isVisible(client.settings.popup, false);
-});
-test('persist', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.saveBtn.trigger("click");
-  strictEqual($.cookie("settingUserId"), "");
-  strictEqual($.cookie("settingPassword"), "");
-});
-test('persist with active call', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  var reload = false;
-  client.settings.reload = function(){reload = true;}
-  TestWebrtc.Helpers.startCall();
-  client.settings.saveBtn.trigger("click");
-  strictEqual(reload, false);
-  TestWebrtc.Helpers.endCall();
-  strictEqual(reload, true);
-});
-test('persist with userid set', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.userId('someuserid');
-  client.settings.saveBtn.trigger("click");
-  strictEqual($.cookie("settingUserId"), "someuserid");
-  strictEqual($.cookie("settingPassword"), "");
-});
-test('persist with display name set', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.settings.displayName(), "");
-  client.settings.displayName('somedisplayname');
-  client.settings.saveBtn.trigger("click");
-  strictEqual($.cookie("settingDisplayName"), "somedisplayname");
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.settings.displayName(), "somedisplayname");
-});
-test('resolution types with ClientConfig set', function() {
-  ClientConfig.displayResolution = WebRTC.C.R_960x720;
-  ClientConfig.encodingResolution = WebRTC.C.R_320x240;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.settings.getResolutionDisplay(), WebRTC.C.R_960x720);
-  strictEqual(client.settings.getResolutionEncoding(), WebRTC.C.R_320x240);
-  ClientConfig.displayResolution = null;
-  ClientConfig.encodingResolution = null;
-});
-test('persist with resolution set', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.resolutionType.val(WebRTC.C.STANDARD);
-  client.settings.resolutionDisplayStandard.val(WebRTC.C.R_960x720);
-  client.settings.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
-  client.settings.saveBtn.trigger("click");
-  strictEqual($.cookie("settingResolutionDisplay"), WebRTC.C.R_960x720);
-  strictEqual($.cookie("settingResolutionEncoding"), WebRTC.C.R_320x240);
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.settings.resolutionType.val(), WebRTC.C.STANDARD);
-  strictEqual(client.settings.resolutionDisplayStandard.val(), WebRTC.C.R_960x720);
-  strictEqual(client.settings.resolutionEncodingStandard.val(), WebRTC.C.R_320x240);
-  $.cookie("settingResolutionDisplay", "");
-  $.cookie("settingResolutionEncoding", "");
-});
-test('persist with password set', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.password('121212');
-  client.settings.saveBtn.trigger("click");
-  strictEqual($.cookie("settingPassword"), '121212');
-  strictEqual(WebRTC.Utils.getSearchVariable("password"), false);
-  strictEqual(client.configuration.getPassword(), '121212');
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  strictEqual(client.configuration.getPassword(), '121212');
-  strictEqual(client.settings.password(), '121212');
-  $.cookie("settingPassword", "");
-});
-test('setResolution with standard resolution', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.setResolutionDisplay(WebRTC.C.R_320x240);
-  client.settings.setResolutionEncoding(WebRTC.C.R_320x240);
-  deepEqual(client.settings.resolutionType.val(), WebRTC.C.STANDARD);
-  deepEqual(client.settings.resolutionDisplayWidescreen.css("display"), "none");
-  deepEqual(client.settings.resolutionEncodingWidescreen.css("display"), "none");
-  deepEqual(client.settings.resolutionDisplayStandard.css("display"), "inline-block");
-  deepEqual(client.settings.resolutionEncodingStandard.css("display"), "inline-block");
-});
-test('setResolution with widescreen resolution', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.setResolutionDisplay(WebRTC.C.R_320x180);
-  client.settings.setResolutionEncoding(WebRTC.C.R_320x180);
-  deepEqual(client.settings.resolutionType.val(), WebRTC.C.WIDESCREEN);
-  deepEqual(client.settings.resolutionDisplayWidescreen.css("display"), "inline-block");
-  deepEqual(client.settings.resolutionEncodingWidescreen.css("display"), "inline-block");
-  deepEqual(client.settings.resolutionDisplayStandard.css("display"), "none");
-  deepEqual(client.settings.resolutionEncodingStandard.css("display"), "none");
-});
-test('change resolution type', function() {
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.resolutionType.val('standard');
-  client.settings.resolutionType.trigger('change');
-  deepEqual(client.settings.resolutionDisplayWidescreen.css("display"), "none");
-  deepEqual(client.settings.resolutionEncodingWidescreen.css("display"), "none");
-  deepEqual(client.settings.resolutionDisplayStandard.css("display"), "inline-block");
-  deepEqual(client.settings.resolutionEncodingStandard.css("display"), "inline-block");
-});
-test('change encoding resolution with different video resolution', function() {
-  WebRTC.Video.prototype.localWidth = function(){return 640;}
-  WebRTC.Video.prototype.localHeight = function(){return 480;}
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.resolutionEncodingStandard.val(WebRTC.C.R_960x720);
-  client.settings.resolutionEncodingStandard.trigger('change');
-  client.video.local.trigger("playing");
-  strictEqual(client.messages.text().trim(), "");
-});
-test('hide or disable settings when ClientConfig has corresponding attributes set', function() {
-  ClientConfig.enableAutoAnswer = true;
-  delete ClientConfig.enableSelfView;
-  delete ClientConfig.networkUserId;
-  delete ClientConfig.enableHD;
-  delete ClientConfig.displayResolution;
-  delete ClientConfig.encodingResolution;
-  delete ClientConfig.bandwidthLow;
-  delete ClientConfig.bandwidthMed;
-  delete ClientConfig.bandwidthHigh;
-  delete ClientConfig.displayName;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.settingsIcon.trigger('click');
-//  strictEqual(client.settings.settingSelfViewDisableRow.is(":visible"), false);
-//  strictEqual(client.settings.settingBandwidthLow.is(":visible"), false);
-//  strictEqual(client.settings.settingBandwidthMed.is(":visible"), false);
-//  strictEqual(client.settings.settingBandwidthHigh.is(":visible"), false);
-//  strictEqual(client.settings.settingBandwidthRow.is(":visible"), false);
+require('./includes/common');
+describe('settings', function() {
 
-  client.settings.tabConfigureLink.trigger('click');
-  strictEqual(client.settings.settingAutoAnswerRow.is(":visible"), true);
-  strictEqual(client.settings.settingUseridRow.is(":visible"), true);
-  strictEqual(client.settings.settingDisplayNameRow.is(":visible"), true);
-  strictEqual(client.settings.settingHDRow.is(":visible"), true);
+  beforeEach(function() {
+    setUp();
+    testUA.mockWebRTC();
+    testUA.mockSound();
+    testUA.mockLocation();
+    testUA.deleteAllCookies();
+    config = {
+      enableCallStats: false
+    };
+    $.cookie("settingsPassword", "");
+  });
 
-  client.settings.tabLayoutLink.trigger('click');
-  strictEqual(client.settings.settingResolutionRow.is(":visible"), true);
-  strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), true);
-  strictEqual(client.settings.settingResolutionDisplayRow.is(":visible"), true);
-  strictEqual(client.settings.settingResolutionEncodingRow.is(":visible"), true);
-  strictEqual(client.settings.bandwidthLowInput.is(":visible"), false);
-  strictEqual(client.settings.bandwidthMedInput.is(":visible"), false);
-  strictEqual(client.settings.bandwidthHighInput.is(":visible"), false);
-  strictEqual(client.settings.settingBandwidthRow.is(":visible"), false);
-  strictEqual(client.settings.settingDisplayNameRow.is(":visible"), false);
+  it('settings icon', function() {
+    config.enableSettings = true;
+    client = create(config)
+    testUA.isVisible(videobar.settings, true);
+    testUA.isVisible(settingsview.view, false);
+  });
+  it('settings icon with enableSettings = false', function() {
+    config.enableSettings = false;
+    client = create(config)
+    testUA.isVisible(videobar.settings, false);
+    testUA.isVisible(settingsview.view, false);
+  });
+  it('settings icon after click', function() {
+    config.enableSettings = true;
+    client = create(config)
+    videobar.settings.trigger('click');
+    testUA.isVisible(videobar.settings, true);
+    testUA.isVisible(settingsview.view, true);
+    videobar.settings.trigger('click');
+    testUA.isVisible(videobar.settings, true);
+    testUA.isVisible(settingsview.view, false);
+  });
+  it('persist with active call', function() {
+    client = create(config)
+    var reload = false;
+    settings.reload = function() {
+      reload = true;
+    }
+    testUA.startCall();
+    settingsview.save.trigger("click");
+    expect(reload).toEqual(false);
+    testUA.endCall();
+    expect(reload).toEqual(true);
+  });
+  it('persist with userid set', function() {
+    client = create(config)
+    settings.userid = 'someuserid' ;
+    settingsview.save.trigger("click");
+    expect($.cookie("settingsUserid")).toEqual("someuserid");
+    expect($.cookie("settingsPassword")).toEqual("");
+  });
+  it('persist with display name set', function() {
+    client = create(config)
+    expect(settings.displayName).toEqual("");
+    settings.displayName = 'somedisplayname';
+    settingsview.save.trigger("click");
+    expect($.cookie("settingsDisplayName")).toEqual("somedisplayname");
+    global.instances = {};
+    client = create(config);
+    expect(settings.displayName).toEqual("somedisplayname");
+  });
+  it('resolution types with config set', function() {
+    config.displayResolution = WebRTC.C.R_960x720;
+    config.encodingResolution = WebRTC.C.R_320x240;
+    client = create(config)
+    expect(settings.getResolutionDisplay()).toEqual(WebRTC.C.R_960x720);
+    expect(settings.getResolutionEncoding()).toEqual(WebRTC.C.R_320x240);
+    config.displayResolution = null;
+    config.encodingResolution = null;
+  });
+  it('persist with resolution set', function() {
+    client = create(config)
+    settingsview.resolutionType.val(WebRTC.C.STANDARD);
+    settingsview.resolutionDisplayStandard.val(WebRTC.C.R_960x720);
+    settingsview.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
+    settingsview.save.trigger("click");
+    expect($.cookie("settingsResolutionDisplay")).toEqual(WebRTC.C.R_960x720);
+    expect($.cookie("settingsResolutionEncoding")).toEqual(WebRTC.C.R_320x240);
+    global.instances = {};
+    config.displayResolution = '';
+    config.encodingResolution = '';
+    client = create(config)
+    expect(settingsview.resolutionType.val()).toEqual(WebRTC.C.STANDARD);
+    expect(settingsview.resolutionDisplayStandard.val()).toEqual(WebRTC.C.R_960x720);
+    expect(settingsview.resolutionEncodingStandard.val()).toEqual(WebRTC.C.R_320x240);
+    $.cookie("settingsResolutionDisplay", "");
+    $.cookie("settingsResolutionEncoding", "");
+  });
+  it('persist with password set', function() {
+    client = create(config)
+    settings.password = '121212';
+    settingsview.save.trigger("click");
+    expect($.cookie("settingsPassword")).toEqual('121212');
+    expect(WebRTC.Utils.getSearchVariable("password")).toEqual(false);
+    expect(configuration.getPassword()).toEqual('121212');
+    global.instances = {};
+    client = create(config)
+    expect(configuration.getPassword()).toEqual('121212');
+    expect(settings.password).toEqual('121212');
+    $.cookie("settingsPassword", "");
+  });
+  it('setResolution with standard resolution', function() {
+    client = create(config)
+    settings.setResolutionDisplay(WebRTC.C.R_320x240);
+    settings.setResolutionEncoding(WebRTC.C.R_320x240);
+    expect(settingsview.resolutionType.val()).toEqual(WebRTC.C.STANDARD);
+    expect(settingsview.resolutionDisplayWidescreen.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionEncodingWidescreen.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionDisplayStandard.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionEncodingStandard.hasClass('hidden')).toEqual(false);
+  });
+  it('setResolution with widescreen resolution', function() {
+    client = create(config)
+    settings.setResolutionDisplay(WebRTC.C.R_320x180);
+    settings.setResolutionEncoding(WebRTC.C.R_320x180);
+    expect(settingsview.resolutionType.val()).toEqual(WebRTC.C.WIDESCREEN);
+    expect(settingsview.resolutionDisplayWidescreen.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionEncodingWidescreen.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionDisplayStandard.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionEncodingStandard.hasClass('hidden')).toEqual(true);
+  });
+  it('change resolution type', function() {
+    client = create(config)
+    settingsview.resolutionType.val('standard');
+    settingsview.resolutionType.trigger('change');
+    expect(settingsview.resolutionDisplayWidescreen.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionEncodingWidescreen.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionDisplayStandard.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionEncodingStandard.hasClass('hidden')).toEqual(false);
+  });
+  it('change encoding resolution with different video resolution', function() {
+    client = create(config)
+    video.localWidth = function() {
+      return 640;
+    }
+    video.localHeight = function() {
+      return 480;
+    }
+    settingsview.resolutionEncodingStandard.val(WebRTC.C.R_960x720);
+    settingsview.resolutionEncodingStandard.trigger('change');
+    video.local.trigger("playing");
+    expect(messages.normal.text().trim()).toEqual("");
+    expect(messages.success.text().trim()).toEqual("");
+    expect(messages.alert.text().trim()).toEqual("");
+    expect(messages.warning.text().trim()).toEqual("");
+  });
+  it('hide or disable settings when config has corresponding attributes set', function() {
+    config.enableAutoAnswer = true;
+    delete ClientConfig.enableSelfView;
+    delete ClientConfig.networkUserId;
+    delete ClientConfig.enableHD;
+    delete ClientConfig.displayResolution;
+    delete ClientConfig.encodingResolution;
+    delete ClientConfig.bandwidthLow;
+    delete ClientConfig.bandwidthMed;
+    delete ClientConfig.bandwidthHigh;
+    delete ClientConfig.displayName;
+    client = create(config)
+    videobar.settings.trigger('click');
+    //  expect(settings.selfViewDisableRow.is(":visible")).toEqual( false);
+    //  expect(settings.settingBandwidthLow.is(":visible")).toEqual( false);
+    //  expect(settings.settingBandwidthMed.is(":visible")).toEqual( false);
+    //  expect(settings.settingBandwidthHigh.is(":visible")).toEqual( false);
+    //  expect(settings.bandwidthRow.is(":visible")).toEqual( false);
 
-  ClientConfig.enableAutoAnswer = false;
-  ClientConfig.enableSelfView = false;
-  ClientConfig.networkUserId = '12345678';
-  ClientConfig.enableHD = false;
-  ClientConfig.displayResolution = '960x720';
-  ClientConfig.encodingResolution = '960x720';
-  ClientConfig.bandwidthLow = '256';
-  ClientConfig.bandwidthMed = '1024';
-  ClientConfig.bandwidthHigh = '2048';
-  ClientConfig.displayName = 'test display name';
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.settingsIcon.trigger('click');
-  strictEqual(client.settings.settingAutoAnswerRow.is(":visible"), false);
-  strictEqual(client.settings.settingSelfViewDisableRow.is(":visible"), false);
-  strictEqual(client.settings.settingHDRow.is(":visible"), false);
-  strictEqual(client.settings.settingResolutionRow.is(":visible"), false);
-  strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), false);
-  strictEqual(client.settings.settingResolutionDisplayRow.is(":visible"), false);
-  strictEqual(client.settings.settingResolutionEncodingRow.is(":visible"), false);
-  strictEqual(client.settings.bandwidthLowInput.is(":visible"), false);
-  strictEqual(client.settings.bandwidthMedInput.is(":visible"), false);
-  strictEqual(client.settings.bandwidthHighInput.is(":visible"), false);
-  strictEqual(client.settings.settingBandwidthRow.is(":visible"), false);
-  strictEqual(client.settings.settingDisplayNameRow.is(":visible"), false);
+    settingsview.configure.trigger('click');
+    expect(settingsview.autoAnswerRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.useridRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.displayNameRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.hdRow.hasClass('hidden')).toEqual(false);
 
-  delete ClientConfig.displayResolution;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.settingsIcon.trigger('click');
-  client.settings.tabLayoutLink.trigger('click');
-  strictEqual(client.settings.settingResolutionRow.is(":visible"), true);
-  strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), false);
-  strictEqual(client.settings.settingResolutionDisplayRow.is(":visible"), true);
-  strictEqual(client.settings.settingResolutionEncodingRow.is(":visible"), false);
+    settingsview.layout.trigger('click');
+    expect(settingsview.resolutionRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionTypeRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionDisplayRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionEncodingRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.bandwidthLow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.bandwidthMed.hasClass('hidden')).toEqual(false);
+    expect(settingsview.bandwidthHigh.hasClass('hidden')).toEqual(false);
+    expect(settingsview.bandwidthRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.displayNameRow.hasClass('hidden')).toEqual(false);
 
-  delete ClientConfig.encodingResolution;
-  ClientConfig.displayResolution = '960x720';
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.settings.settingsIcon.trigger('click');
-  client.settings.tabLayoutLink.trigger('click');
-  strictEqual(client.settings.settingResolutionRow.is(":visible"), true);
-  strictEqual(client.settings.settingResolutionTypeRow.is(":visible"), false);
-  strictEqual(client.settings.settingResolutionDisplayRow.is(":visible"), false);
-  strictEqual(client.settings.settingResolutionEncodingRow.is(":visible"), true);
+    config.enableAutoAnswer = false;
+    config.enableSelfView = false;
+    config.networkUserId = '12345678';
+    config.enableHD = false;
+    config.displayResolution = '960x720';
+    config.encodingResolution = '960x720';
+    config.bandwidthLow = '256';
+    config.bandwidthMed = '1024';
+    config.bandwidthHigh = '2048';
+    config.displayName = 'test display name';
+    global.instances = {};
+    client = create(config)
+    videobar.settings.trigger('click');
+    expect(settingsview.autoAnswerRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.selfViewDisableRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.hdRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionTypeRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionDisplayRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionEncodingRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.bandwidthLow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.bandwidthMed.hasClass('hidden')).toEqual(true);
+    expect(settingsview.bandwidthHigh.hasClass('hidden')).toEqual(true);
+    expect(settingsview.bandwidthRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.displayNameRow.hasClass('hidden')).toEqual(true);
 
+    delete config.displayResolution;
+    global.instances = {};
+    client = create(config)
+    videobar.settings.trigger('click');
+    settingsview.layout.trigger('click');
+    expect(settingsview.resolutionRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionTypeRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionDisplayRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionEncodingRow.hasClass('hidden')).toEqual(true);
+
+    delete config.encodingResolution;
+    config.displayResolution = '960x720';
+    global.instances = {};
+    client = create(config)
+    videobar.settings.trigger('click');
+    settingsview.layout.trigger('click');
+    expect(settingsview.resolutionRow.hasClass('hidden')).toEqual(false);
+    expect(settingsview.resolutionTypeRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionDisplayRow.hasClass('hidden')).toEqual(true);
+    expect(settingsview.resolutionEncodingRow.hasClass('hidden')).toEqual(false);
+
+  });
 });

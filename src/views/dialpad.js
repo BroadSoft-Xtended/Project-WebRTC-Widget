@@ -12,7 +12,7 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView, 
 
   self.listeners = function() {
     window.onbeforeunload = function(e) {
-      self.endCall({
+      videobarView.endCall({
         rtcSession: 'all'
       });
       return null;

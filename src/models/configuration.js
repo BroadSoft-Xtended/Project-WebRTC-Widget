@@ -124,18 +124,14 @@ function Configuration(options, eventbus, debug, settings) {
       value: function(){return Utils.getSearchVariable("size") || $.cookie('settingsize') || 1;}
     },
     color: {
-      value: function(){return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor');}
+      value: function(){return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor');},
+      default: '#ffffff'
     },
     enableMessages: {
       value: function(){return !(!!Utils.getSearchVariable("disableMessages"));}
     },
     features: {
-      value: function(){
-        var features = Utils.getSearchVariable("features");
-        if (features) {
-         self.setClientConfigFlags(parseInt(features, 10));
-        }
-      }
+      value: function(){return Utils.getSearchVariable("features"); }
     }
   };
 
@@ -150,15 +146,14 @@ function Configuration(options, eventbus, debug, settings) {
   self.init = function(options) { 
     debug('configuration options : ' + ExSIP.Utils.toString(options));
     debug('configuration : ' + ExSIP.Utils.toString(self));
+    if (self.features) {
+      self.setClientConfigFlags(parseInt(self.features, 10));
+    }
   };
 
   self.listeners = function(audioOnly) { 
     eventbus.on('screenshare', function(e) {
       self.screenshare = e.enabled;
-    });
-    eventbus.on("started", function(e) {
-      //remove configuration.destination to avoid multiple calls
-      delete self.destination;
     });
   };
 
@@ -213,10 +208,7 @@ function Configuration(options, eventbus, debug, settings) {
     return self.color || self.bodyBackgroundColor;
   };
   self.getPassword = function() {
-    return $.cookie('settingPassword');
-  };
-  self.isAutoAnswer = function() {
-    return settings.autoAnswer;
+    return settings.password;
   };
   self.getDTMFOptions = function() {
     return {
@@ -302,7 +294,7 @@ function Configuration(options, eventbus, debug, settings) {
 
   self.getExSIPConfig = function(data) {
     data = data || {};
-    var userid = data.userId || $.cookie('settingUserId') || self.networkUserId || Utils.randomUserid();
+    var userid = data.userId || settings.userid || self.networkUserId || Utils.randomUserid();
 
     var sip_uri = encodeURI(userid);
     if ((sip_uri.indexOf("@") === -1)) {
@@ -326,7 +318,7 @@ function Configuration(options, eventbus, debug, settings) {
     }
 
     // do registration if setting User ID or configuration register is set
-    if ($.cookie('settingUserId') || self.register) {
+    if (settings.userid || self.register) {
       config.register = true;
       config.password = data.password || $.cookie('settingPassword');
     } else {
@@ -349,7 +341,6 @@ function Configuration(options, eventbus, debug, settings) {
   };
 
   self.isHD = function() {
-    // console.log('isHD : '+self.enabledHD+', '+self.hd);
     return self.enableHD === true && self.hd === true;
   };
 

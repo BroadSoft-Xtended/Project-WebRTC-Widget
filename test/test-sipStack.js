@@ -1,44 +1,43 @@
-module( "SipStack", {
-  setup: function() {
-    TestWebrtc.Helpers.mockWebRTC();
-    TestWebrtc.Helpers.mockSound();
-    ClientConfig.domainTo = "domain.to";
-    ClientConfig.domainFrom = "domain.from";
-    ClientConfig.enableTransfer = true;
-    ClientConfig.enableCallStats = false;
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
-  }, teardown: function() {
-  }
-});
+require('./includes/common');
+describe('sipstack', function() {
 
-test('RTCMediaHandlerOptions and bandwidth med change', function() {
-  ClientConfig.allowOutside = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.sipStack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
-  client.settings.resolutionType.val(WebRTC.C.STANDARD);
-  client.settings.resolutionEncodingStandard.val(WebRTC.C.R_640x480);
-  client.settings.bandwidthMed("600");
-  client.settings.bandwidthMedInput.trigger("blur");
-  deepEqual(rtcMediaHandlerOptions, {
+  beforeEach(function() {
+    setUp();
+    testUA.mockWebRTC();
+    testUA.mockSound();
+    config = {domainTo: "domain.to", domainFrom: "domain.from", enableTransfer: true, enableCallStats: false};
+    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {console.log("enableLocalAudio : "+enable);}
+  });
+
+it('RTCMediaHandlerOptions and bandwidth med change', function() {
+  config.allowOutside = true;
+  client = create(config)
+  sipstack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
+  settingsview.resolutionType.val(WebRTC.C.STANDARD);
+  settingsview.resolutionEncodingStandard.val(WebRTC.C.R_640x480);
+  settingsview.bandwidthMed.val("600");
+  settingsview.bandwidthMed.trigger("blur");
+  expect(rtcMediaHandlerOptions).toEqual({
     RTCConstraints: {'optional': [],'mandatory': {}},
     "disableICE": true,
     "reuseLocalMedia": true,
     "videoBandwidth": "600"
   });
 });
-test('RTCMediaHandlerOptions and bandwidth low change for resolution 180', function() {
-  ClientConfig.allowOutside = true;
-  client = new WebRTC.Client(ClientConfig, '#testWrapper');
-  client.sipStack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
-  client.settings.bandwidthLow("200");
-  client.settings.bandwidthLowInput.trigger("blur");
-  client.settings.resolutionType.val(WebRTC.C.STANDARD);
-  client.settings.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
-  client.settings.resolutionEncodingStandard.trigger("change");
-  deepEqual(rtcMediaHandlerOptions, {
+it('RTCMediaHandlerOptions and bandwidth low change for resolution 180', function() {
+  config.allowOutside = true;
+  client = create(config)
+  sipstack.ua.setRtcMediaHandlerOptions = function(options) {rtcMediaHandlerOptions= options;}
+  settingsview.bandwidthLow.val("200");
+  settingsview.bandwidthLow.trigger("blur");
+  settingsview.resolutionType.val(WebRTC.C.STANDARD);
+  settingsview.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
+  settingsview.resolutionEncodingStandard.trigger("change");
+  expect(rtcMediaHandlerOptions).toEqual({
     RTCConstraints: {'optional': [],'mandatory': {}},
     "disableICE": true,
     "reuseLocalMedia": true,
     "videoBandwidth": "200"
   });
+});
 });
