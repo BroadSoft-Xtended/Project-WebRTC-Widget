@@ -80136,6 +80136,7 @@ var C = {
   DEFAULT_DURATION: 500,
   DEFAULT_INTER_TONE_GAP: 200,
   EXPIRES: 365,
+  HISTORY_PAGE_PREFIX: 'bdsft_client_page_',
 
   TEMPLATES: '$TEMPLATES$',
 
@@ -83213,8 +83214,6 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
 
   Utils.extend(self, PopupView(options, eventbus));
 
-  var pagePrefix = 'page_';
-
   var _pageNumber = 0;
   Object.defineProperty(self, 'pageNumber', 
     {
@@ -83332,7 +83331,7 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
     var pages = [];
     for (var i = 0; i < localStorage.length; i++) {
       var key = localStorage.key(i);
-      var regex = new RegExp(pagePrefix + '(.*)', 'g');
+      var regex = new RegExp(Constants.HISTORY_PAGE_PREFIX + '(.*)', 'g');
       var match = regex.exec(key);
       if (match !== null && match.length > 1) {
         var value = localStorage.getItem(key);
@@ -83419,14 +83418,14 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
       sound.playClick();
       var pages = self.pages();
       for (var i = 0; i < pages.length; i++) {
-        localStorage.removeItem(pagePrefix + (pages[i].number));
+        localStorage.removeItem(Constants.HISTORY_PAGE_PREFIX + (pages[i].number));
       }
       self.pageNumber = 0;
     });
   };
 
   self.persistPage = function(page) {
-    var key = (pagePrefix + page.number);
+    var key = (Constants.HISTORY_PAGE_PREFIX + page.number);
     var value = page.callsAsString();
     localStorage[key] = value;
   };
@@ -84722,10 +84721,9 @@ function WhiteboardView(options, eventbus, sipstack) {
   self.init = function() {
     if(self.canvas[0] && self.canvas[0].getContext) {
       self.context = self.canvas[0].getContext('2d');    
+      self.sketch = require('../../js/sketch')(self.canvas[0]);
     }
 
-    self.sketch = require('../../js/sketch')(self.canvas[0]);
-    
     $.each(['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#f0f', '#000', '#fff'], function() {
       self.tools.append("<a href='.canvas' onclick='javascript:;' data-color='" + this + "' style='width: 10px; background: " + this + ";'></a> ");
     });

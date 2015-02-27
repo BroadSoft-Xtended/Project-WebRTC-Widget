@@ -22,7 +22,7 @@ describe('history', function() {
     mockStats();
     history.persistCall(rtcSession);
     expect(localStorage.length).toEqual(1);
-    expect(localStorage["page_0"]).toEqual(getCallCookieValue());
+    expect(localStorage[Constants.HISTORY_PAGE_PREFIX+"0"]).toEqual(getCallCookieValue());
     expect(history.pagesAsString(), [getCallCookieValue()]);
   });
   it('persistCall and toggle', function() {
@@ -102,7 +102,7 @@ describe('history', function() {
     history.persistCall(session1);
     history.persistCall(session2);
     expect(localStorage.length).toEqual(1);
-    expect(localStorage["page_0"]).toEqual(getCallCookieValue(session2) + "~" + getCallCookieValue(session1));
+    expect(localStorage[Constants.HISTORY_PAGE_PREFIX+"0"]).toEqual(getCallCookieValue(session2) + "~" + getCallCookieValue(session1));
     expect(history.pages(), [getCallCookieValue(session2) + "~" + getCallCookieValue(session1)]);
   });
   it('persistCall for multiple calls and higher than callsPerPage', function() {
@@ -113,8 +113,8 @@ describe('history', function() {
     history.persistCall(session2);
     history.persistCall(session3);
     expect(localStorage.length).toEqual(2);
-    expect(localStorage["page_0"]).toEqual(getCallCookieValue(session2) + "~" + getCallCookieValue(session1));
-    expect(localStorage["page_1"]).toEqual(getCallCookieValue(session3));
+    expect(localStorage[Constants.HISTORY_PAGE_PREFIX+"0"]).toEqual(getCallCookieValue(session2) + "~" + getCallCookieValue(session1));
+    expect(localStorage[Constants.HISTORY_PAGE_PREFIX+"1"]).toEqual(getCallCookieValue(session3));
     expect(history.pagesAsString(), [getCallCookieValue(session3), getCallCookieValue(session2) + "~" + getCallCookieValue(session1)]);
   });
   it('multiple pages and toggle', function() {
@@ -176,8 +176,8 @@ describe('history', function() {
     history.persistCall(session4);
     history.persistCall(session5);
     expect(localStorage.length).toEqual(2);
-    expect(localStorage["page_0"]).toEqual(getCallCookieValue(session3) + "~" + getCallCookieValue(session2));
-    expect(localStorage["page_1"]).toEqual(getCallCookieValue(session5) + "~" + getCallCookieValue(session4));
+    expect(localStorage[Constants.HISTORY_PAGE_PREFIX+"0"]).toEqual(getCallCookieValue(session3) + "~" + getCallCookieValue(session2));
+    expect(localStorage[Constants.HISTORY_PAGE_PREFIX+"1"]).toEqual(getCallCookieValue(session5) + "~" + getCallCookieValue(session4));
     expect(history.pagesAsString()).toEqual([
       getCallCookieValue(session5) + "~" + getCallCookieValue(session4), 
       getCallCookieValue(session3) + "~" + getCallCookieValue(session2)

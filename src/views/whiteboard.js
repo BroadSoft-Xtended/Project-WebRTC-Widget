@@ -39,10 +39,9 @@ function WhiteboardView(options, eventbus, sipstack) {
   self.init = function() {
     if(self.canvas[0] && self.canvas[0].getContext) {
       self.context = self.canvas[0].getContext('2d');    
+      self.sketch = require('../../js/sketch')(self.canvas[0]);
     }
 
-    self.sketch = require('../../js/sketch')(self.canvas[0]);
-    
     $.each(['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#f0f', '#000', '#fff'], function() {
       self.tools.append("<a href='.canvas' onclick='javascript:;' data-color='" + this + "' style='width: 10px; background: " + this + ";'></a> ");
     });

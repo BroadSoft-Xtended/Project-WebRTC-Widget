@@ -70,8 +70,6 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
 
   Utils.extend(self, PopupView(options, eventbus));
 
-  var pagePrefix = 'page_';
-
   var _pageNumber = 0;
   Object.defineProperty(self, 'pageNumber', 
     {
@@ -189,7 +187,7 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
     var pages = [];
     for (var i = 0; i < localStorage.length; i++) {
       var key = localStorage.key(i);
-      var regex = new RegExp(pagePrefix + '(.*)', 'g');
+      var regex = new RegExp(Constants.HISTORY_PAGE_PREFIX + '(.*)', 'g');
       var match = regex.exec(key);
       if (match !== null && match.length > 1) {
         var value = localStorage.getItem(key);
@@ -276,14 +274,14 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
       sound.playClick();
       var pages = self.pages();
       for (var i = 0; i < pages.length; i++) {
-        localStorage.removeItem(pagePrefix + (pages[i].number));
+        localStorage.removeItem(Constants.HISTORY_PAGE_PREFIX + (pages[i].number));
       }
       self.pageNumber = 0;
     });
   };
 
   self.persistPage = function(page) {
-    var key = (pagePrefix + page.number);
+    var key = (Constants.HISTORY_PAGE_PREFIX + page.number);
     var value = page.callsAsString();
     localStorage[key] = value;
   };
