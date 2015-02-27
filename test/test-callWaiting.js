@@ -52,7 +52,7 @@ describe('call waiting', function() {
   it('1st incoming call with enableAutoAnswer', function() {
     config.enableAutoAnswer = true;
     client = create(config);   
-    testUA.isVisible(incomingcall.view, false);
+    expect(incomingcall.attached).toEqual(false);
     testUA.connect();
     var session = testUA.incomingSession();
     var answerOptions = "";
@@ -60,10 +60,10 @@ describe('call waiting', function() {
       console.log("answer");
       answerOptions = options;
     }
-    testUA.isVisible(incomingcall.view, false);
+    expect(incomingcall.attached).toEqual(false);
     testUA.incomingCall(session);
     expect(answerOptions).toNotEqual("", "Answer should have been called");
-    testUA.isVisible(incomingcall.view, false);
+    expect(incomingcall.attached).toEqual(false);
   });
 
   it('2nd incoming call with enableAutoAnswer', function() {

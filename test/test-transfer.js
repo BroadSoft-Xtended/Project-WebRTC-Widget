@@ -22,7 +22,7 @@ describe('transfer', function() {
   });
   it('transferPopup', function() {
     client = create(config)
-    testUA.isVisible(transfer.view, false);
+    expect(transfer.attached).toEqual(false);
   });
   it('transfer on call started with enableTransfer is false', function() {
     config.enableTransfer = false;
@@ -54,7 +54,7 @@ describe('transfer', function() {
   it('transferPopup on call started', function() {
     client = create(config)
     testUA.startCall();
-    testUA.isVisible(transfer.view, false);
+    expect(transfer.attached).toEqual(false);
   });
   it('transfer on call ended', function() {
     client = create(config)

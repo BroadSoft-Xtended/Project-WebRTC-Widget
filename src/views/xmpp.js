@@ -48,7 +48,7 @@ function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
     });
     eventbus.on('modifier', function(e) {
       if (e.which === 88) {
-        self.show();
+        self.toggle();
       }
     });    
     eventbus.on('xmppmessages', function(e) {

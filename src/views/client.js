@@ -155,59 +155,17 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     if (sipstack.isRegistered()) {
       classes.push('registered');
     }
-    if (configuration.enableMute) {
-      classes.push("enable-mute");
-    }
-    if (configuration.enableCallHistory) {
-      classes.push("enable-history");
-    }
-    if (configuration.enableShareScreen) {
-      classes.push("enable-shareScreen");
-    }
-    if (configuration.enableCallControl) {
-      classes.push("enable-call-control");
-    }
-    if (configuration.enableTransfer) {
-      classes.push("enable-transfer");
-    }
-    if (configuration.enableHold) {
-      classes.push("enable-hold");
-    }
-    if (configuration.enableCallTimer) {
-      classes.push("enable-timer");
-    }
-    if (configuration.enableSettings) {
-      classes.push("enable-settings");
-    }
-    if (configuration.enableFullScreen) {
-      classes.push("enable-full-screen");
-    }
-    if (configuration.enableSelfView) {
-      classes.push("enable-self-view");
-    }
-    if (configuration.enableDialpad) {
-      classes.push("enable-dialpad");
-    }
-    if (configuration.enableSMS) {
-      classes.push("enable-sms");
-    }
-    if (configuration.enableStats) {
-      classes.push("enable-stats");
-    }
-    if (configuration.enableXMPP) {
-      classes.push("enable-xmpp");
-    }
+
+    Object.getOwnPropertyNames(configuration).forEach(function(key) {
+      if(key.match(/^enable/) && configuration[key] && typeof configuration[key] !== 'function') {
+        classes.push(key);
+      }
+    }); 
     var views = configuration.getViews();
     if (views && views.length > 0) {
       views.map(function(view) {
         classes.push("view-" + view);
       });
-    }
-    if (configuration.enableScreenSharing) {
-      classes.push("enable-screen-sharing");
-    }
-    if (configuration.enableFileShare) {
-      classes.push("enable-file-share");
     }
     if (configuration.selfViewSize) {
       classes.push("selfView-" + configuration.selfViewSize);

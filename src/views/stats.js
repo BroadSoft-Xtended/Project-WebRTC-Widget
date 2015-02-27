@@ -118,7 +118,7 @@ function StatsView(options, eventbus, configuration, sipstack) {
     });
     eventbus.on('modifier', function(e){
       if(e.which === 83) {
-        self.show();
+        self.toggle();
       }
     });
     eventbus.on("started", function(e) {

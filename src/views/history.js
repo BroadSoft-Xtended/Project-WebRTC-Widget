@@ -217,7 +217,7 @@ function HistoryView(options, sound, statsView, sipstack, configuration, eventbu
     });
     eventbus.on('modifier', function(e) {
       if (e.which === 72) {
-        self.show();
+        self.toggle();
       }
     });
     eventbus.on('viewChanged', function(e) {

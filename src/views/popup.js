@@ -5,7 +5,7 @@ var $ = require('jquery');
 function PopupView(options, eventbus) {
   var self = {};
 
-  var attached = false;
+  self.attached = false;
 
   self.visible = false;
 
@@ -22,9 +22,9 @@ function PopupView(options, eventbus) {
   };
 
   self.setVisible = function(visible) {
-    if (!attached) {
+    if (!self.attached) {
       this.view.appendTo(global.instances['clientview_'+options.id].client);        
-      attached = true;
+      self.attached = true;
     }
     this.visible = visible;
 

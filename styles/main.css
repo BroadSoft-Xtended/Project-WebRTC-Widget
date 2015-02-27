@@ -927,12 +927,12 @@
 .bdsft-client .callHistory .historyClear a:hover {
   background: #4e4e4e;
 }
-.bdsft-client .enable-history.history-shown .callHistory {
+.bdsft-client .enableCallHistory.history-shown .callHistory {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.bdsft-client .enable-history:not(.history-shown) .callHistory {
+.bdsft-client .enableCallHistory:not(.history-shown) .callHistory {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1016,7 +1016,12 @@
 .bdsft-client .statsContainer {
   margin-bottom: 18px;
 }
-.bdsft-client .enable-stats:not(.stats-shown) .stats {
+.bdsft-client .enableStats.stats-shown .stats {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 100;
+}
+.bdsft-client .enableStats:not(.stats-shown) .stats {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1038,6 +1043,7 @@
   padding-left: 14px;
 }
 .bdsft-client .dialpad button {
+  text-align: center;
   color: #333;
   opacity: 0.8;
   font-family: arial;
@@ -1082,6 +1088,9 @@
   margin-top: -13px;
   color: #2d7b99;
 }
+.bdsft-client .dialpad .button-row {
+  text-align: center;
+}
 .bdsft-client .dialpad .btn-star {
   font-size: 30px;
   vertical-align: middle;
@@ -1125,20 +1134,20 @@
 .bdsft-client .view-audioOnly .dialpad {
   top: 45px;
 }
-.bdsft-client .enable-dialpad.dialpad-shown .dialpadIconHide,
-.bdsft-client .enable-dialpad:not(.dialpad-shown) .dialpadIconShow {
+.bdsft-client .enableDialpad.dialpad-shown .dialpadIconHide,
+.bdsft-client .enableDialpad:not(.dialpad-shown) .dialpadIconShow {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enable-dialpad.dialpad-shown .dialpad {
+.bdsft-client .enableDialpad.dialpad-shown .dialpad {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.bdsft-client .enable-dialpad:not(.dialpad-shown) .dialpadIconHide,
-.bdsft-client .enable-dialpad.dialpad-shown .dialpadIconShow,
-.bdsft-client .enable-dialpad:not(.dialpad-shown) .dialpad {
+.bdsft-client .enableDialpad:not(.dialpad-shown) .dialpadIconHide,
+.bdsft-client .enableDialpad.dialpad-shown .dialpadIconShow,
+.bdsft-client .enableDialpad:not(.dialpad-shown) .dialpad {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1200,8 +1209,8 @@
   opacity: 0;
   z-index: -1;
 }
-.bdsft-client .enable-call-control.connected .call,
-.bdsft-client .enable-call-control .callControl {
+.bdsft-client .enableCallControl.connected .call,
+.bdsft-client .enableCallControl .callControl {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
@@ -1392,16 +1401,16 @@
 .bdsft-client .view-audioOnly .video {
   display: none !important;
 }
-.bdsft-client .enable-self-view.video-shown .selfViewDisable,
-.bdsft-client .enable-self-view:not(.video-shown) .selfViewEnable,
-.bdsft-client .enable-self-view.video-shown .localVideo {
+.bdsft-client .enableSelfView.video-shown .selfViewDisable,
+.bdsft-client .enableSelfView:not(.video-shown) .selfViewEnable,
+.bdsft-client .enableSelfView.video-shown .localVideo {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enable-self-view:not(.video-shown) .selfViewDisable,
-.bdsft-client .enable-self-view.video-shown .selfViewEnable,
-.bdsft-client .enable-self-view:not(.video-shown) .localVideo {
+.bdsft-client .enableSelfView:not(.video-shown) .selfViewDisable,
+.bdsft-client .enableSelfView.video-shown .selfViewEnable,
+.bdsft-client .enableSelfView:not(.video-shown) .localVideo {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1512,19 +1521,19 @@
   padding: 10px;
   margin-bottom: 10px;
 }
-.bdsft-client .client:not(.held).enable-hold.started .hold,
-.bdsft-client .enable-hold.started.held .resume,
-.bdsft-client .enable-settings .settings {
+.bdsft-client .client:not(.held).enableHold.started .hold,
+.bdsft-client .enableHold.started.held .resume,
+.bdsft-client .enableSettings .settings {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enable-settings.settings-shown .settingsPopup {
+.bdsft-client .enableSettings.settings-shown .settingsPopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.bdsft-client .enable-settings:not(.settings-shown) .settingsPopup {
+.bdsft-client .enableSettings:not(.settings-shown) .settingsPopup {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1552,19 +1561,19 @@
 .bdsft-client .transferTarget {
   width: 200px;
 }
-.bdsft-client .enable-transfer.started .transfer {
+.bdsft-client .enableTransfer.started .transfer {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enable-transfer.started.transfer-shown .transferPopup {
+.bdsft-client .enableTransfer.started.transfer-shown .transferPopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.bdsft-client .enable-transfer.connected .transfer,
-.bdsft-client .enable-transfer.disconnected .transfer,
-.bdsft-client .enable-transfer.not(.transfer-shown) .transferPopup {
+.bdsft-client .enableTransfer.connected .transfer,
+.bdsft-client .enableTransfer.disconnected .transfer,
+.bdsft-client .enableTransfer.not(.transfer-shown) .transferPopup {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1582,14 +1591,14 @@
 .bdsft-client #screen_sharing_unsupported span {
   text-decoration: underline;
 }
-.bdsft-client .enable-screen-sharing:not(.screenshare-shown) .shareScreen,
-.bdsft-client .enable-screen-sharing.screenshare-shown .stopShareScreen {
+.bdsft-client .enableScreenSharing:not(.screenshare-shown) .shareScreen,
+.bdsft-client .enableScreenSharing.screenshare-shown .stopShareScreen {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enable-screen-sharing.screenshare-shown .shareScreen,
-.bdsft-client .enable-screen-sharing:not(.screenshare-shown) .stopShareScreen {
+.bdsft-client .enableScreenSharing.screenshare-shown .shareScreen,
+.bdsft-client .enableScreenSharing:not(.screenshare-shown) .stopShareScreen {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1638,14 +1647,14 @@
   border: none;
   border-radius: 0;
 }
-.bdsft-client .enable-full-screen:not(.fullscreen-shown) .fullScreenExpand,
-.bdsft-client .enable-full-screen.fullscreen-shown .fullScreenContract {
+.bdsft-client .enableFullScreen:not(.fullscreen-shown) .fullScreenExpand,
+.bdsft-client .enableFullScreen.fullscreen-shown .fullScreenContract {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enable-full-screen.fullscreen-shown .fullScreenExpand,
-.bdsft-client .enable-full-screen:not(.fullscreen-shown) .fullScreenContract {
+.bdsft-client .enableFullScreen.fullscreen-shown .fullScreenExpand,
+.bdsft-client .enableFullScreen:not(.fullscreen-shown) .fullScreenContract {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1679,6 +1688,16 @@
 .bdsft-client .whiteboard .tools a.selected {
   border-color: #f00;
   border-width: 3px;
+}
+.bdsft-client .enableWhiteboard.whiteboard-shown .whiteboard {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 100;
+}
+.bdsft-client .enableWhiteboard:not(.whiteboard-shown) .whiteboard {
+  transition: all 1s linear;
+  opacity: 0;
+  z-index: -1;
 }
 .bdsft-client #whiteboard_unsupported {
   position: relative;
@@ -2045,28 +2064,28 @@
   opacity: 0;
   z-index: -1;
 }
-.bdsft-client .client:not(.enable-mute) .cell-muteAudio,
-.bdsft-client .client:not(.enable-transfer) .cell-transfer,
-.bdsft-client .client:not(.enable-hold) .cell-hold,
-.bdsft-client .client:not(.enable-timer) .cell-timer,
-.bdsft-client .client:not(.enable-full-screen) .cell-fullScreen,
-.bdsft-client .client:not(.enable-self-view) .cell-selfView,
-.bdsft-client .client:not(.enable-settings) .cell-settings,
-.bdsft-client .client:not(.enable-dialpad) .cell-dialpad,
-.bdsft-client .client:not(.enable-shareScreen) .cell-shareScreen,
-.bdsft-client .client:not(.enable-call-control) .callControl {
+.bdsft-client .client:not(.enableMute) .cell-muteAudio,
+.bdsft-client .client:not(.enableTransfer) .cell-transfer,
+.bdsft-client .client:not(.enableHold) .cell-hold,
+.bdsft-client .client:not(.enableCallTimer) .cell-timer,
+.bdsft-client .client:not(.enableFullScreen) .cell-fullScreen,
+.bdsft-client .client:not(.enableSelfView) .cell-selfView,
+.bdsft-client .client:not(.enableSettings) .cell-settings,
+.bdsft-client .client:not(.enableDialpad) .cell-dialpad,
+.bdsft-client .client:not(.enableShareScreen) .cell-shareScreen,
+.bdsft-client .client:not(.enableCallControl) .callControl {
   display: none !important;
 }
-.bdsft-client .enable-mute.sound-shown.started .muteAudioIcon,
-.bdsft-client .enable-mute:not(.sound-shown).started .unmuteAudioIcon {
+.bdsft-client .enableMute.sound-shown.started .muteAudioIcon,
+.bdsft-client .enableMute:not(.sound-shown).started .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enable-mute:not(.started) .muteAudioIcon,
-.bdsft-client .enable-mute:not(.started) .unmuteAudioIcon,
-.bdsft-client .enable-mute:not(.sound-shown).started .muteAudioIcon,
-.bdsft-client .enable-mute.sound-shown.started .unmuteAudioIcon {
+.bdsft-client .enableMute:not(.started) .muteAudioIcon,
+.bdsft-client .enableMute:not(.started) .unmuteAudioIcon,
+.bdsft-client .enableMute:not(.sound-shown).started .muteAudioIcon,
+.bdsft-client .enableMute.sound-shown.started .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -2158,12 +2177,12 @@
 .bdsft-client .inbox .inboxContent {
   display: table-row-group;
 }
-.bdsft-client .enable-sms.sms-shown .sms {
+.bdsft-client .enableSMS.sms-shown .sms {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.bdsft-client .enable-sms:not(.sms-shown) .sms {
+.bdsft-client .enableSMS:not(.sms-shown) .sms {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -2239,7 +2258,7 @@
   position: relative;
   margin-right: 10px;
 }
-.bdsft-client .enable-timer.started .timer {
+.bdsft-client .enableCallTimer.started .timer {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
@@ -2281,7 +2300,7 @@
 .bdsft-client .client .fileshare-container {
   display: none;
 }
-.bdsft-client .enable-file-share.started .file_share {
+.bdsft-client .enableFileShare.started .file_share {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
@@ -2291,15 +2310,15 @@
   opacity: 0;
   z-index: -1;
 }
-.bdsft-client .enable-file-share .fileshare-container {
+.bdsft-client .enableFileShare .fileshare-container {
   display: table;
 }
-.bdsft-client .enable-xmpp.xmpp-shown .xmpp {
+.bdsft-client .enableXMPP.xmpp-shown .xmpp {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.bdsft-client .enable-xmpp.xmpp-hidden .xmpp {
+.bdsft-client .enableXMPP.xmpp-hidden .xmpp {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;

@@ -17,13 +17,13 @@ describe('settings', function() {
     config.enableSettings = true;
     client = create(config)
     testUA.isVisible(videobar.settings, true);
-    testUA.isVisible(settingsview.view, false);
+    expect(settingsview.attached).toEqual(false);
   });
   it('settings icon with enableSettings = false', function() {
     config.enableSettings = false;
     client = create(config)
     testUA.isVisible(videobar.settings, false);
-    testUA.isVisible(settingsview.view, false);
+    expect(settingsview.attached).toEqual(false);
   });
   it('settings icon after click', function() {
     config.enableSettings = true;

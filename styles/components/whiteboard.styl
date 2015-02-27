@@ -25,5 +25,11 @@
 					border-color red
 					border-width 3px
 
+	.enableWhiteboard.whiteboard-shown .whiteboard
+		{fadeInPopup}
+
+	.enableWhiteboard:not(.whiteboard-shown) .whiteboard
+		{fadeOut}
+
 	#whiteboard_unsupported
 		{unsupported}

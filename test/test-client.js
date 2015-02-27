@@ -148,9 +148,9 @@ describe('client', function() {
     dialpad.call.trigger("click");
     expect(!called).toExist();
   });
-  it('reInvite popup', function() {
+  it('reInvite popup:', function() {
     client = create(config);
-    testUA.isVisible(reinvite.view, false);
+    expect(reinvite.attached).toEqual(false);
   });
   it('reInvite popup after incoming reInvite', function() {
     config.enableAutoAcceptReInvite = false;

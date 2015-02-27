@@ -18,7 +18,7 @@ function WhiteboardView(options, eventbus, sipstack) {
   self.listeners = function() {
     eventbus.on('modifier', function(e){
       if(e.which === 87) {
-        self.show();
+        self.toggle();
       }
     });
     eventbus.on("dataReceived", function(e) {
