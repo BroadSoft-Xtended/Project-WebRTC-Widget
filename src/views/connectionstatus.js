@@ -8,28 +8,44 @@ function ConnectionStatusView(options, eventbus, configuration) {
 
   self.elements = ['connectedIcon', 'registeredIcon'];
 
+  var levels = ['success', 'alert'];
+  var show = function(element, level, hideDelay){
+    levels.forEach(function(l){
+      element.toggleClass(l, l === level);
+    });
+    element.toggleClass('fadeOut', false);
+    element.toggleClass('fadeIn', true);
+    if(hideDelay) {
+      window.setTimeout(function(){
+        hide(element);
+      }, hideDelay);
+    }
+  };
+
+  var hide = function(element){
+    element.toggleClass('fadeIn', false);
+    element.toggleClass('fadeOut', true);
+  };
+
   self.listeners = function() {
     eventbus.on("disconnected", function(e) {
       if (configuration.enableConnectionIcon) {
-        self.connectedIcon.removeClass("success");
-        self.connectedIcon.addClass("alert").fadeIn(100);
+        show(self.connectedIcon, 'alert');
       }
     });
     eventbus.on("connected", function(e) {
       if (configuration.enableConnectionIcon) {
-        self.connectedIcon.removeClass("alert");
-        self.connectedIcon.addClass("success").fadeIn(10).fadeOut(3000);
+        show(self.connectedIcon, 'success', 3000);
       }
     });
     eventbus.on("registrationFailed", function(e) {
       if (configuration.enableRegistrationIcon) {
-        self.registeredIcon.addClass("alert").fadeIn(100);
+        show(self.registeredIcon, 'alert');
       }
     });
     eventbus.on("registered", function(e) {
       if (configuration.enableRegistrationIcon) {
-        self.registeredIcon.removeClass("alert");
-        self.registeredIcon.addClass("success").fadeIn(10).fadeOut(3000);
+        show(self.registeredIcon, 'success', 3000);
       }
     });
   };
