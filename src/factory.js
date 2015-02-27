@@ -2,6 +2,7 @@ var $ = require('jquery');
 var templates = require('../js/templates');
 require('./prop');
 require('./cookieprop');
+require('filesaver.js');
 
 module.exports = Factory;
 

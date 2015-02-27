@@ -1,48 +1,49 @@
-.callPopup
-  padding 0
-  background #292929
-  border 1px solid #3c3c3c
-  box-shadow none
-  border-radius 0
-  width 170px
-  height 137px
-  span
-    color #999999
-    font-size 22px
-  button
-    background #3DA005
-    border none
-    border-radius 20px
-    padding 5px 10px
-    font-size 14px
-    color #FFF
-    margin-left 12px
-  .incomingCallName
-  .incomingCallUser
-    display block
-    margin-left 10px
-    margin-bottom 18px
-  .incomingCallTitle
-    display block
-    padding 8px
-    font-size 18px
-    font-weight bold
-    background #3c3c3c
-    margin-bottom 18px
-    color #E4E4E4
-  .rejectIncomingCall
-    background #FF0000
-  #rejectIncomingCallContainer
-    text-align right
+.bdsft-client
+  .callPopup
+    padding 0
+    background #292929
+    border 1px solid #3c3c3c
+    box-shadow none
+    border-radius 0
+    width 170px
+    height 137px
+    span
+      color #999999
+      font-size 22px
+    button
+      background #3DA005
+      border none
+      border-radius 20px
+      padding 5px 10px
+      font-size 14px
+      color #FFF
+      margin-left 12px
+    .incomingCallName
+    .incomingCallUser
+      display block
+      margin-left 10px
+      margin-bottom 18px
+    .incomingCallTitle
+      display block
+      padding 8px
+      font-size 18px
+      font-weight bold
+      background #3c3c3c
+      margin-bottom 18px
+      color #E4E4E4
+    .rejectIncomingCall
+      background #FF0000
+    #rejectIncomingCallContainer
+      text-align right
 
 
-.started .holdAndAnswerButton,
-.started .dropAndAnswerButton,
-.client:not(.started) .acceptIncomingCall
-  {fadeIn}
+  .started .holdAndAnswerButton,
+  .started .dropAndAnswerButton,
+  .client:not(.started) .acceptIncomingCall
+    {fadeIn}
 
-.incomingcall-shown .callPopup
-  {fadeInPopup}
+  .incomingcall-shown .callPopup
+    {fadeInPopup}
 
-.client:not(.incomingcall-shown) .callPopup
-  {fadeOut}
+  .client:not(.incomingcall-shown) .callPopup
+    {fadeOut}

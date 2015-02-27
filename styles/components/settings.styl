@@ -1,113 +1,114 @@
-.settingsPopup
-  padding 2px
-  position absolute
-  line-height 28px
-  border 1px solid #3c3c3c
-  background #292929
-  border-radius 0px
-  box-shadow none
-  bottom 40px
-  right 0px
-  top auto
-  left auto
-  width 304px !important
-  font-size 14px
-  height 276px
-  overflow hidden
-  span
-    color #999999
-    font-size 20px
+.bdsft-client
+  .settingsPopup
+    padding 2px
+    position absolute
+    line-height 28px
+    border 1px solid #3c3c3c
+    background #292929
+    border-radius 0px
+    box-shadow none
+    bottom 40px
+    right 0px
+    top auto
+    left auto
+    width 304px !important
     font-size 14px
-  [type="checkbox"]
-    width 18
-    height 18
-    vertical-align middle
-  .short
-    width 36px
-  input
-    background #333
-    border 1px solid #414141
-    color #EEE
-    padding-left 5px
-    line-height 22px
-    font-size 13px
-    margin-left 14px
-  select
-    margin-left 14px
-  .tabs
+    height 276px
+    overflow hidden
     span
-      margin-right 5px
-      color #fff
-  .btn
-    display none
-    background #04AFF0
-    color #FFF
-    padding 5px 10px
-    text-decoration none
-    border-radius 20px
-    margin-left 9px
-    margin-top 15px
-    font-weight 700
-    text-align center
-    &:hover
-      background #017EAD
-  .clear
- 	  display inline-block
-    color #04AFF0
-    margin-left 10px
-    text-decoration none
-    font-weight 700
-    &:hover
-      color #017EAD
-  .save
-    display inline-block
-  .resolutionSubType
-    display none
-  .tabs
-    width 250px
-    padding-left 0
-    li
-      list-style none
-      display inline
-    a
-      padding 5px 10px
-      display inline-block
-      background #494949
-      color #fff
-      text-decoration none
-      &.active
-        background #04AFF0
+      color #999999
+      font-size 20px
+      font-size 14px
+    [type="checkbox"]
+      width 18
+      height 18
+      vertical-align middle
+    .short
+      width 36px
+    input
+      background #333
+      border 1px solid #414141
+      color #EEE
+      padding-left 5px
+      line-height 22px
+      font-size 13px
+      margin-left 14px
+    select
+      margin-left 14px
+    .tabs
+      span
+        margin-right 5px
         color #fff
-  .tabs ~div p, .tabs ~div h3
-    margin-bottom 15px
-    color #999
-    font-size 14px
-  .tabs ~ div
-    padding 10px
-    margin-bottom 10px
+    .btn
+      display none
+      background #04AFF0
+      color #FFF
+      padding 5px 10px
+      text-decoration none
+      border-radius 20px
+      margin-left 9px
+      margin-top 15px
+      font-weight 700
+      text-align center
+      &:hover
+        background #017EAD
+    .clear
+   	  display inline-block
+      color #04AFF0
+      margin-left 10px
+      text-decoration none
+      font-weight 700
+      &:hover
+        color #017EAD
+    .save
+      display inline-block
+    .resolutionSubType
+      display none
+    .tabs
+      width 250px
+      padding-left 0
+      li
+        list-style none
+        display inline
+      a
+        padding 5px 10px
+        display inline-block
+        background #494949
+        color #fff
+        text-decoration none
+        &.active
+          background #04AFF0
+          color #fff
+    .tabs ~div p, .tabs ~div h3
+      margin-bottom 15px
+      color #999
+      font-size 14px
+    .tabs ~ div
+      padding 10px
+      margin-bottom 10px
 
-.client:not(.held).enable-hold.started .hold,
-.enable-hold.started.held .resume,
-.enable-settings .settings
-  {fadeIn}
+  .client:not(.held).enable-hold.started .hold,
+  .enable-hold.started.held .resume,
+  .enable-settings .settings
+    {fadeIn}
 
-.enable-settings.settings-shown .settingsPopup
-  {fadeInPopup}
+  .enable-settings.settings-shown .settingsPopup
+    {fadeInPopup}
 
-.enable-settings:not(.settings-shown) .settingsPopup
-  {fadeOut}
-  
-.client:not(.registered) .signIn,
-.client.registered .signOut
-  display block
+  .enable-settings:not(.settings-shown) .settingsPopup
+    {fadeOut}
+    
+  .client:not(.registered) .signIn,
+  .client.registered .signOut
+    display block
 
-#tab2
-  display none
+  #tab2
+    display none
 
 
-.settings
-  margin-top 12px !important
-  .icon-settings
-    margin 0
-    font-size 18px
-    color #FFF
+  .settings
+    margin-top 12px !important
+    .icon-settings
+      margin 0
+      font-size 18px
+      color #FFF

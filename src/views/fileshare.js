@@ -1,6 +1,7 @@
 module.exports = FileShareView
 
 var Utils = require('../Utils');
+var fileSaver = require('filesaver.js');
 
 function FileShareView(options, sipstack, eventbus, debug) {
   var self = {};
@@ -39,7 +40,7 @@ function FileShareView(options, sipstack, eventbus, debug) {
         delete requests[fileName];
       }
     } else if (action === C.ACTION_SEND) {
-      receivedFile(data, fileName);
+      self.receivedFile(data, fileName);
     } else if (action === C.ACTION_RECEIVED) {
       updateStatus(fileName + " transferred successfully");
       delete requests[fileName];
@@ -60,10 +61,10 @@ function FileShareView(options, sipstack, eventbus, debug) {
     }
     send(C.ACTION_REPLY, fileName, accept);
   };
-  var receivedFile = function(data, fileName) {
+  self.receivedFile = function(data, fileName) {
     updateStatus("received file " + fileName);
     var blob = Utils.dataURItoBlob(data);
-    window.saveAs(blob, fileName);
+    fileSaver(blob, fileName);
     send(C.ACTION_RECEIVED, fileName);
   };
   var sendFile = function(data, fileName) {

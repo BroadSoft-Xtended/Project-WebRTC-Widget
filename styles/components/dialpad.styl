@@ -1,105 +1,106 @@
-.dialpad
-  padding 15px
-  background #292929
-  border 1px solid #3c3c3c
-  position absolute
-  bottom 40px
-  right auto
-  width 170px
-  top auto
-  left 0px
-  letter-spacing 5px
-  z-index 100
-  box-sizing content-box
-  height 228px
-  padding-left 14px
-  button
-    color #333333
-    opacity 0.8
-    font-family arial
-    font-size 20px
-    width 30px
-    border-color #000000
-    border-width 1px
-    border-radius 4px
-    border-spacing 5em
-    font-weight bold
-    line-height 33px
-    margin .1em
-    border-top-style outset
-    cursor pointer
-    color #B3B3B3
-    background none
-    border-radius 0
-    font-weight normal
-    padding 0
-    margin 0
-    border none
-    width 50px
-    &:active
-      color #04AFF0
-      background -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A))
-      background linear-gradient(to left bottom, #F47A20, #FAA51A)
-    &:hover
-      box-shadow 1px 1px 20px #999999
-      background #3a3a3a
-      box-shadow none
-    &:focus
-      outline none
-    span
-      display block
-      font-size 8px
-      text-align center
-      font-weight bold
-      margin-top -13px
-      color #2D7B99
-  .btn-star
-    font-size 30px
-    vertical-align middle
-  .historyButton
-    font-size 16px !important
-    padding-top 5px
-    padding-bottom 5px
-    outline none
-    position absolute
-    right 4px
-    top 5px
-    width 25px
-    &.active
-      color #04AFF0
-
-  .dialpad-control-bar
-    margin-top 6px
-    .main-button
-      background #3DA005
-      border-radius 14px
-      width 70px
-      padding 5px
-      margin 0 auto
-    a
-      color #fff
-      text-decoration none
-      text-align center
-      width 100%
-      display inline-block
-      font-size 14px
-      font-weight 700
-      letter-spacing 1
-      span
-        margin-right 5px
-
-.view-audioOnly
+.bdsft-client
   .dialpad
-    top 45px
+    padding 15px
+    background #292929
+    border 1px solid #3c3c3c
+    position absolute
+    bottom 40px
+    right auto
+    width 170px
+    top auto
+    left 0px
+    letter-spacing 5px
+    z-index 100
+    box-sizing content-box
+    height 228px
+    padding-left 14px
+    button
+      color #333333
+      opacity 0.8
+      font-family arial
+      font-size 20px
+      width 30px
+      border-color #000000
+      border-width 1px
+      border-radius 4px
+      border-spacing 5em
+      font-weight bold
+      line-height 33px
+      margin .1em
+      border-top-style outset
+      cursor pointer
+      color #B3B3B3
+      background none
+      border-radius 0
+      font-weight normal
+      padding 0
+      margin 0
+      border none
+      width 50px
+      &:active
+        color #04AFF0
+        background -webkit-gradient(linear, left top, left bottom, from(#F47A20), to(#FAA51A))
+        background linear-gradient(to left bottom, #F47A20, #FAA51A)
+      &:hover
+        box-shadow 1px 1px 20px #999999
+        background #3a3a3a
+        box-shadow none
+      &:focus
+        outline none
+      span
+        display block
+        font-size 8px
+        text-align center
+        font-weight bold
+        margin-top -13px
+        color #2D7B99
+    .btn-star
+      font-size 30px
+      vertical-align middle
+    .historyButton
+      font-size 16px !important
+      padding-top 5px
+      padding-bottom 5px
+      outline none
+      position absolute
+      right 4px
+      top 5px
+      width 25px
+      &.active
+        color #04AFF0
 
-.enable-dialpad.dialpad-shown .dialpadIconHide,
-.enable-dialpad:not(.dialpad-shown) .dialpadIconShow
-  {fadeIn}
+    .dialpad-control-bar
+      margin-top 6px
+      .main-button
+        background #3DA005
+        border-radius 14px
+        width 70px
+        padding 5px
+        margin 0 auto
+      a
+        color #fff
+        text-decoration none
+        text-align center
+        width 100%
+        display inline-block
+        font-size 14px
+        font-weight 700
+        letter-spacing 1
+        span
+          margin-right 5px
 
-.enable-dialpad.dialpad-shown .dialpad
-  {fadeInPopup}
-  
-.enable-dialpad:not(.dialpad-shown) .dialpadIconHide,
-.enable-dialpad.dialpad-shown .dialpadIconShow,
-.enable-dialpad:not(.dialpad-shown) .dialpad
-  {fadeOut}
+  .view-audioOnly
+    .dialpad
+      top 45px
+
+  .enable-dialpad.dialpad-shown .dialpadIconHide,
+  .enable-dialpad:not(.dialpad-shown) .dialpadIconShow
+    {fadeIn}
+
+  .enable-dialpad.dialpad-shown .dialpad
+    {fadeInPopup}
+    
+  .enable-dialpad:not(.dialpad-shown) .dialpadIconHide,
+  .enable-dialpad.dialpad-shown .dialpadIconShow,
+  .enable-dialpad:not(.dialpad-shown) .dialpad
+    {fadeOut}

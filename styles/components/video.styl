@@ -1,126 +1,127 @@
-.video
-  position relative
-  top 0px
-  left 0px
-  width 100%
-  height auto
-
-  .remote
-    position absolute
-    top 0%
-    left 0%
+.bdsft-client
+  .video
+    position relative
+    top 0px
+    left 0px
     width 100%
-    height 100%
-    background-color #191414
-    border-radius 4px
-    border 2px solid #DDDDDD
-    box-shadow 0px 0px 10px #000000
-    border-radius 0px
-    border none
-    box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
-    background #000000
-    background -moz-linear-gradient(top,  #181818 0%, #494949 100%)
-    background -webkit-gradient(linear, left top, left bottom, color-stop(0%,#181818), color-stop(100%,#494949))
-    background -webkit-linear-gradient(top,  #181818 0%,#494949 100%)
-    background -o-linear-gradient(top,  #181818 0%,#494949 100%)
-    background -ms-linear-gradient(top,  #181818 0%,#494949 100%)
-    background linear-gradient(to bottom,  #181818 0%,#494949 100%)
-    overflow hidden
+    height auto
 
-  .localVideo
-    position absolute
-    top auto
-    left 0
-    bottom 0
-    right auto
-    width 25%
-    height 25%
-    background-color transparent
-    video
-      border-radius 0
-      box-shadow none
-      background #292929
-      border 1px solid #3c3c3c
-      cursor move
+    .remote
+      position absolute
+      top 0%
+      left 0%
       width 100%
       height 100%
+      background-color #191414
+      border-radius 4px
+      border 2px solid #DDDDDD
+      box-shadow 0px 0px 10px #000000
+      border-radius 0px
+      border none
+      box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
+      background #000000
+      background -moz-linear-gradient(top,  #181818 0%, #494949 100%)
+      background -webkit-gradient(linear, left top, left bottom, color-stop(0%,#181818), color-stop(100%,#494949))
+      background -webkit-linear-gradient(top,  #181818 0%,#494949 100%)
+      background -o-linear-gradient(top,  #181818 0%,#494949 100%)
+      background -ms-linear-gradient(top,  #181818 0%,#494949 100%)
+      background linear-gradient(to bottom,  #181818 0%,#494949 100%)
+      overflow hidden
+
+    .localVideo
       position absolute
-    .inner
-      margin 5px
-      position absolute
-      top 0
-      bottom 0
-      right 0
+      top auto
       left 0
+      bottom 0
+      right auto
+      width 25%
+      height 25%
+      background-color transparent
+      video
+        border-radius 0
+        box-shadow none
+        background #292929
+        border 1px solid #3c3c3c
+        cursor move
+        width 100%
+        height 100%
+        position absolute
+      .inner
+        margin 5px
+        position absolute
+        top 0
+        bottom 0
+        right 0
+        left 0
 
 
-.widescreen
-  .video
-    padding-bottom 56.25%
+  .widescreen
+    .video
+      padding-bottom 56.25%
 
-.standard
-  .video
-    padding-bottom 75%
+  .standard
+    .video
+      padding-bottom 75%
 
-.started
-  .watermark-icon
-    display none
-    transform none
-    box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
-  .remote
-    box-shadow 0 0 1px rgba(0, 0, 0, 0.1)
+  .started
+    .watermark-icon
+      display none
+      transform none
+      box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
+    .remote
+      box-shadow 0 0 1px rgba(0, 0, 0, 0.1)
 
-.connected
-  .watermark-icon
-    box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
+  .connected
+    .watermark-icon
+      box-shadow 0 0 1px rgba(0, 0, 0, 0.05)
 
-.selfView-bl
-  .localVideo
-    top auto
-    bottom 0
-    left 0
-    right auto
+  .selfView-bl
+    .localVideo
+      top auto
+      bottom 0
+      left 0
+      right auto
 
-.selfView-tl
-  .localVideo
-    top 0
-    bottom auto
-    left 0
-    right auto
+  .selfView-tl
+    .localVideo
+      top 0
+      bottom auto
+      left 0
+      right auto
 
-.selfView-tr
-  .localVideo
-    top 0
-    bottom auto
-    left auto !important
-    right 0
+  .selfView-tr
+    .localVideo
+      top 0
+      bottom auto
+      left auto !important
+      right 0
 
-.selfView-br
-  .localVideo
-    top auto
-    bottom 0
-    left auto !important
-    right 0
+  .selfView-br
+    .localVideo
+      top auto
+      bottom 0
+      left auto !important
+      right 0
 
-.selfView-1x
-  .localVideo
-    width 25%
-    height 25%
+  .selfView-1x
+    .localVideo
+      width 25%
+      height 25%
 
-.selfView-2x
-  .localVideo
-    width 50%
-    height 50%
+  .selfView-2x
+    .localVideo
+      width 50%
+      height 50%
 
-.view-audioOnly .video
-  display none !important
-  
-.enable-self-view.video-shown .selfViewDisable,
-.enable-self-view:not(.video-shown) .selfViewEnable,
-.enable-self-view.video-shown .localVideo
-  {fadeIn}
+  .view-audioOnly .video
+    display none !important
+    
+  .enable-self-view.video-shown .selfViewDisable,
+  .enable-self-view:not(.video-shown) .selfViewEnable,
+  .enable-self-view.video-shown .localVideo
+    {fadeIn}
 
-.enable-self-view:not(.video-shown) .selfViewDisable,
-.enable-self-view.video-shown .selfViewEnable,
-.enable-self-view:not(.video-shown) .localVideo
-  {fadeOut}
+  .enable-self-view:not(.video-shown) .selfViewDisable,
+  .enable-self-view.video-shown .selfViewEnable,
+  .enable-self-view:not(.video-shown) .localVideo
+    {fadeOut}

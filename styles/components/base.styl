@@ -1,120 +1,96 @@
-fadeIn =
-  transition all 1s linear
-  opacity 1
-  z-index 20
-fadeInPopup =
-  transition all 1s linear
-  opacity 1
-  z-index 100
-fadeOut = 
-  transition all 1s linear
-  opacity 0
-  z-index -1  
-unsupported = 
-  position relative
-  top 0px
-  left 0px
-  margin 10px
-  background red
+.bdsft-client
+  .hidden
+    display: none !important
 
-body
-  background-color #FFFFFF
-  margin 0
-  font-family 'Open Sans', Arial, sans-serif
-  -webkit-font-smoothing antialiased !important
+  .button
+    &:active
+      color #04AFF0
+      background -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A))
+      background linear-gradient(to bottom left, #7CDD07, #FAA51A)
+    &:hover
+      box-shadow 0px 0px 10px #999
 
-.hidden
-  display: none !important
-
-.button
-  &:active
-    color #04AFF0
-    background -webkit-gradient(linear, left top, right bottom, from(#7CDD07), to(#FAA51A))
-    background linear-gradient(to bottom left, #7CDD07, #FAA51A)
-  &:hover
-    box-shadow 0px 0px 10px #999
-
-.popup
-  background #333333
-  padding 10px
-  border 2px solid #DDDDDD
-  float left
-  position absolute
-  top 0
-  bottom 0
-  left 0
-  right 0
-  margin auto
-  box-shadow 0px 0px 10px #999999
-  border-radius 3px
-  font-size 14px
-  line-height 18px
-  z-index 100
-  .actions
-    text-align right
-  .title
-    font-weight bold
-    font-size 16px
-    color white
-
-.fadeable
-  opacity 0
-  display block
-  z-index -1
-  backface-visibility hidden
-
-.fadeIn
-  {fadeIn}
-
-.fadeOut
-  {fadeOut}
-
-.ui-widget-content
-  &.ui-dialog
-    display none
-    color #999999
-    font-size 22px
+  .popup
     background #333333
     padding 10px
     border 2px solid #DDDDDD
+    float left
+    position absolute
+    top 0
+    bottom 0
+    left 0
+    right 0
+    margin auto
     box-shadow 0px 0px 10px #999999
     border-radius 3px
-    z-index 99
+    font-size 14px
+    line-height 18px
+    z-index 100
+    .actions
+      text-align right
+    .title
+      font-weight bold
+      font-size 16px
+      color white
 
-.no-close
-  .ui-dialog-titlebar-close
+  .fadeable
+    opacity 0
+    display block
+    z-index -1
+    backface-visibility hidden
+
+  .fadeIn
+    {fadeIn}
+
+  .fadeOut
+    {fadeOut}
+
+  .ui-widget-content
+    &.ui-dialog
+      display none
+      color #999999
+      font-size 22px
+      background #333333
+      padding 10px
+      border 2px solid #DDDDDD
+      box-shadow 0px 0px 10px #999999
+      border-radius 3px
+      z-index 99
+
+  .no-close
+    .ui-dialog-titlebar-close
+      display none
+
+
+  .unsupported
+    position absolute
+    top 240px
+    left 30px
+    width 600px
+    background-color #191414
+    text-align center
+    display none
+    color white
+    z-index 10
+
+  .historyRowSample
     display none
 
-
-.unsupported
-  position absolute
-  top 240px
-  left 30px
-  width 600px
-  background-color #191414
-  text-align center
-  display none
-  color white
-  z-index 10
-
-.historyRowSample
-  display none
-
-.default-color
-  color #2BA6CB
+  .default-color
+    color #2BA6CB
 
 
-[id$="sample"]
-  display none !important
+  [id$="sample"]
+    display none !important
 
-#javascript_disabled
-  display block
-  background-color white
-  color black
+  #javascript_disabled
+    display block
+    background-color white
+    color black
 
-a
-  &.disabled
-    pointer-events none
-    cursor default
-    background-color #999
-    opacity 0.5
+  a
+    &.disabled
+      pointer-events none
+      cursor default
+      background-color #999
+      opacity 0.5

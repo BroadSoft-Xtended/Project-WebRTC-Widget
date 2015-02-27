@@ -590,24 +590,18 @@
 .bdsft-reset *[class^='bdsft-icon'] {
   font-family: FontAwesome !important;
 }
-body {
-  background-color: #fff;
-  margin: 0;
-  font-family: 'Open Sans', Arial, sans-serif;
-  -webkit-font-smoothing: antialiased !important;
-}
-.hidden {
+.bdsft-client .hidden {
   display: none !important;
 }
-.button:active {
+.bdsft-client .button:active {
   color: #04aff0;
   background: -webkit-gradient(linear, left top, right bottom, from(#7cdd07), to(#faa51a));
   background: linear-gradient(to bottom left, #7cdd07, #faa51a);
 }
-.button:hover {
+.bdsft-client .button:hover {
   box-shadow: 0px 0px 10px #999;
 }
-.popup {
+.bdsft-client .popup {
   background: #333;
   padding: 10px;
   border: 2px solid #ddd;
@@ -624,31 +618,31 @@ body {
   line-height: 18px;
   z-index: 100;
 }
-.popup .actions {
+.bdsft-client .popup .actions {
   text-align: right;
 }
-.popup .title {
+.bdsft-client .popup .title {
   font-weight: bold;
   font-size: 16px;
   color: #fff;
 }
-.fadeable {
+.bdsft-client .fadeable {
   opacity: 0;
   display: block;
   z-index: -1;
   backface-visibility: hidden;
 }
-.fadeIn {
+.bdsft-client .fadeIn {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.fadeOut {
+.bdsft-client .fadeOut {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.ui-widget-content.ui-dialog {
+.bdsft-client .ui-widget-content.ui-dialog {
   display: none;
   color: #999;
   font-size: 22px;
@@ -659,10 +653,10 @@ body {
   border-radius: 3px;
   z-index: 99;
 }
-.no-close .ui-dialog-titlebar-close {
+.bdsft-client .no-close .ui-dialog-titlebar-close {
   display: none;
 }
-.unsupported {
+.bdsft-client .unsupported {
   position: absolute;
   top: 240px;
   left: 30px;
@@ -673,102 +667,102 @@ body {
   color: #fff;
   z-index: 10;
 }
-.historyRowSample {
+.bdsft-client .historyRowSample {
   display: none;
 }
-.default-color {
+.bdsft-client .default-color {
   color: #2ba6cb;
 }
-[id$="sample"] {
+.bdsft-client [id$="sample"] {
   display: none !important;
 }
-#javascript_disabled {
+.bdsft-client #javascript_disabled {
   display: block;
   background-color: #fff;
   color: #000;
 }
-a.disabled {
+.bdsft-client a.disabled {
   pointer-events: none;
   cursor: default;
   background-color: #999;
   opacity: 0.5;
 }
-.main {
+.bdsft-client .main {
   position: relative;
   top: 0px;
   left: 0px;
   width: 100%;
 }
-.client {
+.bdsft-client .client {
   position: relative;
   top: 0;
   left: 0;
 }
-.client.r1280x720 {
+.bdsft-client .client.r1280x720 {
   width: 1280px;
 }
-.client.r960x720 {
+.bdsft-client .client.r960x720 {
   width: 960px;
 }
-.client .table {
+.bdsft-client .client .table {
   display: table;
   width: 100%;
 }
-.client .fixed {
+.bdsft-client .client .fixed {
   table-layout: fixed;
 }
-.client .collapse {
+.bdsft-client .client .collapse {
   border-collapse: collapse;
 }
-.client .cell {
+.bdsft-client .client .cell {
   display: table-cell;
 }
-.client .heading {
+.bdsft-client .client .heading {
   display: table-row;
   font-weight: bold;
 }
-.client .row {
+.bdsft-client .client .row {
   display: table-row;
   margin: 0;
 }
-.client .group {
+.bdsft-client .client .group {
   display: table-row-group;
 }
-.client::-webkit-scrollbar {
+.bdsft-client .client::-webkit-scrollbar {
   width: 8px;
 }
-.client::-webkit-scrollbar-track,
-.client::-webkit-scrollbar-thumb {
+.bdsft-client .client::-webkit-scrollbar-track,
+.bdsft-client .client::-webkit-scrollbar-thumb {
   background: #272727;
 }
-.client::-webkit-scrollbar-track:window-inactive,
-.client::-webkit-scrollbar-thumb:window-inactive {
+.bdsft-client .client::-webkit-scrollbar-track:window-inactive,
+.bdsft-client .client::-webkit-scrollbar-thumb:window-inactive {
   background: #272727;
 }
-.client.view-centered {
+.bdsft-client .client.view-centered {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   backface-visibility: hidden;
 }
-.client.r640x360,
-.client.r640x480 {
+.bdsft-client .client.r640x360,
+.bdsft-client .client.r640x480 {
   width: 640px;
 }
-.client.r320x180,
-.client.r320x240 {
+.bdsft-client .client.r320x180,
+.bdsft-client .client.r320x240 {
   width: 320px;
 }
-.client .row:before,
-.client .row:after {
+.bdsft-client .client .row:before,
+.bdsft-client .client .row:after {
   display: none;
 }
-.client.view-audioOnly {
+.bdsft-client .client.view-audioOnly {
   display: inline-block;
   width: auto;
 }
-.callHistory {
+.bdsft-client .callHistory {
   position: absolute;
   width: 200px;
   height: 258px;
@@ -786,34 +780,34 @@ a.disabled {
   z-index: 200;
   padding: 0;
 }
-.callHistory .rowSpace {
+.bdsft-client .callHistory .rowSpace {
   padding: 0.5em;
 }
-.callHistory .actions {
+.bdsft-client .callHistory .actions {
   margin-top: 12px;
 }
-.callHistory .content {
+.bdsft-client .callHistory .content {
   padding: 16px 0 10px 0;
   height: 68%;
   width: 200px;
   overflow: auto;
   margin-bottom: 10px;
 }
-.callHistory .content .history-row:hover,
-.callHistory .content .history-row.active {
+.bdsft-client .callHistory .content .history-row:hover,
+.bdsft-client .callHistory .content .history-row.active {
   background: #353535;
 }
-.callHistory .content .history-row {
+.bdsft-client .callHistory .content .history-row {
   cursor: pointer;
   position: relative;
 }
-.callHistory .content .history-row .row {
+.bdsft-client .callHistory .content .history-row .row {
   display: block;
   margin: 0;
   position: relative;
   height: 46px;
 }
-.callHistory .content .history-row .hist-direction {
+.bdsft-client .callHistory .content .history-row .hist-direction {
   position: absolute;
   color: #3da005;
   left: 3px;
@@ -821,10 +815,10 @@ a.disabled {
   font-size: 18px;
   top: 6px;
 }
-.callHistory .content .history-row .icon-arrow-down-thick {
+.bdsft-client .callHistory .content .history-row .icon-arrow-down-thick {
   color: #e9651d;
 }
-.callHistory .content .history-row .hist-destination {
+.bdsft-client .callHistory .content .history-row .hist-destination {
   position: absolute;
   color: #b3b3b3;
   left: 25px;
@@ -833,7 +827,7 @@ a.disabled {
   text-decoration: none;
   top: 6px;
 }
-.callHistory .content .history-row .hist-date {
+.bdsft-client .callHistory .content .history-row .hist-date {
   position: absolute;
   color: #b3b3b3;
   left: 26px;
@@ -841,7 +835,7 @@ a.disabled {
   font-size: 10px;
   top: 29px;
 }
-.callHistory .content .history-row .hist-length {
+.bdsft-client .callHistory .content .history-row .hist-length {
   position: absolute;
   color: #b3b3b3;
   left: 104px;
@@ -849,23 +843,23 @@ a.disabled {
   font-size: 10px;
   top: 29px;
 }
-.callHistory .content .history-row .hist-details-arrow {
+.bdsft-client .callHistory .content .history-row .hist-details-arrow {
   position: absolute;
   right: 8px;
   font-size: 16px;
   top: 14px;
 }
-.callHistory .historyClose a {
+.bdsft-client .callHistory .historyClose a {
   color: #04aff0;
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
   margin-left: 8px;
 }
-.callHistory .historyClose a:hover {
+.bdsft-client .callHistory .historyClose a:hover {
   color: #017ead;
 }
-.callHistory .callHistoryDetails {
+.bdsft-client .callHistory .callHistoryDetails {
   background: #fff;
   width: 194px;
   height: auto;
@@ -881,7 +875,7 @@ a.disabled {
   border-top: none;
   overflow: auto;
 }
-.callHistory .callHistoryDetails .callLink {
+.bdsft-client .callHistory .callHistoryDetails .callLink {
   text-align: left;
   background: #6f6f6f;
   float: left;
@@ -892,7 +886,7 @@ a.disabled {
   border-radius: 50px;
   font-size: 14px !important;
 }
-.callHistory .callHistoryDetails .historyDetailsClose {
+.bdsft-client .callHistory .callHistoryDetails .historyDetailsClose {
   text-align: right;
   margin-top: 10px;
   text-align: right;
@@ -901,26 +895,26 @@ a.disabled {
   height: 26px;
   margin-top: 0;
 }
-.callHistory .callHistoryDetails .historyDetailsClose .icon-ok {
+.bdsft-client .callHistory .callHistoryDetails .historyDetailsClose .icon-ok {
   margin: 0px;
 }
-.callHistory .callHistoryDetails .historyDetailsClose a {
+.bdsft-client .callHistory .callHistoryDetails .historyDetailsClose a {
   text-decoration: none;
   outline-color: rgba(0,0,0,0);
   color: #aaa;
   font-size: 18px;
 }
-.callHistory .callHistoryDetails .table {
+.bdsft-client .callHistory .callHistoryDetails .table {
   font-size: 13px;
   padding-left: 8px;
 }
-.callHistory .callHistoryDetails .table #history-dt-close-container {
+.bdsft-client .callHistory .callHistoryDetails .table #history-dt-close-container {
   text-align: right;
 }
-.callHistory .classHistoryActions {
+.bdsft-client .callHistory .classHistoryActions {
   padding-top: 2px;
 }
-.callHistory .historyClear a {
+.bdsft-client .callHistory .historyClear a {
   text-decoration: none;
   color: #fff;
   font-size: 14px;
@@ -930,20 +924,20 @@ a.disabled {
   padding: 5px 10px;
   margin-left: 15px;
 }
-.callHistory .historyClear a:hover {
+.bdsft-client .callHistory .historyClear a:hover {
   background: #4e4e4e;
 }
-.enable-history.history-shown .callHistory {
+.bdsft-client .enable-history.history-shown .callHistory {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.enable-history:not(.history-shown) .callHistory {
+.bdsft-client .enable-history:not(.history-shown) .callHistory {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.stats {
+.bdsft-client .stats {
   position: absolute;
   top: 10px;
   left: 660px;
@@ -960,7 +954,7 @@ a.disabled {
   z-index: 200;
   padding: 10px;
 }
-.stats .statsVideo {
+.bdsft-client .stats .statsVideo {
   position: absolute;
   white-space: pre-wrap;
   color: #0082ff;
@@ -969,7 +963,7 @@ a.disabled {
   font-size: 18px;
   text-decoration: none;
 }
-.stats .statsAudio {
+.bdsft-client .stats .statsAudio {
   position: absolute;
   white-space: pre-wrap;
   color: #0082ff;
@@ -979,55 +973,55 @@ a.disabled {
   font-size: 18px;
   text-decoration: none;
 }
-.stats a {
+.bdsft-client .stats a {
   color: #2ba6cb;
 }
-.stats .spacer {
+.bdsft-client .stats .spacer {
   height: 15px;
 }
-.stats .statsDelay {
+.bdsft-client .stats .statsDelay {
   display: none;
 }
-.stats-table-container,
-.stats-graph-sub-container {
+.bdsft-client .stats-table-container,
+.bdsft-client .stats-graph-sub-container {
   display: none;
 }
-.stats0-selected .kiloBitsSentPerSecond-video,
-.stats1-selected .kiloBitsSentPerSecond-audio,
-.stats2-selected .kiloBitsReceivedPerSecond-video,
-.stats3-selected .kiloBitsReceivedPerSecond-audio,
-.stats4-selected .packetsLost-video,
-.stats5-selected .packetsLostPer-video,
-.stats6-selected .packetsLost-audio,
-.stats7-selected .packetsLostPer-audio,
-.stats8-selected .googFrameRateSent-video,
-.stats9-selected .googFrameRateReceived-video,
-.stats10-selected .audioOutputLevel-audio,
-.stats11-selected .audioInputLevel-audio,
-.stats12-selected .googFrameWidthReceived-video,
-.stats13-selected .googFrameHeightReceived-video,
-.stats14-selected .googFrameWidthSent-video,
-.stats15-selected .googFrameHeightSent-video,
-.stats16-selected .googRtt-audio,
-.stats17-selected .googJitterReceived-audio {
+.bdsft-client .stats0-selected .kiloBitsSentPerSecond-video,
+.bdsft-client .stats1-selected .kiloBitsSentPerSecond-audio,
+.bdsft-client .stats2-selected .kiloBitsReceivedPerSecond-video,
+.bdsft-client .stats3-selected .kiloBitsReceivedPerSecond-audio,
+.bdsft-client .stats4-selected .packetsLost-video,
+.bdsft-client .stats5-selected .packetsLostPer-video,
+.bdsft-client .stats6-selected .packetsLost-audio,
+.bdsft-client .stats7-selected .packetsLostPer-audio,
+.bdsft-client .stats8-selected .googFrameRateSent-video,
+.bdsft-client .stats9-selected .googFrameRateReceived-video,
+.bdsft-client .stats10-selected .audioOutputLevel-audio,
+.bdsft-client .stats11-selected .audioInputLevel-audio,
+.bdsft-client .stats12-selected .googFrameWidthReceived-video,
+.bdsft-client .stats13-selected .googFrameHeightReceived-video,
+.bdsft-client .stats14-selected .googFrameWidthSent-video,
+.bdsft-client .stats15-selected .googFrameHeightSent-video,
+.bdsft-client .stats16-selected .googRtt-audio,
+.bdsft-client .stats17-selected .googJitterReceived-audio {
   display: block;
 }
 
-.callStats {
-  color: <%= statsColor %>;
-}
-.stats-graph-sub-container canvas {
+  .callStats {
+    color: <%= statsColor %>;
+  }
+.bdsft-client .stats-graph-sub-container canvas {
   width: 100%;
 }
-.statsContainer {
+.bdsft-client .statsContainer {
   margin-bottom: 18px;
 }
-.enable-stats:not(.stats-shown) .stats {
+.bdsft-client .enable-stats:not(.stats-shown) .stats {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.dialpad {
+.bdsft-client .dialpad {
   padding: 15px;
   background: #292929;
   border: 1px solid #3c3c3c;
@@ -1043,7 +1037,7 @@ a.disabled {
   height: 228px;
   padding-left: 14px;
 }
-.dialpad button {
+.bdsft-client .dialpad button {
   color: #333;
   opacity: 0.8;
   font-family: arial;
@@ -1067,20 +1061,20 @@ a.disabled {
   border: none;
   width: 50px;
 }
-.dialpad button:active {
+.bdsft-client .dialpad button:active {
   color: #04aff0;
   background: -webkit-gradient(linear, left top, left bottom, from(#f47a20), to(#faa51a));
   background: linear-gradient(to left bottom, #f47a20, #faa51a);
 }
-.dialpad button:hover {
+.bdsft-client .dialpad button:hover {
   box-shadow: 1px 1px 20px #999;
   background: #3a3a3a;
   box-shadow: none;
 }
-.dialpad button:focus {
+.bdsft-client .dialpad button:focus {
   outline: none;
 }
-.dialpad button span {
+.bdsft-client .dialpad button span {
   display: block;
   font-size: 8px;
   text-align: center;
@@ -1088,11 +1082,11 @@ a.disabled {
   margin-top: -13px;
   color: #2d7b99;
 }
-.dialpad .btn-star {
+.bdsft-client .dialpad .btn-star {
   font-size: 30px;
   vertical-align: middle;
 }
-.dialpad .historyButton {
+.bdsft-client .dialpad .historyButton {
   font-size: 16px !important;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -1102,20 +1096,20 @@ a.disabled {
   top: 5px;
   width: 25px;
 }
-.dialpad .historyButton.active {
+.bdsft-client .dialpad .historyButton.active {
   color: #04aff0;
 }
-.dialpad .dialpad-control-bar {
+.bdsft-client .dialpad .dialpad-control-bar {
   margin-top: 6px;
 }
-.dialpad .dialpad-control-bar .main-button {
+.bdsft-client .dialpad .dialpad-control-bar .main-button {
   background: #3da005;
   border-radius: 14px;
   width: 70px;
   padding: 5px;
   margin: 0 auto;
 }
-.dialpad .dialpad-control-bar a {
+.bdsft-client .dialpad .dialpad-control-bar a {
   color: #fff;
   text-decoration: none;
   text-align: center;
@@ -1125,31 +1119,31 @@ a.disabled {
   font-weight: 700;
   letter-spacing: 1;
 }
-.dialpad .dialpad-control-bar a span {
+.bdsft-client .dialpad .dialpad-control-bar a span {
   margin-right: 5px;
 }
-.view-audioOnly .dialpad {
+.bdsft-client .view-audioOnly .dialpad {
   top: 45px;
 }
-.enable-dialpad.dialpad-shown .dialpadIconHide,
-.enable-dialpad:not(.dialpad-shown) .dialpadIconShow {
+.bdsft-client .enable-dialpad.dialpad-shown .dialpadIconHide,
+.bdsft-client .enable-dialpad:not(.dialpad-shown) .dialpadIconShow {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.enable-dialpad.dialpad-shown .dialpad {
+.bdsft-client .enable-dialpad.dialpad-shown .dialpad {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.enable-dialpad:not(.dialpad-shown) .dialpadIconHide,
-.enable-dialpad.dialpad-shown .dialpadIconShow,
-.enable-dialpad:not(.dialpad-shown) .dialpad {
+.bdsft-client .enable-dialpad:not(.dialpad-shown) .dialpadIconHide,
+.bdsft-client .enable-dialpad.dialpad-shown .dialpadIconShow,
+.bdsft-client .enable-dialpad:not(.dialpad-shown) .dialpad {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.callControl {
+.bdsft-client .callControl {
   display: none;
   position: relative;
   left: 0px;
@@ -1162,17 +1156,18 @@ a.disabled {
   height: auto;
   display: block;
 }
-.callControl .destination::-webkit-input-placeholder {
+.bdsft-client .callControl .destination::-webkit-input-placeholder {
   color: #04aff0;
   font-style: italic;
   padding-left: 5px;
   font-weight: 400;
 }
-.callControl hr {
+.bdsft-client .callControl hr {
   border: none;
   border-bottom: 1px solid #3c3c3c;
 }
-.callControl input {
+.bdsft-client .callControl input {
+  box-sizing: border-box;
   background: #333;
   border: 1px solid #3c3c3c;
   color: #d3d3d3;
@@ -1185,10 +1180,10 @@ a.disabled {
   padding-left: 8px;
   padding-right: 35px;
 }
-.callControl input:focus {
+.bdsft-client .callControl input:focus {
   outline: none;
 }
-.call {
+.bdsft-client .call {
   display: none;
   position: absolute;
   z-index: 10;
@@ -1199,19 +1194,19 @@ a.disabled {
   top: auto;
   left: auto;
 }
-.client.calling .call,
-.client:not(.connected) .call {
+.bdsft-client .client.calling .call,
+.bdsft-client .client:not(.connected) .call {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.enable-call-control.connected .call,
-.enable-call-control .callControl {
+.bdsft-client .enable-call-control.connected .call,
+.bdsft-client .enable-call-control .callControl {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.callPopup {
+.bdsft-client .callPopup {
   padding: 0;
   background: #292929;
   border: 1px solid #3c3c3c;
@@ -1220,11 +1215,11 @@ a.disabled {
   width: 170px;
   height: 137px;
 }
-.callPopup span {
+.bdsft-client .callPopup span {
   color: #999;
   font-size: 22px;
 }
-.callPopup button {
+.bdsft-client .callPopup button {
   background: #3da005;
   border: none;
   border-radius: 20px;
@@ -1233,13 +1228,13 @@ a.disabled {
   color: #fff;
   margin-left: 12px;
 }
-.callPopup .incomingCallName,
-.callPopup .incomingCallUser {
+.bdsft-client .callPopup .incomingCallName,
+.bdsft-client .callPopup .incomingCallUser {
   display: block;
   margin-left: 10px;
   margin-bottom: 18px;
 }
-.callPopup .incomingCallTitle {
+.bdsft-client .callPopup .incomingCallTitle {
   display: block;
   padding: 8px;
   font-size: 18px;
@@ -1248,54 +1243,54 @@ a.disabled {
   margin-bottom: 18px;
   color: #e4e4e4;
 }
-.callPopup .rejectIncomingCall {
+.bdsft-client .callPopup .rejectIncomingCall {
   background: #f00;
 }
-.callPopup #rejectIncomingCallContainer {
+.bdsft-client .callPopup #rejectIncomingCallContainer {
   text-align: right;
 }
-.started .holdAndAnswerButton,
-.started .dropAndAnswerButton,
-.client:not(.started) .acceptIncomingCall {
+.bdsft-client .started .holdAndAnswerButton,
+.bdsft-client .started .dropAndAnswerButton,
+.bdsft-client .client:not(.started) .acceptIncomingCall {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.incomingcall-shown .callPopup {
+.bdsft-client .incomingcall-shown .callPopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.client:not(.incomingcall-shown) .callPopup {
+.bdsft-client .client:not(.incomingcall-shown) .callPopup {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.reInvitePopup {
+.bdsft-client .reInvitePopup {
   width: 170px;
   height: 137px;
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.reinvite-shown .reInvitePopup {
+.bdsft-client .reinvite-shown .reInvitePopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.reinvite-hidden .reInvitePopup {
+.bdsft-client .reinvite-hidden .reInvitePopup {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.video {
+.bdsft-client .video {
   position: relative;
   top: 0px;
   left: 0px;
   width: 100%;
   height: auto;
 }
-.video .remote {
+.bdsft-client .video .remote {
   position: absolute;
   top: 0%;
   left: 0%;
@@ -1317,7 +1312,7 @@ a.disabled {
   background: linear-gradient(to bottom, #181818 0%, #494949 100%);
   overflow: hidden;
 }
-.video .localVideo {
+.bdsft-client .video .localVideo {
   position: absolute;
   top: auto;
   left: 0;
@@ -1327,7 +1322,7 @@ a.disabled {
   height: 25%;
   background-color: transparent;
 }
-.video .localVideo video {
+.bdsft-client .video .localVideo video {
   border-radius: 0;
   box-shadow: none;
   background: #292929;
@@ -1337,7 +1332,7 @@ a.disabled {
   height: 100%;
   position: absolute;
 }
-.video .localVideo .inner {
+.bdsft-client .video .localVideo .inner {
   margin: 5px;
   position: absolute;
   top: 0;
@@ -1345,73 +1340,73 @@ a.disabled {
   right: 0;
   left: 0;
 }
-.widescreen .video {
+.bdsft-client .widescreen .video {
   padding-bottom: 56.25%;
 }
-.standard .video {
+.bdsft-client .standard .video {
   padding-bottom: 75%;
 }
-.started .watermark-icon {
+.bdsft-client .started .watermark-icon {
   display: none;
   transform: none;
   box-shadow: 0 0 1px rgba(0,0,0,0.05);
 }
-.started .remote {
+.bdsft-client .started .remote {
   box-shadow: 0 0 1px rgba(0,0,0,0.1);
 }
-.connected .watermark-icon {
+.bdsft-client .connected .watermark-icon {
   box-shadow: 0 0 1px rgba(0,0,0,0.05);
 }
-.selfView-bl .localVideo {
+.bdsft-client .selfView-bl .localVideo {
   top: auto;
   bottom: 0;
   left: 0;
   right: auto;
 }
-.selfView-tl .localVideo {
+.bdsft-client .selfView-tl .localVideo {
   top: 0;
   bottom: auto;
   left: 0;
   right: auto;
 }
-.selfView-tr .localVideo {
+.bdsft-client .selfView-tr .localVideo {
   top: 0;
   bottom: auto;
   left: auto !important;
   right: 0;
 }
-.selfView-br .localVideo {
+.bdsft-client .selfView-br .localVideo {
   top: auto;
   bottom: 0;
   left: auto !important;
   right: 0;
 }
-.selfView-1x .localVideo {
+.bdsft-client .selfView-1x .localVideo {
   width: 25%;
   height: 25%;
 }
-.selfView-2x .localVideo {
+.bdsft-client .selfView-2x .localVideo {
   width: 50%;
   height: 50%;
 }
-.view-audioOnly .video {
+.bdsft-client .view-audioOnly .video {
   display: none !important;
 }
-.enable-self-view.video-shown .selfViewDisable,
-.enable-self-view:not(.video-shown) .selfViewEnable,
-.enable-self-view.video-shown .localVideo {
+.bdsft-client .enable-self-view.video-shown .selfViewDisable,
+.bdsft-client .enable-self-view:not(.video-shown) .selfViewEnable,
+.bdsft-client .enable-self-view.video-shown .localVideo {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.enable-self-view:not(.video-shown) .selfViewDisable,
-.enable-self-view.video-shown .selfViewEnable,
-.enable-self-view:not(.video-shown) .localVideo {
+.bdsft-client .enable-self-view:not(.video-shown) .selfViewDisable,
+.bdsft-client .enable-self-view.video-shown .selfViewEnable,
+.bdsft-client .enable-self-view:not(.video-shown) .localVideo {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.settingsPopup {
+.bdsft-client .settingsPopup {
   padding: 2px;
   position: absolute;
   line-height: 28px;
@@ -1428,20 +1423,20 @@ a.disabled {
   height: 276px;
   overflow: hidden;
 }
-.settingsPopup span {
+.bdsft-client .settingsPopup span {
   color: #999;
   font-size: 20px;
   font-size: 14px;
 }
-.settingsPopup [type="checkbox"] {
+.bdsft-client .settingsPopup [type="checkbox"] {
   width: 18;
   height: 18;
   vertical-align: middle;
 }
-.settingsPopup .short {
+.bdsft-client .settingsPopup .short {
   width: 36px;
 }
-.settingsPopup input {
+.bdsft-client .settingsPopup input {
   background: #333;
   border: 1px solid #414141;
   color: #eee;
@@ -1450,14 +1445,14 @@ a.disabled {
   font-size: 13px;
   margin-left: 14px;
 }
-.settingsPopup select {
+.bdsft-client .settingsPopup select {
   margin-left: 14px;
 }
-.settingsPopup .tabs span {
+.bdsft-client .settingsPopup .tabs span {
   margin-right: 5px;
   color: #fff;
 }
-.settingsPopup .btn {
+.bdsft-client .settingsPopup .btn {
   display: none;
   background: #04aff0;
   color: #fff;
@@ -1469,137 +1464,137 @@ a.disabled {
   font-weight: 700;
   text-align: center;
 }
-.settingsPopup .btn:hover {
+.bdsft-client .settingsPopup .btn:hover {
   background: #017ead;
 }
-.settingsPopup .clear {
+.bdsft-client .settingsPopup .clear {
   display: inline-block;
   color: #04aff0;
   margin-left: 10px;
   text-decoration: none;
   font-weight: 700;
 }
-.settingsPopup .clear:hover {
+.bdsft-client .settingsPopup .clear:hover {
   color: #017ead;
 }
-.settingsPopup .save {
+.bdsft-client .settingsPopup .save {
   display: inline-block;
 }
-.settingsPopup .resolutionSubType {
+.bdsft-client .settingsPopup .resolutionSubType {
   display: none;
 }
-.settingsPopup .tabs {
+.bdsft-client .settingsPopup .tabs {
   width: 250px;
   padding-left: 0;
 }
-.settingsPopup .tabs li {
+.bdsft-client .settingsPopup .tabs li {
   list-style: none;
   display: inline;
 }
-.settingsPopup .tabs a {
+.bdsft-client .settingsPopup .tabs a {
   padding: 5px 10px;
   display: inline-block;
   background: #494949;
   color: #fff;
   text-decoration: none;
 }
-.settingsPopup .tabs a.active {
+.bdsft-client .settingsPopup .tabs a.active {
   background: #04aff0;
   color: #fff;
 }
-.settingsPopup .tabs ~div p,
-.settingsPopup .tabs ~div h3 {
+.bdsft-client .settingsPopup .tabs ~div p,
+.bdsft-client .settingsPopup .tabs ~div h3 {
   margin-bottom: 15px;
   color: #999;
   font-size: 14px;
 }
-.settingsPopup .tabs ~ div {
+.bdsft-client .settingsPopup .tabs ~ div {
   padding: 10px;
   margin-bottom: 10px;
 }
-.client:not(.held).enable-hold.started .hold,
-.enable-hold.started.held .resume,
-.enable-settings .settings {
+.bdsft-client .client:not(.held).enable-hold.started .hold,
+.bdsft-client .enable-hold.started.held .resume,
+.bdsft-client .enable-settings .settings {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.enable-settings.settings-shown .settingsPopup {
+.bdsft-client .enable-settings.settings-shown .settingsPopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.enable-settings:not(.settings-shown) .settingsPopup {
+.bdsft-client .enable-settings:not(.settings-shown) .settingsPopup {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.client:not(.registered) .signIn,
-.client.registered .signOut {
+.bdsft-client .client:not(.registered) .signIn,
+.bdsft-client .client.registered .signOut {
   display: block;
 }
-#tab2 {
+.bdsft-client #tab2 {
   display: none;
 }
-.settings {
+.bdsft-client .settings {
   margin-top: 12px !important;
 }
-.settings .icon-settings {
+.bdsft-client .settings .icon-settings {
   margin: 0;
   font-size: 18px;
   color: #fff;
 }
-.transferPopup {
+.bdsft-client .transferPopup {
   color: #fff;
   width: 280px;
   height: 60px;
 }
-.transferTarget {
+.bdsft-client .transferTarget {
   width: 200px;
 }
-.enable-transfer.started .transfer {
+.bdsft-client .enable-transfer.started .transfer {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.enable-transfer.started.transfer-shown .transferPopup {
+.bdsft-client .enable-transfer.started.transfer-shown .transferPopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.enable-transfer.connected .transfer,
-.enable-transfer.disconnected .transfer,
-.enable-transfer.not(.transfer-shown) .transferPopup {
+.bdsft-client .enable-transfer.connected .transfer,
+.bdsft-client .enable-transfer.disconnected .transfer,
+.bdsft-client .enable-transfer.not(.transfer-shown) .transferPopup {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-#screen_sharing_unsupported {
+.bdsft-client #screen_sharing_unsupported {
   position: relative;
   top: 0px;
   left: 0px;
   margin: 10px;
   background: #f00;
 }
-#screen_sharing_unsupported {
+.bdsft-client #screen_sharing_unsupported {
   display: none;
 }
-#screen_sharing_unsupported span {
+.bdsft-client #screen_sharing_unsupported span {
   text-decoration: underline;
 }
-.enable-screen-sharing:not(.screenshare-shown) .shareScreen,
-.enable-screen-sharing.screenshare-shown .stopShareScreen {
+.bdsft-client .enable-screen-sharing:not(.screenshare-shown) .shareScreen,
+.bdsft-client .enable-screen-sharing.screenshare-shown .stopShareScreen {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.enable-screen-sharing.screenshare-shown .shareScreen,
-.enable-screen-sharing:not(.screenshare-shown) .stopShareScreen {
+.bdsft-client .enable-screen-sharing.screenshare-shown .shareScreen,
+.bdsft-client .enable-screen-sharing:not(.screenshare-shown) .stopShareScreen {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.main:-webkit-full-screen-ancestor:not(iframe) {
+.bdsft-client .main:-webkit-full-screen-ancestor:not(iframe) {
   position: absolute !important;
   top: 0px;
   left: 0px;
@@ -1608,68 +1603,68 @@ a.disabled {
   width: 100%;
   height: 100%;
 }
-.video:-webkit-full-screen {
+.bdsft-client .video:-webkit-full-screen {
   position: absolute;
   height: 100%;
   border: none;
   z-index: 1;
 }
-.fullscreen-shown.client {
+.bdsft-client .fullscreen-shown.client {
   width: 100% !important;
   height: 100% !important;
 }
-.fullscreen-shown .main {
+.bdsft-client .fullscreen-shown .main {
   height: 100%;
 }
-.fullscreen-shown .video {
+.bdsft-client .fullscreen-shown .video {
   padding-bottom: 0;
   bottom: 40px;
   position: absolute;
   height: auto !important;
 }
-.fullscreen-shown .videoBar {
+.bdsft-client .fullscreen-shown .videoBar {
   top: auto !important;
   bottom: 0px;
   position: absolute;
 }
-:-webkit-full-screen .remote {
+.bdsft-client :-webkit-full-screen .remote {
   z-index: 1;
 }
-:-webkit-full-screen .localVideo {
+.bdsft-client :-webkit-full-screen .localVideo {
   z-index: 2;
 }
-:-webkit-full-screen .remote,
-:-webkit-full-screen .localVideo {
+.bdsft-client :-webkit-full-screen .remote,
+.bdsft-client :-webkit-full-screen .localVideo {
   border: none;
   border-radius: 0;
 }
-.enable-full-screen:not(.fullscreen-shown) .fullScreenExpand,
-.enable-full-screen.fullscreen-shown .fullScreenContract {
+.bdsft-client .enable-full-screen:not(.fullscreen-shown) .fullScreenExpand,
+.bdsft-client .enable-full-screen.fullscreen-shown .fullScreenContract {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.enable-full-screen.fullscreen-shown .fullScreenExpand,
-.enable-full-screen:not(.fullscreen-shown) .fullScreenContract {
+.bdsft-client .enable-full-screen.fullscreen-shown .fullScreenExpand,
+.bdsft-client .enable-full-screen:not(.fullscreen-shown) .fullScreenContract {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.whiteboard {
+.bdsft-client .whiteboard {
   position: absolute;
   top: 40px;
   left: 378px;
 }
-.whiteboard .canvas {
+.bdsft-client .whiteboard .canvas {
   border-radius: 4px;
   border: 2px solid #ddd;
   box-shadow: 0px 0px 10px #999;
   background-color: #fff;
 }
-.whiteboard .tools {
+.bdsft-client .whiteboard .tools {
   padding-bottom: 10px;
 }
-.whiteboard .tools a {
+.bdsft-client .whiteboard .tools a {
   border: 1px solid #000;
   height: 30px;
   line-height: 30px;
@@ -1681,11 +1676,11 @@ a.disabled {
   color: #000;
   font-weight: bold;
 }
-.whiteboard .tools a.selected {
+.bdsft-client .whiteboard .tools a.selected {
   border-color: #f00;
   border-width: 3px;
 }
-#whiteboard_unsupported {
+.bdsft-client #whiteboard_unsupported {
   position: relative;
   top: 0px;
   left: 0px;
@@ -1712,15 +1707,15 @@ a.disabled {
   font-weight: normal;
   font-style: normal;
 }
-.client [class^="icon-"].exario {
+.bdsft-client .client [class^="icon-"].exario {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
   margin: 0 0.35em 0 0;
   font-size: 25px;
 }
-.client [class^="icon-"],
-.client [class*=" icon-"] {
+.bdsft-client .client [class^="icon-"],
+.bdsft-client .client [class*=" icon-"] {
   font-family: 'bsl_icons';
   speak: none;
   font-style: normal;
@@ -1731,125 +1726,125 @@ a.disabled {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.icon {
+.bdsft-client .icon {
   cursor: pointer;
 }
-.icon a {
+.bdsft-client .icon a {
   speak: none;
   text-decoration: none;
   margin: 0 0.35em 0 0;
 }
-.icon a:before {
+.bdsft-client .icon a:before {
   color: #fff;
 }
-.icon-trash:before {
+.bdsft-client .icon-trash:before {
   content: "\e013";
   color: #f00;
 }
-.icon-screen-sharing:before {
+.bdsft-client .icon-screen-sharing:before {
   content: "\e604";
 }
-.icon-screen-sharing-off:before {
+.bdsft-client .icon-screen-sharing-off:before {
   content: "\e605";
 }
-.icon-link:before {
+.bdsft-client .icon-link:before {
   content: "\e00b";
 }
-.icon-dialpadShow:before,
-.icon-dialpadShow:hover:before,
-.icon-dialpadHide:before,
-.icon-dialpadHide:hover:before {
+.bdsft-client .icon-dialpadShow:before,
+.bdsft-client .icon-dialpadShow:hover:before,
+.bdsft-client .icon-dialpadHide:before,
+.bdsft-client .icon-dialpadHide:hover:before {
   content: "\ed3b";
 }
-a.icon-hangup:before,
-a.icon-hangup:hover:before {
+.bdsft-client a.icon-hangup:before,
+.bdsft-client a.icon-hangup:hover:before {
   content: "\e600";
   color: #f00;
 }
-.icon-clock:before {
+.bdsft-client .icon-clock:before {
   content: "\e634";
 }
-.client .icon-cog:before,
-.icon-settings:before,
-.icon-settings:hover:before {
+.bdsft-client .client .icon-cog:before,
+.bdsft-client .icon-settings:before,
+.bdsft-client .icon-settings:hover:before {
   content: "\e601";
 }
-.icon-resume:before,
-.icon-resume:hover:before,
-.icon-hold:before,
-.icon-hold:hover:before {
+.bdsft-client .icon-resume:before,
+.bdsft-client .icon-resume:hover:before,
+.bdsft-client .icon-hold:before,
+.bdsft-client .icon-hold:hover:before {
   content: "\e6bb";
 }
-.icon-unmuteAudio:before,
-.icon-unmuteAudio:hover:before {
+.bdsft-client .icon-unmuteAudio:before,
+.bdsft-client .icon-unmuteAudio:hover:before {
   content: "\e6c1";
 }
-.icon-muteAudio:before,
-.icon-muteAudio:hover:before {
+.bdsft-client .icon-muteAudio:before,
+.bdsft-client .icon-muteAudio:hover:before {
   content: "\e6c3";
 }
-.icon-arrow-up-thick:before {
+.bdsft-client .icon-arrow-up-thick:before {
   content: "\f5a4";
 }
-.icon-arrow-down-thick:before {
+.bdsft-client .icon-arrow-down-thick:before {
   content: "\f5a5";
 }
-.icon-cancel3:before {
+.bdsft-client .icon-cancel3:before {
   content: "\f2c9";
 }
-.icon-fullScreenContract:before,
-.icon-fullScreenContract:hover:before,
-.icon-fullScreenExpand:before,
-.icon-fullScreenExpand:hover:before {
+.bdsft-client .icon-fullScreenContract:before,
+.bdsft-client .icon-fullScreenContract:hover:before,
+.bdsft-client .icon-fullScreenExpand:before,
+.bdsft-client .icon-fullScreenExpand:hover:before {
   content: "\f371";
 }
-.icon-th:before {
+.bdsft-client .icon-th:before {
   content: "\e602";
 }
-.icon-selfViewEnable:before,
-.icon-selfViewEnable:hover:before,
-.icon-selfViewDisable:before,
-.icon-selfViewDisable:hover:before {
+.bdsft-client .icon-selfViewEnable:before,
+.bdsft-client .icon-selfViewEnable:hover:before,
+.bdsft-client .icon-selfViewDisable:before,
+.bdsft-client .icon-selfViewDisable:hover:before {
   content: "\f17f";
 }
-.icon-transfer:before,
-.icon-transfer:hover:before {
+.bdsft-client .icon-transfer:before,
+.bdsft-client .icon-transfer:hover:before {
   content: "\f186";
 }
-.icon-angle-right:before {
+.bdsft-client .icon-angle-right:before {
   content: "\f1fe";
 }
-a.icon-call:before {
+.bdsft-client a.icon-call:before {
   content: "\e00e";
   color: #3b9e3b;
 }
-.view-conference .icon-hangup:before,
-.view-conference .icon-hangup:hover:before {
+.bdsft-client .view-conference .icon-hangup:before,
+.bdsft-client .view-conference .icon-hangup:hover:before {
   color: #fff !important;
 }
-.view-conference .selfViewDisable,
-.view-conference .selfViewEnable {
+.bdsft-client .view-conference .selfViewDisable,
+.bdsft-client .view-conference .selfViewEnable {
   text-align: right !important;
 }
-.view-conference .fullScreenExpand,
-.view-conference .fullScreenContract {
+.bdsft-client .view-conference .fullScreenExpand,
+.bdsft-client .view-conference .fullScreenContract {
   text-align: left !important;
 }
-.view-audioOnly .fullScreenExpand,
-.view-audioOnly .fullScreenContract,
-.view-audioOnly .selfViewDisable,
-.view-audioOnly .selfViewEnable,
-.view-audioOnly .cell-fullScreen,
-.view-audioOnly .cell-selfView {
+.bdsft-client .view-audioOnly .fullScreenExpand,
+.bdsft-client .view-audioOnly .fullScreenContract,
+.bdsft-client .view-audioOnly .selfViewDisable,
+.bdsft-client .view-audioOnly .selfViewEnable,
+.bdsft-client .view-audioOnly .cell-fullScreen,
+.bdsft-client .view-audioOnly .cell-selfView {
   display: none !important;
 }
-.selfViewEnable a,
-.dialpadIconHide a,
-.unmuteAudio a,
-.fullScreenContract a {
+.bdsft-client .selfViewEnable a,
+.bdsft-client .dialpadIconHide a,
+.bdsft-client .unmuteAudio a,
+.bdsft-client .fullScreenContract a {
   color: #04aff0 !important;
 }
-.watermark-icon {
+.bdsft-client .watermark-icon {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1863,50 +1858,50 @@ a.icon-call:before {
 }
 
 	.icon-highlightable:hover{
-	color: <%= iconHightlightColor %>;
+  	color: <%= iconHightlightColor %>;
 	}
 
 	.icon a:hover, .icon span:hover, .videoBar a:hover {
 		color: <%= iconHightlightColor %>;
 	}
-.connection-status {
+.bdsft-client .connection-status {
   position: absolute;
   top: 13px;
   right: 0px;
 }
-.connection-status .icon {
+.bdsft-client .connection-status .icon {
   display: inline-block !important;
 }
-.quality {
+.bdsft-client .quality {
   display: none;
   position: absolute;
   z-index: 10;
   top: 13px;
   left: 15px;
 }
-.icon-quality:before {
+.bdsft-client .icon-quality:before {
   color: #0f0;
   opacity: 0.4;
 }
-.icon-quality1:before {
+.bdsft-client .icon-quality1:before {
   content: "\e007";
 }
-.icon-quality2:before {
+.bdsft-client .icon-quality2:before {
   content: "\e006";
 }
-.icon-quality3:before {
+.bdsft-client .icon-quality3:before {
   content: "\e005";
 }
-.icon-quality4:before {
+.bdsft-client .icon-quality4:before {
   content: "\e004";
 }
-.view-audioOnly .quality1,
-.view-audioOnly .quality2,
-.view-audioOnly .quality3,
-.view-audioOnly .quality4 {
+.bdsft-client .view-audioOnly .quality1,
+.bdsft-client .view-audioOnly .quality2,
+.bdsft-client .view-audioOnly .quality3,
+.bdsft-client .view-audioOnly .quality4 {
   display: none !important;
 }
-.videoBar {
+.bdsft-client .videoBar {
   position: relative;
   top: 0px;
   left: 0px;
@@ -1929,88 +1924,88 @@ a.icon-call:before {
   background: #292929;
   border-top: 1px solid #3c3c3c;
 }
-.videoBar .icon {
+.bdsft-client .videoBar .icon {
   margin: 0px 2.5px;
   position: absolute;
 }
-.videoBar .table {
+.bdsft-client .videoBar .table {
   height: 100%;
   margin: 6px;
   margin: 0;
 }
-.videoBar .cell {
+.bdsft-client .videoBar .cell {
   position: relative;
   top: 0px;
   left: 0px;
   width: 35px;
   width: 36px;
 }
-.videoBar .cell .icon {
+.bdsft-client .videoBar .cell .icon {
   width: 100%;
   text-align: center;
   margin-top: 10px;
   margin-right: 0;
   margin-left: 0;
 }
-.videoBar .cell .icon a {
+.bdsft-client .videoBar .cell .icon a {
   margin: 0;
 }
-.videoBar .cell:first-child {
+.bdsft-client .videoBar .cell:first-child {
   padding: 0;
 }
-.videoBar span {
+.bdsft-client .videoBar span {
   color: #808080;
 }
-.videoBar .unmuteAudio {
+.bdsft-client .videoBar .unmuteAudio {
   margin-top: -1px;
 }
-.videoBar .leftSpacer {
+.bdsft-client .videoBar .leftSpacer {
   width: 8px;
 }
-.videoBar .cell-hangup {
+.bdsft-client .videoBar .cell-hangup {
   width: 42px;
 }
-.videoBar .subtitle {
+.bdsft-client .videoBar .subtitle {
   display: none;
 }
-.videoBar .cellTimer {
+.bdsft-client .videoBar .cellTimer {
   position: relative;
   top: 0;
   left: 0;
   width: auto;
 }
-.videoBar .rightSpacer {
+.bdsft-client .videoBar .rightSpacer {
   width: 8px;
 }
-.hangup,
-.fullScreen,
-.selfView,
-.muteAudioIcon,
-.dialpadIcon,
-.messages {
+.bdsft-client .hangup,
+.bdsft-client .fullScreen,
+.bdsft-client .selfView,
+.bdsft-client .muteAudioIcon,
+.bdsft-client .dialpadIcon,
+.bdsft-client .messages {
   top: 0;
   left: 0;
 }
-#videoBar #settings {
+.bdsft-client #videoBar #settings {
   width: auto;
   background-color: transparent;
 }
-.view-audioOnly .videoBar {
+.bdsft-client .view-audioOnly .videoBar {
   display: inline-block;
   width: auto;
 }
-.view-audioOnly .videoBar .table {
+.bdsft-client .view-audioOnly .videoBar .table {
   table-layout: auto;
   width: auto;
 }
-.view-audioOnly .cell-hangup {
+.bdsft-client .view-audioOnly .cell-hangup {
   width: 35px !important;
 }
-.view-conference .cell-hangup {
+.bdsft-client .view-conference .cell-hangup {
   width: 30px !important;
   top: 2px;
 }
-.view-conference .videoBar .cell .hangup {
+.bdsft-client .view-conference .videoBar .cell .hangup {
   margin-top: 0;
   width: 140px;
   background-color: #f00;
@@ -2019,124 +2014,124 @@ a.icon-call:before {
   height: 36px;
   line-height: 14px;
 }
-.view-conference .hangup .subtitle {
+.bdsft-client .view-conference .hangup .subtitle {
   display: block !important;
   font-size: 14px;
   color: #fff;
 }
-.videoBar .icon,
-.videoBar a {
+.bdsft-client .videoBar .icon,
+.bdsft-client .videoBar a {
   font-size: 20px;
   color: #808080;
   text-decoration: none;
 }
-.videoBar .hold,
-.videoBar .resume {
+.bdsft-client .videoBar .hold,
+.bdsft-client .videoBar .resume {
   margin-top: -1px;
 }
-.started .hangup,
-.calling .hangup {
+.bdsft-client .started .hangup,
+.bdsft-client .calling .hangup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.connected .hangup,
-.disconnected .hangup,
-.client.held .hold,
-.client:not(.started) .hold,
-.client:not(.held) .resume,
-.client:not(.started) .resume {
+.bdsft-client .connected .hangup,
+.bdsft-client .disconnected .hangup,
+.bdsft-client .client.held .hold,
+.bdsft-client .client:not(.started) .hold,
+.bdsft-client .client:not(.held) .resume,
+.bdsft-client .client:not(.started) .resume {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.client:not(.enable-mute) .cell-muteAudio,
-.client:not(.enable-transfer) .cell-transfer,
-.client:not(.enable-hold) .cell-hold,
-.client:not(.enable-timer) .cell-timer,
-.client:not(.enable-full-screen) .cell-fullScreen,
-.client:not(.enable-self-view) .cell-selfView,
-.client:not(.enable-settings) .cell-settings,
-.client:not(.enable-dialpad) .cell-dialpad,
-.client:not(.enable-shareScreen) .cell-shareScreen,
-.client:not(.enable-call-control) .callControl {
+.bdsft-client .client:not(.enable-mute) .cell-muteAudio,
+.bdsft-client .client:not(.enable-transfer) .cell-transfer,
+.bdsft-client .client:not(.enable-hold) .cell-hold,
+.bdsft-client .client:not(.enable-timer) .cell-timer,
+.bdsft-client .client:not(.enable-full-screen) .cell-fullScreen,
+.bdsft-client .client:not(.enable-self-view) .cell-selfView,
+.bdsft-client .client:not(.enable-settings) .cell-settings,
+.bdsft-client .client:not(.enable-dialpad) .cell-dialpad,
+.bdsft-client .client:not(.enable-shareScreen) .cell-shareScreen,
+.bdsft-client .client:not(.enable-call-control) .callControl {
   display: none !important;
 }
-.enable-mute.sound-shown.started .muteAudioIcon,
-.enable-mute:not(.sound-shown).started .unmuteAudioIcon {
+.bdsft-client .enable-mute.sound-shown.started .muteAudioIcon,
+.bdsft-client .enable-mute:not(.sound-shown).started .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.enable-mute:not(.started) .muteAudioIcon,
-.enable-mute:not(.started) .unmuteAudioIcon,
-.enable-mute:not(.sound-shown).started .muteAudioIcon,
-.enable-mute.sound-shown.started .unmuteAudioIcon {
+.bdsft-client .enable-mute:not(.started) .muteAudioIcon,
+.bdsft-client .enable-mute:not(.started) .unmuteAudioIcon,
+.bdsft-client .enable-mute:not(.sound-shown).started .muteAudioIcon,
+.bdsft-client .enable-mute.sound-shown.started .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.sms {
+.bdsft-client .sms {
   position: absolute;
   top: 10px;
   right: 10px;
 }
-.sms .view {
+.bdsft-client .sms .view {
   padding: 10px;
   border-radius: 4px;
   border: 2px solid #ddd;
   box-shadow: 0px 0px 10px #999;
 }
-.sms .loginForm {
+.bdsft-client .sms .loginForm {
   width: 250px;
 }
-.sms .sendForm {
+.bdsft-client .sms .sendForm {
   width: 600px;
   display: none;
 }
-.sms .sendBody {
+.bdsft-client .sms .sendBody {
   width: 339px;
 }
-.sms .inbox {
+.bdsft-client .sms .inbox {
   width: 600px;
   display: none;
 }
-.sms .inbox .inner {
+.bdsft-client .sms .inbox .inner {
   max-height: 250px;
   overflow: auto;
 }
-.sms .inbox .cell {
+.bdsft-client .sms .inbox .cell {
   padding: 5px;
 }
-.sms .inbox .from {
+.bdsft-client .sms .inbox .from {
   width: 100px;
 }
-.sms .inbox .statusCol {
+.bdsft-client .sms .inbox .statusCol {
   width: 50px;
 }
-.sms .inbox .time {
+.bdsft-client .sms .inbox .time {
   width: 135px;
 }
-.sms .inbox .body {
+.bdsft-client .sms .inbox .body {
   word-wrap: break-word;
 }
-.sms .inbox .body > div {
+.bdsft-client .sms .inbox .body > div {
   display: none;
 }
-.sms .inbox .inboxItem.image .body .image span {
+.bdsft-client .sms .inbox .inboxItem.image .body .image span {
   margin-right: 5px;
 }
-.sms .inbox .actions {
+.bdsft-client .sms .inbox .actions {
   width: 15px;
 }
-.sms .inbox .icon-trash {
+.bdsft-client .sms .inbox .icon-trash {
   font-size: 15px;
 }
-.sms .status {
+.bdsft-client .sms .status {
   display: none;
   text-align: right;
 }
-.sms .status .statusContent {
+.bdsft-client .sms .status .statusContent {
   text-align: right;
   border: 1px solid #c3c3c3;
   background-color: #e3e2e2;
@@ -2147,42 +2142,42 @@ a.icon-call:before {
   border-bottom-right-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-.sms .status.error {
+.bdsft-client .sms .status.error {
   color: #f00;
 }
-.sms .inbox .inboxItem.text .body .text,
-.sms .inbox .inboxItem.image .body .image,
-.sms .inbox .inboxItem.video .body .video,
-.sms .inbox .inboxItem.audio .body .audio {
+.bdsft-client .sms .inbox .inboxItem.text .body .text,
+.bdsft-client .sms .inbox .inboxItem.image .body .image,
+.bdsft-client .sms .inbox .inboxItem.video .body .video,
+.bdsft-client .sms .inbox .inboxItem.audio .body .audio {
   display: block;
 }
-.sms .inbox .inboxItem.audio .body .audio audio,
-.sms .inbox .inboxItem.video .body .video video {
+.bdsft-client .sms .inbox .inboxItem.audio .body .audio audio,
+.bdsft-client .sms .inbox .inboxItem.video .body .video video {
   width: 100%;
 }
-.inbox .inboxContent {
+.bdsft-client .inbox .inboxContent {
   display: table-row-group;
 }
-.enable-sms.sms-shown .sms {
+.bdsft-client .enable-sms.sms-shown .sms {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.enable-sms:not(.sms-shown) .sms {
+.bdsft-client .enable-sms:not(.sms-shown) .sms {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-authPopup {
+.bdsft-client .authPopup {
   width: 210px;
   height: 200px;
 }
-authPopup span {
+.bdsft-client .authPopup span {
   color: #999;
   font-size: 14px;
   line-height: 18px;
 }
-authPopup input {
+.bdsft-client .authPopup input {
   background: #666;
   border-bottom: 1px solid #333;
   border-left: 1px solid #000;
@@ -2195,7 +2190,7 @@ authPopup input {
   padding: 6px 6px 4px;
   width: 200px;
 }
-authPopup button {
+.bdsft-client .authPopup button {
   border-color: #999;
   border-width: 1px;
   border-radius: 4px;
@@ -2206,23 +2201,23 @@ authPopup button {
   font-size: 12px;
   width: 200px;
 }
-authPopup .alert {
+.bdsft-client .authPopup .alert {
   font-size: 20px;
   text-align: center;
   color: #f00;
 }
-.client:not(.disconnected).auth-shown .authPopup {
+.bdsft-client .client:not(.disconnected).auth-shown .authPopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.client.disconnected .authPopup,
-.client:not(.auth-shown) .authPopup {
+.bdsft-client .client.disconnected .authPopup,
+.bdsft-client .client:not(.auth-shown) .authPopup {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.timer {
+.bdsft-client .timer {
   position: absolute;
   top: 3px;
   left: 0px;
@@ -2231,26 +2226,30 @@ authPopup .alert {
   font-family: arial;
   font-size: 16px;
   top: 11px;
+  color: #fff;
+}
+.bdsft-client .text {
+  text-align: center;
 }
 
-.timer {
-  color: <%= timerColor %>;
-}
-.view-audioOnly .timer {
+  .timer {
+    color: <%= timerColor %>;
+  }
+.bdsft-client .view-audioOnly .timer {
   position: relative;
   margin-right: 10px;
 }
-.enable-timer.started .timer {
+.bdsft-client .enable-timer.started .timer {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.client:not(.started) .timer {
+.bdsft-client .client:not(.started) .timer {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.messages {
+.bdsft-client .messages {
   position: absolute;
   font-family: arial;
   text-align: left;
@@ -2260,47 +2259,47 @@ authPopup .alert {
   top: 10px;
   left: 10px;
 }
-.view-audioOnly .messages {
+.bdsft-client .view-audioOnly .messages {
   left: 10px !important;
   top: 48px !important;
   font-weight: bold;
   font-size: 14px;
 }
 
-.normal {
-  color: <%= infoMessageColor %>;
-}
-.success {
-  color: <%= successMessageColor %>;
-}
-.warning {
-  color: <%= successMessageColor %>;
-}
-.alert {
-  color: <%= alertMessageColor %>;
-}
-.client .fileshare-container {
+  .normal {
+    color: <%= infoMessageColor %>;
+  }
+  .success {
+    color: <%= successMessageColor %>;
+  }
+  .warning {
+    color: <%= successMessageColor %>;
+  }
+  .alert {
+    color: <%= alertMessageColor %>;
+  }
+.bdsft-client .client .fileshare-container {
   display: none;
 }
-.enable-file-share.started .file_share {
+.bdsft-client .enable-file-share.started .file_share {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.client:not(.started) .file_share {
+.bdsft-client .client:not(.started) .file_share {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
-.enable-file-share .fileshare-container {
+.bdsft-client .enable-file-share .fileshare-container {
   display: table;
 }
-.enable-xmpp.xmpp-shown .xmpp {
+.bdsft-client .enable-xmpp.xmpp-shown .xmpp {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.enable-xmpp.xmpp-hidden .xmpp {
+.bdsft-client .enable-xmpp.xmpp-hidden .xmpp {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;

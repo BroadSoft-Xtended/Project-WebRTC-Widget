@@ -21,7 +21,7 @@
 
     // client.jade compiled template
     templatizer["client"] = function tmpl_client() {
-        return '<div class="wrapper"><div id="unsupported" class="unsupported"></div><div id="whiteboard_unsupported" class="unsupported"></div><div id="screen_sharing_unsupported" class="unsupported">Could not retrieve screen capture. Do you have it enabled?<br/>Open link to check : <span>chrome://flags/#enable-usermedia-screen-capture</span></div><noscript><div id="javascript_disabled" class="unsupported">JavaScript must be enabled to load the WebRTC client</div></noscript><div id="conversejs"></div><div id="client" class="client"><div class="main"><div class="errorPopup"></div></div></div></div>';
+        return '<div class="wrapper bdsft-reset bdsft-client"><div id="unsupported" class="unsupported"></div><div id="whiteboard_unsupported" class="unsupported"></div><div id="screen_sharing_unsupported" class="unsupported">Could not retrieve screen capture. Do you have it enabled?<br/>Open link to check : <span>chrome://flags/#enable-usermedia-screen-capture</span></div><noscript><div id="javascript_disabled" class="unsupported">JavaScript must be enabled to load the WebRTC client</div></noscript><div id="conversejs"></div><div id="client" class="client"><div class="main"><div class="errorPopup"></div></div></div></div>';
     };
 
     // connectionstatus.jade compiled template

@@ -2,6 +2,7 @@ module.exports = StatsView;
 
 var PopupView = require('./popup');
 var Utils = require('../Utils');
+var statsMod = require('../../js/stats')();
 
 function StatsView(options, eventbus, configuration, sipstack) {
   var self = {};
@@ -53,15 +54,15 @@ function StatsView(options, eventbus, configuration, sipstack) {
       }
       var data = {
         "lid": 1,
-        "pid": self.sipstack.getSessionId(),
+        "pid": sipstack.getSessionId(),
         "reports": reports
       };
-      addStats(data);
+      statsMod.addStats(data);
     });
   };
 
   self.getDataSerie = function(type, label, sessionId) {
-    var dataSeries = getDataSeriesByLabel(sessionId || this.sipstack.getSessionId(), type, label);
+    var dataSeries = getDataSeriesByLabel(sessionId || sipstack.getSessionId(), type, label);
     var result;
     for (var i = 0; i < dataSeries.length; i++) {
       var dataSerie = dataSeries[i];

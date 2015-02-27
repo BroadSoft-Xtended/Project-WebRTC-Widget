@@ -1,54 +1,56 @@
-.callControl
-  display none
-  position relative
-  left 0px
-  top 0
-  height 75px
-  color #666666
-  font-family arial
-  font-size 18px
-  font-weight bold
-  height auto
-  display block
-  .destination
-    &::-webkit-input-placeholder
-      color #04AFF0
-      font-style italic
-      padding-left 5px
-      font-weight 400
-  hr
-    border none
-    border-bottom 1px solid #3c3c3c
-  input
-    background #333
-    border 1px solid #3c3c3c
-    color #d3d3d3
+.bdsft-client
+  .callControl
+    display none
+    position relative
+    left 0px
+    top 0
+    height 75px
+    color #666666
     font-family arial
     font-size 18px
-    padding 0
-    border-radius 0
-    width 171px
-    line-height 30px
-    padding-left 8px
-    padding-right 35px
-    &:focus
-      outline none
+    font-weight bold
+    height auto
+    display block
+    .destination
+      &::-webkit-input-placeholder
+        color #04AFF0
+        font-style italic
+        padding-left 5px
+        font-weight 400
+    hr
+      border none
+      border-bottom 1px solid #3c3c3c
+    input
+      box-sizing border-box
+      background #333
+      border 1px solid #3c3c3c
+      color #d3d3d3
+      font-family arial
+      font-size 18px
+      padding 0
+      border-radius 0
+      width 171px
+      line-height 30px
+      padding-left 8px
+      padding-right 35px
+      &:focus
+        outline none
 
-.call
-  display none
-  position absolute
-  z-index 10
-  top 25px
-  left 265px
-  display block
-  position static
-  top auto
-  left auto
-  
-.client.calling .call,
-.client:not(.connected) .call
-  {fadeOut}
-  
-.enable-call-control.connected .call,
-.enable-call-control .callControl
-  {fadeIn}
+  .call
+    display none
+    position absolute
+    z-index 10
+    top 25px
+    left 265px
+    display block
+    position static
+    top auto
+    left auto
+    
+  .client.calling .call,
+  .client:not(.connected) .call
+    {fadeOut}
+    
+  .enable-call-control.connected .call,
+  .enable-call-control .callControl
+    {fadeIn}

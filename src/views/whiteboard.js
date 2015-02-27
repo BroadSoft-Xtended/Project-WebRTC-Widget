@@ -10,17 +10,12 @@ function WhiteboardView(options, eventbus, sipstack) {
 
   self.elements = ['canvas', 'tools'];
 
-  if(self.canvas[0] && self.canvas[0].getContext) {
-    self.context = self.canvas[0].getContext('2d');    
-  }
-
   self.color = '#000';
   self.size = 5;
   self.tool = 'marker';
   self.action = [];
 
   self.listeners = function() {
-    self.initCanvas();
     eventbus.on('modifier', function(e){
       if(e.which === 87) {
         self.show();
@@ -41,7 +36,13 @@ function WhiteboardView(options, eventbus, sipstack) {
     });
     self.updateToolsSelection();
   };
-  self.initCanvas = function() {
+  self.init = function() {
+    if(self.canvas[0] && self.canvas[0].getContext) {
+      self.context = self.canvas[0].getContext('2d');    
+    }
+
+    self.sketch = require('../../js/sketch')(self.canvas[0]);
+    
     $.each(['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#f0f', '#000', '#fff'], function() {
       self.tools.append("<a href='.canvas' onclick='javascript:;' data-color='" + this + "' style='width: 10px; background: " + this + ";'></a> ");
     });
@@ -163,4 +164,6 @@ function WhiteboardView(options, eventbus, sipstack) {
     self.context.lineWidth = action.size;
     return self.context.stroke();
   };
+
+  return self;
 }

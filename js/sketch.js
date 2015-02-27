@@ -135,7 +135,7 @@ $.sketch.tools.marker = {
     return this.context.stroke();
   }
 };
-return $.sketch.tools.eraser = {
+$.sketch.tools.eraser = {
   onEvent: function(e) {
     return $.sketch.tools.marker.onEvent.call(this, e);
   },
