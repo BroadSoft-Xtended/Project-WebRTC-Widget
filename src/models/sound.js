@@ -21,7 +21,7 @@ medias['dtmf-ringback'] = fs.readFileSync(__dirname + '/../../media/dtmf-ringbac
 medias['dtmf-star'] = fs.readFileSync(__dirname + '/../../media/dtmf-star.ogg', 'base64');
 medias.ringtone = fs.readFileSync(__dirname + '/../../media/ringtone.ogg', 'base64');
 
-function Sound(options, eventbus, configuration, sipstack) {
+function Sound(eventbus, configuration, sipstack) {
   var self = {};
 
   var soundOut;

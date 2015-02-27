@@ -4,7 +4,7 @@ var $ = require('jquery');
 var fs = require('fs');
 var C = require('../Constants');
 
-function CallControl(options, eventbus, configuration, sipstack, debug) {
+function CallControl(eventbus, configuration, sipstack, debug) {
   var self = {};
 
 

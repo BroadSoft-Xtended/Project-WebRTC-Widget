@@ -2,7 +2,7 @@ module.exports = XMPP;
 
 var XMPP = require('stanza.io');
 
-function XMPP(options, debug, eventbus) {
+function XMPP(debug, eventbus) {
   var self = {};
 
   var client;

@@ -4,7 +4,7 @@ var ExSIP = require('exsip');
 var C = require('../Constants');
 var Utils = require('../Utils');
 
-function SIPStack(options, eventbus, configuration, settings, debug) {
+function SIPStack(eventbus, configuration, settings, debug) {
   var self = {};
 
   self.ua = null;

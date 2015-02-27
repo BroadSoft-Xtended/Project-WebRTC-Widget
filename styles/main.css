@@ -1702,6 +1702,13 @@ a.disabled {
   font-weight: normal;
   font-style: normal;
 }
+.client [class^="icon-"].exario {
+  font-family: 'Exario-Icon-Fonts';
+  speak: none;
+  text-decoration: none;
+  margin: 0 0.35em 0 0;
+  font-size: 25px;
+}
 .client [class^="icon-"],
 .client [class*=" icon-"] {
   font-family: 'bsl_icons';
@@ -1853,15 +1860,12 @@ a.icon-call:before {
 		color: <%= iconHightlightColor %>;
 	}
 .connection-status {
-  display: none;
   position: absolute;
   top: 13px;
+  right: 0px;
 }
-.connectedIcon {
-  right: 5px;
-}
-.registeredIcon {
-  right: 40px;
+.connection-status .icon {
+  display: inline-block !important;
 }
 .quality {
   display: none;

@@ -3,7 +3,7 @@ module.exports = Settings;
 var WebRTC_C = require('../Constants');
 var Utils = require('../Utils');
 
-function Settings(options, configuration, settingsView, eventbus, debug) {
+function Settings(configuration, settingsView, eventbus, debug) {
   var self = {};
   self.view = settingsView;
   
@@ -23,7 +23,7 @@ function Settings(options, configuration, settingsView, eventbus, debug) {
     }
   };
 
-  self.init = function(options) {
+  self.init = function() {
     updatePageColor();
   };
 

@@ -26,7 +26,7 @@
 
     // connectionstatus.jade compiled template
     templatizer["connectionstatus"] = function tmpl_connectionstatus() {
-        return '<div class="connection-status connectedIcon"><span title="Websockets Status" class="icon-link"></span></div><div class="connection-status registeredIcon"><span title="Registered" class="icon-link"></span></div>';
+        return '<div class="connection-status"><div class="icon connectedIcon fadeable"><span title="Websockets Status" class="icon-link exario"></span></div><div class="icon registeredIcon fadeable"><span title="Registered" class="icon-link exario"></span></div></div>';
     };
 
     // dialpad.jade compiled template
