@@ -60,7 +60,7 @@ describe('settings', function() {
     settings.displayName = 'somedisplayname';
     settingsview.save.trigger("click");
     expect($.cookie("settingsDisplayName")).toEqual("somedisplayname");
-    global.instances = {};
+    global.bdsft_client_instances = {};
     client = create(config);
     expect(settings.displayName).toEqual("somedisplayname");
   });
@@ -81,7 +81,7 @@ describe('settings', function() {
     settingsview.save.trigger("click");
     expect($.cookie("settingsResolutionDisplay")).toEqual(WebRTC.C.R_960x720);
     expect($.cookie("settingsResolutionEncoding")).toEqual(WebRTC.C.R_320x240);
-    global.instances = {};
+    global.bdsft_client_instances = {};
     config.displayResolution = '';
     config.encodingResolution = '';
     client = create(config)
@@ -98,7 +98,7 @@ describe('settings', function() {
     expect($.cookie("settingsPassword")).toEqual('121212');
     expect(WebRTC.Utils.getSearchVariable("password")).toEqual(false);
     expect(configuration.getPassword()).toEqual('121212');
-    global.instances = {};
+    global.bdsft_client_instances = {};
     client = create(config)
     expect(configuration.getPassword()).toEqual('121212');
     expect(settings.password).toEqual('121212');
@@ -195,7 +195,7 @@ describe('settings', function() {
     config.bandwidthMed = '1024';
     config.bandwidthHigh = '2048';
     config.displayName = 'test display name';
-    global.instances = {};
+    global.bdsft_client_instances = {};
     client = create(config)
     videobar.settings.trigger('click');
     expect(settingsview.autoAnswerRow.hasClass('hidden')).toEqual(true);
@@ -212,7 +212,7 @@ describe('settings', function() {
     expect(settingsview.displayNameRow.hasClass('hidden')).toEqual(true);
 
     delete config.displayResolution;
-    global.instances = {};
+    global.bdsft_client_instances = {};
     client = create(config)
     videobar.settings.trigger('click');
     settingsview.layout.trigger('click');
@@ -223,7 +223,7 @@ describe('settings', function() {
 
     delete config.encodingResolution;
     config.displayResolution = '960x720';
-    global.instances = {};
+    global.bdsft_client_instances = {};
     client = create(config)
     videobar.settings.trigger('click');
     settingsview.layout.trigger('click');

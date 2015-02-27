@@ -9,7 +9,7 @@ module.exports = Stats
 // found in the LICENSE file.
 
 
-function Stats() {
+function Stats(callback) {
   var self = {};
 
   /**
@@ -353,7 +353,7 @@ function Stats() {
        * repaint.
        */
       updateScrollbarRange_: function(resetPosition) {
-        var scrollbarRange = this.getLength_() - this.canvas_.width;
+        var scrollbarRange = this.getLength_() - this.canvas_ && this.canvas_.width || 0;
         if (scrollbarRange < 0)
           scrollbarRange = 0;
 
@@ -424,6 +424,9 @@ function Stats() {
        * Draws the graph on |canvas_|.
        */
       repaint: function() {
+        if(!this.canvas_) {
+          return;
+        }
         this.repaintTimerRunning_ = false;
 
         var width = this.canvas_.width;
@@ -936,17 +939,7 @@ function Stats() {
       addStatsToTable_: function(peerConnectionElement, reportType, reportId, statsTable, time, statsData) {
         var date = Date(time);
 
-        $(".statsVar").each(function() {
-          var label = $(this).data('var');
-          var type = $(this).data('type');
-          if (matchesType(label, type, statsData)) {
-            var value = getLastValue(peerConnectionElement, reportType, reportId, label);
-            if (value != null) {
-              $(this).html(value);
-              $(this).attr("data-avg", getAvgValue(peerConnectionElement, reportType, reportId, label))
-            } else {}
-          }
-        });
+        callback.onAddStats(peerConnectionElement, reportType, reportId, statsData);
       },
 
       /**
@@ -1268,8 +1261,8 @@ function Stats() {
   };
 
   var packetsLostPercentage = function(srcDataSeries, peerConnectionElement, reportType, reportId) {
-    var packetsLost = getLastValue(peerConnectionElement, reportType, reportId, "packetsLost");
-    var packetsReceived = getLastValue(peerConnectionElement, reportType, reportId, "packetsReceived");
+    var packetsLost = self.getLastValue(peerConnectionElement, reportType, reportId, "packetsLost");
+    var packetsReceived = self.getLastValue(peerConnectionElement, reportType, reportId, "packetsReceived");
     if (packetsLost != null && packetsReceived != null) {
       return Math.round((packetsLost * 100 / (packetsReceived + packetsLost)) * 100) / 100;
     } else {
@@ -1279,7 +1272,7 @@ function Stats() {
   };
 
   // Converts the value of total bytes to bits per second.
-  function getLastValue(peerConnectionElement, reportType, reportId, label) {
+  self.getLastValue = function getLastValue(peerConnectionElement, reportType, reportId, label) {
     return getLastValueAt(peerConnectionElement, reportType, reportId, label, 1);
   }
 
@@ -1291,7 +1284,7 @@ function Stats() {
     return null;
   }
 
-  function getAvgValue(peerConnectionElement, reportType, reportId, label) {
+  self.getAvgValue = function getAvgValue(peerConnectionElement, reportType, reportId, label) {
     var srcDataSeries = getDataSeries(peerConnectionElement.id, reportType, reportId, label);
     return srcDataSeries ? srcDataSeries.getAvg() : null;
   }
@@ -1338,7 +1331,7 @@ function Stats() {
     return peerConnectionElement.id + '-' + reportType + '-' + reportId + '-' + graphType;
   }
 
-  function matchesType(label, type, statsData) {
+  self.matchesType = function matchesType(label, type, statsData) {
     if (type == "video" && isVideoStats(statsData)) {
       return true;
     } else if (type == "audio" && isAudioStats(statsData)) {
@@ -1714,8 +1707,8 @@ function Stats() {
 
       if (isVideoStats(report.stats.values)) {
         var oneMinAgo = new Date(new Date().getTime() - 1000 * 60);
-        var videoPacketsLost = getLastValue(peerConnectionElement, report.type, report.id, "packetsLost");
-        var packetsSent = getLastValue(peerConnectionElement, report.type, report.id, "packetsReceived");
+        var videoPacketsLost = self.getLastValue(peerConnectionElement, report.type, report.id, "packetsLost");
+        var packetsSent = self.getLastValue(peerConnectionElement, report.type, report.id, "packetsReceived");
         if (videoPacketsLost != null && packetsSent != null) {
           var videoPacketsLostOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsLost", oneMinAgo);
           var packetsSentOneMinAgo = getValueBefore(peerConnectionElement, report.type, report.id, "packetsReceived", oneMinAgo);
@@ -1741,7 +1734,7 @@ function Stats() {
   }
 
   function getPeerConnectionElement(data) {
-    return $('[id="' + getPeerConnectionId(data) + '"]')[0];
+    return callback.getPeerConnectionElement(data) || $('[id="' + getPeerConnectionId(data) + '"]')[0];
   }
 
   /**

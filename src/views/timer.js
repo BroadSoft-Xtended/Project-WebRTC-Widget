@@ -31,7 +31,7 @@ function TimerView(options, debug, eventbus, statsView, configuration, sipstack,
     var timer = self.runningTimer();
     self.callTimer = setInterval(timer, 1000);
     debug("started timer interval");
-  },
+  };
 
   self.stop = function() {
     self.startTime = null;
@@ -39,16 +39,16 @@ function TimerView(options, debug, eventbus, statsView, configuration, sipstack,
     debug("cleared timer interval");
     self.callTimer = null;
     self.updateText();
-  },
+  };
 
   self.getSeconds = function() {
     return Math.round((new Date().getTime() - (self.startTime || new Date().getTime())) / 1000);
-  },
+  };
 
   self.updateText = function() {
     var secs = self.getSeconds();
     self.text.text(Utils.format(secs));
-  },
+  };
 
   // Display the timer on the screen
   self.runningTimer = function() {
@@ -61,9 +61,6 @@ function TimerView(options, debug, eventbus, statsView, configuration, sipstack,
         return;
       }
       self.updateText();
-      if (configuration.enableCallStats && Utils.isChrome()) {
-        statsView.processStats();
-      }
     };
   }
 

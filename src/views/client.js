@@ -12,7 +12,7 @@ require('../models/eventbus');
 var ClientConfig = require('../../js/client-config.js.default');
 
 function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authenticationview, 
-  xmppView, incomingcallView, reinviteView, messagesView, settings, smsView, connectionstatusView, whiteboardView, fileshareView) {
+  xmppView, incomingcallView, reinviteView, messagesView, settings, smsView, connectionstatusView, whiteboardView, fileshareView, statsView) {
   var self = {};
 
   self.elements = ['client', 'main', 'errorPopup'];

@@ -14,97 +14,97 @@ jsdom({
 Object.defineProperties(global, {
   settings: {
     get: function(){
-      return global.instances.settings_test;
+      return global.bdsft_client_instances.settings_test;
     }
   },
   stats: {
     get: function(){
-      return global.instances.statsview_test;
+      return global.bdsft_client_instances.statsview_test;
     }
   },
   timer: {
     get: function(){
-      return global.instances.timerview_test;
+      return global.bdsft_client_instances.timerview_test;
     }
   },
   smsprovider: {
     get: function(){
-      return global.instances.smsprovider_test;
+      return global.bdsft_client_instances.smsprovider_test;
     }
   },
   sms: {
     get: function(){
-      return global.instances.smsview_test;
+      return global.bdsft_client_instances.smsview_test;
     }
   },
   history: {
     get: function(){
-      return global.instances.historyview_test;
+      return global.bdsft_client_instances.historyview_test;
     }
   },
   settingsview: {
     get: function(){
-      return global.instances.settingsview_test;
+      return global.bdsft_client_instances.settingsview_test;
     }
   },
   reinvite: {
     get: function(){
-      return global.instances.reinviteview_test;
+      return global.bdsft_client_instances.reinviteview_test;
     }
   },
   sipstack: {
     get: function(){
-      return global.instances.sipstack_test;
+      return global.bdsft_client_instances.sipstack_test;
     }
   },
   authentication: {
     get: function(){
-      return global.instances.authenticationview_test;
+      return global.bdsft_client_instances.authenticationview_test;
     }
   },
   incomingcall: {
     get: function(){
-      return global.instances.incomingcallview_test;
+      return global.bdsft_client_instances.incomingcallview_test;
     }
   },
   messages: {
     get: function(){
-      return global.instances.messagesview_test;
+      return global.bdsft_client_instances.messagesview_test;
     }
   },
   configuration: {
     get: function(){
-      return global.instances.configuration_test;
+      return global.bdsft_client_instances.configuration_test;
     }
   },
   callcontrol: {
     get: function(){
-      return global.instances.callcontrol_test;
+      return global.bdsft_client_instances.callcontrol_test;
     }
   },
   video: {
     get: function(){
-      return global.instances.videoview_test;
+      return global.bdsft_client_instances.videoview_test;
     }
   },
   dialpad: {
     get: function(){
-      return global.instances.dialpadview_test;
+      return global.bdsft_client_instances.dialpadview_test;
     }
   },
   transfer: {
     get: function(){
-      return global.instances.transferview_test;
+      return global.bdsft_client_instances.transferview_test;
     }
   },
   eventbus: {
     get: function(){
-      return global.instances.eventbus_test;
+      return global.bdsft_client_instances.eventbus_test;
     }
   },
   videobar: {
     get: function(){
-      return global.instances.videobarview_test;
+      return global.bdsft_client_instances.videobarview_test;
     }
   }
 });
@@ -136,7 +136,7 @@ Object.defineProperty(localStorage, 'length', {
 });
 
 setUp = function(){
-  global.instances = {};
+  global.bdsft_client_instances = {};
   testUA = require('./testUA');
   Utils = require('../../src/Utils');
   Constants = require('../../src/Constants');

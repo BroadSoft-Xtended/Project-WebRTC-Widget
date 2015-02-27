@@ -590,6 +590,28 @@
 .bdsft-reset *[class^='bdsft-icon'] {
   font-family: FontAwesome !important;
 }
+.bdsft-client button {
+  background: #3da005;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 14px;
+  color: #fff;
+  margin-left: 12px;
+}
+.bdsft-client input {
+  box-sizing: border-box;
+  background: #333;
+  border: 1px solid #3c3c3c;
+  color: #d3d3d3;
+  font-family: arial;
+  font-size: 18px;
+  padding: 0;
+  border-radius: 0;
+}
+.bdsft-client input:focus {
+  outline: none;
+}
 .bdsft-client .hidden {
   display: none !important;
 }
@@ -1016,12 +1038,12 @@
 .bdsft-client .statsContainer {
   margin-bottom: 18px;
 }
-.bdsft-client .enableStats.stats-shown .stats {
+.bdsft-client .enableCallStats.stats-shown .stats {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
-.bdsft-client .enableStats:not(.stats-shown) .stats {
+.bdsft-client .enableCallStats:not(.stats-shown) .stats {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -1176,21 +1198,10 @@
   border-bottom: 1px solid #3c3c3c;
 }
 .bdsft-client .callControl input {
-  box-sizing: border-box;
-  background: #333;
-  border: 1px solid #3c3c3c;
-  color: #d3d3d3;
-  font-family: arial;
-  font-size: 18px;
-  padding: 0;
-  border-radius: 0;
   width: 171px;
   line-height: 30px;
   padding-left: 8px;
   padding-right: 35px;
-}
-.bdsft-client .callControl input:focus {
-  outline: none;
 }
 .bdsft-client .call {
   display: none;
@@ -1227,15 +1238,6 @@
 .bdsft-client .callPopup span {
   color: #999;
   font-size: 22px;
-}
-.bdsft-client .callPopup button {
-  background: #3da005;
-  border: none;
-  border-radius: 20px;
-  padding: 5px 10px;
-  font-size: 14px;
-  color: #fff;
-  margin-left: 12px;
 }
 .bdsft-client .callPopup .incomingCallName,
 .bdsft-client .callPopup .incomingCallUser {
@@ -1556,10 +1558,16 @@
 .bdsft-client .transferPopup {
   color: #fff;
   width: 280px;
-  height: 60px;
+  height: 90px;
 }
-.bdsft-client .transferTarget {
+.bdsft-client .transferPopup .target {
   width: 200px;
+}
+.bdsft-client .transferPopup .actions {
+  padding: 10px;
+}
+.bdsft-client .transferPopup .reject {
+  color: #f00;
 }
 .bdsft-client .enableTransfer.started .transfer {
   transition: all 1s linear;

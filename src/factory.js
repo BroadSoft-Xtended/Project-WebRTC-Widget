@@ -36,18 +36,18 @@ function Factory(constructor){
 		require('./views/videobar');
 		require('./views/whiteboard');
 		require('./views/xmpp');
-		global.instances = global.instances || {};
+		global.bdsft_client_instances = global.bdsft_client_instances || {};
 		var name = functionName(constructor);
 		var id = getId(options, name);
 		// console.log('factory : ' + id);
-		if (!global.instances[id]) {
+		if (!global.bdsft_client_instances[id]) {
 			options = $.extend({}, options);
 			// console.log('factory : args for '+ id + ' : ', argNames(constructor));
 			var constructorArgs = args(options, constructor);
 			// console.log('factory : create ' + id + ' with ', argNames(constructor));
 			var object = create(constructor, constructorArgs);
 			object._name = name;
-			global.instances[id] = object;
+			global.bdsft_client_instances[id] = object;
 			if (name.match(/view$/)) {
 				var viewName = name.replace('view', '');
 				options = options[viewName] || {};
@@ -70,7 +70,7 @@ function Factory(constructor){
 			object.init && object.init(options);
 
 		}
-		return global.instances[id];
+		return global.bdsft_client_instances[id];
 	}
 }
 
@@ -172,8 +172,8 @@ function args(options, constructor) {
 		var name = functionName(constructor);
 		var arg = createDelegate(options, name, argName);
 		// var argId = getId(options, functionName(argConstructor));
-		// console.log('factory : args : global.instances '+argId);
-		// global.instances[argId] = arg;
+		// console.log('factory : args : global.bdsft_client_instances '+argId);
+		// global.bdsft_client_instances[argId] = arg;
 		return arg;
 	});
 };

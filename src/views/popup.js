@@ -23,7 +23,7 @@ function PopupView(options, eventbus) {
 
   self.setVisible = function(visible) {
     if (!self.attached) {
-      this.view.appendTo(global.instances['clientview_'+options.id].client);        
+      this.view.appendTo(global.bdsft_client_instances['clientview_'+options.id].client);        
       self.attached = true;
     }
     this.visible = visible;

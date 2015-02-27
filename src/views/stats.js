@@ -2,14 +2,25 @@ module.exports = StatsView;
 
 var PopupView = require('./popup');
 var Utils = require('../Utils');
-var statsMod = require('../../js/stats')();
 
-function StatsView(options, eventbus, configuration, sipstack) {
+function StatsView(options, eventbus, configuration, sipstack, debug) {
   var self = {};
+
+  self.statsMod = require('../../js/stats')(self);
 
   Utils.extend(self, PopupView(options, eventbus));
 
-  self.elements = ['statsVar', 'statsContainer'];
+  self.elements = ['statsVar', 'statsContainer', 'videoKiloBitsSentPerSecond', 'audioKiloBitsSentPerSecond', 
+  'videoKiloBitsReceivedPerSecond', 'audioKiloBitsReceivedPerSecond', 'videoPacketsLost', 'videoPacketsLostPer',
+  'audioPacketsLost', 'audioPacketsLostPer', 'videoGoogFrameRateSent', 'videoGoogFrameRateReceived', 'audioAudioInputLevel', 
+  'audioAudioOutputLevel', 'videoGoogFrameWidthReceived', 'videoGoogFrameHeightReceived', 'videoGoogFrameWidthSent', 'videoGoogFrameHeightSent',
+  'audioGoogRtt', 'audioGoogJitterReceived'];
+
+  var intervalId = null;
+
+  var getElement = function(type, name) {
+    return self[Utils.camelize(type + ' ' + name)];
+  };
 
   self.getReportById = function(reports, id) {
     for (var i = 0; i < reports.length; i++) {
@@ -57,8 +68,12 @@ function StatsView(options, eventbus, configuration, sipstack) {
         "pid": sipstack.getSessionId(),
         "reports": reports
       };
-      statsMod.addStats(data);
+      self.statsMod.addStats(data);
     });
+  };
+
+  self.getPeerConnectionElement = function(data) {
+    return self.statsContainer[0];
   };
 
   self.getDataSerie = function(type, label, sessionId) {
@@ -104,11 +119,40 @@ function StatsView(options, eventbus, configuration, sipstack) {
   };
 
   self.getValue = function(type, name) {
-    return $('[data-type="' + type + '"][data-var="' + name + '"]').text();
+    return getElement(type, name).text();
   };
 
   self.getAvg = function(type, name) {
-    return Math.round(($('[data-type="' + type + '"][data-var="' + name + '"]').attr("data-avg") * 100)) / 100.0;
+    return Math.round(getElement(type, name).attr("data-avg") * 100) / 100.0;
+  };
+
+  self.onAddStats = function(peerConnectionElement, reportType, reportId, statsData){
+    self.elements.forEach(function(element) {
+      var label = self[element].data('var');
+      var type = self[element].data('type');
+      if (self.statsMod.matchesType(label, type, statsData)) {
+        var value = self.statsMod.getLastValue(peerConnectionElement, reportType, reportId, label);
+        if (value != null) {
+          self[element].html(value);
+          self[element].attr("data-avg", self.statsMod.getAvgValue(peerConnectionElement, reportType, reportId, label))
+        } else {}
+      }
+    });
+  };
+
+  var start = function(){
+    if (!intervalId && configuration.enableCallStats && Utils.isChrome()) {
+      intervalId = setInterval(function(){
+        self.processStats();
+      }, 1000);
+    }
+  };
+
+  var stop = function() {
+    if(intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
   };
 
   self.listeners = function() {
@@ -121,8 +165,12 @@ function StatsView(options, eventbus, configuration, sipstack) {
         self.toggle();
       }
     });
+    eventbus.on("ended", function(e) {
+      stop();
+    });
     eventbus.on("started", function(e) {
       self.statsContainer.attr('id', sipstack.getSessionId() + '-1');
+      start();
     });
   };
 
