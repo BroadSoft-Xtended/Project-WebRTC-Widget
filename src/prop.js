@@ -5,8 +5,8 @@ function Prop(obj, prop) {
 
 	self._name = prop.name || prop;
 	var internal;
-	var data = obj.view && obj.view[self._name] || function(value){
-		if(arguments.length === 1) {
+	var data = obj.view && obj.view[self._name] || obj.view && obj.view.fieldValue || function(name, value){
+		if(arguments.length === 2) {
 			internal = value;
 		} else {
 			return internal;
@@ -18,12 +18,14 @@ function Prop(obj, prop) {
 	};
 
 	self.__get = function(){
-		if(isCheckbox()) {
-			return data.prop('checked');
-		} else if(data.val) {
+		if(isCheckbox() && data.prop) {
+			return data.prop && data.prop('checked');
+		} 
+		else if(data.val) {
 			return data.val();
-		} else {
-			return data()
+		} 
+		else {
+			return data(self._name)
 		}
 	};
 	self.__init = function(){
@@ -37,10 +39,12 @@ function Prop(obj, prop) {
 		}
 		if(isCheckbox()) {
 			data.prop('checked', value);
-		} else if(data.val) {
+		} 
+		else if(data.val) {
 			data.val(value);
-		} else {
-			data(value);
+		} 
+		else {
+			data(self._name, value);
 		}
 	};
 

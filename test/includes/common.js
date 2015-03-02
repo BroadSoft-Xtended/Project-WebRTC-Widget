@@ -12,6 +12,11 @@ jsdom({
 });
 
 Object.defineProperties(global, {
+  connectionstatus: {
+    get: function(){
+      return global.bdsft_client_instances.connectionstatus_test;
+    }
+  },
   settings: {
     get: function(){
       return global.bdsft_client_instances.settings_test;

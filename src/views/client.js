@@ -11,8 +11,8 @@ var ExSIP = require('exsip');
 require('../models/eventbus');
 var ClientConfig = require('../../js/client-config.js.default');
 
-function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authenticationview, 
-  xmppView, incomingcallView, reinviteView, messagesView, settings, smsView, connectionstatusView, whiteboardView, fileshareView, statsView) {
+function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authentication, 
+  xmppView, incomingcallView, reinviteView, messagesView, settings, smsView, connectionstatus, whiteboardView, fileshareView, statsView) {
   var self = {};
 
   self.elements = ['client', 'main', 'errorPopup'];
@@ -51,7 +51,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     videoView.view.appendTo(self.main);
     videobarView.view.appendTo(self.main);
     messagesView.view.appendTo(self.main);
-    connectionstatusView.view.appendTo(self.main);
+    connectionstatus.view.view.appendTo(self.main);
     fileshareView.view.appendTo(self.client);
 
     self.updateClientClass();

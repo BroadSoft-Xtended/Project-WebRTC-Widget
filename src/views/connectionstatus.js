@@ -1,12 +1,21 @@
 module.exports = ConnectionStatusView
 
-var Utils = require('../Utils');
-var ExSIP = require('exsip');
-
-function ConnectionStatusView(options, eventbus, configuration) {
+function ConnectionStatusView() {
   var self = {};
 
   self.elements = ['connectedIcon', 'registeredIcon'];
+
+  self.fieldValue = function(name, value) {
+    if(arguments.length === 2) {
+      if(value) {
+        show(self[name+'Icon'], 'success', 3000);
+      } else {
+        show(self[name+'Icon'], 'alert');
+      }
+    } else {
+      return self[name+'Icon'].hasClass('success');  
+    }
+  };
 
   var levels = ['success', 'alert'];
   var show = function(element, level, hideDelay){
@@ -25,29 +34,6 @@ function ConnectionStatusView(options, eventbus, configuration) {
   var hide = function(element){
     element.toggleClass('fadeIn', false);
     element.toggleClass('fadeOut', true);
-  };
-
-  self.listeners = function() {
-    eventbus.on("disconnected", function(e) {
-      if (configuration.enableConnectionIcon) {
-        show(self.connectedIcon, 'alert');
-      }
-    });
-    eventbus.on("connected", function(e) {
-      if (configuration.enableConnectionIcon) {
-        show(self.connectedIcon, 'success', 3000);
-      }
-    });
-    eventbus.on("registrationFailed", function(e) {
-      if (configuration.enableRegistrationIcon) {
-        show(self.registeredIcon, 'alert');
-      }
-    });
-    eventbus.on("registered", function(e) {
-      if (configuration.enableRegistrationIcon) {
-        show(self.registeredIcon, 'success', 3000);
-      }
-    });
   };
 
   return self;

@@ -1899,6 +1899,12 @@
 .bdsft-client .connection-status .icon {
   display: inline-block !important;
 }
+.bdsft-client .connection-status .icon.success {
+  color: #008000;
+}
+.bdsft-client .connection-status .icon.alert {
+  color: #f00;
+}
 .bdsft-client .quality {
   display: none;
   position: absolute;

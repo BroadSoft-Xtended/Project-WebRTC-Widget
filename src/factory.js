@@ -8,7 +8,9 @@ module.exports = Factory;
 
 function Factory(constructor){
 	return function(options) {
+		require('./models/authentication');
 		require('./models/callcontrol');
+		require('./models/connectionstatus');
 		require('./models/configuration');
 		require('./models/debug');
 		require('./models/eventbus');
