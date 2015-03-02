@@ -4,6 +4,5 @@
 /js/client-config.js
 /js/webrtc.js
 /js/exsip-devel.js
-index-dev.html
 *.vpj
 test/test-reports/

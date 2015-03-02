@@ -9,13 +9,31 @@ function EventBus() {
 	self.test = '121';
 	
 	self.on = function(type, listener){
-		emitter.on(type, listener);
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.on(t, listener);
+			});
+		} else {
+			emitter.on(type, listener);
+		}
 	};
 	self.once = function(type, listener){
-		emitter.once(type, listener);
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.once(t, listener);
+			});
+		} else {
+			emitter.once(type, listener);
+		}		
 	};
 	self.emit = function(type, obj){
-		emitter.emit(type, obj);
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.emit(t, obj);
+			});
+		} else {
+			emitter.emit(type, obj);
+		}
 	};
 	self.message = function(text, level) {
 		self.emit('message', {
@@ -27,6 +45,20 @@ function EventBus() {
 		self.emit('viewChanged', {
 			visible: view.visible,
 			view: view.name || view._name.replace(/view$/i, '')
+		});
+	};
+	self.resolutionChanged = function(resolution) {
+		self.emit('resolutionChanged', {
+			type: resolution.resolutionType || resolution.type,
+			encoding: resolution.resolutionEncoding || resolution.encoding,
+			display: resolution.resolutionDisplay || resolution.display
+		});
+	};
+	self.bandwidthChanged = function(bandwidth) {
+		self.emit('bandwidthChanged', {
+			type: bandwidth.bandwidthLow || bandwidth.low,
+			encoding: bandwidth.bandwidthMed || bandwidth.med,
+			display: bandwidth.bandwidthHigh || bandwidth.high
 		});
 	};
 	self.calling = function(destination, session) {

@@ -187,6 +187,10 @@ var Utils = {
     return adapter.webrtcDetectedBrowser === 'firefox';
   },
 
+  toArray: function(elements){
+    return $(elements).map (function () {return this.toArray(); } );
+  },
+
   rebindListeners: function(type, elements, listener){
     for(var i=0; i<elements.length; i++) {
       this.rebindListener(type, elements[i], listener);

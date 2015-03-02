@@ -101,27 +101,24 @@ function Settings(configuration, settingsView, eventbus, debug) {
     } else {
       debug('no resolution type for ' + resolution);
     }
-    settingsView.updateResolutionSelectVisibility();
+    eventbus.resolutionChanged(self);
   };
   self.save = function() {
     self.persist();
-    settingsView.hide();
     changed();
   };
   self.signIn = function() {
     self.persist();
     eventbus.signIn();
-    settingsView.enableRegistration(false);
   };
   self.signOut = function() {
     eventbus.signOut();
     self.clearConfigurationCookies();
-    settingsView.enableRegistration(false);
   };
   self.resetLayout = function() {
     self.resolutionEncoding = WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
     self.resolutionDisplay = WebRTC_C.DEFAULT_RESOLUTION_DISPLAY;
-    eventbus.viewChanged(self);
+    eventbus.resolutionChanged(self);
   };
   self.clearConfigurationCookies = function() {
     $.removeCookie('settingsDisplayName');
@@ -153,6 +150,12 @@ function Settings(configuration, settingsView, eventbus, debug) {
     password: true,
     authenticationUserid: true,
     resolutionType: true,
+    localVideoTop: true,
+    localVideoLeft: true,
+    callHistoryTop: true,
+    callHistoryLeft: true,
+    callStatsTop: true,
+    callStatsLeft: true,
     displayName: {
       value: function(){return configuration.sipDisplayName || $.cookie('settingsDisplayName')}
     },
@@ -212,9 +215,9 @@ function Settings(configuration, settingsView, eventbus, debug) {
     },
     windowPosition: {
       get: function() {
-        return ".localVideo" + "-" + settingsView.localVideoTop.val() + "-" + settingsView.localVideoLeft.val() + "|" +
-          ".callHistory" + "-" + settingsView.callHistoryTop.val() + "-" + settingsView.callHistoryLeft.val() + "|" +
-          ".callStats" + "-" + settingsView.callStatsTop.val() + "-" + settingsView.callStatsLeft.val();
+        return ".localVideo" + "-" + self.localVideoTop + "-" + self.localVideoLeft + "|" +
+          ".callHistory" + "-" + self.callHistoryTop + "-" + self.callHistoryLeft + "|" +
+          ".callStats" + "-" + self.callStatsTop + "-" + self.callStatsLeft;
       },
       set: function(val) {}
     }

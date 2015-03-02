@@ -104,6 +104,9 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     eventbus.on("unregistered", function(e) {
       self.updateClientClass();
     });
+    eventbus.on("resolutionChanged", function(e) {
+      self.updateClientClass();
+    });
   };
 
   // Buttons

@@ -4,7 +4,7 @@ var WebRTC_C = require('../Constants');
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function SettingsView(options, settings, configuration, sipstack, eventbus, debug, sound) {
+function SettingsView(options, settings, configuration, eventbus, debug, sound) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
@@ -24,11 +24,11 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
     self.displayNameRow.toggleClass('hidden', configuration.hasOwnProperty("displayName"));
   };
 
-  self.elements = ['localVideoTop', 'localVideoLeft', 'userid', 'password', 'save', 'authenticationUserid', 'signIn', 'signOut',
+  self.elements = ['userid', 'password', 'save', 'authenticationUserid', 'signIn', 'signOut',
     'displayName', 'resolutionType', 'resolutionDisplayWidescreen', 'resolutionDisplayStandard', 'resolutionEncodingWidescreen',
     'resolutionEncodingStandard', 'bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'displayNameRow', 'useridRow', 'selfViewDisableRow',
     'hdRow', 'autoAnswerRow', 'resolutionTypeRow', 'resolutionDisplayRow', 'resolutionEncodingRow', 'resolutionRow', 'bandwidthRow',
-    'callHistoryTop', 'callHistoryLeft', 'callStatsTop', 'callStatsLeft', 'selfViewDisable', 'hd', 'size', 'autoAnswer', 'configure',
+    'selfViewDisable', 'hd', 'size', 'autoAnswer', 'configure',
     'layout', 'clear', 'tabs'
   ];
 
@@ -52,14 +52,14 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
         self.hide();
       }
     });
-    eventbus.on("registered", function() {
+    eventbus.on(['registered', 'unregistered', 'registrationFailed'], function() {
       self.enableRegistration(true);
     });
-    eventbus.on("unregistered", function() {
-      self.enableRegistration(true);
+    eventbus.on(['signIn', 'signOut'], function() {
+      self.enableRegistration(false);
     });
-    eventbus.on("registrationFailed", function() {
-      self.enableRegistration(true);
+    eventbus.on("resolutionChanged", function() {
+      self.updateResolutionSelectVisibility();
     });
     self.clear.on('click', function(e) {
       e.preventDefault();
@@ -77,40 +77,19 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
       e.preventDefault();
       sound.playClick();
       settings.save();
+      self.hide();
     });
     self.signIn.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
       settings.signIn();
     });
-    self.bandwidthLow.bind('blur', function() {
-      sipstack.updateRtcMediaHandlerOptions();
+    Utils.toArray([self.bandwidthLow, self.bandwidthMed, self.bandwidthHigh]).on('blur', function() {
+      eventbus.bandwidthChanged(settings);
     });
-    self.bandwidthMed.bind('blur', function() {
-      sipstack.updateRtcMediaHandlerOptions();
-    });
-    self.bandwidthHigh.bind('blur', function() {
-      sipstack.updateRtcMediaHandlerOptions();
-    });
-    self.resolutionType.bind('change', function() {
-      self.updateResolutionSelectVisibility();
-      eventbus.viewChanged(self);
-      sipstack.updateRtcMediaHandlerOptions();
-      sipstack.updateUserMedia();
-    });
-    self.resolutionDisplayWidescreen.bind('change', function() {
-      eventbus.viewChanged(self);
-    });
-    self.resolutionDisplayStandard.bind('change', function() {
-      eventbus.viewChanged(self);
-    });
-    self.resolutionEncodingWidescreen.bind('change', function() {
-      sipstack.updateRtcMediaHandlerOptions();
-      sipstack.updateUserMedia();
-    });
-    self.resolutionEncodingStandard.bind('change', function() {
-      sipstack.updateRtcMediaHandlerOptions();
-      sipstack.updateUserMedia();
+    Utils.toArray([self.resolutionType, self.resolutionDisplayWidescreen, self.resolutionDisplayStandard, 
+      self.resolutionEncodingWidescreen, self.resolutionEncodingStandard]).on('change', function() {
+      eventbus.resolutionChanged(settings);
     });
     self.tabs.each(function() {
       var active, activeTabSel, links = $(this).find('a');

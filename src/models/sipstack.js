@@ -32,6 +32,13 @@ function SIPStack(eventbus, configuration, settings, debug) {
     eventbus.on("started", function(e) {
       setActiveSession(e.sender);
     });
+    eventbus.on("resolutionChanged", function(e) {
+      self.updateRtcMediaHandlerOptions();
+      self.updateUserMedia();
+    });
+    eventbus.on("bandwidthChanged", function(e) {
+      self.updateRtcMediaHandlerOptions();
+    });
     eventbus.once("started", function(e) {
       var dtmfTones = Utils.parseDTMFTones(configuration.destination);
       if (dtmfTones) {

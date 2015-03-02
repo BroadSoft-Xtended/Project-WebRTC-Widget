@@ -81609,6 +81609,13 @@ function EventBus() {
 			view: view.name || view._name.replace(/view$/i, '')
 		});
 	};
+	self.resolutionChanged = function(resolution) {
+		self.emit('resolutionChanged', {
+			type: resolution.resolutionType || resolution.type,
+			encoding: resolution.resolutionEncoding || resolution.encoding,
+			display: resolution.resolutionDisplay || resolution.display
+		});
+	};
 	self.calling = function(destination, session) {
 		self.emit('calling', {
 			destination: destination,
@@ -81739,27 +81746,24 @@ function Settings(configuration, settingsView, eventbus, debug) {
     } else {
       debug('no resolution type for ' + resolution);
     }
-    settingsView.updateResolutionSelectVisibility();
+    eventbus.resolutionChanged(self);
   };
   self.save = function() {
     self.persist();
-    settingsView.hide();
     changed();
   };
   self.signIn = function() {
     self.persist();
     eventbus.signIn();
-    settingsView.enableRegistration(false);
   };
   self.signOut = function() {
     eventbus.signOut();
     self.clearConfigurationCookies();
-    settingsView.enableRegistration(false);
   };
   self.resetLayout = function() {
     self.resolutionEncoding = WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
     self.resolutionDisplay = WebRTC_C.DEFAULT_RESOLUTION_DISPLAY;
-    eventbus.viewChanged(self);
+    eventbus.resolutionChanged(self);
   };
   self.clearConfigurationCookies = function() {
     $.removeCookie('settingsDisplayName');
@@ -81791,6 +81795,12 @@ function Settings(configuration, settingsView, eventbus, debug) {
     password: true,
     authenticationUserid: true,
     resolutionType: true,
+    localVideoTop: true,
+    localVideoLeft: true,
+    callHistoryTop: true,
+    callHistoryLeft: true,
+    callStatsTop: true,
+    callStatsLeft: true,
     displayName: {
       value: function(){return configuration.sipDisplayName || $.cookie('settingsDisplayName')}
     },
@@ -81850,9 +81860,9 @@ function Settings(configuration, settingsView, eventbus, debug) {
     },
     windowPosition: {
       get: function() {
-        return ".localVideo" + "-" + settingsView.localVideoTop.val() + "-" + settingsView.localVideoLeft.val() + "|" +
-          ".callHistory" + "-" + settingsView.callHistoryTop.val() + "-" + settingsView.callHistoryLeft.val() + "|" +
-          ".callStats" + "-" + settingsView.callStatsTop.val() + "-" + settingsView.callStatsLeft.val();
+        return ".localVideo" + "-" + self.localVideoTop + "-" + self.localVideoLeft + "|" +
+          ".callHistory" + "-" + self.callHistoryTop + "-" + self.callHistoryLeft + "|" +
+          ".callStats" + "-" + self.callStatsTop + "-" + self.callStatsLeft;
       },
       set: function(val) {}
     }
@@ -81895,6 +81905,10 @@ function SIPStack(eventbus, configuration, settings, debug) {
     });
     eventbus.on("started", function(e) {
       setActiveSession(e.sender);
+    });
+    eventbus.on("resolutionChanged", function(e) {
+      self.updateRtcMediaHandlerOptions();
+      self.updateUserMedia();
     });
     eventbus.once("started", function(e) {
       var dtmfTones = Utils.parseDTMFTones(configuration.destination);
@@ -82724,6 +82738,9 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
       self.updateClientClass();
     });
     eventbus.on("unregistered", function(e) {
+      self.updateClientClass();
+    });
+    eventbus.on("resolutionChanged", function(e) {
       self.updateClientClass();
     });
   };
@@ -83692,11 +83709,20 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
     eventbus.on("registered", function() {
       self.enableRegistration(true);
     });
+    eventbus.on("signIn", function() {
+      self.enableRegistration(false);
+    });
+    eventbus.on("signOut", function() {
+      self.enableRegistration(false);
+    });
     eventbus.on("unregistered", function() {
       self.enableRegistration(true);
     });
     eventbus.on("registrationFailed", function() {
       self.enableRegistration(true);
+    });
+    eventbus.on("resolutionChanged", function() {
+      self.updateResolutionSelectVisibility();
     });
     self.clear.on('click', function(e) {
       e.preventDefault();
@@ -83714,6 +83740,7 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
       e.preventDefault();
       sound.playClick();
       settings.save();
+      self.hide();
     });
     self.signIn.bind('click', function(e) {
       e.preventDefault();
@@ -83731,15 +83758,13 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
     });
     self.resolutionType.bind('change', function() {
       self.updateResolutionSelectVisibility();
-      eventbus.viewChanged(self);
-      sipstack.updateRtcMediaHandlerOptions();
-      sipstack.updateUserMedia();
+      eventbus.resolutionChanged(settings);
     });
     self.resolutionDisplayWidescreen.bind('change', function() {
-      eventbus.viewChanged(self);
+      eventbus.resolutionChanged(settings);
     });
     self.resolutionDisplayStandard.bind('change', function() {
-      eventbus.viewChanged(self);
+      eventbus.resolutionChanged(settings);
     });
     self.resolutionEncodingWidescreen.bind('change', function() {
       sipstack.updateRtcMediaHandlerOptions();
