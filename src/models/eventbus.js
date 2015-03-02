@@ -41,6 +41,11 @@ function EventBus() {
 			level: level
 		});
 	};
+	self.shareFile = function(file) {		
+		self.emit('shareFile', {
+			file: file
+		});
+	};
 	self.digit = function(digit, isFromDestination) {		
 		self.emit('digit', {
 			digit: digit,

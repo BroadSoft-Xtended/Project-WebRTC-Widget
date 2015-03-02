@@ -24,6 +24,9 @@ function Prop(obj, prop) {
 		else if(data.val) {
 			return data.val();
 		} 
+		else if(data.text) {
+			return data.text();
+		} 
 		else {
 			return data(self._name)
 		}
@@ -42,6 +45,9 @@ function Prop(obj, prop) {
 		} 
 		else if(data.val) {
 			data.val(value);
+		} 
+		else if(data.text) {
+			data.text(value);
 		} 
 		else {
 			data(self._name, value);
