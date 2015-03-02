@@ -61,6 +61,13 @@ function EventBus() {
 			display: bandwidth.bandwidthHigh || bandwidth.high
 		});
 	};
+	self.authenticationFailed = function(authentication) {
+		self.emit('authenticationFailed', {
+			userid: authentication.userid,
+			authUserid: authentication.authUserid,
+			password: authentication.password
+		});
+	};
 	self.calling = function(destination, session) {
 		self.emit('calling', {
 			destination: destination,

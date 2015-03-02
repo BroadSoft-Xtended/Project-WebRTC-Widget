@@ -4,7 +4,7 @@ var $ = require('jquery');
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function AuthenticationView(options, eventbus, settings, configuration, debug) {
+function AuthenticationView(options, eventbus, authentication) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
@@ -12,42 +12,15 @@ function AuthenticationView(options, eventbus, settings, configuration, debug) {
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
 
   self.listeners = function() {
-    eventbus.on('registrationFailed', function(e) {
-      var statusCode = e.data.response.status_code;
-      debug('registration failed : '+statusCode+', '+settings.userid+', '+settings.password);
-      if ((statusCode === 403 && settings.userid && !settings.password) || configuration.register) {
-        self.setVisible(true);
-      }
+    eventbus.on('authenticationFailed', function(e) {
+      self.setVisible(true);
     });
-
-    eventbus.on('viewChanged', function(e) {
-      if(e.view === 'authentication' && e.visible) {
-        self.authUserid.val(settings.authenticationUserid);
-        self.userid.val(settings.userid);
-      }
+    eventbus.on('authenticate', function(e) {
+      self.setVisible(false);
     });
 
     self.ok.bind('click', function() {
-      var userId = self.userid.val();
-      if (!userId) {
-        self.alert.text("Invalid User ID").fadeIn(10).fadeOut(4000);
-        return;
-      }
-      var authUserId = self.authUserid.val();
-      var password = self.password.val();
-      self.setVisible(false);
-      eventbus.emit('authenticate', {
-        userId: userId,
-        authenticationUserId: authUserId,
-        password: password
-      })
-      eventbus.once("registered", function() {
-        if (authUserId && settings.userid !== authUserId) {
-          settings.authenticationUserid = authUserId;
-        }
-        settings.userid = userId;
-        settings.password = password;
-      });
+      authentication.authenticate();
     });
 
     self.view.bind('keypress', function(e) {

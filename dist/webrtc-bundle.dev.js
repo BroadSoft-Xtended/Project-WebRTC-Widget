@@ -80453,6 +80453,10 @@ var Utils = {
     return adapter.webrtcDetectedBrowser === 'firefox';
   },
 
+  toArray: function(elements){
+    return $(elements).map (function () {return this.toArray(); } );
+  },
+
   rebindListeners: function(type, elements, listener){
     for(var i=0; i<elements.length; i++) {
       this.rebindListener(type, elements[i], listener);
@@ -81589,13 +81593,31 @@ function EventBus() {
 	self.test = '121';
 	
 	self.on = function(type, listener){
-		emitter.on(type, listener);
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.on(t, listener);
+			});
+		} else {
+			emitter.on(type, listener);
+		}
 	};
 	self.once = function(type, listener){
-		emitter.once(type, listener);
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.once(t, listener);
+			});
+		} else {
+			emitter.once(type, listener);
+		}		
 	};
 	self.emit = function(type, obj){
-		emitter.emit(type, obj);
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.emit(t, obj);
+			});
+		} else {
+			emitter.emit(type, obj);
+		}
 	};
 	self.message = function(text, level) {
 		self.emit('message', {
@@ -81614,6 +81636,20 @@ function EventBus() {
 			type: resolution.resolutionType || resolution.type,
 			encoding: resolution.resolutionEncoding || resolution.encoding,
 			display: resolution.resolutionDisplay || resolution.display
+		});
+	};
+	self.bandwidthChanged = function(bandwidth) {
+		self.emit('bandwidthChanged', {
+			type: bandwidth.bandwidthLow || bandwidth.low,
+			encoding: bandwidth.bandwidthMed || bandwidth.med,
+			display: bandwidth.bandwidthHigh || bandwidth.high
+		});
+	};
+	self.authenticationFailed = function(authentication) {
+		self.emit('authenticationFailed', {
+			userid: authentication.userid,
+			authUserid: authentication.authUserid,
+			password: authentication.password
 		});
 	};
 	self.calling = function(destination, session) {
@@ -81909,6 +81945,9 @@ function SIPStack(eventbus, configuration, settings, debug) {
     eventbus.on("resolutionChanged", function(e) {
       self.updateRtcMediaHandlerOptions();
       self.updateUserMedia();
+    });
+    eventbus.on("bandwidthChanged", function(e) {
+      self.updateRtcMediaHandlerOptions();
     });
     eventbus.once("started", function(e) {
       var dtmfTones = Utils.parseDTMFTones(configuration.destination);
@@ -82578,7 +82617,7 @@ var $ = require('jquery');
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function AuthenticationView(options, eventbus, settings, configuration, debug) {
+function AuthenticationView(options, eventbus, authentication) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
@@ -82586,42 +82625,15 @@ function AuthenticationView(options, eventbus, settings, configuration, debug) {
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
 
   self.listeners = function() {
-    eventbus.on('registrationFailed', function(e) {
-      var statusCode = e.data.response.status_code;
-      debug('registration failed : '+statusCode+', '+settings.userid+', '+settings.password);
-      if ((statusCode === 403 && settings.userid && !settings.password) || configuration.register) {
-        self.setVisible(true);
-      }
+    eventbus.on('authenticationFailed', function(e) {
+      self.setVisible(true);
     });
-
-    eventbus.on('viewChanged', function(e) {
-      if(e.view === 'authentication' && e.visible) {
-        self.authUserid.val(settings.authenticationUserid);
-        self.userid.val(settings.userid);
-      }
+    eventbus.on('authenticate', function(e) {
+      self.setVisible(false);
     });
 
     self.ok.bind('click', function() {
-      var userId = self.userid.val();
-      if (!userId) {
-        self.alert.text("Invalid User ID").fadeIn(10).fadeOut(4000);
-        return;
-      }
-      var authUserId = self.authUserid.val();
-      var password = self.password.val();
-      self.setVisible(false);
-      eventbus.emit('authenticate', {
-        userId: userId,
-        authenticationUserId: authUserId,
-        password: password
-      })
-      eventbus.once("registered", function() {
-        if (authUserId && settings.userid !== authUserId) {
-          settings.authenticationUserid = authUserId;
-        }
-        settings.userid = userId;
-        settings.password = password;
-      });
+      authentication.authenticate();
     });
 
     self.view.bind('keypress', function(e) {
@@ -83658,7 +83670,7 @@ var WebRTC_C = require('../Constants');
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function SettingsView(options, settings, configuration, sipstack, eventbus, debug, sound) {
+function SettingsView(options, settings, configuration, eventbus, debug, sound) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
@@ -83678,11 +83690,11 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
     self.displayNameRow.toggleClass('hidden', configuration.hasOwnProperty("displayName"));
   };
 
-  self.elements = ['localVideoTop', 'localVideoLeft', 'userid', 'password', 'save', 'authenticationUserid', 'signIn', 'signOut',
+  self.elements = ['userid', 'password', 'save', 'authenticationUserid', 'signIn', 'signOut',
     'displayName', 'resolutionType', 'resolutionDisplayWidescreen', 'resolutionDisplayStandard', 'resolutionEncodingWidescreen',
     'resolutionEncodingStandard', 'bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'displayNameRow', 'useridRow', 'selfViewDisableRow',
     'hdRow', 'autoAnswerRow', 'resolutionTypeRow', 'resolutionDisplayRow', 'resolutionEncodingRow', 'resolutionRow', 'bandwidthRow',
-    'callHistoryTop', 'callHistoryLeft', 'callStatsTop', 'callStatsLeft', 'selfViewDisable', 'hd', 'size', 'autoAnswer', 'configure',
+    'selfViewDisable', 'hd', 'size', 'autoAnswer', 'configure',
     'layout', 'clear', 'tabs'
   ];
 
@@ -83706,20 +83718,11 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
         self.hide();
       }
     });
-    eventbus.on("registered", function() {
+    eventbus.on(['registered', 'unregistered', 'registrationFailed'], function() {
       self.enableRegistration(true);
     });
-    eventbus.on("signIn", function() {
+    eventbus.on(['signIn', 'signOut'], function() {
       self.enableRegistration(false);
-    });
-    eventbus.on("signOut", function() {
-      self.enableRegistration(false);
-    });
-    eventbus.on("unregistered", function() {
-      self.enableRegistration(true);
-    });
-    eventbus.on("registrationFailed", function() {
-      self.enableRegistration(true);
     });
     eventbus.on("resolutionChanged", function() {
       self.updateResolutionSelectVisibility();
@@ -83747,32 +83750,12 @@ function SettingsView(options, settings, configuration, sipstack, eventbus, debu
       sound.playClick();
       settings.signIn();
     });
-    self.bandwidthLow.bind('blur', function() {
-      sipstack.updateRtcMediaHandlerOptions();
+    Utils.toArray([self.bandwidthLow, self.bandwidthMed, self.bandwidthHigh]).on('blur', function() {
+      eventbus.bandwidthChanged(settings);
     });
-    self.bandwidthMed.bind('blur', function() {
-      sipstack.updateRtcMediaHandlerOptions();
-    });
-    self.bandwidthHigh.bind('blur', function() {
-      sipstack.updateRtcMediaHandlerOptions();
-    });
-    self.resolutionType.bind('change', function() {
-      self.updateResolutionSelectVisibility();
+    Utils.toArray([self.resolutionType, self.resolutionDisplayWidescreen, self.resolutionDisplayStandard, 
+      self.resolutionEncodingWidescreen, self.resolutionEncodingStandard]).on('change', function() {
       eventbus.resolutionChanged(settings);
-    });
-    self.resolutionDisplayWidescreen.bind('change', function() {
-      eventbus.resolutionChanged(settings);
-    });
-    self.resolutionDisplayStandard.bind('change', function() {
-      eventbus.resolutionChanged(settings);
-    });
-    self.resolutionEncodingWidescreen.bind('change', function() {
-      sipstack.updateRtcMediaHandlerOptions();
-      sipstack.updateUserMedia();
-    });
-    self.resolutionEncodingStandard.bind('change', function() {
-      sipstack.updateRtcMediaHandlerOptions();
-      sipstack.updateUserMedia();
     });
     self.tabs.each(function() {
       var active, activeTabSel, links = $(this).find('a');
