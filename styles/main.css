@@ -1048,41 +1048,15 @@
   opacity: 0;
   z-index: -1;
 }
-.bdsft-client .dialpad {
-  padding: 15px;
-  background: #292929;
-  border: 1px solid #3c3c3c;
-  position: absolute;
-  bottom: 40px;
-  right: auto;
-  width: 170px;
-  top: auto;
-  left: 0px;
-  letter-spacing: 5px;
-  z-index: 100;
-  box-sizing: content-box;
-  height: 228px;
-  padding-left: 14px;
-}
 .bdsft-client .dialpad button {
   text-align: center;
-  color: #333;
   opacity: 0.8;
   font-family: arial;
   font-size: 20px;
-  width: 30px;
-  border-color: #000;
-  border-width: 1px;
-  border-radius: 4px;
-  border-spacing: 5em;
-  font-weight: bold;
   line-height: 33px;
-  margin: 0.1em;
-  border-top-style: outset;
   cursor: pointer;
   color: #b3b3b3;
   background: none;
-  border-radius: 0;
   font-weight: normal;
   padding: 0;
   margin: 0;
@@ -1117,75 +1091,33 @@
   font-size: 30px;
   vertical-align: middle;
 }
-.bdsft-client .dialpad .historyButton {
-  font-size: 16px !important;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  outline: none;
-  position: absolute;
-  right: 4px;
-  top: 5px;
-  width: 25px;
-}
-.bdsft-client .dialpad .historyButton.active {
-  color: #04aff0;
-}
-.bdsft-client .dialpad .dialpad-control-bar {
-  margin-top: 6px;
-}
-.bdsft-client .dialpad .dialpad-control-bar .main-button {
-  background: #3da005;
-  border-radius: 14px;
-  width: 70px;
-  padding: 5px;
-  margin: 0 auto;
-}
-.bdsft-client .dialpad .dialpad-control-bar a {
-  color: #fff;
-  text-decoration: none;
-  text-align: center;
-  width: 100%;
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 1;
-}
-.bdsft-client .dialpad .dialpad-control-bar a span {
-  margin-right: 5px;
-}
-.bdsft-client .view-audioOnly .dialpad {
-  top: 45px;
-}
-.bdsft-client .enableDialpad.dialpad-shown .dialpadIconHide,
-.bdsft-client .enableDialpad:not(.dialpad-shown) .dialpadIconShow {
+.bdsft-client .enableDialpad.callcontrol-shown .dialpadIconHide,
+.bdsft-client .enableDialpad:not(.callcontrol-shown) .dialpadIconShow {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enableDialpad.dialpad-shown .dialpad {
-  transition: all 1s linear;
-  opacity: 1;
-  z-index: 100;
-}
-.bdsft-client .enableDialpad:not(.dialpad-shown) .dialpadIconHide,
-.bdsft-client .enableDialpad.dialpad-shown .dialpadIconShow,
-.bdsft-client .enableDialpad:not(.dialpad-shown) .dialpad {
+.bdsft-client .enableDialpad:not(.callcontrol-shown) .dialpadIconHide,
+.bdsft-client .enableDialpad.callcontrol-shown .dialpadIconShow {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
 }
 .bdsft-client .callControl {
-  display: none;
-  position: relative;
+  padding: 15px;
+  background: #292929;
+  border: 1px solid #3c3c3c;
+  position: absolute;
+  bottom: 40px;
+  right: auto;
+  width: 170px;
+  top: auto;
   left: 0px;
-  top: 0;
-  height: 75px;
-  color: #666;
-  font-family: arial;
-  font-size: 18px;
-  font-weight: bold;
-  height: auto;
-  display: block;
+  letter-spacing: 5px;
+  z-index: 100;
+  box-sizing: content-box;
+  height: 228px;
+  padding-left: 14px;
 }
 .bdsft-client .callControl .destination::-webkit-input-placeholder {
   color: #04aff0;
@@ -1203,7 +1135,49 @@
   padding-left: 8px;
   padding-right: 35px;
 }
-.bdsft-client .call {
+.bdsft-client .callControl .historyButton {
+  font-size: 16px !important;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  outline: none;
+  position: absolute;
+  right: 10px;
+  top: 23px;
+  width: 25px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: #b3b3b3;
+}
+.bdsft-client .callControl .historyButton.active {
+  color: #04aff0;
+}
+.bdsft-client .callControl .control-bar {
+  margin-top: 6px;
+}
+.bdsft-client .callControl .control-bar .main-button {
+  background: #3da005;
+  border-radius: 14px;
+  width: 70px;
+  padding: 5px;
+  margin: 0 auto;
+}
+.bdsft-client .callControl .control-bar a {
+  color: #fff;
+  text-decoration: none;
+  text-align: center;
+  width: 100%;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1;
+}
+.bdsft-client .callControl .control-bar a span {
+  margin-right: 5px;
+}
+.bdsft-client .callControl .call {
   display: none;
   position: absolute;
   z-index: 10;
@@ -1214,8 +1188,17 @@
   top: auto;
   left: auto;
 }
+.bdsft-client .view-audioOnly .callControl {
+  top: 45px;
+}
+.bdsft-client .enableCallControl.callcontrol-shown .callControl {
+  transition: all 1s linear;
+  opacity: 1;
+  z-index: 100;
+}
 .bdsft-client .client.calling .call,
-.bdsft-client .client:not(.connected) .call {
+.bdsft-client .client:not(.connected) .call,
+.bdsft-client .enableCallControl:not(.callcontrol-shown) .callControl {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;

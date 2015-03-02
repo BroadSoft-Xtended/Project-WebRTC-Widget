@@ -19,6 +19,11 @@
         return '<div class="authPopup fadeable popup"><span>User ID</span><br/><input type="text" value="" class="userid"/><br/><span>Auth User ID</span><br/><input type="text" value="" class="authUserid"/><br/><span>Password</span><br/><input type="password" value="" class="password"/><br/><br/><div class="alert"></div><button type="button" class="ok button">Sign in</button></div>';
     };
 
+    // callcontrol.jade compiled template
+    templatizer["callcontrol"] = function tmpl_callcontrol() {
+        return '<div class="callControl destination-container fadeable popup"><input type="text" onclick="this.focus();this.select()" class="destination"/><button title="Call History" class="historyButton"><i class="icon-clock"></i></button><hr/><div class="dialpadHolder"></div><div class="control-bar"><div class="call main-button"><a href="">Call</a></div></div></div>';
+    };
+
     // client.jade compiled template
     templatizer["client"] = function tmpl_client() {
         return '<div class="wrapper bdsft-reset bdsft-client"><div id="unsupported" class="unsupported"></div><div id="whiteboard_unsupported" class="unsupported"></div><div id="screen_sharing_unsupported" class="unsupported">Could not retrieve screen capture. Do you have it enabled?<br/>Open link to check : <span>chrome://flags/#enable-usermedia-screen-capture</span></div><noscript><div id="javascript_disabled" class="unsupported">JavaScript must be enabled to load the WebRTC client</div></noscript><div id="conversejs"></div><div id="client" class="client"><div class="main"><div class="errorPopup"></div></div></div></div>';
@@ -31,7 +36,7 @@
 
     // dialpad.jade compiled template
     templatizer["dialpad"] = function tmpl_dialpad() {
-        return '<div class="dialpad fadeable popup"><div class="callControl destination-container"><input type="text" onclick="this.focus();this.select()" class="destination"/><button title="Call History" class="historyButton"><i class="icon-clock"></i></button><hr/></div><div class="button-row"><button class="keys">1</button><button class="keys">2</button><button class="keys">3</button></div><div class="button-row"><button class="keys">4</button><button class="keys">5</button><button class="keys">6</button></div><div class="button-row"><button class="keys">7</button><button class="keys">8</button><button class="keys">9</button></div><div class="button-row"><button class="keys btn-star">*</button><button class="keys">0</button><button class="keys">#</button></div><div class="dialpad-control-bar"><div class="call main-button"><a href="">Call</a></div></div></div>';
+        return '<div class="dialpad"><div class="button-row"><button class="keys">1</button><button class="keys">2</button><button class="keys">3</button></div><div class="button-row"><button class="keys">4</button><button class="keys">5</button><button class="keys">6</button></div><div class="button-row"><button class="keys">7</button><button class="keys">8</button><button class="keys">9</button></div><div class="button-row"><button class="keys btn-star">*</button><button class="keys">0</button><button class="keys">#</button></div></div>';
     };
 
     // fileshare.jade compiled template

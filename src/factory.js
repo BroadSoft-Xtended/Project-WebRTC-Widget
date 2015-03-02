@@ -21,6 +21,7 @@ function Factory(constructor){
 		require('./models/xmpp');
 		require('./views/authentication');
 		require('./views/client');
+		require('./views/callcontrol');
 		require('./views/connectionstatus');
 		require('./views/dialpad');
 		require('./views/fileshare');

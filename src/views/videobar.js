@@ -3,7 +3,7 @@ module.exports = VideoBarView;
 var Icon = require('../Icon');
 var events;
 
-function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, videoView, dialpadView, configuration) {
+function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, videoView, callcontrolView, configuration) {
   var self = {};
 
   self.fullScreen = false;
@@ -145,6 +145,21 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
     self.hold = new Icon(self.hold, sound);
     self.resume = new Icon(self.resume, sound);
 
+    window.onbeforeunload = function(e) {
+      self.endCall({
+        rtcSession: 'all'
+      });
+      return null;
+    };
+    eventbus.on("disconnected", function(e) {
+      self.endCall();
+    });
+    eventbus.on(["ended", "failed"], function(e) {
+      self.endCall({
+        rtcSession: e.sender
+      });
+    });
+
     self.transfer.bind('click', clickHander(function() {
       togglePopup(transferView);
     }));
@@ -152,10 +167,10 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
       togglePopup(settingsView);
     }));
     self.dialpadIconShow.bind('click', clickHander(function() {
-      togglePopup(dialpadView);
+      togglePopup(callcontrolView);
     }));
     self.dialpadIconHide.bind('click', clickHander(function() {
-      togglePopup(dialpadView);
+      togglePopup(callcontrolView);
     }));
     self.shareScreen.bind('click', clickHander(function() {
       toggleShareScreen();

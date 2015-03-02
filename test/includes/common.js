@@ -87,6 +87,11 @@ Object.defineProperties(global, {
       return global.bdsft_client_instances.callcontrol_test;
     }
   },
+  callcontrolview: {
+    get: function(){
+      return global.bdsft_client_instances.callcontrolview_test;
+    }
+  },
   video: {
     get: function(){
       return global.bdsft_client_instances.videoview_test;

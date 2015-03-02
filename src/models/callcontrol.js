@@ -4,9 +4,12 @@ var $ = require('jquery');
 var fs = require('fs');
 var C = require('../Constants');
 
-function CallControl(eventbus, configuration, sipstack, debug) {
+function CallControl(eventbus, configuration, sipstack, debug, callcontrolView) {
   var self = {};
 
+  self.view = callcontrolView;
+
+  self.props = {'destination': true};
 
   self.listeners = function() {
     if (!configuration.enableConnectLocalMedia && configuration.destination) {
@@ -18,7 +21,34 @@ function CallControl(eventbus, configuration, sipstack, debug) {
         self.callUri(configuration.destination);
       });
     }
+    eventbus.on('calling', function(e) {
+      self.destination = e.destination;
+    });
+    eventbus.on('digit', function(e) {
+      self.processDigitInput(e.digit, e.isFromDestination);
+    });
+  };
 
+  self.pressDTMF = function(digit) {
+    if (digit.length !== 1) {
+      return;
+    }
+    if (sipstack.isStarted()) {
+      self.destination = self.destination + digit;
+      sound.playClick();
+      sipstack.sendDTMF(digit);
+    }
+  };
+
+  self.processDigitInput = function(digit, isFromDestination) {
+    if (!sipstack.isStarted() && self.view.visible) {
+      if(isFromDestination) {
+        return;
+      }
+      self.destination = self.destination + digit;
+    } else if (digit.match(/^[0-9A-D#*,]+$/i)) {
+      self.pressDTMF(digit);
+    }
   };
 
   self.formatDestination = function(destination, domainTo) {

@@ -41,6 +41,12 @@ function EventBus() {
 			level: level
 		});
 	};
+	self.digit = function(digit, isFromDestination) {		
+		self.emit('digit', {
+			digit: digit,
+			isFromDestination: isFromDestination
+		});
+	};
 	self.viewChanged = function(view) {
 		self.emit('viewChanged', {
 			visible: view.visible,

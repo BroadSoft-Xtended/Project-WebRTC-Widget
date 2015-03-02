@@ -1,38 +1,14 @@
 .bdsft-client
   .dialpad
-    padding 15px
-    background #292929
-    border 1px solid #3c3c3c
-    position absolute
-    bottom 40px
-    right auto
-    width 170px
-    top auto
-    left 0px
-    letter-spacing 5px
-    z-index 100
-    box-sizing content-box
-    height 228px
-    padding-left 14px
     button
       text-align center
-      color #333333
       opacity 0.8
       font-family arial
       font-size 20px
-      width 30px
-      border-color #000000
-      border-width 1px
-      border-radius 4px
-      border-spacing 5em
-      font-weight bold
       line-height 33px
-      margin .1em
-      border-top-style outset
       cursor pointer
       color #B3B3B3
       background none
-      border-radius 0
       font-weight normal
       padding 0
       margin 0
@@ -60,50 +36,11 @@
     .btn-star
       font-size 30px
       vertical-align middle
-    .historyButton
-      font-size 16px !important
-      padding-top 5px
-      padding-bottom 5px
-      outline none
-      position absolute
-      right 4px
-      top 5px
-      width 25px
-      &.active
-        color #04AFF0
 
-    .dialpad-control-bar
-      margin-top 6px
-      .main-button
-        background #3DA005
-        border-radius 14px
-        width 70px
-        padding 5px
-        margin 0 auto
-      a
-        color #fff
-        text-decoration none
-        text-align center
-        width 100%
-        display inline-block
-        font-size 14px
-        font-weight 700
-        letter-spacing 1
-        span
-          margin-right 5px
-
-  .view-audioOnly
-    .dialpad
-      top 45px
-
-  .enableDialpad.dialpad-shown .dialpadIconHide,
-  .enableDialpad:not(.dialpad-shown) .dialpadIconShow
+  .enableDialpad.callcontrol-shown .dialpadIconHide,
+  .enableDialpad:not(.callcontrol-shown) .dialpadIconShow
     {fadeIn}
 
-  .enableDialpad.dialpad-shown .dialpad
-    {fadeInPopup}
-    
-  .enableDialpad:not(.dialpad-shown) .dialpadIconHide,
-  .enableDialpad.dialpad-shown .dialpadIconShow,
-  .enableDialpad:not(.dialpad-shown) .dialpad
+  .enableDialpad:not(.callcontrol-shown) .dialpadIconHide,
+  .enableDialpad.callcontrol-shown .dialpadIconShow
     {fadeOut}

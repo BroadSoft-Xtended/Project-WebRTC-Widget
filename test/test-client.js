@@ -96,58 +96,6 @@ describe('client', function() {
     expect(destinationCalled).toEqual('');
     delete config.destination;
   });
-  it('call if enter pressed on destination input', function() {
-    var called = false;
-    client = create(config);
-    testUA.connect();
-    sipstack.ua.isConnected = function() {
-      return true;
-    };
-    callcontrol.callUri = function() {
-      console.log('call');
-      called = true;
-    };
-    var event = jQuery.Event("keypress");
-    event.keyCode = 13;
-    dialpad.destination.trigger(event);
-    expect(called).toExist();
-  });
-  it('call and press enter on destination input', function() {
-    var called = false;
-    client = create(config);
-    testUA.connectAndStartCall();
-    expect(sipstack.getCallState()).toEqual(Constants.STATE_STARTED);
-    sipstack.call = function(destination) {
-      console.log('call');
-      called = true;
-    };
-    var event = jQuery.Event("keypress");
-    event.keyCode = 13;
-    dialpad.destination.val("1000@domain.to");
-    dialpad.destination.trigger(event);
-    expect(!called).toExist();
-  });
-  it('click callButton twice', function() {
-    var called = false;
-    client = create(config);
-    testUA.connect();
-
-    sipstack.ua.call = function(destination) {
-      console.log('call');
-      called = true;
-      var session = testUA.outgoingSession();
-      sipstack.ua.emit('newRTCSession', sipstack.ua, {
-        session: session
-      });
-      return session;
-    };
-    dialpad.destination.val("1000@domain.to");
-    dialpad.call.trigger("click");
-    expect(called).toExist();
-    called = false;
-    dialpad.call.trigger("click");
-    expect(!called).toExist();
-  });
   it('reInvite popup:', function() {
     client = create(config);
     expect(reinvite.attached).toEqual(false);
@@ -255,14 +203,14 @@ describe('client', function() {
     client = create(config);
     testUA.isVisible(videobar.dialpadIconShow, true);
     testUA.isVisible(videobar.dialpadIconHide, false);
-    expect(dialpad.visible).toEqual(false);
+    expect(callcontrolview.visible).toEqual(false);
   });
   it('dialpad icon with enableDialpad = false', function() {
     config.enableDialpad = false;
     client = create(config);
     testUA.isVisible(videobar.dialpadIconShow, false);
     testUA.isVisible(videobar.dialpadIconHide, false);
-    expect(dialpad.visible).toEqual(false);
+    expect(callcontrolview.visible).toEqual(false);
   });
   it('dialpad icon after click', function() {
     config.enableDialpad = true;
@@ -270,11 +218,11 @@ describe('client', function() {
     videobar.dialpadIconShow.trigger('click');
     testUA.isVisible(videobar.dialpadIconShow, false);
     testUA.isVisible(videobar.dialpadIconHide, true);
-    expect(dialpad.visible).toEqual(true);
+    expect(callcontrolview.visible).toEqual(true);
     videobar.dialpadIconHide.trigger('click');
     testUA.isVisible(videobar.dialpadIconShow, true);
     testUA.isVisible(videobar.dialpadIconHide, false);
-    expect(dialpad.visible).toEqual(false);
+    expect(callcontrolview.visible).toEqual(false);
   });
   it('dialpad icon after click and in call', function() {
     config.enableDialpad = true;
@@ -335,23 +283,23 @@ describe('client', function() {
     sipstack.ua.isConnected = function() {
       return true;
     }
-    dialpad.show();
+    callcontrolview.show();
     callcontrol.callUri("1000@webrtc.domain.to");
     testUA.newCall();
     expect(sipstack.getCallState()).toEqual("calling");
     testUA.isVisible(videobar.hangup, true);
-    expect(dialpad.call.css('opacity')).toEqual("0");
+    expect(callcontrolview.call.css('opacity')).toEqual("0");
   });
   it('hangup on failed', function() {
     client = create(config);
     sipstack.ua.isConnected = function() {
       return true;
     }
-    dialpad.show();
+    callcontrolview.show();
     testUA.failCall();
     expect(sipstack.getCallState()).toEqual("connected");
     testUA.isVisible(videobar.hangup, false);
-    expect(dialpad.call.css('opacity')).toEqual("1");
+    expect(callcontrolview.call.css('opacity')).toEqual("1");
   });
   it('getUserMedia failed', function() {
     var alertCalled = false;
