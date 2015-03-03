@@ -11,19 +11,16 @@ function HistoryView(options, sound, history, eventbus, callcontrol) {
 
   self.rows = [];
 
-  self.fieldValue = function(name, value) {
-    if(arguments.length === 2) {
-      if(name === 'isForwardEnabled') {
-        self.historyForward.toggle(value);
-      }
-      else if(name === 'isBackEnabled') {
-        self.historyBack.toggle(value);
-      }
-      else if(name === 'calls') {
-        updateContent(value);
-      }
-    }
-  };
+  self.isForwardEnabled = function(value){
+    self.historyForward.toggle(value);
+  }
+  self.isBackEnabled = function(value){
+    self.historyBack.toggle(value);
+  }
+  self.calls = function(value){
+    updateContent(value);
+  }
+
   var callDetailsHandler = function(call) {
     return function(e) {
       e.preventDefault();

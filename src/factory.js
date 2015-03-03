@@ -16,6 +16,7 @@ function Factory(constructor){
 		require('./models/eventbus');
 		require('./models/history');
 		require('./models/incomingcall');
+		require('./models/messages');
 		require('./models/settings');
 		require('./models/sipstack');
 		require('./models/smsprovider');

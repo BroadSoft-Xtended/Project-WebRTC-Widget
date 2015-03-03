@@ -5,8 +5,8 @@ function Prop(obj, prop) {
 
 	self._name = prop.name || prop;
 	var internal;
-	var data = obj.view && obj.view[self._name] || obj.view && obj.view.fieldValue || function(name, value){
-		if(arguments.length === 2) {
+	var data = obj.view && obj.view[self._name] || function(value){
+		if(arguments.length === 1) {
 			internal = value;
 		} else {
 			return internal;
@@ -22,7 +22,7 @@ function Prop(obj, prop) {
 	};
 
 	var isSelect = function() {
-		return $(data).is("select");
+		return data[0] && data[0].nodeName === 'select';
 	};
 
 	self.__get = function(){
@@ -36,7 +36,7 @@ function Prop(obj, prop) {
 			return data.text();
 		} 
 		else {
-			return data(self._name)
+			return data();
 		}
 	};
 	self.__init = function(){
@@ -58,7 +58,7 @@ function Prop(obj, prop) {
 			data.text(value);
 		} 
 		else {
-			data(self._name, value);
+			data(value);
 		}
 	};
 

@@ -84,6 +84,11 @@ Object.defineProperties(global, {
   },
   messages: {
     get: function(){
+      return global.bdsft_client_instances.messages_test;
+    }
+  },
+  messagesview: {
+    get: function(){
       return global.bdsft_client_instances.messagesview_test;
     }
   },

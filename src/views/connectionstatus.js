@@ -5,15 +5,30 @@ function ConnectionStatusView() {
 
   self.elements = ['connectedIcon', 'registeredIcon'];
 
-  self.fieldValue = function(name, value) {
-    if(arguments.length === 2) {
-      if(value) {
-        show(self[name+'Icon'], 'success', 3000);
-      } else {
-        show(self[name+'Icon'], 'alert');
-      }
+  var isEnabled = function(icon){
+    return icon.hasClass('success');
+  };
+
+  var enableIcon = function(icon, enable){
+    if(enable) {
+      show(icon, 'success', 3000);
     } else {
-      return self[name+'Icon'].hasClass('success');  
+      show(icon, 'alert');
+    }
+  };
+
+  self.connected = function(value){
+    if(arguments.length === 1) {
+      enableIcon(self.connectedIcon, value);
+    } else {
+      return isEnabled(self.connectedIcon);
+    }
+  };
+  self.registered = function(value){
+    if(arguments.length === 1) {
+      enableIcon(self.registeredIcon, value);
+    } else {
+      return isEnabled(self.registeredIcon);
     }
   };
 
