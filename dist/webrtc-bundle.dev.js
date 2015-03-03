@@ -80642,7 +80642,7 @@ if (typeof String.prototype.endsWith !== 'function') {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
-},{"../js/client-config.js.default":1,"./Constants":454,"./Utils":457,"./factory":461,"./models/settings":469,"./models/sound":472,"./views/client":477,"exsip":203,"jquery":232,"jquery.cookie":231}],459:[function(require,module,exports){
+},{"../js/client-config.js.default":1,"./Constants":454,"./Utils":457,"./factory":461,"./models/settings":470,"./models/sound":473,"./views/client":478,"exsip":203,"jquery":232,"jquery.cookie":231}],459:[function(require,module,exports){
 /*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
@@ -80928,7 +80928,7 @@ function CookieProp(obj, prop, cookie, expires) {
 
 	return self;
 }
-},{"./Constants":454,"./Utils":457,"./prop":474,"jquery":232}],461:[function(require,module,exports){
+},{"./Constants":454,"./Utils":457,"./prop":475,"jquery":232}],461:[function(require,module,exports){
 (function (global){
 var $ = require('jquery');
 var templates = require('../js/templates');
@@ -80947,6 +80947,7 @@ function Factory(constructor){
 		require('./models/debug');
 		require('./models/eventbus');
 		require('./models/history');
+		require('./models/incomingcall');
 		require('./models/settings');
 		require('./models/sipstack');
 		require('./models/smsprovider');
@@ -81135,7 +81136,7 @@ function create(constructor, argArray) {
 	return new factoryFunction();
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../js/templates":4,"./cookieprop":460,"./models/authentication":462,"./models/callcontrol":463,"./models/configuration":464,"./models/connectionstatus":465,"./models/debug":466,"./models/eventbus":467,"./models/history":468,"./models/settings":469,"./models/sipstack":470,"./models/smsprovider":471,"./models/sound":472,"./models/xmpp":473,"./prop":474,"./views/authentication":475,"./views/callcontrol":476,"./views/client":477,"./views/connectionstatus":478,"./views/dialpad":479,"./views/fileshare":480,"./views/history":481,"./views/incomingcall":482,"./views/messages":483,"./views/popup":484,"./views/reinvite":485,"./views/settings":486,"./views/sms":487,"./views/stats":488,"./views/timer":489,"./views/transfer":490,"./views/video":491,"./views/videobar":492,"./views/whiteboard":493,"./views/xmpp":494,"filesaver.js":226,"jquery":232}],462:[function(require,module,exports){
+},{"../js/templates":4,"./cookieprop":460,"./models/authentication":462,"./models/callcontrol":463,"./models/configuration":464,"./models/connectionstatus":465,"./models/debug":466,"./models/eventbus":467,"./models/history":468,"./models/incomingcall":469,"./models/settings":470,"./models/sipstack":471,"./models/smsprovider":472,"./models/sound":473,"./models/xmpp":474,"./prop":475,"./views/authentication":476,"./views/callcontrol":477,"./views/client":478,"./views/connectionstatus":479,"./views/dialpad":480,"./views/fileshare":481,"./views/history":482,"./views/incomingcall":483,"./views/messages":484,"./views/popup":485,"./views/reinvite":486,"./views/settings":487,"./views/sms":488,"./views/stats":489,"./views/timer":490,"./views/transfer":491,"./views/video":492,"./views/videobar":493,"./views/whiteboard":494,"./views/xmpp":495,"filesaver.js":226,"jquery":232}],462:[function(require,module,exports){
 module.exports = Authentication;
 
 var $ = require('jquery');
@@ -82053,6 +82054,70 @@ function History(statsView, configuration, eventbus, historyView) {
 
 }
 },{"../Constants":454,"../Utils":457}],469:[function(require,module,exports){
+module.exports = IncomingCall
+
+var Utils = require('../Utils');
+var ExSIP = require('exsip');
+
+function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
+  var self = {};
+
+  self.view = incomingcallView;
+
+  self.props = {'incomingCallName': true, 'incomingCallUser': true};
+
+  var incomingSession;
+
+  var handle = function(){
+    self.view.hide();
+    sound.pause();
+  };
+
+  self.accept = function() {
+    handle();
+    sipstack.answer(incomingSession)
+  };
+
+  self.dropAndAnswer = function() {
+    handle();
+    sipstack.terminateSession();
+    sipstack.answer(incomingSession);
+  };
+
+  self.holdAndAnswer = function() {
+    handle();
+    sipstack.holdAndAnswer(incomingSession);
+  };
+
+  self.reject = function() {
+    handle();
+    sipstack.terminateSession(incomingSession);
+  };
+
+  self.listeners = function() {
+    eventbus.on("failed", function(e) {
+      var error = e.cause;
+      if (error === ExSIP.C.causes.CANCELED) {
+        self.view.hide();
+      }
+    });
+
+    eventbus.on("incomingCall", function(evt) {
+      incomingSession = evt.data.session
+      var from = evt.data && evt.data.request && evt.data.request.from || {};
+      var incomingCallName = from.display_name || '';
+      var incomingCallUser = from.uri && from.uri.user || '';
+      eventbus.message("Incoming Call", "success");
+      self.view.show();
+      self.incomingCallName = incomingCallName;
+      self.incomingCallUser = incomingCallUser;
+      sound.playRingtone();
+    });
+  };
+
+  return self;
+}
+},{"../Utils":457,"exsip":203}],470:[function(require,module,exports){
 module.exports = Settings;
 
 var WebRTC_C = require('../Constants');
@@ -82281,7 +82346,7 @@ function Settings(configuration, settingsView, eventbus, debug) {
 
   return self;
 }
-},{"../Constants":454,"../Utils":457}],470:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457}],471:[function(require,module,exports){
 module.exports = SIPStack;
 
 var ExSIP = require('exsip');
@@ -82620,7 +82685,7 @@ function SIPStack(eventbus, configuration, settings, debug) {
 
   return self;
 }
-},{"../Constants":454,"../Utils":457,"event-emitter/has-listeners":175,"exsip":203}],471:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"event-emitter/has-listeners":175,"exsip":203}],472:[function(require,module,exports){
 module.exports = SMSProvider;
 
 var ExSIP = require('exsip');
@@ -82730,7 +82795,7 @@ function SMSProvider(eventbus, debug) {
 
   return self;
 }
-},{"exsip":203}],472:[function(require,module,exports){
+},{"exsip":203}],473:[function(require,module,exports){
 module.exports = Sound;
 
 var $ = require('jquery');
@@ -82873,7 +82938,7 @@ function Sound(eventbus, configuration, sipstack) {
   return self;
 }
 
-},{"jquery":232}],473:[function(require,module,exports){
+},{"jquery":232}],474:[function(require,module,exports){
 module.exports = XMPP;
 
 var XMPP = require('stanza.io');
@@ -82924,7 +82989,7 @@ function XMPP(debug, eventbus) {
 
   return self;
 }
-},{"stanza.io":234}],474:[function(require,module,exports){
+},{"stanza.io":234}],475:[function(require,module,exports){
 module.exports = Prop;
 
 function Prop(obj, prop) {
@@ -82994,7 +83059,7 @@ function Prop(obj, prop) {
 
 	return self;
 }
-},{}],475:[function(require,module,exports){
+},{}],476:[function(require,module,exports){
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
@@ -83029,7 +83094,7 @@ function AuthenticationView(options, eventbus, authentication) {
 
   return self;
 }
-},{"../Utils":457,"./popup":484,"jquery":232}],476:[function(require,module,exports){
+},{"../Utils":457,"./popup":485,"jquery":232}],477:[function(require,module,exports){
 module.exports = CallControlView
 
 var Utils = require('../Utils');
@@ -83107,7 +83172,7 @@ function CallControlView(options, eventbus, callcontrol, historyView, sipstack, 
 
   return self;
 }
-},{"../Utils":457,"./popup":484}],477:[function(require,module,exports){
+},{"../Utils":457,"./popup":485}],478:[function(require,module,exports){
 module.exports = ClientView;
 
 
@@ -83296,7 +83361,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 }
 
 exports.constructor = ClientView;
-},{"../../js/client-config.js.default":1,"../Constants":454,"../Icon":456,"../Utils":457,"../models/eventbus":467,"ejs":172,"exsip":203,"jquery":232}],478:[function(require,module,exports){
+},{"../../js/client-config.js.default":1,"../Constants":454,"../Icon":456,"../Utils":457,"../models/eventbus":467,"ejs":172,"exsip":203,"jquery":232}],479:[function(require,module,exports){
 module.exports = ConnectionStatusView
 
 function ConnectionStatusView() {
@@ -83337,7 +83402,7 @@ function ConnectionStatusView() {
 
   return self;
 }
-},{}],479:[function(require,module,exports){
+},{}],480:[function(require,module,exports){
 module.exports = DialpadView
 
 function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
@@ -83355,7 +83420,7 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView, 
 
   return self;
 }
-},{}],480:[function(require,module,exports){
+},{}],481:[function(require,module,exports){
 module.exports = FileShareView
 
 function FileShareView(eventbus) {
@@ -83387,7 +83452,7 @@ function FileShareView(eventbus) {
 
   return self;
 }
-},{}],481:[function(require,module,exports){
+},{}],482:[function(require,module,exports){
 module.exports = HistoryView
 
 var Utils = require('../Utils');
@@ -83524,64 +83589,42 @@ function HistoryView(options, sound, history, eventbus, callcontrol) {
   return self;
 
 }
-},{"../Constants":454,"../Utils":457,"./popup":484}],482:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"./popup":485}],483:[function(require,module,exports){
 module.exports = IncomingCallView
 
 var Utils = require('../Utils');
 var ExSIP = require('exsip');
 var PopupView = require('./popup');
 
-function IncomingCallView(options, eventbus, sound, sipstack) {
+function IncomingCallView(options, eventbus, incomingcall) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptIncomingCall', 'rejectIncomingCall', 'holdAndAnswerButton', 'dropAndAnswerButton'];
 
-  self.incomingCallHandler = function(source, session) {
-    self.hide();
-    sound.pause();
-    if (source.is(self.acceptIncomingCall)) {
-      sipstack.answer(session);
-    } else if (source.is(self.dropAndAnswerButton)) {
-      sipstack.terminateSession();
-      sipstack.answer(session);
-    } else if (source.is(self.holdAndAnswerButton)) {
-      sipstack.holdAndAnswer(session);
-    } else if (source.is(self.rejectIncomingCall)) {
-      sipstack.terminateSession(session);
-    }
-  };
-
   self.listeners = function() {
-    eventbus.on("failed", function(e) {
-      var error = e.cause;
-      if (error === ExSIP.C.causes.CANCELED) {
-        self.hide();
-      }
+    self.acceptIncomingCall.on('click', function(e) {
+      e.preventDefault();
+      incomingcall.accept();
     });
-
-    eventbus.on("incomingCall", function(evt) {
-      var from = evt.data && evt.data.request && evt.data.request.from || {};
-      var incomingCallName = from.display_name || '';
-      var incomingCallUser = from.uri && from.uri.user || '';
-      eventbus.message("Incoming Call", "success");
-      self.show();
-      self.incomingCallName.text(incomingCallName);
-      self.incomingCallUser.text(incomingCallUser);
-      Utils.rebindListeners("click", [self.rejectIncomingCall, self.acceptIncomingCall, self.holdAndAnswerButton, self.dropAndAnswerButton],
-        function(e) {
-          e.preventDefault();
-          self.incomingCallHandler($(this), evt.data.session);
-        }
-      );
-      sound.playRingtone();
+    self.rejectIncomingCall.on('click', function(e) {
+      e.preventDefault();
+      incomingcall.reject();
+    });
+    self.holdAndAnswerButton.on('click', function(e) {
+      e.preventDefault();
+      incomingcall.holdAndAnswer();
+    });
+    self.dropAndAnswerButton.on('click', function(e) {
+      e.preventDefault();
+      incomingcall.dropAndAnswer();
     });
   };
 
   return self;
 }
-},{"../Utils":457,"./popup":484,"exsip":203}],483:[function(require,module,exports){
+},{"../Utils":457,"./popup":485,"exsip":203}],484:[function(require,module,exports){
 module.exports = MessagesView
 
 var Utils = require('../Utils');
@@ -83663,7 +83706,7 @@ function MessagesView(options, eventbus, configuration) {
 
   return self;
 }
-},{"../Utils":457,"exsip":203}],484:[function(require,module,exports){
+},{"../Utils":457,"exsip":203}],485:[function(require,module,exports){
 (function (global){
 module.exports = PopupView;
 
@@ -83701,7 +83744,7 @@ function PopupView(options, eventbus) {
   return self;
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":232}],485:[function(require,module,exports){
+},{"jquery":232}],486:[function(require,module,exports){
 module.exports = ReinviteView
 
 var PopupView = require('./popup');
@@ -83739,7 +83782,7 @@ function ReinviteView(options, eventbus) {
 
   return self;
 }
-},{"../Utils":457,"./popup":484}],486:[function(require,module,exports){
+},{"../Utils":457,"./popup":485}],487:[function(require,module,exports){
 module.exports = SettingsView;
 
 var WebRTC_C = require('../Constants');
@@ -83871,7 +83914,7 @@ function SettingsView(options, settings, configuration, eventbus, debug, sound) 
 
   return self;
 }
-},{"../Constants":454,"../Utils":457,"./popup":484}],487:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"./popup":485}],488:[function(require,module,exports){
 module.exports = SMSView;
 
 var DateFormat = require('../DateFormat');
@@ -84168,7 +84211,7 @@ function SMSView(options, eventbus, debug, smsprovider, sound) {
 
   return self;
 }
-},{"../DateFormat":455,"../Utils":457,"./popup":484}],488:[function(require,module,exports){
+},{"../DateFormat":455,"../Utils":457,"./popup":485}],489:[function(require,module,exports){
 module.exports = StatsView;
 
 var PopupView = require('./popup');
@@ -84347,7 +84390,7 @@ function StatsView(options, eventbus, configuration, sipstack, debug) {
 
   return self;
 }
-},{"../../js/stats":3,"../Utils":457,"./popup":484}],489:[function(require,module,exports){
+},{"../../js/stats":3,"../Utils":457,"./popup":485}],490:[function(require,module,exports){
 module.exports = TimerView;
 
 var Utils = require('../Utils');
@@ -84416,7 +84459,7 @@ function TimerView(options, debug, eventbus, statsView, configuration, sipstack,
 
   return self;
 }
-},{"../Utils":457}],490:[function(require,module,exports){
+},{"../Utils":457}],491:[function(require,module,exports){
 module.exports = TransferView;
 
 var PopupView = require('./popup');
@@ -84459,7 +84502,7 @@ function TransferView(options, sound, sipstack, eventbus, configuration, callcon
 
   return self;
 }
-},{"../Utils":457,"./popup":484}],491:[function(require,module,exports){
+},{"../Utils":457,"./popup":485}],492:[function(require,module,exports){
 module.exports = VideoView;
 require('jquery-ui/draggable');
 
@@ -84555,7 +84598,7 @@ function VideoView(options, sipstack, eventbus, debug, settings, configuration, 
 
   return self;
 }
-},{"jquery-ui/draggable":228}],492:[function(require,module,exports){
+},{"jquery-ui/draggable":228}],493:[function(require,module,exports){
 module.exports = VideoBarView;
 
 var Icon = require('../Icon');
@@ -84774,7 +84817,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
   return self;
 }
-},{"../Icon":456}],493:[function(require,module,exports){
+},{"../Icon":456}],494:[function(require,module,exports){
 module.exports = WhiteboardView;
 
 var PopupView = require('./popup');
@@ -84943,7 +84986,7 @@ function WhiteboardView(options, eventbus, sipstack) {
 
   return self;
 }
-},{"../../js/sketch":2,"../Utils":457,"./popup":484}],494:[function(require,module,exports){
+},{"../../js/sketch":2,"../Utils":457,"./popup":485}],495:[function(require,module,exports){
 module.exports = XMPPView;
 
 // var View = require('ampersand-view');
@@ -85054,4 +85097,4 @@ function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
 
   return self;
 }
-},{"../Utils":457,"./popup":484,"jquery":232}]},{},[458]);
+},{"../Utils":457,"./popup":485,"jquery":232}]},{},[458]);

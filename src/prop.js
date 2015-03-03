@@ -17,11 +17,19 @@ function Prop(obj, prop) {
 		return data.attr && data.attr('type') === 'checkbox';
 	};
 
+	var isTextbox = function() {
+		return data.attr && (data.attr('type') === 'text' || data.attr('type') === 'password');
+	};
+
+	var isSelect = function() {
+		return $(data).is("select");
+	};
+
 	self.__get = function(){
 		if(isCheckbox() && data.prop) {
 			return data.prop && data.prop('checked');
 		} 
-		else if(data.val) {
+		else if((isTextbox() || isSelect()) && data.val) {
 			return data.val();
 		} 
 		else if(data.text) {
@@ -43,7 +51,7 @@ function Prop(obj, prop) {
 		if(isCheckbox()) {
 			data.prop('checked', value);
 		} 
-		else if(data.val) {
+		else if((isTextbox() || isSelect()) && data.val) {
 			data.val(value);
 		} 
 		else if(data.text) {

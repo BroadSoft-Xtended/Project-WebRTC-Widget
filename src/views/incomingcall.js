@@ -4,51 +4,29 @@ var Utils = require('../Utils');
 var ExSIP = require('exsip');
 var PopupView = require('./popup');
 
-function IncomingCallView(options, eventbus, sound, sipstack) {
+function IncomingCallView(options, eventbus, incomingcall) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptIncomingCall', 'rejectIncomingCall', 'holdAndAnswerButton', 'dropAndAnswerButton'];
 
-  self.incomingCallHandler = function(source, session) {
-    self.hide();
-    sound.pause();
-    if (source.is(self.acceptIncomingCall)) {
-      sipstack.answer(session);
-    } else if (source.is(self.dropAndAnswerButton)) {
-      sipstack.terminateSession();
-      sipstack.answer(session);
-    } else if (source.is(self.holdAndAnswerButton)) {
-      sipstack.holdAndAnswer(session);
-    } else if (source.is(self.rejectIncomingCall)) {
-      sipstack.terminateSession(session);
-    }
-  };
-
   self.listeners = function() {
-    eventbus.on("failed", function(e) {
-      var error = e.cause;
-      if (error === ExSIP.C.causes.CANCELED) {
-        self.hide();
-      }
+    self.acceptIncomingCall.on('click', function(e) {
+      e.preventDefault();
+      incomingcall.accept();
     });
-
-    eventbus.on("incomingCall", function(evt) {
-      var from = evt.data && evt.data.request && evt.data.request.from || {};
-      var incomingCallName = from.display_name || '';
-      var incomingCallUser = from.uri && from.uri.user || '';
-      eventbus.message("Incoming Call", "success");
-      self.show();
-      self.incomingCallName.text(incomingCallName);
-      self.incomingCallUser.text(incomingCallUser);
-      Utils.rebindListeners("click", [self.rejectIncomingCall, self.acceptIncomingCall, self.holdAndAnswerButton, self.dropAndAnswerButton],
-        function(e) {
-          e.preventDefault();
-          self.incomingCallHandler($(this), evt.data.session);
-        }
-      );
-      sound.playRingtone();
+    self.rejectIncomingCall.on('click', function(e) {
+      e.preventDefault();
+      incomingcall.reject();
+    });
+    self.holdAndAnswerButton.on('click', function(e) {
+      e.preventDefault();
+      incomingcall.holdAndAnswer();
+    });
+    self.dropAndAnswerButton.on('click', function(e) {
+      e.preventDefault();
+      incomingcall.dropAndAnswer();
     });
   };
 

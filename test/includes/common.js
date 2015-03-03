@@ -74,6 +74,11 @@ Object.defineProperties(global, {
   },
   incomingcall: {
     get: function(){
+      return global.bdsft_client_instances.incomingcall_test;
+    }
+  },
+  incomingcallview: {
+    get: function(){
       return global.bdsft_client_instances.incomingcallview_test;
     }
   },
