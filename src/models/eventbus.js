@@ -41,6 +41,18 @@ function EventBus() {
 			level: level
 		});
 	};
+	self.smsRemovedFailed = function(inboxItem) {
+		self.emit('smsRemovedFailed', {inboxItem: inboxItem});
+	};
+	self.smsRemoved = function(inboxItem) {
+		self.emit('smsRemoved', {inboxItem: inboxItem});
+	};
+	self.smsRemoving = function(inboxItem) {
+		self.emit('smsRemoving', {inboxItem: inboxItem});
+	};
+	self.smsSending = function() {
+		self.emit('smsSending', {});
+	};
 	self.shareFile = function(file) {		
 		self.emit('shareFile', {
 			file: file

@@ -80642,7 +80642,7 @@ if (typeof String.prototype.endsWith !== 'function') {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
-},{"../js/client-config.js.default":1,"./Constants":454,"./Utils":457,"./factory":461,"./models/settings":470,"./models/sound":473,"./views/client":478,"exsip":203,"jquery":232,"jquery.cookie":231}],459:[function(require,module,exports){
+},{"../js/client-config.js.default":1,"./Constants":454,"./Utils":457,"./factory":461,"./models/settings":472,"./models/sound":476,"./views/client":481,"exsip":203,"jquery":232,"jquery.cookie":231}],459:[function(require,module,exports){
 /*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
@@ -80928,7 +80928,7 @@ function CookieProp(obj, prop, cookie, expires) {
 
 	return self;
 }
-},{"./Constants":454,"./Utils":457,"./prop":475,"jquery":232}],461:[function(require,module,exports){
+},{"./Constants":454,"./Utils":457,"./prop":478,"jquery":232}],461:[function(require,module,exports){
 (function (global){
 var $ = require('jquery');
 var templates = require('../js/templates');
@@ -80948,8 +80948,11 @@ function Factory(constructor){
 		require('./models/eventbus');
 		require('./models/history');
 		require('./models/incomingcall');
+		require('./models/messages');
+		require('./models/reinvite');
 		require('./models/settings');
 		require('./models/sipstack');
+		require('./models/sms');
 		require('./models/smsprovider');
 		require('./models/sound');
 		require('./models/xmpp');
@@ -81136,7 +81139,7 @@ function create(constructor, argArray) {
 	return new factoryFunction();
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../js/templates":4,"./cookieprop":460,"./models/authentication":462,"./models/callcontrol":463,"./models/configuration":464,"./models/connectionstatus":465,"./models/debug":466,"./models/eventbus":467,"./models/history":468,"./models/incomingcall":469,"./models/settings":470,"./models/sipstack":471,"./models/smsprovider":472,"./models/sound":473,"./models/xmpp":474,"./prop":475,"./views/authentication":476,"./views/callcontrol":477,"./views/client":478,"./views/connectionstatus":479,"./views/dialpad":480,"./views/fileshare":481,"./views/history":482,"./views/incomingcall":483,"./views/messages":484,"./views/popup":485,"./views/reinvite":486,"./views/settings":487,"./views/sms":488,"./views/stats":489,"./views/timer":490,"./views/transfer":491,"./views/video":492,"./views/videobar":493,"./views/whiteboard":494,"./views/xmpp":495,"filesaver.js":226,"jquery":232}],462:[function(require,module,exports){
+},{"../js/templates":4,"./cookieprop":460,"./models/authentication":462,"./models/callcontrol":463,"./models/configuration":464,"./models/connectionstatus":465,"./models/debug":466,"./models/eventbus":467,"./models/history":468,"./models/incomingcall":469,"./models/messages":470,"./models/reinvite":471,"./models/settings":472,"./models/sipstack":473,"./models/sms":474,"./models/smsprovider":475,"./models/sound":476,"./models/xmpp":477,"./prop":478,"./views/authentication":479,"./views/callcontrol":480,"./views/client":481,"./views/connectionstatus":482,"./views/dialpad":483,"./views/fileshare":484,"./views/history":485,"./views/incomingcall":486,"./views/messages":487,"./views/popup":488,"./views/reinvite":489,"./views/settings":490,"./views/sms":491,"./views/stats":492,"./views/timer":493,"./views/transfer":494,"./views/video":495,"./views/videobar":496,"./views/whiteboard":497,"./views/xmpp":498,"filesaver.js":226,"jquery":232}],462:[function(require,module,exports){
 module.exports = Authentication;
 
 var $ = require('jquery');
@@ -81757,6 +81760,18 @@ function EventBus() {
 			level: level
 		});
 	};
+	self.smsRemovedFailed = function(inboxItem) {
+		self.emit('smsRemovedFailed', {inboxItem: inboxItem});
+	};
+	self.smsRemoved = function(inboxItem) {
+		self.emit('smsRemoved', {inboxItem: inboxItem});
+	};
+	self.smsRemoving = function(inboxItem) {
+		self.emit('smsRemoving', {inboxItem: inboxItem});
+	};
+	self.smsSending = function() {
+		self.emit('smsSending', {});
+	};
 	self.shareFile = function(file) {		
 		self.emit('shareFile', {
 			file: file
@@ -82105,12 +82120,10 @@ function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
     eventbus.on("incomingCall", function(evt) {
       incomingSession = evt.data.session
       var from = evt.data && evt.data.request && evt.data.request.from || {};
-      var incomingCallName = from.display_name || '';
-      var incomingCallUser = from.uri && from.uri.user || '';
       eventbus.message("Incoming Call", "success");
+      self.incomingCallName = from.display_name || '';
+      self.incomingCallUser = from.uri && from.uri.user || '';
       self.view.show();
-      self.incomingCallName = incomingCallName;
-      self.incomingCallUser = incomingCallUser;
       sound.playRingtone();
     });
   };
@@ -82118,6 +82131,121 @@ function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
   return self;
 }
 },{"../Utils":457,"exsip":203}],470:[function(require,module,exports){
+module.exports = Messages
+
+function Messages(eventbus, configuration, messagesView) {
+  var self = {};
+
+  self.view = messagesView;
+
+  self.props = {'text': true, 'level': true};
+
+  // Display status messages
+  self.message = function(text, level) { 
+    if (!configuration.enableMessages) {
+      return;
+    }
+    self.level = level;
+    self.text = text;
+  };
+
+  self.getRemoteUser = function(rtcSession) {
+    return rtcSession.remote_identity.uri.user || rtcSession.remote_identity.uri.host;
+  };
+
+  self.listeners = function() {
+    eventbus.on("ended", function(e) {
+      self.message(configuration.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
+    });
+    eventbus.on("resumed", function(e) {
+      self.message(configuration.messageResume.replace('{0}', self.getRemoteUser(e.sender)), "success");
+    });
+    eventbus.on("started", function(e) {
+      if (e.data && !e.data.isReconnect) {
+        self.message(configuration.messageStarted.replace('{0}', self.getRemoteUser(e.sender)), "success");
+      }
+    });
+    eventbus.on("held", function(e) {
+      self.message(configuration.messageHold.replace('{0}', self.getRemoteUser(e.sender)), "success");
+    });
+    eventbus.on("disconnected", function(e) {
+      var msg = configuration.messageConnectionFailed;
+      if (e.data && e.data.reason) {
+        msg = e.data.reason;
+      }
+      if (e.data && e.data.retryAfter) {
+        msg += " - Retrying in " + e.data.retryAfter + " seconds";
+      }
+      self.message(msg, "alert");
+    });
+    eventbus.on("failed", function(e) {
+      var error = e.cause;
+      self.message(error, "alert");
+    });
+    eventbus.on("progress", function(e) {
+      self.message(configuration.messageProgress, "normal");
+    });
+    eventbus.on("message", function(e) {
+      self.message(e.text, e.level);
+    });
+    eventbus.on("registrationFailed", function(e) {
+      var statusCode = e.data.response.status_code;
+      var msg = statusCode;
+      if (statusCode === 403) {
+        msg = "403 Authentication Failure";
+      }
+      self.message(configuration.messageRegistrationFailed.replace('{0}', msg), "alert");
+    });
+    eventbus.on("registered", function(e) {
+      self.message(configuration.messageRegistered, "success");
+    });
+    eventbus.on("unregistered", function(e) {
+      self.message(configuration.messageUnregistered || 'Unregistered', "success");
+    });
+    eventbus.on("connected", function(e) {
+      self.message(configuration.messageConnected, "success");
+    });
+
+  };
+
+  return self;
+}
+},{}],471:[function(require,module,exports){
+module.exports = Reinvite
+
+function Reinvite(eventbus, reinviteView) {
+  var self = {};
+
+  self.view = reinviteView;
+
+  self.props = {'incomingCallName': true, 'incomingCallUser': true, 'title': true};
+
+  var reinviteSession;
+
+  self.accept = function(){
+    self.view.hide();
+    reinviteSession.acceptReInvite();
+  };
+
+  self.reject = function(){
+    self.view.hide();
+    reinviteSession.rejectReInvite();
+  };
+
+  self.listeners = function() {
+    eventbus.on("reInvite", function(e) {
+      reinviteSession = e.session
+      self.incomingCallName = e.request.from.display_name;
+      self.incomingCallUser = e.request.from.uri.user;
+      self.title = e.audioAdd ? "Adding Audio" : "Adding Video";
+      eventbus.message(self.title, "success");    
+      self.view.show();
+    });
+  };
+
+  return self;
+}
+},{}],472:[function(require,module,exports){
 module.exports = Settings;
 
 var WebRTC_C = require('../Constants');
@@ -82346,7 +82474,7 @@ function Settings(configuration, settingsView, eventbus, debug) {
 
   return self;
 }
-},{"../Constants":454,"../Utils":457}],471:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457}],473:[function(require,module,exports){
 module.exports = SIPStack;
 
 var ExSIP = require('exsip');
@@ -82685,7 +82813,227 @@ function SIPStack(eventbus, configuration, settings, debug) {
 
   return self;
 }
-},{"../Constants":454,"../Utils":457,"event-emitter/has-listeners":175,"exsip":203}],472:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"event-emitter/has-listeners":175,"exsip":203}],474:[function(require,module,exports){
+module.exports = SMS;
+
+var DateFormat = require('../DateFormat');
+var Utils = require('../Utils');
+
+function InboxItem(sms, message) {
+  var self = {};
+
+  self.dateFormat = new DateFormat('%m/%d/%y %H:%M:%S');
+
+  self.getMessageType = function() {
+    if (self.message.mmscontentsubtype && self.message.mmscontentsubtype.indexOf('image/') !== -1) {
+      return 'image';
+    } else if (self.message.mmscontentsubtype && self.message.mmscontentsubtype.indexOf('video/') !== -1) {
+      return 'video';
+    } else if (self.message.mmscontentsubtype && self.message.mmscontentsubtype.indexOf('audio/') !== -1) {
+      return 'audio';
+    } else {
+      return 'text';
+    }
+  };
+
+  self.message = message;
+
+  self.messageType = self.getMessageType();
+  self.from = message.tn;
+  self.id = message.mid;
+  self.status = sms.getStatusAsString(message.status);
+  self.time = self.dateFormat.format(new Date(message.time));
+
+  var body = message.body.trim();
+  if (self.messageType === 'image') {
+    self.bodyImageLink = message.mmscontentlocation;
+    self.bodyImageText = body;
+    if (message.mmscontentthumbnail) {
+      self.bodyImageThumbnail = 'data:' + message.mmscontentsubtype + ';base64,' + message.mmscontentthumbnail;
+    }
+  } else if (self.messageType === 'video') {
+    self.bodyVideo = message.mmscontentlocation;
+    self.bodyVideoText = body;
+  } else if (self.messageType === 'audio') {
+    self.bodyAudio = message.mmscontentlocation;
+    self.bodyAudioText = body;
+  } else {
+    self.bodyText = body;
+  }
+
+  return self;
+};
+
+function SMS(eventbus, debug, smsprovider, sound, smsView) {
+  var self = {};
+
+  self.view = smsView;
+
+  self.props = {'name': true, 'password': true, 'sendTo': true, 'sendBody': true, 'statusText': true, 'type': true, 'inboxItems': true};
+
+  self.getStatusAsString = function(status) {
+    if (status === 'N') {
+      return "New";
+    } else if (status === 'U') {
+      return "Unread";
+    } else if (status === 'R') {
+      return "Read";
+    } else if (status === 'L') {
+      return "Locked";
+    } else if (status === 'D') {
+      return "Deleted";
+    } else {
+      throw new Error('Unsupported status : ' + status);
+    }
+  };
+
+  self.listeners = function() {
+    eventbus.on('smsLoggedIn', function() {
+      self.enableUpdate(true);
+      smsprovider.readAll(function(msg) {
+        self.error("Fetching SMS failed : " + msg);
+      });
+      self.info("Fetching SMS...");
+    });
+    eventbus.on('smsSent', function() {
+      self.sendBody = '';
+      self.sendTo = '';
+    });
+    eventbus.on('smsReadAll', function(e) {
+      var messages = e.messages;
+
+      messages = messages.sort(function(a, b) {
+        return b.time - a.time;
+      });
+
+      var incomingMessages = $.grep(messages, function(n) {
+        return (n.dir === 'I');
+      });
+      //        var outgoingMessages = $.grep(messages, function( n, i ) {
+      //          return ( n.dir === 'O' );
+      //        });
+      self.updateInbox(incomingMessages);
+    });
+  };
+
+  self.remove = function(inboxItem) {
+    sound.playClick();
+    if (!window.confirm("Do you really want to delete SMS from " + inboxItem.from + "?")) {
+      return;
+    }
+    self.info("Deleting SMS...");
+    eventbus.smsRemoving(inboxItem);
+    smsprovider.remove([inboxItem.id], function() {
+      eventbus.smsRemoved(inboxItem);
+    }, function(msg) {
+      eventbus.smsRemovedFailed(inboxItem);
+      self.error("Deleting SMS failed : " + msg);
+    });
+  };
+
+  self.login = function(name, password) {
+    sound.playClick();
+    self.info("Logging in...");
+    smsprovider.login(name, password, function(msg) {
+      self.error("Logging failed : " + msg);
+    });
+  };
+
+  self.onNotification = function(notifications) {
+    var needsRead = false;
+    if (!notifications) {
+      return;
+    }
+
+    for (var i = 0; i < notifications.length; i++) {
+      if (notifications[i].action === 'new-rec' || notifications[i].action === 'update' || notifications[i].action === 'delete') {
+        needsRead = true;
+        break;
+      }
+    }
+    if (needsRead) {
+      smsprovider.readAll(function(msg) {
+        self.error("Fetching SMS failed : " + msg);
+      });
+    }
+  };
+
+  self.enableUpdate = function(enable) {
+    self.enableUpdate = enable;
+    self.triggerUpdate();
+  };
+
+  self.triggerUpdate = function() {
+    if (self.enableUpdate && !self.pendingUpdate) {
+      debug('triggering getUpdate');
+      self.pendingUpdate = true;
+      smsprovider.getUpdate(function(notifications) {
+        self.pendingUpdate = false;
+        self.onNotification(notifications);
+        self.triggerUpdate();
+      }, function() {
+        self.pendingUpdate = false;
+        self.error("Technical problems connecting to server - auto refresh disabled");
+      });
+    }
+  };
+
+  self.sendSMS = function() {
+    sound.playClick();
+    var msg = self.validateSendForm();
+    if (msg !== "") {
+      self.error(msg);
+      return;
+    }
+    self.info("Sending SMS...");
+    eventbus.smsSending();
+    smsprovider.sendSMS([self.sendTo], self.sendBody, function(msg) {
+      self.error("Sending SMS failed : " + msg);
+    });
+  };
+
+  self.validateSendForm = function() {
+    var to = self.sendTo;
+    var msgs = [];
+    if (!to) {
+      msgs.push('Please enter a phone number to send to');
+    } else if (!Utils.isValidUsPstn(to)) {
+      msgs.push(to + ' not a valid US phone number');
+    }
+
+    var body = self.sendBody;
+    if (body === '') {
+      msgs.push('Please enter a text to send');
+    }
+
+    return msgs.join('\n');
+  };
+
+  self.updateInbox = function(messages) {
+    var inboxItems = [];
+    for (var i = 0; i < messages.length; i++) {
+      var inboxItem = new InboxItem(this, messages[i]);
+      inboxItems.push(inboxItem);
+    }
+    self.inboxItems = inboxItems;
+  };
+
+  self.setStatus = function(msg, type) {
+    self.type = type;
+    self.statusText = msg;
+  };
+
+  self.error = function(msg) {
+    self.setStatus(msg, "error");
+  };
+
+  self.info = function(msg) {
+    self.setStatus(msg, "info");
+  };
+
+  return self;
+}
+},{"../DateFormat":455,"../Utils":457}],475:[function(require,module,exports){
 module.exports = SMSProvider;
 
 var ExSIP = require('exsip');
@@ -82795,7 +83143,7 @@ function SMSProvider(eventbus, debug) {
 
   return self;
 }
-},{"exsip":203}],473:[function(require,module,exports){
+},{"exsip":203}],476:[function(require,module,exports){
 module.exports = Sound;
 
 var $ = require('jquery');
@@ -82938,7 +83286,7 @@ function Sound(eventbus, configuration, sipstack) {
   return self;
 }
 
-},{"jquery":232}],474:[function(require,module,exports){
+},{"jquery":232}],477:[function(require,module,exports){
 module.exports = XMPP;
 
 var XMPP = require('stanza.io');
@@ -82989,7 +83337,7 @@ function XMPP(debug, eventbus) {
 
   return self;
 }
-},{"stanza.io":234}],475:[function(require,module,exports){
+},{"stanza.io":234}],478:[function(require,module,exports){
 module.exports = Prop;
 
 function Prop(obj, prop) {
@@ -82997,8 +83345,8 @@ function Prop(obj, prop) {
 
 	self._name = prop.name || prop;
 	var internal;
-	var data = obj.view && obj.view[self._name] || obj.view && obj.view.fieldValue || function(name, value){
-		if(arguments.length === 2) {
+	var data = obj.view && obj.view[self._name] || function(value){
+		if(arguments.length === 1) {
 			internal = value;
 		} else {
 			return internal;
@@ -83009,18 +83357,26 @@ function Prop(obj, prop) {
 		return data.attr && data.attr('type') === 'checkbox';
 	};
 
+	var isTextbox = function() {
+		return data.attr && (data.attr('type') === 'text' || data.attr('type') === 'password');
+	};
+
+	var isSelect = function() {
+		return data[0] && data[0].nodeName && data[0].nodeName.match(/select/i);
+	};
+
 	self.__get = function(){
 		if(isCheckbox() && data.prop) {
 			return data.prop && data.prop('checked');
 		} 
-		else if(data.val) {
+		else if((isTextbox() || isSelect()) && data.val) {
 			return data.val();
 		} 
 		else if(data.text) {
 			return data.text();
 		} 
 		else {
-			return data(self._name)
+			return data();
 		}
 	};
 	self.__init = function(){
@@ -83035,14 +83391,14 @@ function Prop(obj, prop) {
 		if(isCheckbox()) {
 			data.prop('checked', value);
 		} 
-		else if(data.val) {
+		else if((isTextbox() || isSelect()) && data.val) {
 			data.val(value);
 		} 
 		else if(data.text) {
 			data.text(value);
 		} 
 		else {
-			data(self._name, value);
+			data(value);
 		}
 	};
 
@@ -83059,7 +83415,7 @@ function Prop(obj, prop) {
 
 	return self;
 }
-},{}],476:[function(require,module,exports){
+},{}],479:[function(require,module,exports){
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
@@ -83094,7 +83450,7 @@ function AuthenticationView(options, eventbus, authentication) {
 
   return self;
 }
-},{"../Utils":457,"./popup":485,"jquery":232}],477:[function(require,module,exports){
+},{"../Utils":457,"./popup":488,"jquery":232}],480:[function(require,module,exports){
 module.exports = CallControlView
 
 var Utils = require('../Utils');
@@ -83172,7 +83528,7 @@ function CallControlView(options, eventbus, callcontrol, historyView, sipstack, 
 
   return self;
 }
-},{"../Utils":457,"./popup":485}],478:[function(require,module,exports){
+},{"../Utils":457,"./popup":488}],481:[function(require,module,exports){
 module.exports = ClientView;
 
 
@@ -83187,7 +83543,7 @@ require('../models/eventbus');
 var ClientConfig = require('../../js/client-config.js.default');
 
 function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authentication, 
-  xmppView, incomingcallView, reinviteView, messagesView, settings, smsView, connectionstatus, whiteboardView, fileshareView, statsView) {
+  xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, statsView) {
   var self = {};
 
   self.elements = ['client', 'main', 'errorPopup'];
@@ -83225,7 +83581,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 
     videoView.view.appendTo(self.main);
     videobarView.view.appendTo(self.main);
-    messagesView.view.appendTo(self.main);
+    messages.view.view.appendTo(self.main);
     connectionstatus.view.view.appendTo(self.main);
     fileshareView.view.appendTo(self.client);
 
@@ -83361,7 +83717,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 }
 
 exports.constructor = ClientView;
-},{"../../js/client-config.js.default":1,"../Constants":454,"../Icon":456,"../Utils":457,"../models/eventbus":467,"ejs":172,"exsip":203,"jquery":232}],479:[function(require,module,exports){
+},{"../../js/client-config.js.default":1,"../Constants":454,"../Icon":456,"../Utils":457,"../models/eventbus":467,"ejs":172,"exsip":203,"jquery":232}],482:[function(require,module,exports){
 module.exports = ConnectionStatusView
 
 function ConnectionStatusView() {
@@ -83369,15 +83725,30 @@ function ConnectionStatusView() {
 
   self.elements = ['connectedIcon', 'registeredIcon'];
 
-  self.fieldValue = function(name, value) {
-    if(arguments.length === 2) {
-      if(value) {
-        show(self[name+'Icon'], 'success', 3000);
-      } else {
-        show(self[name+'Icon'], 'alert');
-      }
+  var isEnabled = function(icon){
+    return icon.hasClass('success');
+  };
+
+  var enableIcon = function(icon, enable){
+    if(enable) {
+      show(icon, 'success', 3000);
     } else {
-      return self[name+'Icon'].hasClass('success');  
+      show(icon, 'alert');
+    }
+  };
+
+  self.connected = function(value){
+    if(arguments.length === 1) {
+      enableIcon(self.connectedIcon, value);
+    } else {
+      return isEnabled(self.connectedIcon);
+    }
+  };
+  self.registered = function(value){
+    if(arguments.length === 1) {
+      enableIcon(self.registeredIcon, value);
+    } else {
+      return isEnabled(self.registeredIcon);
     }
   };
 
@@ -83402,7 +83773,7 @@ function ConnectionStatusView() {
 
   return self;
 }
-},{}],480:[function(require,module,exports){
+},{}],483:[function(require,module,exports){
 module.exports = DialpadView
 
 function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
@@ -83420,7 +83791,7 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView, 
 
   return self;
 }
-},{}],481:[function(require,module,exports){
+},{}],484:[function(require,module,exports){
 module.exports = FileShareView
 
 function FileShareView(eventbus) {
@@ -83452,7 +83823,7 @@ function FileShareView(eventbus) {
 
   return self;
 }
-},{}],482:[function(require,module,exports){
+},{}],485:[function(require,module,exports){
 module.exports = HistoryView
 
 var Utils = require('../Utils');
@@ -83466,19 +83837,16 @@ function HistoryView(options, sound, history, eventbus, callcontrol) {
 
   self.rows = [];
 
-  self.fieldValue = function(name, value) {
-    if(arguments.length === 2) {
-      if(name === 'isForwardEnabled') {
-        self.historyForward.toggle(value);
-      }
-      else if(name === 'isBackEnabled') {
-        self.historyBack.toggle(value);
-      }
-      else if(name === 'calls') {
-        updateContent(value);
-      }
-    }
-  };
+  self.isForwardEnabled = function(value){
+    self.historyForward.toggle(value);
+  }
+  self.isBackEnabled = function(value){
+    self.historyBack.toggle(value);
+  }
+  self.calls = function(value){
+    updateContent(value);
+  }
+
   var callDetailsHandler = function(call) {
     return function(e) {
       e.preventDefault();
@@ -83589,7 +83957,7 @@ function HistoryView(options, sound, history, eventbus, callcontrol) {
   return self;
 
 }
-},{"../Constants":454,"../Utils":457,"./popup":485}],483:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"./popup":488}],486:[function(require,module,exports){
 module.exports = IncomingCallView
 
 var Utils = require('../Utils');
@@ -83624,89 +83992,28 @@ function IncomingCallView(options, eventbus, incomingcall) {
 
   return self;
 }
-},{"../Utils":457,"./popup":485,"exsip":203}],484:[function(require,module,exports){
+},{"../Utils":457,"./popup":488,"exsip":203}],487:[function(require,module,exports){
 module.exports = MessagesView
 
-var Utils = require('../Utils');
-var ExSIP = require('exsip');
-
-function MessagesView(options, eventbus, configuration) {
+function MessagesView() {
   var self = {};
 
   self.elements = ['alert', 'success', 'warning', 'normal'];
 
-  // Display status messages
-  self.message = function(text, level) { 
-    if (!configuration.enableMessages) {
-      return;
-    }
-    var messageEl = self[level];
+  var _level;
+  self.level = function(value) {
+    _level = value;
+  };
+
+  self.text = function(value) {
+    var messageEl = self[_level];
     messageEl.stop(true, true).fadeOut();
-    messageEl.text(text).fadeIn(10).fadeOut(10000);
-  };
-
-  self.getRemoteUser = function(rtcSession) {
-    return rtcSession.remote_identity.uri.user || rtcSession.remote_identity.uri.host;
-  };
-
-  self.listeners = function() {
-    eventbus.on("ended", function(e) {
-      self.message(configuration.messageEnded.replace('{0}', self.getRemoteUser(e.sender)), "normal");
-    });
-    eventbus.on("resumed", function(e) {
-      self.message(configuration.messageResume.replace('{0}', self.getRemoteUser(e.sender)), "success");
-    });
-    eventbus.on("started", function(e) {
-      if (e.data && !e.data.isReconnect) {
-        self.message(configuration.messageStarted.replace('{0}', self.getRemoteUser(e.sender)), "success");
-      }
-    });
-    eventbus.on("held", function(e) {
-      self.message(configuration.messageHold.replace('{0}', self.getRemoteUser(e.sender)), "success");
-    });
-    eventbus.on("disconnected", function(e) {
-      var msg = configuration.messageConnectionFailed;
-      if (e.data && e.data.reason) {
-        msg = e.data.reason;
-      }
-      if (e.data && e.data.retryAfter) {
-        msg += " - Retrying in " + e.data.retryAfter + " seconds";
-      }
-      self.message(msg, "alert");
-    });
-    eventbus.on("failed", function(e) {
-      var error = e.cause;
-      self.message(error, "alert");
-    });
-    eventbus.on("progress", function(e) {
-      self.message(configuration.messageProgress, "normal");
-    });
-    eventbus.on("message", function(e) {
-      self.message(e.text, e.level);
-    });
-    eventbus.on("registrationFailed", function(e) {
-      var statusCode = e.data.response.status_code;
-      var msg = statusCode;
-      if (statusCode === 403) {
-        msg = "403 Authentication Failure";
-      }
-      self.message(configuration.messageRegistrationFailed.replace('{0}', msg), "alert");
-    });
-    eventbus.on("registered", function(e) {
-      self.message(configuration.messageRegistered, "success");
-    });
-    eventbus.on("unregistered", function(e) {
-      self.message(configuration.messageUnregistered || 'Unregistered', "success");
-    });
-    eventbus.on("connected", function(e) {
-      self.message(configuration.messageConnected, "success");
-    });
-
+    messageEl.text(value).fadeIn(10).fadeOut(10000);
   };
 
   return self;
 }
-},{"../Utils":457,"exsip":203}],485:[function(require,module,exports){
+},{}],488:[function(require,module,exports){
 (function (global){
 module.exports = PopupView;
 
@@ -83744,13 +84051,13 @@ function PopupView(options, eventbus) {
   return self;
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":232}],486:[function(require,module,exports){
+},{"jquery":232}],489:[function(require,module,exports){
 module.exports = ReinviteView
 
 var PopupView = require('./popup');
 var Utils = require('../Utils');
 
-function ReinviteView(options, eventbus) {
+function ReinviteView(options, eventbus, reinvite) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
@@ -83758,31 +84065,17 @@ function ReinviteView(options, eventbus) {
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptReInviteCall', 'rejectReInviteCall', 'title'];
 
   self.listeners = function() {
-    eventbus.on("reInvite", function(e) {
-      self.show();
-      var incomingCallName = e.request.from.display_name;
-      var incomingCallUser = e.request.from.uri.user;
-      var title = e.audioAdd ? "Adding Audio" : "Adding Video";
-      eventbus.message(title, "success");    
-      self.incomingCallName.text(incomingCallName);
-      self.incomingCallUser.text(incomingCallUser);
-      self.title.text(title);
-      self.acceptReInviteCall.off("click");
-      self.acceptReInviteCall.on("click", function() {
-        self.hide();
-        e.session.acceptReInvite();
-      });
-      self.rejectReInviteCall.off("click");
-      self.rejectReInviteCall.on("click", function() {
-        self.hide();
-        e.session.rejectReInvite();
-      });
+    self.acceptReInviteCall.on('click', function(){
+      reinvite.accept();
+    });
+    self.rejectReInviteCall.on('click', function(){
+      reinvite.reject();
     });
   };
 
   return self;
 }
-},{"../Utils":457,"./popup":485}],487:[function(require,module,exports){
+},{"../Utils":457,"./popup":488}],490:[function(require,module,exports){
 module.exports = SettingsView;
 
 var WebRTC_C = require('../Constants');
@@ -83914,304 +84207,163 @@ function SettingsView(options, settings, configuration, eventbus, debug, sound) 
 
   return self;
 }
-},{"../Constants":454,"../Utils":457,"./popup":485}],488:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"./popup":488}],491:[function(require,module,exports){
 module.exports = SMSView;
 
-var DateFormat = require('../DateFormat');
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function InboxItem(sms, message) {
+function SMSView(options, eventbus, debug, sound, sms) {
   var self = {};
 
-  self.cloned = sms.inboxItemSample.clone(false);
-  self.cloned.removeClass('inboxItemSample');
-  self.cloned.attr('id', message.mid);
-  self.message = message;
-  self.from = self.cloned.find('.from');
-  self.status = self.cloned.find('.statusCol');
-  self.time = self.cloned.find('.time');
-  self.bodyText = self.cloned.find('.body .text');
-  self.bodyImageLink = self.cloned.find('.body .image a');
-  self.bodyImageText = self.cloned.find('.body .image span');
-  self.bodyImageThumbnail = self.cloned.find('.body .image img');
-  self.bodyVideo = self.cloned.find('.body .video video');
-  self.bodyAudio = self.cloned.find('.body .audio audio');
-  self.removeLink = self.cloned.find('.icon-trash');
-  self.dateFormat = new DateFormat('%m/%d/%y %H:%M:%S');
+  Utils.extend(self, PopupView(options, eventbus));
+
+  function InboxItemView(inboxItem) {
+    var _self = {};
+
+    _self.inboxItem = inboxItem;
+
+    var cloned = self.inboxItemSample.clone(false);
+    cloned.removeClass('inboxItemSample');
+    cloned.attr('id', inboxItem.id);
+    var from = cloned.find('.from');
+    var status = cloned.find('.statusCol');
+    var time = cloned.find('.time');
+    var bodyText = cloned.find('.body .text');
+    var bodyImageLink = cloned.find('.body .image a');
+    var bodyImageText = cloned.find('.body .image span');
+    var bodyImageThumbnail = cloned.find('.body .image img');
+    var bodyVideo = cloned.find('.body .video video');
+    var bodyAudio = cloned.find('.body .audio audio');
+    var removeLink = cloned.find('.icon-trash');
+
+    cloned.addClass(inboxItem.messageType);
+
+    from.text(inboxItem.from);
+    status.text(inboxItem.status);
+    time.text(inboxItem.time);
+
+    bodyImageLink.attr('href', inboxItem.bodyImageLink);
+    bodyImageText.text(inboxItem.bodyImageText);
+    bodyImageThumbnail.attr('src', inboxItem.bodyImageThumbnail);
+    bodyVideo.attr('src', inboxItem.bodyVideo);
+    bodyVideo.text(inboxItem.bodyVideoText);
+    bodyAudio.attr('src', inboxItem.bodyAudio);
+    bodyAudio.text(inboxItem.bodyAudioText);
+    bodyText.html(inboxItem.bodyText);
+
+    removeLink.bind('click', function() {
+      sms.remove(inboxItem);
+    });
+
+    _self.enableActions = function(enable) {
+      removeLink.attr('disabled', !enable);
+    };
+    _self.remove = function() {
+      cloned.remove();
+    };
+    _self.appendTo = function(element) {
+      cloned.appendTo(element);
+    };
+
+    return _self;
+  };
+
+  self.elements = ['status', 'statusContent', 'inbox', 'inboxContent', 'loginForm', 'loginLink', 'name', 'password', 'sendForm',
+    'sendTo', 'sendBody', 'sendButton', 'inboxItemSample'
+  ];
+
+  var inboxItemViews = [];
+
+  var inboxItemView = function(inboxItem){
+    return inboxItemViews.filter(function(view){
+      return view.inboxItem === inboxItem;
+    }).pop();
+  };
+
+  self.inboxItems = function(items){
+    if(arguments.length === 1) {
+      inboxItemViews = [];
+      self.inboxContent.html('');
+      for (var i = 0; i < items.length; i++) {
+        var inboxItemView = new InboxItemView(items[i]);
+        inboxItemView.appendTo(self.inboxContent);
+        inboxItemViews.push(inboxItemView);
+      }      
+    } else {
+      return inboxItemViews.map(function(view){ return view.inboxItem;});
+    }
+  };
 
   self.listeners = function() {
-    self.removeLink.bind('click', function() {
-      sms.remove(message, self);
-    });
     eventbus.on('modifier', function(e) {
       if (e.which === 84) {
         self.show();
       }
     });
-  };
-  self.enableActions = function(enable) {
-    self.removeLink.attr('disabled', !enable);
-  };
-  self.updateContent = function(message) {
-    var messageType = self.getMessageType(message);
-    self.cloned.addClass(messageType);
-
-    self.from.text(message.tn);
-    self.status.text(sms.getStatusAsString(message.status));
-    self.time.text(self.dateFormat.format(new Date(message.time)));
-
-    var body = message.body.trim();
-    if (messageType === 'image') {
-      self.bodyImageLink.attr('href', message.mmscontentlocation);
-      self.bodyImageText.text(body);
-      if (message.mmscontentthumbnail) {
-        self.bodyImageThumbnail.attr('src', 'data:' + message.mmscontentsubtype + ';base64,' + message.mmscontentthumbnail);
-      }
-    } else if (messageType === 'video') {
-      self.bodyVideo.attr('src', message.mmscontentlocation);
-      self.bodyVideo.text(body);
-    } else if (messageType === 'audio') {
-      self.bodyAudio.attr('src', message.mmscontentlocation);
-      self.bodyAudio.text(body);
-    } else {
-      self.bodyText.html(body);
-    }
-  };
-  self.getMessageType = function(message) {
-    if (message.mmscontentsubtype && message.mmscontentsubtype.indexOf('image/') !== -1) {
-      return 'image';
-    } else if (message.mmscontentsubtype && message.mmscontentsubtype.indexOf('video/') !== -1) {
-      return 'video';
-    } else if (message.mmscontentsubtype && message.mmscontentsubtype.indexOf('audio/') !== -1) {
-      return 'audio';
-    } else {
-      return 'text';
-    }
-  };
-  self.remove = function() {
-    self.cloned.remove();
-  };
-  self.appendTo = function(element) {
-    self.cloned.appendTo(element);
-  };
-
-  self.listeners();
-
-  self.updateContent(message);
-
-  return self;
-};
-
-function SMSView(options, eventbus, debug, smsprovider, sound) {
-  var self = {};
-
-  Utils.extend(self, PopupView(options, eventbus));
-
-  self.elements = ['status', 'statusContent', 'inbox', 'inboxContent', 'loginForm', 'loginLink', 'name', 'password', 'sendForm',
-    'sendTo', 'sendBody', 'sendButton', 'inboxItemSample'
-  ];
-  self.inboxItems = [];
-
-  self.getStatusAsString = function(status) {
-    if (status === 'N') {
-      return "New";
-    } else if (status === 'U') {
-      return "Unread";
-    } else if (status === 'R') {
-      return "Read";
-    } else if (status === 'L') {
-      return "Locked";
-    } else if (status === 'D') {
-      return "Deleted";
-    } else {
-      throw new Error('Unsupported status : ' + status);
-    }
-  };
-
-  self.listeners = function() {
     eventbus.on('smsLoggedIn', function() {
-      self.onLoggedIn();
+      self.loginForm.toggleClass('hidden', true);
+      self.inbox.toggleClass('hidden', false);
+      self.sendForm.toggleClass('hidden', false);
+    });
+    eventbus.on('smsSending', function(e) {
+      self.sendButton.attr("disabled", true);
+    });
+    eventbus.on('smsSent', function(e) {
+      self.sendButton.attr("disabled", false);
+    });
+    eventbus.on('smsRemoving', function(e) {
+      inboxItemView(e.inboxItem).enableActions(false);
+    });
+    eventbus.on('smsRemoved', function(e) {
+      self.status.toggleClass('hidden', true);
+      inboxItemView(e.inboxItem).remove();
+    });
+    eventbus.on('smsRemovedFailed', function(e) {
+      inboxItemView(e.inboxItem).enableActions(true);
     });
     eventbus.on('smsSent', function() {
       self.status.toggleClass('hidden', true);
-      self.sendBody.val('');
-      self.sendTo.val('');
       self.sendButton.attr('disabled', false);
     });
     eventbus.on('smsReadAll', function(e) {
       self.status.toggleClass('hidden', true);
-      var messages = e.messages;
-
-      messages = messages.sort(function(a, b) {
-        return b.time - a.time;
-      });
-
-      var incomingMessages = $.grep(messages, function(n) {
-        return (n.dir === 'I');
-      });
-      //        var outgoingMessages = $.grep(messages, function( n, i ) {
-      //          return ( n.dir === 'O' );
-      //        });
-      self.updateInbox(incomingMessages);
     });
     self.loginLink.bind('click', function(e) {
       e.preventDefault();
-      self.login(self.name.val(), self.password.val());
+      sms.login(self.name.val(), self.password.val());
     });
     self.password.bind('keypress', function(e) {
       if (e.keyCode === 13) {
         e.preventDefault();
-        self.login(self.name.val(), self.password.val());
+        sms.login(self.name.val(), self.password.val());
       }
     });
     self.sendButton.bind('click', function(e) {
       e.preventDefault();
-      self.sendSMS();
+      sms.sendSMS();
     });
     self.sendBody.bind('keypress', function(e) {
       if (e.keyCode === 13) {
         e.preventDefault();
-        self.sendSMS();
+        sms.sendSMS();
       }
     });
   };
 
-  self.remove = function(message, inboxItem) {
-    sound.playClick();
-    if (!window.confirm("Do you really want to delete SMS from " + message.tn + "?")) {
-      return;
-    }
-    self.info("Deleting SMS...");
-    if (inboxItem) {
-      inboxItem.enableActions(false);
-    }
-    smsprovider.remove([message.mid], function() {
-      self.status.toggleClass('hidden', true);
-      inboxItem.remove();
-    }, function(msg) {
-      self.error("Deleting SMS failed : " + msg);
-      inboxItem.enableActions(true);
-    });
+  var _type;
+  self.type = function(value) {
+    _type = value;
   };
-
-  self.login = function(name, password) {
-    sound.playClick();
-    self.info("Logging in...");
-    smsprovider.login(name, password, function(msg) {
-      self.error("Logging failed : " + msg);
-    });
-  };
-
-  self.onNotification = function(notifications) {
-    var needsRead = false;
-    if (!notifications) {
-      return;
-    }
-
-    for (var i = 0; i < notifications.length; i++) {
-      if (notifications[i].action === 'new-rec' || notifications[i].action === 'update' || notifications[i].action === 'delete') {
-        needsRead = true;
-        break;
-      }
-    }
-    if (needsRead) {
-      smsprovider.readAll(function(msg) {
-        self.error("Fetching SMS failed : " + msg);
-      });
-    }
-  };
-
-  self.enableUpdate = function(enable) {
-    self.enableUpdate = enable;
-    self.triggerUpdate();
-  };
-
-  self.triggerUpdate = function() {
-    if (self.enableUpdate && !self.pendingUpdate) {
-      debug('triggering getUpdate');
-      self.pendingUpdate = true;
-      smsprovider.getUpdate(function(notifications) {
-        self.pendingUpdate = false;
-        self.onNotification(notifications);
-        self.triggerUpdate();
-      }, function() {
-        self.pendingUpdate = false;
-        self.error("Technical problems connecting to server - auto refresh disabled");
-      });
-    }
-  };
-
-  self.sendSMS = function() {
-    sound.playClick();
-    var msg = self.validateSendForm();
-    if (msg !== "") {
-      self.error(msg);
-      return;
-    }
-    self.info("Sending SMS...");
-    self.sendButton.attr("disabled", true);
-    smsprovider.sendSMS([self.sendTo.val()], self.sendBody.val(), function(msg) {
-      self.sendButton.attr("disabled", false);
-      self.error("Sending SMS failed : " + msg);
-    });
-  };
-
-  self.validateSendForm = function() {
-    var to = self.sendTo.val();
-    var msgs = [];
-    if (to === '') {
-      msgs.push('Please enter a phone number to send to');
-    } else if (!Utils.isValidUsPstn(to)) {
-      msgs.push(to + ' not a valid US phone number');
-    }
-
-    var body = self.sendBody.val();
-    if (body === '') {
-      msgs.push('Please enter a text to send');
-    }
-
-    return msgs.join('\n');
-  };
-
-  self.onLoggedIn = function() {
-    self.loginForm.toggleClass('hidden', true);
-    self.inbox.toggleClass('hidden', false);
-    self.sendForm.toggleClass('hidden', false);
-    self.enableUpdate(true);
-    smsprovider.readAll(function(msg) {
-      self.error("Fetching SMS failed : " + msg);
-    });
-    self.info("Fetching SMS...");
-  };
-
-  self.updateInbox = function(messages) {
-    self.inboxContent.html('');
-    self.inboxItems = [];
-    for (var i = 0; i < messages.length; i++) {
-      var inboxItem = new InboxItem(this, messages[i]);
-      inboxItem.appendTo(self.inboxContent);
-      self.inboxItems.push(inboxItem);
-    }
-  };
-
-  self.setStatus = function(msg, type) {
+  self.statusText = function(value) {
     self.status.toggleClass('hidden', false);
-    self.status.attr("class", type);
-    self.statusContent.text(msg);
-  };
-
-  self.error = function(msg) {
-    self.setStatus(msg, "error");
-  };
-
-  self.info = function(msg) {
-    self.setStatus(msg, "info");
+    self.status.attr("class", _type);
+    self.statusContent.text(value);
   };
 
   return self;
 }
-},{"../DateFormat":455,"../Utils":457,"./popup":485}],489:[function(require,module,exports){
+},{"../Utils":457,"./popup":488}],492:[function(require,module,exports){
 module.exports = StatsView;
 
 var PopupView = require('./popup');
@@ -84390,7 +84542,7 @@ function StatsView(options, eventbus, configuration, sipstack, debug) {
 
   return self;
 }
-},{"../../js/stats":3,"../Utils":457,"./popup":485}],490:[function(require,module,exports){
+},{"../../js/stats":3,"../Utils":457,"./popup":488}],493:[function(require,module,exports){
 module.exports = TimerView;
 
 var Utils = require('../Utils');
@@ -84459,7 +84611,7 @@ function TimerView(options, debug, eventbus, statsView, configuration, sipstack,
 
   return self;
 }
-},{"../Utils":457}],491:[function(require,module,exports){
+},{"../Utils":457}],494:[function(require,module,exports){
 module.exports = TransferView;
 
 var PopupView = require('./popup');
@@ -84502,7 +84654,7 @@ function TransferView(options, sound, sipstack, eventbus, configuration, callcon
 
   return self;
 }
-},{"../Utils":457,"./popup":485}],492:[function(require,module,exports){
+},{"../Utils":457,"./popup":488}],495:[function(require,module,exports){
 module.exports = VideoView;
 require('jquery-ui/draggable');
 
@@ -84598,7 +84750,7 @@ function VideoView(options, sipstack, eventbus, debug, settings, configuration, 
 
   return self;
 }
-},{"jquery-ui/draggable":228}],493:[function(require,module,exports){
+},{"jquery-ui/draggable":228}],496:[function(require,module,exports){
 module.exports = VideoBarView;
 
 var Icon = require('../Icon');
@@ -84817,7 +84969,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
   return self;
 }
-},{"../Icon":456}],494:[function(require,module,exports){
+},{"../Icon":456}],497:[function(require,module,exports){
 module.exports = WhiteboardView;
 
 var PopupView = require('./popup');
@@ -84986,7 +85138,7 @@ function WhiteboardView(options, eventbus, sipstack) {
 
   return self;
 }
-},{"../../js/sketch":2,"../Utils":457,"./popup":485}],495:[function(require,module,exports){
+},{"../../js/sketch":2,"../Utils":457,"./popup":488}],498:[function(require,module,exports){
 module.exports = XMPPView;
 
 // var View = require('ampersand-view');
@@ -85097,4 +85249,4 @@ function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
 
   return self;
 }
-},{"../Utils":457,"./popup":485,"jquery":232}]},{},[458]);
+},{"../Utils":457,"./popup":488,"jquery":232}]},{},[458]);

@@ -19,12 +19,12 @@ describe('SMS', function() {
       loginName = name;
       loginPassword = password;
     };
-    sms.view.show();
-    expect(sms.loginForm.hasClass('hidden')).toEqual(false);
-    expect(sms.inbox.hasClass('hidden')).toEqual(true);
-    sms.name.val("12345678");
-    sms.password.val("9876");
-    sms.loginLink.trigger('click');
+    smsview.view.show();
+    expect(smsview.loginForm.hasClass('hidden')).toEqual(false);
+    expect(smsview.inbox.hasClass('hidden')).toEqual(true);
+    smsview.name.val("12345678");
+    smsview.password.val("9876");
+    smsview.loginLink.trigger('click');
     expect(loginName).toEqual('12345678');
     expect(loginPassword).toEqual('9876');
   });
@@ -39,19 +39,19 @@ describe('SMS', function() {
     smsprovider.login = function(name, password) {
       eventbus.emit('smsLoggedIn');
     };
-    sms.view.show();
-    sms.name.val("12345678");
-    sms.password.val("9876");
-    sms.loginLink.trigger('click');
-    expect(sms.loginForm.hasClass('hidden')).toEqual(true);
-    expect(sms.inbox.hasClass('hidden')).toEqual(false);
+    smsview.view.show();
+    smsview.name.val("12345678");
+    smsview.password.val("9876");
+    smsview.loginLink.trigger('click');
+    expect(smsview.loginForm.hasClass('hidden')).toEqual(true);
+    expect(smsview.inbox.hasClass('hidden')).toEqual(false);
     expect(readAllCalled).toEqual(true);
   });
 
   it('received messages', function() {
     client = create(config)
     testUA.mockSMSProvider();
-    sms.show();
+    smsview.show();
     eventbus.emit('smsLoggedIn');
     eventbus.emit('smsReadAll', {
       messages: [{
@@ -90,11 +90,11 @@ describe('SMS', function() {
       }]
     });
     expect(sms.inboxItems.length).toEqual(2);
-    expect(sms.inboxItems[1].message.mid).toEqual(274907);
-    expect(sms.inboxItems[1].from.text()).toEqual("12403649086");
-    expect(sms.inboxItems[1].time.text()).toEqual( "03/13/2014 16:23:54");
-    expect(sms.inboxItems[1].status.text()).toEqual("New");
-    expect(sms.inboxItems[1].bodyText.text()).toEqual("BS: Test sending msg to cpa-dev-prod");
+    expect(sms.inboxItems[1].id).toEqual(274907);
+    expect(sms.inboxItems[1].from).toEqual("12403649086");
+    expect(sms.inboxItems[1].time).toEqual( "03/13/2014 16:23:54");
+    expect(sms.inboxItems[1].status).toEqual("New");
+    expect(sms.inboxItems[1].bodyText).toEqual("BS: Test sending msg to cpa-dev-prod");
   });
 
   it('delete message', function() {
@@ -108,7 +108,7 @@ describe('SMS', function() {
       removeCalled = true;
       onSuccess();
     };
-    sms.show();
+    smsview.show();
     eventbus.emit('smsLoggedIn');
     eventbus.emit('smsReadAll', {
       messages: [{
@@ -146,11 +146,11 @@ describe('SMS', function() {
         "dir": "O"
       }]
     });
-    expect(sms.inboxContent.find('#274910').length).toEqual(1);
-    sms.inboxItems[0].removeLink.trigger('click');
-    expect(sms.inboxContent.find('#274910').length).toEqual(0);
+    expect(smsview.inboxContent.find('#274910').length).toEqual(1);
+    smsview.inboxContent.find('#274910 .icon-trash').trigger('click');
+    expect(smsview.inboxContent.find('#274910').length).toEqual(0);
     expect(removeCalled).toEqual(true);
-    expect(sms.status.hasClass('hidden')).toEqual(true);
+    expect(smsview.status.hasClass('hidden')).toEqual(true);
   });
 
   it('send message', function() {
@@ -164,16 +164,16 @@ describe('SMS', function() {
       eventbus.emit('smsSent');
     };
     eventbus.emit('smsLoggedIn');
-    sms.sendButton.trigger('click');
-    expect(sms.statusContent.text()).toEqual("Please enter a phone number to send to\nPlease enter a text to send");
+    smsview.sendButton.trigger('click');
+    expect(smsview.statusContent.text()).toEqual("Please enter a phone number to send to\nPlease enter a text to send");
 
-    sms.sendTo.val('1234567890');
-    sms.sendBody.val('some text');
-    sms.sendButton.trigger('click');
+    smsview.sendTo.val('1234567890');
+    smsview.sendBody.val('some text');
+    smsview.sendButton.trigger('click');
     expect(sendToArray).toEqual(['1234567890']);
     expect(sendBody).toEqual('some text');
-    expect(sms.status.hasClass('hidden')).toEqual(true);
-    expect(sms.sendBody.val()).toEqual('');
-    expect(sms.sendTo.val()).toEqual('');
+    expect(smsview.status.hasClass('hidden')).toEqual(true);
+    expect(smsview.sendBody.val()).toEqual('');
+    expect(smsview.sendTo.val()).toEqual('');
   });
 });

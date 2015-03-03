@@ -1,295 +1,154 @@
 module.exports = SMSView;
 
-var DateFormat = require('../DateFormat');
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function InboxItem(sms, message) {
+function SMSView(options, eventbus, debug, sound, sms) {
   var self = {};
 
-  self.cloned = sms.inboxItemSample.clone(false);
-  self.cloned.removeClass('inboxItemSample');
-  self.cloned.attr('id', message.mid);
-  self.message = message;
-  self.from = self.cloned.find('.from');
-  self.status = self.cloned.find('.statusCol');
-  self.time = self.cloned.find('.time');
-  self.bodyText = self.cloned.find('.body .text');
-  self.bodyImageLink = self.cloned.find('.body .image a');
-  self.bodyImageText = self.cloned.find('.body .image span');
-  self.bodyImageThumbnail = self.cloned.find('.body .image img');
-  self.bodyVideo = self.cloned.find('.body .video video');
-  self.bodyAudio = self.cloned.find('.body .audio audio');
-  self.removeLink = self.cloned.find('.icon-trash');
-  self.dateFormat = new DateFormat('%m/%d/%y %H:%M:%S');
+  Utils.extend(self, PopupView(options, eventbus));
+
+  function InboxItemView(inboxItem) {
+    var _self = {};
+
+    _self.inboxItem = inboxItem;
+
+    var cloned = self.inboxItemSample.clone(false);
+    cloned.removeClass('inboxItemSample');
+    cloned.attr('id', inboxItem.id);
+    var from = cloned.find('.from');
+    var status = cloned.find('.statusCol');
+    var time = cloned.find('.time');
+    var bodyText = cloned.find('.body .text');
+    var bodyImageLink = cloned.find('.body .image a');
+    var bodyImageText = cloned.find('.body .image span');
+    var bodyImageThumbnail = cloned.find('.body .image img');
+    var bodyVideo = cloned.find('.body .video video');
+    var bodyAudio = cloned.find('.body .audio audio');
+    var removeLink = cloned.find('.icon-trash');
+
+    cloned.addClass(inboxItem.messageType);
+
+    from.text(inboxItem.from);
+    status.text(inboxItem.status);
+    time.text(inboxItem.time);
+
+    bodyImageLink.attr('href', inboxItem.bodyImageLink);
+    bodyImageText.text(inboxItem.bodyImageText);
+    bodyImageThumbnail.attr('src', inboxItem.bodyImageThumbnail);
+    bodyVideo.attr('src', inboxItem.bodyVideo);
+    bodyVideo.text(inboxItem.bodyVideoText);
+    bodyAudio.attr('src', inboxItem.bodyAudio);
+    bodyAudio.text(inboxItem.bodyAudioText);
+    bodyText.html(inboxItem.bodyText);
+
+    removeLink.bind('click', function() {
+      sms.remove(inboxItem);
+    });
+
+    _self.enableActions = function(enable) {
+      removeLink.attr('disabled', !enable);
+    };
+    _self.remove = function() {
+      cloned.remove();
+    };
+    _self.appendTo = function(element) {
+      cloned.appendTo(element);
+    };
+
+    return _self;
+  };
+
+  self.elements = ['status', 'statusContent', 'inbox', 'inboxContent', 'loginForm', 'loginLink', 'name', 'password', 'sendForm',
+    'sendTo', 'sendBody', 'sendButton', 'inboxItemSample'
+  ];
+
+  var inboxItemViews = [];
+
+  var inboxItemView = function(inboxItem){
+    return inboxItemViews.filter(function(view){
+      return view.inboxItem === inboxItem;
+    }).pop();
+  };
+
+  self.inboxItems = function(items){
+    if(arguments.length === 1) {
+      inboxItemViews = [];
+      self.inboxContent.html('');
+      for (var i = 0; i < items.length; i++) {
+        var inboxItemView = new InboxItemView(items[i]);
+        inboxItemView.appendTo(self.inboxContent);
+        inboxItemViews.push(inboxItemView);
+      }      
+    } else {
+      return inboxItemViews.map(function(view){ return view.inboxItem;});
+    }
+  };
 
   self.listeners = function() {
-    self.removeLink.bind('click', function() {
-      sms.remove(message, self);
-    });
     eventbus.on('modifier', function(e) {
       if (e.which === 84) {
         self.show();
       }
     });
-  };
-  self.enableActions = function(enable) {
-    self.removeLink.attr('disabled', !enable);
-  };
-  self.updateContent = function(message) {
-    var messageType = self.getMessageType(message);
-    self.cloned.addClass(messageType);
-
-    self.from.text(message.tn);
-    self.status.text(sms.getStatusAsString(message.status));
-    self.time.text(self.dateFormat.format(new Date(message.time)));
-
-    var body = message.body.trim();
-    if (messageType === 'image') {
-      self.bodyImageLink.attr('href', message.mmscontentlocation);
-      self.bodyImageText.text(body);
-      if (message.mmscontentthumbnail) {
-        self.bodyImageThumbnail.attr('src', 'data:' + message.mmscontentsubtype + ';base64,' + message.mmscontentthumbnail);
-      }
-    } else if (messageType === 'video') {
-      self.bodyVideo.attr('src', message.mmscontentlocation);
-      self.bodyVideo.text(body);
-    } else if (messageType === 'audio') {
-      self.bodyAudio.attr('src', message.mmscontentlocation);
-      self.bodyAudio.text(body);
-    } else {
-      self.bodyText.html(body);
-    }
-  };
-  self.getMessageType = function(message) {
-    if (message.mmscontentsubtype && message.mmscontentsubtype.indexOf('image/') !== -1) {
-      return 'image';
-    } else if (message.mmscontentsubtype && message.mmscontentsubtype.indexOf('video/') !== -1) {
-      return 'video';
-    } else if (message.mmscontentsubtype && message.mmscontentsubtype.indexOf('audio/') !== -1) {
-      return 'audio';
-    } else {
-      return 'text';
-    }
-  };
-  self.remove = function() {
-    self.cloned.remove();
-  };
-  self.appendTo = function(element) {
-    self.cloned.appendTo(element);
-  };
-
-  self.listeners();
-
-  self.updateContent(message);
-
-  return self;
-};
-
-function SMSView(options, eventbus, debug, smsprovider, sound) {
-  var self = {};
-
-  Utils.extend(self, PopupView(options, eventbus));
-
-  self.elements = ['status', 'statusContent', 'inbox', 'inboxContent', 'loginForm', 'loginLink', 'name', 'password', 'sendForm',
-    'sendTo', 'sendBody', 'sendButton', 'inboxItemSample'
-  ];
-  self.inboxItems = [];
-
-  self.getStatusAsString = function(status) {
-    if (status === 'N') {
-      return "New";
-    } else if (status === 'U') {
-      return "Unread";
-    } else if (status === 'R') {
-      return "Read";
-    } else if (status === 'L') {
-      return "Locked";
-    } else if (status === 'D') {
-      return "Deleted";
-    } else {
-      throw new Error('Unsupported status : ' + status);
-    }
-  };
-
-  self.listeners = function() {
     eventbus.on('smsLoggedIn', function() {
-      self.onLoggedIn();
+      self.loginForm.toggleClass('hidden', true);
+      self.inbox.toggleClass('hidden', false);
+      self.sendForm.toggleClass('hidden', false);
+    });
+    eventbus.on('smsSending', function(e) {
+      self.sendButton.attr("disabled", true);
+    });
+    eventbus.on('smsSent', function(e) {
+      self.sendButton.attr("disabled", false);
+    });
+    eventbus.on('smsRemoving', function(e) {
+      inboxItemView(e.inboxItem).enableActions(false);
+    });
+    eventbus.on('smsRemoved', function(e) {
+      self.status.toggleClass('hidden', true);
+      inboxItemView(e.inboxItem).remove();
+    });
+    eventbus.on('smsRemovedFailed', function(e) {
+      inboxItemView(e.inboxItem).enableActions(true);
     });
     eventbus.on('smsSent', function() {
       self.status.toggleClass('hidden', true);
-      self.sendBody.val('');
-      self.sendTo.val('');
       self.sendButton.attr('disabled', false);
     });
     eventbus.on('smsReadAll', function(e) {
       self.status.toggleClass('hidden', true);
-      var messages = e.messages;
-
-      messages = messages.sort(function(a, b) {
-        return b.time - a.time;
-      });
-
-      var incomingMessages = $.grep(messages, function(n) {
-        return (n.dir === 'I');
-      });
-      //        var outgoingMessages = $.grep(messages, function( n, i ) {
-      //          return ( n.dir === 'O' );
-      //        });
-      self.updateInbox(incomingMessages);
     });
     self.loginLink.bind('click', function(e) {
       e.preventDefault();
-      self.login(self.name.val(), self.password.val());
+      sms.login(self.name.val(), self.password.val());
     });
     self.password.bind('keypress', function(e) {
       if (e.keyCode === 13) {
         e.preventDefault();
-        self.login(self.name.val(), self.password.val());
+        sms.login(self.name.val(), self.password.val());
       }
     });
     self.sendButton.bind('click', function(e) {
       e.preventDefault();
-      self.sendSMS();
+      sms.sendSMS();
     });
     self.sendBody.bind('keypress', function(e) {
       if (e.keyCode === 13) {
         e.preventDefault();
-        self.sendSMS();
+        sms.sendSMS();
       }
     });
   };
 
-  self.remove = function(message, inboxItem) {
-    sound.playClick();
-    if (!window.confirm("Do you really want to delete SMS from " + message.tn + "?")) {
-      return;
-    }
-    self.info("Deleting SMS...");
-    if (inboxItem) {
-      inboxItem.enableActions(false);
-    }
-    smsprovider.remove([message.mid], function() {
-      self.status.toggleClass('hidden', true);
-      inboxItem.remove();
-    }, function(msg) {
-      self.error("Deleting SMS failed : " + msg);
-      inboxItem.enableActions(true);
-    });
+  var _type;
+  self.type = function(value) {
+    _type = value;
   };
-
-  self.login = function(name, password) {
-    sound.playClick();
-    self.info("Logging in...");
-    smsprovider.login(name, password, function(msg) {
-      self.error("Logging failed : " + msg);
-    });
-  };
-
-  self.onNotification = function(notifications) {
-    var needsRead = false;
-    if (!notifications) {
-      return;
-    }
-
-    for (var i = 0; i < notifications.length; i++) {
-      if (notifications[i].action === 'new-rec' || notifications[i].action === 'update' || notifications[i].action === 'delete') {
-        needsRead = true;
-        break;
-      }
-    }
-    if (needsRead) {
-      smsprovider.readAll(function(msg) {
-        self.error("Fetching SMS failed : " + msg);
-      });
-    }
-  };
-
-  self.enableUpdate = function(enable) {
-    self.enableUpdate = enable;
-    self.triggerUpdate();
-  };
-
-  self.triggerUpdate = function() {
-    if (self.enableUpdate && !self.pendingUpdate) {
-      debug('triggering getUpdate');
-      self.pendingUpdate = true;
-      smsprovider.getUpdate(function(notifications) {
-        self.pendingUpdate = false;
-        self.onNotification(notifications);
-        self.triggerUpdate();
-      }, function() {
-        self.pendingUpdate = false;
-        self.error("Technical problems connecting to server - auto refresh disabled");
-      });
-    }
-  };
-
-  self.sendSMS = function() {
-    sound.playClick();
-    var msg = self.validateSendForm();
-    if (msg !== "") {
-      self.error(msg);
-      return;
-    }
-    self.info("Sending SMS...");
-    self.sendButton.attr("disabled", true);
-    smsprovider.sendSMS([self.sendTo.val()], self.sendBody.val(), function(msg) {
-      self.sendButton.attr("disabled", false);
-      self.error("Sending SMS failed : " + msg);
-    });
-  };
-
-  self.validateSendForm = function() {
-    var to = self.sendTo.val();
-    var msgs = [];
-    if (to === '') {
-      msgs.push('Please enter a phone number to send to');
-    } else if (!Utils.isValidUsPstn(to)) {
-      msgs.push(to + ' not a valid US phone number');
-    }
-
-    var body = self.sendBody.val();
-    if (body === '') {
-      msgs.push('Please enter a text to send');
-    }
-
-    return msgs.join('\n');
-  };
-
-  self.onLoggedIn = function() {
-    self.loginForm.toggleClass('hidden', true);
-    self.inbox.toggleClass('hidden', false);
-    self.sendForm.toggleClass('hidden', false);
-    self.enableUpdate(true);
-    smsprovider.readAll(function(msg) {
-      self.error("Fetching SMS failed : " + msg);
-    });
-    self.info("Fetching SMS...");
-  };
-
-  self.updateInbox = function(messages) {
-    self.inboxContent.html('');
-    self.inboxItems = [];
-    for (var i = 0; i < messages.length; i++) {
-      var inboxItem = new InboxItem(this, messages[i]);
-      inboxItem.appendTo(self.inboxContent);
-      self.inboxItems.push(inboxItem);
-    }
-  };
-
-  self.setStatus = function(msg, type) {
+  self.statusText = function(value) {
     self.status.toggleClass('hidden', false);
-    self.status.attr("class", type);
-    self.statusContent.text(msg);
-  };
-
-  self.error = function(msg) {
-    self.setStatus(msg, "error");
-  };
-
-  self.info = function(msg) {
-    self.setStatus(msg, "info");
+    self.status.attr("class", _type);
+    self.statusContent.text(value);
   };
 
   return self;

@@ -39,6 +39,11 @@ Object.defineProperties(global, {
   },
   sms: {
     get: function(){
+      return global.bdsft_client_instances.sms_test;
+    }
+  },
+  smsview: {
+    get: function(){
       return global.bdsft_client_instances.smsview_test;
     }
   },

@@ -144,10 +144,10 @@ describe('settings', function() {
     settingsview.resolutionEncodingStandard.val(WebRTC.C.R_960x720);
     settingsview.resolutionEncodingStandard.trigger('change');
     video.local.trigger("playing");
-    expect(messages.normal.text().trim()).toEqual("");
-    expect(messages.success.text().trim()).toEqual("");
-    expect(messages.alert.text().trim()).toEqual("");
-    expect(messages.warning.text().trim()).toEqual("");
+    expect(messagesview.normal.text().trim()).toEqual("");
+    expect(messagesview.success.text().trim()).toEqual("");
+    expect(messagesview.alert.text().trim()).toEqual("");
+    expect(messagesview.warning.text().trim()).toEqual("");
   });
   it('hide or disable settings when config has corresponding attributes set', function() {
     config.enableAutoAnswer = true;

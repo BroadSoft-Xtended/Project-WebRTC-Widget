@@ -20,6 +20,7 @@ function Factory(constructor){
 		require('./models/reinvite');
 		require('./models/settings');
 		require('./models/sipstack');
+		require('./models/sms');
 		require('./models/smsprovider');
 		require('./models/sound');
 		require('./models/xmpp');
