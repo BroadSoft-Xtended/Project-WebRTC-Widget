@@ -9,28 +9,28 @@ describe('timer', function() {
 
 it('format', function() {
   client = create(config)
-  expect(timer.text.text()).toEqual( '00:00:00');
+  expect(timerview.text.text()).toEqual( '00:00:00');
   var timerFunction = timer.runningTimer();
   timerFunction();
-  expect(timer.text.text()).toEqual( '00:00:00');
+  expect(timerview.text.text()).toEqual( '00:00:00');
 });
 it('timer on call started with enableCallTimer = true', function() {
   config.enableCallTimer = true;
   client = create(config)
-  testUA.isVisible(timer.view, false);
+  testUA.isVisible(timerview.view, false);
   testUA.startCall();
-  testUA.isVisible(timer.view, true);
+  testUA.isVisible(timerview.view, true);
   testUA.endCall();
-  testUA.isVisible(timer.view, false);
-  expect(timer.text.text()).toEqual( '00:00:00');
+  testUA.isVisible(timerview.view, false);
+  expect(timerview.text.text()).toEqual( '00:00:00');
 });
 it('timer on call started with enableCallTimer = false', function() {
   config.enableCallTimer = false;
   client = create(config)
-  testUA.isVisible(timer.view, false);
+  testUA.isVisible(timerview.view, false);
   testUA.startCall();
-  testUA.isVisible(timer.view, false);
+  testUA.isVisible(timerview.view, false);
   testUA.endCall();
-  testUA.isVisible(timer.view, false);
+  testUA.isVisible(timerview.view, false);
 });
 });

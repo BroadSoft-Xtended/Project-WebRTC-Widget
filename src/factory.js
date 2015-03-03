@@ -24,6 +24,7 @@ function Factory(constructor){
 		require('./models/smsprovider');
 		require('./models/sound');
 		require('./models/stats');
+		require('./models/timer');
 		require('./models/xmpp');
 		require('./views/authentication');
 		require('./views/client');

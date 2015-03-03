@@ -34,6 +34,11 @@ Object.defineProperties(global, {
   },
   timer: {
     get: function(){
+      return global.bdsft_client_instances.timer_test;
+    }
+  },
+  timerview: {
+    get: function(){
       return global.bdsft_client_instances.timerview_test;
     }
   },

@@ -3,7 +3,7 @@ module.exports = VideoBarView;
 var Icon = require('../Icon');
 var events;
 
-function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, videoView, callcontrolView, configuration) {
+function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timer, videoView, callcontrolView, configuration) {
   var self = {};
 
   self.fullScreen = false;
@@ -58,7 +58,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
     // self.guiStart();
 
-    timerView.stop();
+    timer.stop();
     self.checkEndCallURL();
   };
 
@@ -67,7 +67,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
     toggleSelfView(self.selfViewVisible);
     toggleSound(self.soundEnabled);
 
-    timerView.view.appendTo(self.cellTimer);
+    timer.view.view.appendTo(self.cellTimer);
 
   };
 
