@@ -44,6 +44,11 @@ Object.defineProperties(global, {
   },
   history: {
     get: function(){
+      return global.bdsft_client_instances.history_test;
+    }
+  },
+  historyview: {
+    get: function(){
       return global.bdsft_client_instances.historyview_test;
     }
   },

@@ -28,29 +28,29 @@ describe('history', function() {
   it('persistCall and toggle', function() {
     client = create(config)
     history.persistCall(rtcSession);
-    history.toggle();
+    historyview.toggle();
     expect(history.pageNumber).toEqual(0);
-    expect(history.historyForward.is(":visible")).toEqual(false);
-    expect(history.historyBack.is(":visible")).toEqual(false);
-    expect(history.content.text().indexOf("remote") !== -1).toEqual(true, "Should contain content");
+    expect(historyview.historyForward.is(":visible")).toEqual(false);
+    expect(historyview.historyBack.is(":visible")).toEqual(false);
+    expect(historyview.content.text().indexOf("remote") !== -1).toEqual(true, "Should contain content");
   });
 
   it('persistCall and toggle and show details', function() {
     client = create(config)
     mockStats();
     history.persistCall(rtcSession);
-    history.toggle();
-    history.rows[0].trigger("click");
-    expect(history.callHistoryDetails.is(":visible")).toEqual(true, "Should show details");
-    expect(history.resolutionIn.text()).toEqual("test-video-googFrameWidthReceivedxtest-video-googFrameHeightReceived");
-    expect(history.resolutionOut.text()).toEqual("test-video-googFrameWidthSentxtest-video-googFrameHeightSent");
-    expect(history.bitrateIn.text()).toEqual("avg-video-kiloBitsReceivedPerSecond");
-    expect(history.bitrateOut.text()).toEqual("avg-video-kiloBitsSentPerSecond");
-    expect(history.frameRateIn.text()).toEqual("avg-video-googFrameRateReceived");
-    expect(history.frameRateOut.text()).toEqual("avg-video-googFrameRateSent");
-    expect(history.audioLostPer.text()).toEqual("avg-audio-packetsLostPer");
-    expect(history.videoLostPer.text()).toEqual("avg-video-packetsLostPer");
-    expect(history.jitter.text()).toEqual("avg-audio-googJitterReceived");
+    historyview.toggle();
+    historyview.rows[0].trigger("click");
+    expect(historyview.callHistoryDetails.is(":visible")).toEqual(true, "Should show details");
+    expect(historyview.resolutionIn.text()).toEqual("test-video-googFrameWidthReceivedxtest-video-googFrameHeightReceived");
+    expect(historyview.resolutionOut.text()).toEqual("test-video-googFrameWidthSentxtest-video-googFrameHeightSent");
+    expect(historyview.bitrateIn.text()).toEqual("avg-video-kiloBitsReceivedPerSecond");
+    expect(historyview.bitrateOut.text()).toEqual("avg-video-kiloBitsSentPerSecond");
+    expect(historyview.frameRateIn.text()).toEqual("avg-video-googFrameRateReceived");
+    expect(historyview.frameRateOut.text()).toEqual("avg-video-googFrameRateSent");
+    expect(historyview.audioLostPer.text()).toEqual("avg-audio-packetsLostPer");
+    expect(historyview.videoLostPer.text()).toEqual("avg-video-packetsLostPer");
+    expect(historyview.jitter.text()).toEqual("avg-audio-googJitterReceived");
   });
   it('persistCall and toggle and show details and call', function() {
     config.allowOutside = true;
@@ -66,13 +66,13 @@ describe('history', function() {
       destination = dest;
     };
     var callHistoryHidden = false;
-    history.callHistoryDetails.hide = function(){
+    historyview.callHistoryDetails.hide = function(){
       callHistoryHidden = true;
     }
     history.persistCall(createRtcSession("sip:remote1@webrtc.broadsoft.com"));
-    history.toggle();
-    history.rows[0].trigger("click");
-    history.callLink.trigger("click");
+    historyview.toggle();
+    historyview.rows[0].trigger("click");
+    historyview.callLink.trigger("click");
     expect(destination).toEqual("sip:remote1@to.domain", "Should trigger call on sipstack with correct destination");
     expect(callHistoryHidden).toEqual(true);
   });
@@ -84,14 +84,14 @@ describe('history', function() {
       called = true;
     };
     var callHistoryHidden = false;
-    history.callHistoryDetails.hide = function(){
+    historyview.callHistoryDetails.hide = function(){
       callHistoryHidden = true;
     }
     history.persistCall(createRtcSession("sip:remote1@webrtc.broadsoft.com"));
     testUA.startCall();
-    history.toggle();
-    history.rows[0].trigger("click");
-    history.callLink.trigger("click");
+    historyview.toggle();
+    historyview.rows[0].trigger("click");
+    historyview.callLink.trigger("click");
     expect(called).toEqual(false);
     expect(callHistoryHidden).toEqual(true);
   });
@@ -123,11 +123,11 @@ describe('history', function() {
     history.persistCall(session1);
     history.persistCall(session2);
     history.persistCall(session3);
-    history.toggle();
+    historyview.toggle();
     expect(history.pageNumber).toEqual(0);
-    expect(history.content.text().indexOf("remote1") === -1).toEqual(true, "Should not contain session1 destination");
-    expect(history.content.text().indexOf("remote2") !== -1).toEqual(true, "Should contain session2 destination");
-    expect(history.content.text().indexOf("remote3") !== -1).toEqual(true, "Should contain session3 destination");
+    expect(historyview.content.text().indexOf("remote1") === -1).toEqual(true, "Should not contain session1 destination");
+    expect(historyview.content.text().indexOf("remote2") !== -1).toEqual(true, "Should contain session2 destination");
+    expect(historyview.content.text().indexOf("remote3") !== -1).toEqual(true, "Should contain session3 destination");
     // TODO - add back after checking on forward / backward buttons?
     // expect(history.historyForward.is(":visible")).toEqual( true);
     // expect(history.historyBack.is(":visible")).toEqual( false);
@@ -139,13 +139,13 @@ describe('history', function() {
     history.persistCall(session1);
     history.persistCall(session2);
     history.persistCall(session3);
-    history.toggle();
+    historyview.toggle();
     expect(history.pageNumber).toEqual(0);
-    history.historyClear.trigger("click");
+    historyview.historyClear.trigger("click");
     expect(history.pageNumber).toEqual(0);
-    expect(history.content.text()).toEqual("", "Should not contain content");
-    expect(history.historyForward.is(":visible")).toEqual(false);
-    expect(history.historyBack.is(":visible")).toEqual(false);
+    expect(historyview.content.text()).toEqual("", "Should not contain content");
+    expect(historyview.historyForward.is(":visible")).toEqual(false);
+    expect(historyview.historyBack.is(":visible")).toEqual(false);
   });
 
   // TODO - add back after checking on forward / backward buttons?
@@ -183,10 +183,6 @@ describe('history', function() {
       getCallCookieValue(session3) + "~" + getCallCookieValue(session2)
       ]);
   });
-
-  function getCall(session) {
-    return new WebRTC.History.Call(getCallCookieValue(session));
-  }
 
   function getCallCookieValue(session) {
     session = session || rtcSession;

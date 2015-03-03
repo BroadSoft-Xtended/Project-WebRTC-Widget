@@ -959,6 +959,9 @@
   opacity: 0;
   z-index: -1;
 }
+.bdsft-client .enableCallHistory:not(.connected) .callHistory .callLink {
+  display: none;
+}
 .bdsft-client .stats {
   position: absolute;
   top: 10px;

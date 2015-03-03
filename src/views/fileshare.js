@@ -1,9 +1,6 @@
 module.exports = FileShareView
 
-var Utils = require('../Utils');
-var fileSaver = require('filesaver.js');
-
-function FileShareView(options, sipstack, eventbus, debug) {
+function FileShareView(eventbus) {
   var self = {};
 
   var requestSend = function(e) {
