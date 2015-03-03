@@ -96,32 +96,6 @@ describe('client', function() {
     expect(destinationCalled).toEqual('');
     delete config.destination;
   });
-  it('reInvite popup:', function() {
-    client = create(config);
-    expect(reinvite.attached).toEqual(false);
-  });
-  it('reInvite popup after incoming reInvite', function() {
-    config.enableAutoAcceptReInvite = false;
-    client = create(config);
-    testUA.emitReInvite();
-    testUA.isVisible(reinvite.view, true);
-  });
-  it('reInvite popup after incoming reInvite and accept clicked', function() {
-    config.enableAutoAcceptReInvite = false;
-    client = create(config);
-    testUA.emitReInvite();
-    reinvite.acceptReInviteCall.trigger("click");
-    testUA.isVisible(reinvite.view, false);
-    expect(reInviteAccepted).toExist("should have accepted the reInvite")
-  });
-  it('reInvite popup after incoming reInvite and reject clicked', function() {
-    config.enableAutoAcceptReInvite = false;
-    client = create(config);
-    testUA.emitReInvite();
-    reinvite.rejectReInviteCall.trigger("click");
-    testUA.isVisible(reinvite.view, false);
-    expect(reInviteRejected).toExist("should have rejected the reInvite");
-  });
   it('muteAudio', function() {
     client = create(config);
     testUA.isVisible(videobar.muteAudioIcon, false);

@@ -59,6 +59,11 @@ Object.defineProperties(global, {
   },
   reinvite: {
     get: function(){
+      return global.bdsft_client_instances.reinvite_test;
+    }
+  },
+  reinviteview: {
+    get: function(){
       return global.bdsft_client_instances.reinviteview_test;
     }
   },

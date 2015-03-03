@@ -17,6 +17,7 @@ function Factory(constructor){
 		require('./models/history');
 		require('./models/incomingcall');
 		require('./models/messages');
+		require('./models/reinvite');
 		require('./models/settings');
 		require('./models/sipstack');
 		require('./models/smsprovider');

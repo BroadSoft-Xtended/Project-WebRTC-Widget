@@ -22,7 +22,7 @@ function Prop(obj, prop) {
 	};
 
 	var isSelect = function() {
-		return data[0] && data[0].nodeName === 'select';
+		return data[0] && data[0].nodeName && data[0].nodeName.match(/select/i);
 	};
 
 	self.__get = function(){
