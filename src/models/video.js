@@ -7,9 +7,11 @@ function Video(eventbus, debug, settings, videoView) {
 
   self.props = {'localEl': true, 'remoteEl': true, 'localWidth': true, 'localHeight': true};
 
-  var validateUserMediaResolution = function() {
+  self.validateUserMediaResolution = function() {
     var encodingWidth = settings.getResolutionEncodingWidth();
     var encodingHeight = settings.getResolutionEncodingHeight();
+    var videoWidth = self.localWidth;
+    var videoHeight = self.localHeight;
     debug("validating video resolution " + videoWidth + "," + videoHeight + " to match selected encoding " + encodingWidth + "," + encodingHeight);
     if (!videoWidth && !videoHeight) {
       return;
@@ -34,7 +36,7 @@ function Video(eventbus, debug, settings, videoView) {
   };
 
   self.updateSessionStreams = function(session) {
-    self.updateStreams(session.getLocalStreams(), session.getRemoteStreams());
+    self.updateStreams(session && session.getLocalStreams(), session && session.getRemoteStreams());
   };
 
   self.updateStreams = function(localStreams, remoteStreams) {

@@ -1,7 +1,7 @@
 module.exports = VideoView;
 require('jquery-ui/draggable');
 
-function VideoView(settings, configuration, historyView) {
+function VideoView(settings, configuration, historyView, video) {
   var self = {}; 
 
   self.elements = ['local', 'remote', 'localVideo'];
@@ -27,7 +27,7 @@ function VideoView(settings, configuration, historyView) {
       historyView.hide();
     });
     self.local.bind("playing", function() {
-      validateUserMediaResolution();
+      video.validateUserMediaResolution();
     });
   };
 

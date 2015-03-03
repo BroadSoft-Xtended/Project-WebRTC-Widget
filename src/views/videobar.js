@@ -3,7 +3,7 @@ module.exports = VideoBarView;
 var Icon = require('../Icon');
 var events;
 
-function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timer, videoView, callcontrolView, configuration) {
+function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dialpadView, timer, video, callcontrolView, configuration) {
   var self = {};
 
   self.fullScreen = false;
@@ -54,7 +54,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
       sipstack.terminateSession();
     }
     sound.pause();
-    videoView.updateSessionStreams();
+    video.updateSessionStreams();
 
     // self.guiStart();
 
