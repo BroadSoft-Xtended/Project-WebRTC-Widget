@@ -22,7 +22,7 @@ describe('transfer', function() {
   });
   it('transferPopup', function() {
     client = create(config)
-    expect(transfer.attached).toEqual(false);
+    expect(transferview.attached).toEqual(false);
   });
   it('transfer on call started with enableTransfer is false', function() {
     config.enableTransfer = false;
@@ -39,22 +39,22 @@ describe('transfer', function() {
     client = create(config)
     testUA.startCall();
     videobar.transfer.trigger("click");
-    testUA.isVisible(transfer.view, true);
+    testUA.isVisible(transferview.view, true);
     videobar.transfer.trigger("click");
-    testUA.isVisible(transfer.view, false);
+    testUA.isVisible(transferview.view, false);
   });
   it('transferPopup on transfer rejected', function() {
     client = create(config)
     testUA.startCall();
     videobar.transfer.trigger("click");
-    testUA.isVisible(transfer.view, true);
-    transfer.reject.trigger("click");
-    testUA.isVisible(transfer.view, false);
+    testUA.isVisible(transferview.view, true);
+    transferview.reject.trigger("click");
+    testUA.isVisible(transferview.view, false);
   });
   it('transferPopup on call started', function() {
     client = create(config)
     testUA.startCall();
-    expect(transfer.attached).toEqual(false);
+    expect(transferview.attached).toEqual(false);
   });
   it('transfer on call ended', function() {
     client = create(config)
@@ -105,9 +105,9 @@ describe('transfer', function() {
     };
     testUA.startCall();
     videobar.transfer.trigger("click");
-    testUA.isVisible(transfer.view, true);
-    transfer.accept.trigger("click");
-    testUA.isVisible(transfer.view, true);
+    testUA.isVisible(transferview.view, true);
+    transferview.accept.trigger("click");
+    testUA.isVisible(transferview.view, true);
     expect(transferTarget).toEqual(null);
   });
   it('acceptTransfer triggered with target', function() {
@@ -119,10 +119,10 @@ describe('transfer', function() {
     };
     testUA.startCall();
     videobar.transfer.trigger("click");
-    testUA.isVisible(transfer.view, true);
-    transfer.target.val("1000@other.domain.to");
-    transfer.accept.trigger("click");
-    testUA.isVisible(transfer.view, false);
+    testUA.isVisible(transferview.view, true);
+    transferview.target.val("1000@other.domain.to");
+    transferview.accept.trigger("click");
+    testUA.isVisible(transferview.view, false);
     expect(transferTarget).toEqual("sip:1000@other.domain.to");
   });
   it('acceptTransfer triggered with target and with attended checked', function() {
@@ -139,9 +139,9 @@ describe('transfer', function() {
     };
     testUA.startCall();
     videobar.transfer.trigger("click");
-    transfer.typeAttended.prop('checked', true);
-    transfer.target.val("1000@other.domain.to");
-    transfer.accept.trigger("click");
+    transferview.typeAttended.prop('checked', true);
+    transferview.target.val("1000@other.domain.to");
+    transferview.accept.trigger("click");
     expect(attendedTransferTarget).toEqual("sip:1000@other.domain.to");
   });
 });

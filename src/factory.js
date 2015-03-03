@@ -25,6 +25,8 @@ function Factory(constructor){
 		require('./models/sound');
 		require('./models/stats');
 		require('./models/timer');
+		require('./models/transfer');
+		require('./models/video');
 		require('./models/xmpp');
 		require('./views/authentication');
 		require('./views/client');

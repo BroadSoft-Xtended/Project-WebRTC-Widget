@@ -3,7 +3,7 @@ module.exports = TransferView;
 var PopupView = require('./popup');
 var Utils = require('../Utils');
 
-function TransferView(options, sound, sipstack, eventbus, configuration, callcontrol) {
+function TransferView(options, sound, eventbus, transfer) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
@@ -19,22 +19,13 @@ function TransferView(options, sound, sipstack, eventbus, configuration, callcon
     self.accept.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
-      var target = self.target.val();
-      if ($.isBlank(target)) {
-        eventbus.emit('message', {text: configuration.messageOutsideDomain, level: 'alert'});
-        return;
-      }
-      target = callcontrol.validateDestination(target);
-      if(target) {
-        self.setVisible(false);
-        sipstack.transfer(target, self.typeAttended.is(':checked'));        
-      }
+      transfer.transfer();
     });
 
     self.reject.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
-      self.setVisible(false);
+      self.hide();
     });
   };
 

@@ -139,6 +139,11 @@ Object.defineProperties(global, {
   },
   transfer: {
     get: function(){
+      return global.bdsft_client_instances.transfer_test;
+    }
+  },
+  transferview: {
+    get: function(){
       return global.bdsft_client_instances.transferview_test;
     }
   },

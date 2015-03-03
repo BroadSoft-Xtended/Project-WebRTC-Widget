@@ -11,7 +11,7 @@ var ExSIP = require('exsip');
 require('../models/eventbus');
 var ClientConfig = require('../../js/client-config.js.default');
 
-function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authentication, 
+function ClientView(options, eventbus, debug, configuration, video, videobarView, sound, callcontrol, sipstack, transfer, authentication, 
   xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, stats) {
   var self = {};
 
@@ -48,7 +48,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 
     self.updateCss();
 
-    videoView.view.appendTo(self.main);
+    video.view.view.appendTo(self.main);
     videobarView.view.appendTo(self.main);
     messages.view.view.appendTo(self.main);
     connectionstatus.view.view.appendTo(self.main);
@@ -78,7 +78,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     $(document).unbind('keydown').bind('keydown', function(event) {
       var isModifier = event.altKey;
       if (isModifier) {
-        if (transferview.target.is(event.target)) {
+        if (transfer.view.target.is(event.target)) {
           return;
         }
         eventbus.modifier(event.which);

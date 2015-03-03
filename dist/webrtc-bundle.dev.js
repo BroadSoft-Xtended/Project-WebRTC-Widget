@@ -80648,7 +80648,7 @@ if (typeof String.prototype.endsWith !== 'function') {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
-},{"../js/client-config.js.default":1,"./Constants":454,"./Utils":457,"./factory":461,"./models/settings":472,"./models/sound":476,"./views/client":482,"exsip":203,"jquery":232,"jquery.cookie":231}],459:[function(require,module,exports){
+},{"../js/client-config.js.default":1,"./Constants":454,"./Utils":457,"./factory":461,"./models/settings":472,"./models/sound":476,"./views/client":485,"exsip":203,"jquery":232,"jquery.cookie":231}],459:[function(require,module,exports){
 /*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
@@ -80934,7 +80934,7 @@ function CookieProp(obj, prop, cookie, expires) {
 
 	return self;
 }
-},{"./Constants":454,"./Utils":457,"./prop":479,"jquery":232}],461:[function(require,module,exports){
+},{"./Constants":454,"./Utils":457,"./prop":482,"jquery":232}],461:[function(require,module,exports){
 (function (global){
 var $ = require('jquery');
 var templates = require('../js/templates');
@@ -80962,6 +80962,9 @@ function Factory(constructor){
 		require('./models/smsprovider');
 		require('./models/sound');
 		require('./models/stats');
+		require('./models/timer');
+		require('./models/transfer');
+		require('./models/video');
 		require('./models/xmpp');
 		require('./views/authentication');
 		require('./views/client');
@@ -81146,7 +81149,7 @@ function create(constructor, argArray) {
 	return new factoryFunction();
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../js/templates":4,"./cookieprop":460,"./models/authentication":462,"./models/callcontrol":463,"./models/configuration":464,"./models/connectionstatus":465,"./models/debug":466,"./models/eventbus":467,"./models/history":468,"./models/incomingcall":469,"./models/messages":470,"./models/reinvite":471,"./models/settings":472,"./models/sipstack":473,"./models/sms":474,"./models/smsprovider":475,"./models/sound":476,"./models/stats":477,"./models/xmpp":478,"./prop":479,"./views/authentication":480,"./views/callcontrol":481,"./views/client":482,"./views/connectionstatus":483,"./views/dialpad":484,"./views/fileshare":485,"./views/history":486,"./views/incomingcall":487,"./views/messages":488,"./views/popup":489,"./views/reinvite":490,"./views/settings":491,"./views/sms":492,"./views/stats":493,"./views/timer":494,"./views/transfer":495,"./views/video":496,"./views/videobar":497,"./views/whiteboard":498,"./views/xmpp":499,"filesaver.js":226,"jquery":232}],462:[function(require,module,exports){
+},{"../js/templates":4,"./cookieprop":460,"./models/authentication":462,"./models/callcontrol":463,"./models/configuration":464,"./models/connectionstatus":465,"./models/debug":466,"./models/eventbus":467,"./models/history":468,"./models/incomingcall":469,"./models/messages":470,"./models/reinvite":471,"./models/settings":472,"./models/sipstack":473,"./models/sms":474,"./models/smsprovider":475,"./models/sound":476,"./models/stats":477,"./models/timer":478,"./models/transfer":479,"./models/video":480,"./models/xmpp":481,"./prop":482,"./views/authentication":483,"./views/callcontrol":484,"./views/client":485,"./views/connectionstatus":486,"./views/dialpad":487,"./views/fileshare":488,"./views/history":489,"./views/incomingcall":490,"./views/messages":491,"./views/popup":492,"./views/reinvite":493,"./views/settings":494,"./views/sms":495,"./views/stats":496,"./views/timer":497,"./views/transfer":498,"./views/video":499,"./views/videobar":500,"./views/whiteboard":501,"./views/xmpp":502,"filesaver.js":226,"jquery":232}],462:[function(require,module,exports){
 module.exports = Authentication;
 
 var $ = require('jquery');
@@ -81208,7 +81211,7 @@ var $ = require('jquery');
 
 var C = require('../Constants');
 
-function CallControl(eventbus, configuration, sipstack, debug, callcontrolView) {
+function CallControl(eventbus, configuration, sipstack, debug, callcontrolView, sound) {
   var self = {};
 
   self.view = callcontrolView;
@@ -83455,6 +83458,176 @@ function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
   return self;
 }
 },{"../../js/stats":3,"../Utils":457}],478:[function(require,module,exports){
+module.exports = Timer;
+
+var Utils = require('../Utils');
+
+function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView) {
+  var self = {};
+
+  self.view = timerView;
+  
+  self.callTimer = null;
+  self.startTime = null;
+
+  self.props = {'text': true};
+
+  self.init = function() {
+    self.updateText();
+  };
+
+  self.listeners = function() {
+    eventbus.on("started", function(e) {
+      if (e.data && !e.data.isReconnect) {
+        self.start();
+      }
+    });
+  };
+
+  self.start = function() {
+    if (self.callTimer) {
+      debug('timer ' + self.callTimer + ' already running');
+      return;
+    }
+
+    var timer = self.runningTimer();
+    self.callTimer = setInterval(timer, 1000);
+    debug("started timer interval");
+  };
+
+  self.stop = function() {
+    self.startTime = null;
+    clearInterval(self.callTimer);
+    debug("cleared timer interval");
+    self.callTimer = null;
+    self.updateText();
+  };
+
+  self.getSeconds = function() {
+    return Math.round((new Date().getTime() - (self.startTime || new Date().getTime())) / 1000);
+  };
+
+  self.updateText = function() {
+    var secs = self.getSeconds();
+    self.text = Utils.format(secs);
+  };
+
+  // Display the timer on the screen
+  self.runningTimer = function() {
+    self.startTime = new Date().getTime();
+    return function() {
+      var secs = self.getSeconds();
+      if (configuration.maxCallLength && secs >= configuration.maxCallLength) {
+        sipstack.terminateSessions();
+        videobarView.endCall();
+        return;
+      }
+      self.updateText();
+    };
+  }
+
+  return self;
+}
+},{"../Utils":457}],479:[function(require,module,exports){
+module.exports = Transfer;
+
+var Utils = require('../Utils');
+
+function Transfer(sipstack, eventbus, configuration, callcontrol, transferView) {
+  var self = {};
+
+  self.view = transferView;
+
+  self.props = {
+    'target': true,
+    'typeAttended': true
+  };
+
+  self.transfer = function() {
+    var target = self.target;
+    if ($.isBlank(target)) {
+      eventbus.emit('message', {
+        text: configuration.messageOutsideDomain,
+        level: 'alert'
+      });
+      return;
+    }
+    target = callcontrol.validateDestination(target);
+    if (target) {
+      self.view.hide();
+      sipstack.transfer(target, self.typeAttended);
+    }
+  };
+
+  return self;
+}
+},{"../Utils":457}],480:[function(require,module,exports){
+module.exports = Video;
+
+function Video(eventbus, debug, settings, videoView) {
+  var self = {}; 
+
+  self.view = videoView;
+
+  self.props = {'localEl': true, 'remoteEl': true, 'localWidth': true, 'localHeight': true};
+
+  var validateUserMediaResolution = function() {
+    var encodingWidth = settings.getResolutionEncodingWidth();
+    var encodingHeight = settings.getResolutionEncodingHeight();
+    debug("validating video resolution " + videoWidth + "," + videoHeight + " to match selected encoding " + encodingWidth + "," + encodingHeight);
+    if (!videoWidth && !videoHeight) {
+      return;
+    }
+
+    if (encodingWidth !== videoWidth || encodingHeight !== videoHeight) {
+      var msg = "Video resolution " + videoWidth + "," + videoHeight + " does not match selected encoding " + encodingWidth + "," + encodingHeight;
+      debug(msg);
+    }
+  };
+
+  self.listeners = function() {
+    eventbus.on("userMediaUpdated", function(e) {
+      self.updateStreams([e && e.localStream], []);
+    });
+    eventbus.on("resumed", function(e) {
+      self.updateSessionStreams(e.sender);
+    });
+    eventbus.on("started", function(e) {
+      self.updateSessionStreams(e.sender);
+    });
+  };
+
+  self.updateSessionStreams = function(session) {
+    self.updateStreams(session.getLocalStreams(), session.getRemoteStreams());
+  };
+
+  self.updateStreams = function(localStreams, remoteStreams) {
+    debug("updating video streams");
+    self.setVideoStream(self.localEl, localStreams);
+    self.setVideoStream(self.remoteEl, remoteStreams);
+  };
+
+  self.setVideoStream = function(video, streams) {
+    var hasStream = streams && streams.length > 0 && typeof(streams[0]) !== 'undefined' && !streams[0].ended;
+    if (video && video.mozSrcObject !== undefined) {
+      if (hasStream) {
+        video.mozSrcObject = streams[0];
+        video.play();
+      } else {
+        video.mozSrcObject = null;
+      }
+    } else if (video) {
+      if (hasStream) {
+        video.src = (window.URL && window.URL.createObjectURL(streams[0])) || streams[0];
+      } else {
+        video.src = "";
+      }
+    }
+  };
+
+  return self;
+}
+},{}],481:[function(require,module,exports){
 module.exports = XMPP;
 
 var XMPP = require('stanza.io');
@@ -83505,7 +83678,7 @@ function XMPP(debug, eventbus) {
 
   return self;
 }
-},{"stanza.io":234}],479:[function(require,module,exports){
+},{"stanza.io":234}],482:[function(require,module,exports){
 module.exports = Prop;
 
 function Prop(obj, prop) {
@@ -83583,7 +83756,7 @@ function Prop(obj, prop) {
 
 	return self;
 }
-},{}],480:[function(require,module,exports){
+},{}],483:[function(require,module,exports){
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
@@ -83618,7 +83791,7 @@ function AuthenticationView(options, eventbus, authentication) {
 
   return self;
 }
-},{"../Utils":457,"./popup":489,"jquery":232}],481:[function(require,module,exports){
+},{"../Utils":457,"./popup":492,"jquery":232}],484:[function(require,module,exports){
 module.exports = CallControlView
 
 var Utils = require('../Utils');
@@ -83696,7 +83869,7 @@ function CallControlView(options, eventbus, callcontrol, historyView, sipstack, 
 
   return self;
 }
-},{"../Utils":457,"./popup":489}],482:[function(require,module,exports){
+},{"../Utils":457,"./popup":492}],485:[function(require,module,exports){
 module.exports = ClientView;
 
 
@@ -83710,7 +83883,7 @@ var ExSIP = require('exsip');
 require('../models/eventbus');
 var ClientConfig = require('../../js/client-config.js.default');
 
-function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authentication, 
+function ClientView(options, eventbus, debug, configuration, video, videobarView, sound, callcontrol, sipstack, transfer, authentication, 
   xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, stats) {
   var self = {};
 
@@ -83747,7 +83920,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 
     self.updateCss();
 
-    videoView.view.appendTo(self.main);
+    video.view.view.appendTo(self.main);
     videobarView.view.appendTo(self.main);
     messages.view.view.appendTo(self.main);
     connectionstatus.view.view.appendTo(self.main);
@@ -83777,7 +83950,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     $(document).unbind('keydown').bind('keydown', function(event) {
       var isModifier = event.altKey;
       if (isModifier) {
-        if (transferview.target.is(event.target)) {
+        if (transfer.view.target.is(event.target)) {
           return;
         }
         eventbus.modifier(event.which);
@@ -83885,7 +84058,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 }
 
 exports.constructor = ClientView;
-},{"../../js/client-config.js.default":1,"../Constants":454,"../Icon":456,"../Utils":457,"../models/eventbus":467,"ejs":172,"exsip":203,"jquery":232}],483:[function(require,module,exports){
+},{"../../js/client-config.js.default":1,"../Constants":454,"../Icon":456,"../Utils":457,"../models/eventbus":467,"ejs":172,"exsip":203,"jquery":232}],486:[function(require,module,exports){
 module.exports = ConnectionStatusView
 
 function ConnectionStatusView() {
@@ -83941,7 +84114,7 @@ function ConnectionStatusView() {
 
   return self;
 }
-},{}],484:[function(require,module,exports){
+},{}],487:[function(require,module,exports){
 module.exports = DialpadView
 
 function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
@@ -83959,7 +84132,7 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView, 
 
   return self;
 }
-},{}],485:[function(require,module,exports){
+},{}],488:[function(require,module,exports){
 module.exports = FileShareView
 
 function FileShareView(eventbus) {
@@ -83991,7 +84164,7 @@ function FileShareView(eventbus) {
 
   return self;
 }
-},{}],486:[function(require,module,exports){
+},{}],489:[function(require,module,exports){
 module.exports = HistoryView
 
 var Utils = require('../Utils');
@@ -84125,7 +84298,7 @@ function HistoryView(options, sound, history, eventbus, callcontrol) {
   return self;
 
 }
-},{"../Constants":454,"../Utils":457,"./popup":489}],487:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"./popup":492}],490:[function(require,module,exports){
 module.exports = IncomingCallView
 
 var Utils = require('../Utils');
@@ -84160,7 +84333,7 @@ function IncomingCallView(options, eventbus, incomingcall) {
 
   return self;
 }
-},{"../Utils":457,"./popup":489,"exsip":203}],488:[function(require,module,exports){
+},{"../Utils":457,"./popup":492,"exsip":203}],491:[function(require,module,exports){
 module.exports = MessagesView
 
 function MessagesView() {
@@ -84181,7 +84354,7 @@ function MessagesView() {
 
   return self;
 }
-},{}],489:[function(require,module,exports){
+},{}],492:[function(require,module,exports){
 (function (global){
 module.exports = PopupView;
 
@@ -84219,7 +84392,7 @@ function PopupView(options, eventbus) {
   return self;
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":232}],490:[function(require,module,exports){
+},{"jquery":232}],493:[function(require,module,exports){
 module.exports = ReinviteView
 
 var PopupView = require('./popup');
@@ -84243,7 +84416,7 @@ function ReinviteView(options, eventbus, reinvite) {
 
   return self;
 }
-},{"../Utils":457,"./popup":489}],491:[function(require,module,exports){
+},{"../Utils":457,"./popup":492}],494:[function(require,module,exports){
 module.exports = SettingsView;
 
 var WebRTC_C = require('../Constants');
@@ -84375,7 +84548,7 @@ function SettingsView(options, settings, configuration, eventbus, debug, sound) 
 
   return self;
 }
-},{"../Constants":454,"../Utils":457,"./popup":489}],492:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"./popup":492}],495:[function(require,module,exports){
 module.exports = SMSView;
 
 var Utils = require('../Utils');
@@ -84531,7 +84704,7 @@ function SMSView(options, eventbus, debug, sound, sms) {
 
   return self;
 }
-},{"../Utils":457,"./popup":489}],493:[function(require,module,exports){
+},{"../Utils":457,"./popup":492}],496:[function(require,module,exports){
 module.exports = StatsView;
 
 var PopupView = require('./popup');
@@ -84587,82 +84760,23 @@ function StatsView(options, eventbus) {
 
   return self;
 }
-},{"../Utils":457,"./popup":489}],494:[function(require,module,exports){
+},{"../Utils":457,"./popup":492}],497:[function(require,module,exports){
 module.exports = TimerView;
 
-var Utils = require('../Utils');
-
-function TimerView(debug, eventbus, configuration, sipstack, videobarView) {
+function TimerView() {
   var self = {};
-
-  self.callTimer = null;
-  self.startTime = null;
 
   self.elements = ['text'];
 
-  self.init = function() {
-    self.updateText();
-  };
-
-  self.listeners = function() {
-    eventbus.on("started", function(e) {
-      if (e.data && !e.data.isReconnect) {
-        self.start();
-      }
-    });
-  };
-
-  self.start = function() {
-    if (self.callTimer) {
-      debug('timer ' + self.callTimer + ' already running');
-      return;
-    }
-
-    var timer = self.runningTimer();
-    self.callTimer = setInterval(timer, 1000);
-    debug("started timer interval");
-  };
-
-  self.stop = function() {
-    self.startTime = null;
-    clearInterval(self.callTimer);
-    debug("cleared timer interval");
-    self.callTimer = null;
-    self.updateText();
-  };
-
-  self.getSeconds = function() {
-    return Math.round((new Date().getTime() - (self.startTime || new Date().getTime())) / 1000);
-  };
-
-  self.updateText = function() {
-    var secs = self.getSeconds();
-    self.text.text(Utils.format(secs));
-  };
-
-  // Display the timer on the screen
-  self.runningTimer = function() {
-    self.startTime = new Date().getTime();
-    return function() {
-      var secs = self.getSeconds();
-      if (configuration.maxCallLength && secs >= configuration.maxCallLength) {
-        sipstack.terminateSessions();
-        videobarView.endCall();
-        return;
-      }
-      self.updateText();
-    };
-  }
-
   return self;
 }
-},{"../Utils":457}],495:[function(require,module,exports){
+},{}],498:[function(require,module,exports){
 module.exports = TransferView;
 
 var PopupView = require('./popup');
 var Utils = require('../Utils');
 
-function TransferView(options, sound, sipstack, eventbus, configuration, callcontrol) {
+function TransferView(options, sound, eventbus, transfer) {
   var self = {};
 
   Utils.extend(self, PopupView(options, eventbus));
@@ -84678,50 +84792,26 @@ function TransferView(options, sound, sipstack, eventbus, configuration, callcon
     self.accept.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
-      var target = self.target.val();
-      if ($.isBlank(target)) {
-        eventbus.emit('message', {text: configuration.messageOutsideDomain, level: 'alert'});
-        return;
-      }
-      target = callcontrol.validateDestination(target);
-      if(target) {
-        self.setVisible(false);
-        sipstack.transfer(target, self.typeAttended.is(':checked'));        
-      }
+      transfer.transfer();
     });
 
     self.reject.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
-      self.setVisible(false);
+      self.hide();
     });
   };
 
   return self;
 }
-},{"../Utils":457,"./popup":489}],496:[function(require,module,exports){
+},{"../Utils":457,"./popup":492}],499:[function(require,module,exports){
 module.exports = VideoView;
 require('jquery-ui/draggable');
 
-function VideoView(options, sipstack, eventbus, debug, settings, configuration, historyView) {
+function VideoView(settings, configuration, historyView) {
   var self = {}; 
+
   self.elements = ['local', 'remote', 'localVideo'];
-
-  var validateUserMediaResolution = function() {
-    var encodingWidth = settings.getResolutionEncodingWidth();
-    var encodingHeight = settings.getResolutionEncodingHeight();
-    var videoWidth = self.localWidth();
-    var videoHeight = self.localHeight();
-    debug("validating video resolution " + videoWidth + "," + videoHeight + " to match selected encoding " + encodingWidth + "," + encodingHeight);
-    if (!videoWidth && !videoHeight) {
-      return;
-    }
-
-    if (encodingWidth !== videoWidth || encodingHeight !== videoHeight) {
-      var msg = "Video resolution " + videoWidth + "," + videoHeight + " does not match selected encoding " + encodingWidth + "," + encodingHeight;
-      debug(msg);
-    }
-  };
 
   self.init = function() {
     // Allow some windows to be draggable, required jQuery.UI
@@ -84732,7 +84822,7 @@ function VideoView(options, sipstack, eventbus, debug, settings, configuration, 
           containment: ".main",
           snapTolerance: 200,
           stop: function(event, ui) {
-            self.settings.updateViewPositions();
+            settings.updateViewPositions();
           }
         });
       });
@@ -84746,25 +84836,14 @@ function VideoView(options, sipstack, eventbus, debug, settings, configuration, 
     self.local.bind("playing", function() {
       validateUserMediaResolution();
     });
-    eventbus.on("userMediaUpdated", function(e) {
-      self.updateStreams([e && e.localStream], []);
-    });
-    eventbus.on("resumed", function(e) {
-      self.updateSessionStreams(e.sender);
-    });
-    eventbus.on("started", function(e) {
-      self.updateSessionStreams(e.sender);
-    });
   };
 
-  self.updateSessionStreams = function() {
-    self.updateStreams(sipstack.getLocalStreams(), sipstack.getRemoteStreams());
+  self.localEl = function() {
+    return self.local[0];
   };
 
-  self.updateStreams = function(localStreams, remoteStreams) {
-    debug("updating video streams");
-    self.setVideoStream(self.local[0], localStreams);
-    self.setVideoStream(self.remote[0], remoteStreams);
+  self.remoteEl = function() {
+    return self.remote[0];
   };
 
   self.localWidth = function() {
@@ -84775,33 +84854,15 @@ function VideoView(options, sipstack, eventbus, debug, settings, configuration, 
     return self.local[0].videoHeight;
   };
 
-  self.setVideoStream = function(video, streams) {
-    var hasStream = streams && streams.length > 0 && typeof(streams[0]) !== 'undefined' && !streams[0].ended;
-    if (video && video.mozSrcObject !== undefined) {
-      if (hasStream) {
-        video.mozSrcObject = streams[0];
-        video.play();
-      } else {
-        video.mozSrcObject = null;
-      }
-    } else if (video) {
-      if (hasStream) {
-        video.src = (window.URL && window.URL.createObjectURL(streams[0])) || streams[0];
-      } else {
-        video.src = "";
-      }
-    }
-  };
-
   return self;
 }
-},{"jquery-ui/draggable":228}],497:[function(require,module,exports){
+},{"jquery-ui/draggable":228}],500:[function(require,module,exports){
 module.exports = VideoBarView;
 
 var Icon = require('../Icon');
 var events;
 
-function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, videoView, callcontrolView, configuration) {
+function VideoBarView(options, eventbus, sound, sipstack, transferView, settingsView, dialpadView, timer, videoView, callcontrolView, configuration) {
   var self = {};
 
   self.fullScreen = false;
@@ -84856,7 +84917,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
     // self.guiStart();
 
-    timerView.stop();
+    timer.stop();
     self.checkEndCallURL();
   };
 
@@ -84865,7 +84926,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
     toggleSelfView(self.selfViewVisible);
     toggleSound(self.soundEnabled);
 
-    timerView.view.appendTo(self.cellTimer);
+    timer.view.view.appendTo(self.cellTimer);
 
   };
 
@@ -85014,7 +85075,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
   return self;
 }
-},{"../Icon":456}],498:[function(require,module,exports){
+},{"../Icon":456}],501:[function(require,module,exports){
 module.exports = WhiteboardView;
 
 var PopupView = require('./popup');
@@ -85183,7 +85244,7 @@ function WhiteboardView(options, eventbus, sipstack) {
 
   return self;
 }
-},{"../../js/sketch":2,"../Utils":457,"./popup":489}],499:[function(require,module,exports){
+},{"../../js/sketch":2,"../Utils":457,"./popup":492}],502:[function(require,module,exports){
 module.exports = XMPPView;
 
 // var View = require('ampersand-view');
@@ -85294,4 +85355,4 @@ function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
 
   return self;
 }
-},{"../Utils":457,"./popup":489,"jquery":232}]},{},[458]);
+},{"../Utils":457,"./popup":492,"jquery":232}]},{},[458]);
