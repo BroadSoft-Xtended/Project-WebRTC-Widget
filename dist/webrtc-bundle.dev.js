@@ -80274,7 +80274,13 @@ var adapter = require('./adapter');
 var __slice = [].slice;
 
 var Utils = {
-   extend: function () {
+  capitalizeFirstLetter: function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  },
+  lowercaseFirstLetter: function(string) {
+    return string.charAt(0).toLowerCase() + string.slice(1);
+  },
+  extend: function () {
     var consumer = arguments[0],
         providers = __slice.call(arguments, 1),
         key,
@@ -80642,7 +80648,7 @@ if (typeof String.prototype.endsWith !== 'function') {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
-},{"../js/client-config.js.default":1,"./Constants":454,"./Utils":457,"./factory":461,"./models/settings":472,"./models/sound":476,"./views/client":481,"exsip":203,"jquery":232,"jquery.cookie":231}],459:[function(require,module,exports){
+},{"../js/client-config.js.default":1,"./Constants":454,"./Utils":457,"./factory":461,"./models/settings":472,"./models/sound":476,"./views/client":482,"exsip":203,"jquery":232,"jquery.cookie":231}],459:[function(require,module,exports){
 /*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
@@ -80928,7 +80934,7 @@ function CookieProp(obj, prop, cookie, expires) {
 
 	return self;
 }
-},{"./Constants":454,"./Utils":457,"./prop":478,"jquery":232}],461:[function(require,module,exports){
+},{"./Constants":454,"./Utils":457,"./prop":479,"jquery":232}],461:[function(require,module,exports){
 (function (global){
 var $ = require('jquery');
 var templates = require('../js/templates');
@@ -80955,6 +80961,7 @@ function Factory(constructor){
 		require('./models/sms');
 		require('./models/smsprovider');
 		require('./models/sound');
+		require('./models/stats');
 		require('./models/xmpp');
 		require('./views/authentication');
 		require('./views/client');
@@ -81139,7 +81146,7 @@ function create(constructor, argArray) {
 	return new factoryFunction();
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../js/templates":4,"./cookieprop":460,"./models/authentication":462,"./models/callcontrol":463,"./models/configuration":464,"./models/connectionstatus":465,"./models/debug":466,"./models/eventbus":467,"./models/history":468,"./models/incomingcall":469,"./models/messages":470,"./models/reinvite":471,"./models/settings":472,"./models/sipstack":473,"./models/sms":474,"./models/smsprovider":475,"./models/sound":476,"./models/xmpp":477,"./prop":478,"./views/authentication":479,"./views/callcontrol":480,"./views/client":481,"./views/connectionstatus":482,"./views/dialpad":483,"./views/fileshare":484,"./views/history":485,"./views/incomingcall":486,"./views/messages":487,"./views/popup":488,"./views/reinvite":489,"./views/settings":490,"./views/sms":491,"./views/stats":492,"./views/timer":493,"./views/transfer":494,"./views/video":495,"./views/videobar":496,"./views/whiteboard":497,"./views/xmpp":498,"filesaver.js":226,"jquery":232}],462:[function(require,module,exports){
+},{"../js/templates":4,"./cookieprop":460,"./models/authentication":462,"./models/callcontrol":463,"./models/configuration":464,"./models/connectionstatus":465,"./models/debug":466,"./models/eventbus":467,"./models/history":468,"./models/incomingcall":469,"./models/messages":470,"./models/reinvite":471,"./models/settings":472,"./models/sipstack":473,"./models/sms":474,"./models/smsprovider":475,"./models/sound":476,"./models/stats":477,"./models/xmpp":478,"./prop":479,"./views/authentication":480,"./views/callcontrol":481,"./views/client":482,"./views/connectionstatus":483,"./views/dialpad":484,"./views/fileshare":485,"./views/history":486,"./views/incomingcall":487,"./views/messages":488,"./views/popup":489,"./views/reinvite":490,"./views/settings":491,"./views/sms":492,"./views/stats":493,"./views/timer":494,"./views/transfer":495,"./views/video":496,"./views/videobar":497,"./views/whiteboard":498,"./views/xmpp":499,"filesaver.js":226,"jquery":232}],462:[function(require,module,exports){
 module.exports = Authentication;
 
 var $ = require('jquery');
@@ -81903,7 +81910,7 @@ function Call(value) {
   return self;
 }
 
-function History(statsView, configuration, eventbus, historyView) {
+function History(stats, configuration, eventbus, historyView) {
   var self = {};
 
   self.view = historyView;
@@ -81933,15 +81940,15 @@ function History(statsView, configuration, eventbus, historyView) {
     } else {
       call.direction = "down";
     }
-    call.resolutionIn = statsView.getValue("video", "googFrameWidthReceived") + "x" + statsView.getValue("video", "googFrameHeightReceived");
-    call.resolutionOut = statsView.getValue("video", "googFrameWidthSent") + "x" + statsView.getValue("video", "googFrameHeightSent");
-    call.bitrateIn = statsView.getAvg("video", "kiloBitsReceivedPerSecond");
-    call.bitrateOut = statsView.getAvg("video", "kiloBitsSentPerSecond");
-    call.frameRateIn = statsView.getAvg("video", "googFrameRateReceived");
-    call.frameRateOut = statsView.getAvg("video", "googFrameRateSent");
-    call.audioLostPer = statsView.getAvg("audio", "packetsLostPer");
-    call.videoLostPer = statsView.getAvg("video", "packetsLostPer");
-    call.jitter = statsView.getAvg("audio", "googJitterReceived");
+    call.resolutionIn = stats.getValue("video", "googFrameWidthReceived") + "x" + stats.getValue("video", "googFrameHeightReceived");
+    call.resolutionOut = stats.getValue("video", "googFrameWidthSent") + "x" + stats.getValue("video", "googFrameHeightSent");
+    call.bitrateIn = stats.getAvg("video", "kiloBitsReceivedPerSecond");
+    call.bitrateOut = stats.getAvg("video", "kiloBitsSentPerSecond");
+    call.frameRateIn = stats.getAvg("video", "googFrameRateReceived");
+    call.frameRateOut = stats.getAvg("video", "googFrameRateSent");
+    call.audioLostPer = stats.getAvg("audio", "packetsLostPer");
+    call.videoLostPer = stats.getAvg("video", "packetsLostPer");
+    call.jitter = stats.getAvg("audio", "googJitterReceived");
     call.length = Utils.format(Math.round(Math.abs((rtcSession.end_time - start) / 1000)));
     return call;
   };
@@ -83287,6 +83294,167 @@ function Sound(eventbus, configuration, sipstack) {
 }
 
 },{"jquery":232}],477:[function(require,module,exports){
+module.exports = Stats;
+
+var Utils = require('../Utils');
+
+function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
+  var self = {};
+
+  self.view = statsView;
+
+  self.statsMod = require('../../js/stats')(self);
+
+  self.props = {'peerConnectionElement': true,'statsContainerId': true, 'videoKiloBitsSentPerSecond': true, 'audioKiloBitsSentPerSecond': true, 
+  'videoKiloBitsReceivedPerSecond': true, 'audioKiloBitsReceivedPerSecond': true, 'videoPacketsLost': true, 'videoPacketsLostPer': true,
+  'audioPacketsLost': true, 'audioPacketsLostPer': true, 'videoGoogFrameRateSent': true, 'videoGoogFrameRateReceived': true, 'audioAudioInputLevel': true, 
+  'audioAudioOutputLevel': true, 'videoGoogFrameWidthReceived': true, 'videoGoogFrameHeightReceived': true, 'videoGoogFrameWidthSent': true, 'videoGoogFrameHeightSent': true,
+  'audioGoogRtt': true, 'audioGoogJitterReceived': true, 
+  'videoKiloBitsSentPerSecondAvg': true, 'audioKiloBitsSentPerSecondAvg': true, 
+  'videoKiloBitsReceivedPerSecondAvg': true, 'audioKiloBitsReceivedPerSecondAvg': true, 'videoPacketsLostAvg': true, 'videoPacketsLostPerAvg': true,
+  'audioPacketsLostAvg': true, 'audioPacketsLostPerAvg': true, 'videoGoogFrameRateSentAvg': true, 'videoGoogFrameRateReceivedAvg': true, 'audioAudioInputLevelAvg': true, 
+  'audioAudioOutputLevelAvg': true, 'videoGoogFrameWidthReceivedAvg': true, 'videoGoogFrameHeightReceivedAvg': true, 'videoGoogFrameWidthSentAvg': true, 
+  'videoGoogFrameHeightSentAvg': true, 'audioGoogRttAvg': true, 'audioGoogJitterReceivedAvg': true};
+
+  var intervalId = null;
+
+  self.getPeerConnectionElement = function() {
+    return self.peerConnectionElement;
+  };
+
+  var getElement = function(type, name, isAvg) {
+    return self[Utils.camelize(type + ' ' + name + (isAvg ? 'Avg' : ''))];
+  };
+
+  self.getReportById = function(reports, id) {
+    for (var i = 0; i < reports.length; i++) {
+      if (reports[i].id === id) {
+        return reports[i];
+      }
+    }
+    return null;
+  };
+
+  self.processStats = function() {
+    var peerConnection = sipstack.activeSession.rtcMediaHandler.peerConnection;
+
+    peerConnection.getStats(function(stats) {
+      var results = stats.result();
+      var reports = [];
+      for (var i = 0; i < results.length; ++i) {
+        var res = results[i];
+        var report = self.getReportById(reports, res.id);
+        if (!report) {
+          report = {};
+          report.type = res.type;
+          report.id = res.id;
+        }
+
+        var names = res.names();
+        var values = [];
+        for (var j = 0; j < names.length; j++) {
+          var name = names[j];
+          if (!name) {
+            continue;
+          }
+          var value = res.stat(name);
+          values.push(name);
+          values.push(value);
+        }
+        var valueObj = {};
+        valueObj.timestamp = res.timestamp;
+        valueObj.values = values;
+        report.stats = valueObj;
+        reports.push(report);
+      }
+      var data = {
+        "lid": 1,
+        "pid": sipstack.getSessionId(),
+        "reports": reports
+      };
+      self.statsMod.addStats(data);
+    });
+  };
+
+  self.getDataSerie = function(type, label, sessionId) {
+    var dataSeries = getDataSeriesByLabel(sessionId || sipstack.getSessionId(), type, label);
+    var result;
+    for (var i = 0; i < dataSeries.length; i++) {
+      var dataSerie = dataSeries[i];
+      if (!result || dataSerie.getAvg() > result.getAvg()) {
+        result = dataSerie;
+      }
+    }
+    return result;
+  };
+
+  self.getStatValues = function(type, label, sessionId) {
+    var dataSerie = this.getDataSerie(type, label, sessionId);
+    return dataSerie ? dataSerie.dataPoints_.map(function(e) {
+      return e.value;
+    }) : null;
+  };
+
+  self.getStatAvg = function(type, label, sessionId) {
+    var dataSerie = this.getDataSerie(type, label, sessionId);
+    return dataSerie ? dataSerie.getAvg() : null;
+  };
+
+  self.getValue = function(type, name) {
+    return getElement(type, name);
+  };
+
+  self.getAvg = function(type, name) {
+    return Math.round(getElement(type, name, true) * 100) / 100.0;
+  };
+
+  self.onAddStats = function(peerConnectionElement, reportType, reportId, statsData){
+    Object.keys(self.props).forEach(function(prop) {
+      var match = prop.match(/(audio|video)(.*)/);
+      if(!match) {
+        return;
+      }
+      var label = Utils.lowercaseFirstLetter(match[2]);
+      var type = match[1];
+      if (self.statsMod.matchesType(label, type, statsData)) {
+        var value = self.statsMod.getLastValue(peerConnectionElement, reportType, reportId, label);
+        if (value != null) {
+          self[prop] = value;
+          var avg = self.statsMod.getAvgValue(peerConnectionElement, reportType, reportId, label);
+          self[prop+'Avg'] = avg;
+        } else {}
+      }
+    });
+  };
+
+  var start = function(){
+    if (!intervalId && configuration.enableCallStats && Utils.isChrome()) {
+      intervalId = setInterval(function(){
+        self.processStats();
+      }, 1000);
+    }
+  };
+
+  var stop = function() {
+    if(intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  };
+
+  self.listeners = function() {
+    eventbus.on("ended", function(e) {
+      stop();
+    });
+    eventbus.on("started", function(e) {
+      self.statsContainerId = sipstack.getSessionId() + '-1';
+      start();
+    });
+  };
+
+  return self;
+}
+},{"../../js/stats":3,"../Utils":457}],478:[function(require,module,exports){
 module.exports = XMPP;
 
 var XMPP = require('stanza.io');
@@ -83337,7 +83505,7 @@ function XMPP(debug, eventbus) {
 
   return self;
 }
-},{"stanza.io":234}],478:[function(require,module,exports){
+},{"stanza.io":234}],479:[function(require,module,exports){
 module.exports = Prop;
 
 function Prop(obj, prop) {
@@ -83415,7 +83583,7 @@ function Prop(obj, prop) {
 
 	return self;
 }
-},{}],479:[function(require,module,exports){
+},{}],480:[function(require,module,exports){
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
@@ -83450,7 +83618,7 @@ function AuthenticationView(options, eventbus, authentication) {
 
   return self;
 }
-},{"../Utils":457,"./popup":488,"jquery":232}],480:[function(require,module,exports){
+},{"../Utils":457,"./popup":489,"jquery":232}],481:[function(require,module,exports){
 module.exports = CallControlView
 
 var Utils = require('../Utils');
@@ -83528,7 +83696,7 @@ function CallControlView(options, eventbus, callcontrol, historyView, sipstack, 
 
   return self;
 }
-},{"../Utils":457,"./popup":488}],481:[function(require,module,exports){
+},{"../Utils":457,"./popup":489}],482:[function(require,module,exports){
 module.exports = ClientView;
 
 
@@ -83543,7 +83711,7 @@ require('../models/eventbus');
 var ClientConfig = require('../../js/client-config.js.default');
 
 function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrol, sipstack, transferview, authentication, 
-  xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, statsView) {
+  xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, stats) {
   var self = {};
 
   self.elements = ['client', 'main', 'errorPopup'];
@@ -83717,7 +83885,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 }
 
 exports.constructor = ClientView;
-},{"../../js/client-config.js.default":1,"../Constants":454,"../Icon":456,"../Utils":457,"../models/eventbus":467,"ejs":172,"exsip":203,"jquery":232}],482:[function(require,module,exports){
+},{"../../js/client-config.js.default":1,"../Constants":454,"../Icon":456,"../Utils":457,"../models/eventbus":467,"ejs":172,"exsip":203,"jquery":232}],483:[function(require,module,exports){
 module.exports = ConnectionStatusView
 
 function ConnectionStatusView() {
@@ -83773,7 +83941,7 @@ function ConnectionStatusView() {
 
   return self;
 }
-},{}],483:[function(require,module,exports){
+},{}],484:[function(require,module,exports){
 module.exports = DialpadView
 
 function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
@@ -83791,7 +83959,7 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView, 
 
   return self;
 }
-},{}],484:[function(require,module,exports){
+},{}],485:[function(require,module,exports){
 module.exports = FileShareView
 
 function FileShareView(eventbus) {
@@ -83823,7 +83991,7 @@ function FileShareView(eventbus) {
 
   return self;
 }
-},{}],485:[function(require,module,exports){
+},{}],486:[function(require,module,exports){
 module.exports = HistoryView
 
 var Utils = require('../Utils');
@@ -83957,7 +84125,7 @@ function HistoryView(options, sound, history, eventbus, callcontrol) {
   return self;
 
 }
-},{"../Constants":454,"../Utils":457,"./popup":488}],486:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"./popup":489}],487:[function(require,module,exports){
 module.exports = IncomingCallView
 
 var Utils = require('../Utils');
@@ -83992,7 +84160,7 @@ function IncomingCallView(options, eventbus, incomingcall) {
 
   return self;
 }
-},{"../Utils":457,"./popup":488,"exsip":203}],487:[function(require,module,exports){
+},{"../Utils":457,"./popup":489,"exsip":203}],488:[function(require,module,exports){
 module.exports = MessagesView
 
 function MessagesView() {
@@ -84013,7 +84181,7 @@ function MessagesView() {
 
   return self;
 }
-},{}],488:[function(require,module,exports){
+},{}],489:[function(require,module,exports){
 (function (global){
 module.exports = PopupView;
 
@@ -84051,7 +84219,7 @@ function PopupView(options, eventbus) {
   return self;
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":232}],489:[function(require,module,exports){
+},{"jquery":232}],490:[function(require,module,exports){
 module.exports = ReinviteView
 
 var PopupView = require('./popup');
@@ -84075,7 +84243,7 @@ function ReinviteView(options, eventbus, reinvite) {
 
   return self;
 }
-},{"../Utils":457,"./popup":488}],490:[function(require,module,exports){
+},{"../Utils":457,"./popup":489}],491:[function(require,module,exports){
 module.exports = SettingsView;
 
 var WebRTC_C = require('../Constants');
@@ -84207,7 +84375,7 @@ function SettingsView(options, settings, configuration, eventbus, debug, sound) 
 
   return self;
 }
-},{"../Constants":454,"../Utils":457,"./popup":488}],491:[function(require,module,exports){
+},{"../Constants":454,"../Utils":457,"./popup":489}],492:[function(require,module,exports){
 module.exports = SMSView;
 
 var Utils = require('../Utils');
@@ -84363,16 +84531,14 @@ function SMSView(options, eventbus, debug, sound, sms) {
 
   return self;
 }
-},{"../Utils":457,"./popup":488}],492:[function(require,module,exports){
+},{"../Utils":457,"./popup":489}],493:[function(require,module,exports){
 module.exports = StatsView;
 
 var PopupView = require('./popup');
 var Utils = require('../Utils');
 
-function StatsView(options, eventbus, configuration, sipstack, debug) {
+function StatsView(options, eventbus) {
   var self = {};
-
-  self.statsMod = require('../../js/stats')(self);
 
   Utils.extend(self, PopupView(options, eventbus));
 
@@ -84382,88 +84548,11 @@ function StatsView(options, eventbus, configuration, sipstack, debug) {
   'audioAudioOutputLevel', 'videoGoogFrameWidthReceived', 'videoGoogFrameHeightReceived', 'videoGoogFrameWidthSent', 'videoGoogFrameHeightSent',
   'audioGoogRtt', 'audioGoogJitterReceived'];
 
-  var intervalId = null;
-
-  var getElement = function(type, name) {
-    return self[Utils.camelize(type + ' ' + name)];
-  };
-
-  self.getReportById = function(reports, id) {
-    for (var i = 0; i < reports.length; i++) {
-      if (reports[i].id === id) {
-        return reports[i];
-      }
-    }
-    return null;
-  };
-
-  self.processStats = function() {
-    var peerConnection = sipstack.activeSession.rtcMediaHandler.peerConnection;
-
-    peerConnection.getStats(function(stats) {
-      var results = stats.result();
-      var reports = [];
-      for (var i = 0; i < results.length; ++i) {
-        var res = results[i];
-        var report = self.getReportById(reports, res.id);
-        if (!report) {
-          report = {};
-          report.type = res.type;
-          report.id = res.id;
-        }
-
-        var names = res.names();
-        var values = [];
-        for (var j = 0; j < names.length; j++) {
-          var name = names[j];
-          if (!name) {
-            continue;
-          }
-          var value = res.stat(name);
-          values.push(name);
-          values.push(value);
-        }
-        var valueObj = {};
-        valueObj.timestamp = res.timestamp;
-        valueObj.values = values;
-        report.stats = valueObj;
-        reports.push(report);
-      }
-      var data = {
-        "lid": 1,
-        "pid": sipstack.getSessionId(),
-        "reports": reports
-      };
-      self.statsMod.addStats(data);
-    });
-  };
-
-  self.getPeerConnectionElement = function(data) {
+  self.peerConnectionElement = function(){
     return self.statsContainer[0];
   };
-
-  self.getDataSerie = function(type, label, sessionId) {
-    var dataSeries = getDataSeriesByLabel(sessionId || sipstack.getSessionId(), type, label);
-    var result;
-    for (var i = 0; i < dataSeries.length; i++) {
-      var dataSerie = dataSeries[i];
-      if (!result || dataSerie.getAvg() > result.getAvg()) {
-        result = dataSerie;
-      }
-    }
-    return result;
-  };
-
-  self.getStatValues = function(type, label, sessionId) {
-    var dataSerie = this.getDataSerie(type, label, sessionId);
-    return dataSerie ? dataSerie.dataPoints_.map(function(e) {
-      return e.value;
-    }) : null;
-  };
-
-  self.getStatAvg = function(type, label, sessionId) {
-    var dataSerie = this.getDataSerie(type, label, sessionId);
-    return dataSerie ? dataSerie.getAvg() : null;
+  self.statsContainerId = function(value){
+    self.statsContainer.attr('id', value);
   };
 
   self.setSelected = function(id, parentSelector, selected) {
@@ -84484,43 +84573,6 @@ function StatsView(options, eventbus, configuration, sipstack, debug) {
     $(parentSelector).attr('class', classNames);
   };
 
-  self.getValue = function(type, name) {
-    return getElement(type, name).text();
-  };
-
-  self.getAvg = function(type, name) {
-    return Math.round(getElement(type, name).attr("data-avg") * 100) / 100.0;
-  };
-
-  self.onAddStats = function(peerConnectionElement, reportType, reportId, statsData){
-    self.elements.forEach(function(element) {
-      var label = self[element].data('var');
-      var type = self[element].data('type');
-      if (self.statsMod.matchesType(label, type, statsData)) {
-        var value = self.statsMod.getLastValue(peerConnectionElement, reportType, reportId, label);
-        if (value != null) {
-          self[element].html(value);
-          self[element].attr("data-avg", self.statsMod.getAvgValue(peerConnectionElement, reportType, reportId, label))
-        } else {}
-      }
-    });
-  };
-
-  var start = function(){
-    if (!intervalId && configuration.enableCallStats && Utils.isChrome()) {
-      intervalId = setInterval(function(){
-        self.processStats();
-      }, 1000);
-    }
-  };
-
-  var stop = function() {
-    if(intervalId) {
-      clearInterval(intervalId);
-      intervalId = null;
-    }
-  };
-
   self.listeners = function() {
     self.statsVar.click(function() {
       var index = self.statsVar.index($(this)[0]);
@@ -84531,23 +84583,16 @@ function StatsView(options, eventbus, configuration, sipstack, debug) {
         self.toggle();
       }
     });
-    eventbus.on("ended", function(e) {
-      stop();
-    });
-    eventbus.on("started", function(e) {
-      self.statsContainer.attr('id', sipstack.getSessionId() + '-1');
-      start();
-    });
   };
 
   return self;
 }
-},{"../../js/stats":3,"../Utils":457,"./popup":488}],493:[function(require,module,exports){
+},{"../Utils":457,"./popup":489}],494:[function(require,module,exports){
 module.exports = TimerView;
 
 var Utils = require('../Utils');
 
-function TimerView(options, debug, eventbus, statsView, configuration, sipstack, videobarView) {
+function TimerView(debug, eventbus, configuration, sipstack, videobarView) {
   var self = {};
 
   self.callTimer = null;
@@ -84611,7 +84656,7 @@ function TimerView(options, debug, eventbus, statsView, configuration, sipstack,
 
   return self;
 }
-},{"../Utils":457}],494:[function(require,module,exports){
+},{"../Utils":457}],495:[function(require,module,exports){
 module.exports = TransferView;
 
 var PopupView = require('./popup');
@@ -84654,7 +84699,7 @@ function TransferView(options, sound, sipstack, eventbus, configuration, callcon
 
   return self;
 }
-},{"../Utils":457,"./popup":488}],495:[function(require,module,exports){
+},{"../Utils":457,"./popup":489}],496:[function(require,module,exports){
 module.exports = VideoView;
 require('jquery-ui/draggable');
 
@@ -84750,7 +84795,7 @@ function VideoView(options, sipstack, eventbus, debug, settings, configuration, 
 
   return self;
 }
-},{"jquery-ui/draggable":228}],496:[function(require,module,exports){
+},{"jquery-ui/draggable":228}],497:[function(require,module,exports){
 module.exports = VideoBarView;
 
 var Icon = require('../Icon');
@@ -84969,7 +85014,7 @@ function VideoBarView(options, eventbus, sound, sipstack, transferView, settings
 
   return self;
 }
-},{"../Icon":456}],497:[function(require,module,exports){
+},{"../Icon":456}],498:[function(require,module,exports){
 module.exports = WhiteboardView;
 
 var PopupView = require('./popup');
@@ -85138,7 +85183,7 @@ function WhiteboardView(options, eventbus, sipstack) {
 
   return self;
 }
-},{"../../js/sketch":2,"../Utils":457,"./popup":488}],498:[function(require,module,exports){
+},{"../../js/sketch":2,"../Utils":457,"./popup":489}],499:[function(require,module,exports){
 module.exports = XMPPView;
 
 // var View = require('ampersand-view');
@@ -85249,4 +85294,4 @@ function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
 
   return self;
 }
-},{"../Utils":457,"./popup":488,"jquery":232}]},{},[458]);
+},{"../Utils":457,"./popup":489,"jquery":232}]},{},[458]);

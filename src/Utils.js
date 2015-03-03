@@ -3,7 +3,13 @@ var adapter = require('./adapter');
 var __slice = [].slice;
 
 var Utils = {
-   extend: function () {
+  capitalizeFirstLetter: function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  },
+  lowercaseFirstLetter: function(string) {
+    return string.charAt(0).toLowerCase() + string.slice(1);
+  },
+  extend: function () {
     var consumer = arguments[0],
         providers = __slice.call(arguments, 1),
         key,

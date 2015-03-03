@@ -2,7 +2,7 @@ module.exports = TimerView;
 
 var Utils = require('../Utils');
 
-function TimerView(options, debug, eventbus, statsView, configuration, sipstack, videobarView) {
+function TimerView(debug, eventbus, configuration, sipstack, videobarView) {
   var self = {};
 
   self.callTimer = null;

@@ -24,6 +24,11 @@ Object.defineProperties(global, {
   },
   stats: {
     get: function(){
+      return global.bdsft_client_instances.stats_test;
+    }
+  },
+  statsview: {
+    get: function(){
       return global.bdsft_client_instances.statsview_test;
     }
   },
