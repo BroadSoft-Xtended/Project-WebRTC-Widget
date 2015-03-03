@@ -4,10 +4,10 @@ var Utils = require('../Utils');
 var Constants = require('../Constants');
 var PopupView = require('./popup');
 
-function HistoryView(options, sound, history, eventbus, callcontrol) {
+function HistoryView(sound, history, eventbus, callcontrol) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.rows = [];
 

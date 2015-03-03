@@ -85,6 +85,9 @@ function ClientView(options, eventbus, debug, configuration, video, videobarView
       }
     });
 
+    eventbus.on("attachView", function(e) {
+      e.view.appendTo(self.client);        
+    });
     eventbus.on("viewChanged", function(e) {
       self.visibilities[e.view] = e.visible;
       self.updateClientClass();

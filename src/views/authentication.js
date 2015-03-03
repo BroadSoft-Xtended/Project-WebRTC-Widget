@@ -4,10 +4,10 @@ var $ = require('jquery');
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function AuthenticationView(options, eventbus, authentication) {
+function AuthenticationView(eventbus, authentication) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
 

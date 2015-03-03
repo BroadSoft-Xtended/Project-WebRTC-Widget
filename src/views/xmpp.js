@@ -7,10 +7,10 @@ var PopupView = require('./popup');
 var Utils = require('../Utils');
 var $ = require('jquery');
 
-function XMPPView(options, debug, eventbus, configuration, sound, xmpp) {
+function XMPPView(debug, eventbus, configuration, sound, xmpp) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['content', 'name', 'password', 'login', 'messages'];
 

@@ -3,10 +3,10 @@ module.exports = CallControlView
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function CallControlView(options, eventbus, callcontrol, historyView, sipstack, sound, dialpadView) {
+function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, dialpadView) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['historyButton', 'destination', 'call', 'dialpadHolder'];
 

@@ -3,10 +3,10 @@ module.exports = TransferView;
 var PopupView = require('./popup');
 var Utils = require('../Utils');
 
-function TransferView(options, sound, eventbus, transfer) {
+function TransferView(sound, eventbus, transfer) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['accept', 'reject', 'target', 'typeAttended'];
 

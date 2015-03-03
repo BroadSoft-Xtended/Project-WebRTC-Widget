@@ -3,10 +3,10 @@ module.exports = ReinviteView
 var PopupView = require('./popup');
 var Utils = require('../Utils');
 
-function ReinviteView(options, eventbus, reinvite) {
+function ReinviteView(eventbus, reinvite) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptReInviteCall', 'rejectReInviteCall', 'title'];
 

@@ -2,7 +2,7 @@ module.exports = PopupView;
 
 var $ = require('jquery');
 
-function PopupView(options, eventbus) {
+function PopupView(eventbus) {
   var self = {};
 
   self.attached = false;
@@ -21,9 +21,13 @@ function PopupView(options, eventbus) {
     this.setVisible(!this.visible);
   };
 
+  self.appendTo = function(parent) {
+    this.view.appendTo(parent);
+  };
+
   self.setVisible = function(visible) {
     if (!self.attached) {
-      this.view.appendTo(global.bdsft_client_instances['clientview_'+options.id].client);        
+      eventbus.attachView(this);
       self.attached = true;
     }
     this.visible = visible;

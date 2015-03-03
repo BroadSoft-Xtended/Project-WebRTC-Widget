@@ -4,10 +4,10 @@ var WebRTC_C = require('../Constants');
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function SettingsView(options, settings, configuration, eventbus, debug, sound) {
+function SettingsView(settings, configuration, eventbus, debug, sound) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   var updateRowVisibility = function() {
     self.autoAnswerRow.toggleClass('hidden', configuration.hasOwnProperty("enableAutoAnswer"));

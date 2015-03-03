@@ -3,10 +3,10 @@ module.exports = SMSView;
 var Utils = require('../Utils');
 var PopupView = require('./popup');
 
-function SMSView(options, eventbus, debug, sound, sms) {
+function SMSView(eventbus, debug, sound, sms) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   function InboxItemView(inboxItem) {
     var _self = {};

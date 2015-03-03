@@ -3,10 +3,10 @@ module.exports = StatsView;
 var PopupView = require('./popup');
 var Utils = require('../Utils');
 
-function StatsView(options, eventbus) {
+function StatsView(eventbus) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['statsVar', 'statsContainer', 'videoKiloBitsSentPerSecond', 'audioKiloBitsSentPerSecond', 
   'videoKiloBitsReceivedPerSecond', 'audioKiloBitsReceivedPerSecond', 'videoPacketsLost', 'videoPacketsLostPer',

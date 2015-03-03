@@ -35,6 +35,11 @@ function EventBus() {
 			emitter.emit(type, obj);
 		}
 	};
+	self.attachView = function(view) {
+		self.emit('attachView', {
+			view: view
+		});
+	};
 	self.message = function(text, level) {
 		self.emit('message', {
 			text: text,

@@ -3,10 +3,10 @@ module.exports = WhiteboardView;
 var PopupView = require('./popup');
 var Utils = require('../Utils');
 
-function WhiteboardView(options, eventbus, sipstack) {
+function WhiteboardView(eventbus, sipstack) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['canvas', 'tools'];
 

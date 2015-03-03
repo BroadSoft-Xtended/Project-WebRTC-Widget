@@ -4,10 +4,10 @@ var Utils = require('../Utils');
 var ExSIP = require('exsip');
 var PopupView = require('./popup');
 
-function IncomingCallView(options, eventbus, incomingcall) {
+function IncomingCallView(eventbus, incomingcall) {
   var self = {};
 
-  Utils.extend(self, PopupView(options, eventbus));
+  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptIncomingCall', 'rejectIncomingCall', 'holdAndAnswerButton', 'dropAndAnswerButton'];
 
