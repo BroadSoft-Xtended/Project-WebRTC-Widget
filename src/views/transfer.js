@@ -1,7 +1,7 @@
 module.exports = TransferView;
 
 var PopupView = require('./popup');
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 
 function TransferView(sound, eventbus, transfer) {
   var self = {};

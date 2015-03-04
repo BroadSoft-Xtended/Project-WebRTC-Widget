@@ -4,7 +4,7 @@ module.exports = XMPPView;
 // var GroupedCollectionView = require('ampersand-grouped-collection-view');
 // var ChatInputView = require('otalk-chat-input-view');
 var PopupView = require('./popup');
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 var $ = require('jquery');
 
 function XMPPView(debug, eventbus, configuration, sound, xmpp) {

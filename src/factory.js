@@ -1,53 +1,15 @@
 var $ = require('jquery');
-var templates = require('../js/templates');
-require('./prop');
-require('./cookieprop');
+var templates = require('templates');
+require('webrtc-core/prop');
+require('webrtc-core/cookieprop');
 require('filesaver.js');
 
 module.exports = Factory;
 
 function Factory(constructor){
 	return function(options) {
-		require('./models/authentication');
-		require('./models/callcontrol');
-		require('./models/connectionstatus');
-		require('./models/configuration');
-		require('./models/debug');
-		require('./models/eventbus');
-		require('./models/history');
-		require('./models/incomingcall');
-		require('./models/messages');
-		require('./models/reinvite');
-		require('./models/settings');
-		require('./models/sipstack');
-		require('./models/sms');
-		require('./models/smsprovider');
-		require('./models/sound');
-		require('./models/stats');
-		require('./models/timer');
-		require('./models/transfer');
-		require('./models/video');
-		require('./models/xmpp');
-		require('./views/authentication');
-		require('./views/client');
-		require('./views/callcontrol');
-		require('./views/connectionstatus');
-		require('./views/dialpad');
-		require('./views/fileshare');
-		require('./views/history');
-		require('./views/incomingcall');
-		require('./views/messages');
-		require('./views/popup');
-		require('./views/reinvite');
-		require('./views/settings');
-		require('./views/sms');
-		require('./views/stats');
-		require('./views/timer');
-		require('./views/transfer');
-		require('./views/video');
-		require('./views/videobar');
-		require('./views/whiteboard');
-		require('./views/xmpp');
+	  require('views/**/*.js', { glob: true })
+	  require('models/**/*.js', { glob: true })
 		global.bdsft_client_instances = global.bdsft_client_instances || {};
 		var name = functionName(constructor);
 		var id = getId(options, name);
@@ -72,7 +34,7 @@ function Factory(constructor){
 				Object.keys(object.props || {}).forEach(function(name) {
 					var prop = $.extend({name: name}, object.props[name])
 					var type = prop.type || object.props._type || '';
-					require('./'+type+'prop')(object, prop).define();
+					require('webrtc-core/'+type+'prop')(object, prop).define();
 				});
 			}
 			object.listeners && object.listeners();
@@ -104,9 +66,9 @@ function getId (options, name) {
 function createDelegate (options, name, argName) {
 	var path;
 	if (argName.match(/view$/i)) {
-		path = './views/' + argName.replace(/view$/i, '');
+		path = 'views/' + argName.replace(/view$/i, '')+'.js';
 	} else {
-		path = './models/' + argName;
+		path = 'models/' + argName+'.js';
 	}
 
 	if (argName === 'debug') {

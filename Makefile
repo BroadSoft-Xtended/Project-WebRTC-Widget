@@ -14,12 +14,12 @@ build: dist/webrtc-bundle.min.js
 
 
 ## Build browserified files #######################################################
-TRANSFORMS := -t brfs
+TRANSFORMS :=  -t brfs -t require-globify
 
 dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
 	uglifyjs $< > $@
 
-dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js styles/bundle.min.css $(MEDIA_FILES)
+dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js js/media.js js/style.js
 	browserify $(TRANSFORMS) src/WebRTC.js > $@
 
 ## Compile styles ##################################################################
@@ -27,9 +27,11 @@ dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js styles/bundle.min.css $(M
 styles/bundle.min.css: styles/main.css
 	cssmin styles/main.css > styles/bundle.min.css
 
-### For extra css scoping, add !important to some attributes affected by inheritance (font-size)
-# styles/bundle.css: styles/main.css
-# 	scripts/importantize-css styles/main.css styles/bundle.css
+js/media.js: $(MEDIA_FILES)
+	scripts/encode-media media js/media.js
+
+js/style.js: styles/bundle.min.css
+	scripts/export-style styles/bundle.min.css js/style.js
 
 styles/main.css: $(STYLUS_FILES)
 	stylus --include-css -u stylus-font-face --with {limit:20000} styles/main.styl -o styles

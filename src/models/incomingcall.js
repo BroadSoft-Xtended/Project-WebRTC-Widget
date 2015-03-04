@@ -1,6 +1,6 @@
 module.exports = IncomingCall
 
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 var ExSIP = require('exsip');
 
 function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {

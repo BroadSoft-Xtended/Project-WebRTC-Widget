@@ -1,6 +1,6 @@
 module.exports = Stats;
 
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 
 function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
   var self = {};

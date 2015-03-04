@@ -1,6 +1,6 @@
 module.exports = ConnectionStatus
 
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 
 function ConnectionStatus(options, eventbus, configuration, connectionstatusView) {
   var self = {};

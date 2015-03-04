@@ -1,16 +1,16 @@
 var ExSIP = require('exsip');
 var jQuery = jquery = $ = require('jquery');
 require('jquery.cookie')
-var Client = require('./views/client');
-var Constants = require('./Constants');
-var Utils = require('./Utils');
-var ClientConfig = require('../js/client-config.js.default');
+var Client = require('views/client');
+var Constants = require('webrtc-core/Constants');
+var Utils = require('webrtc-core/Utils');
+var ClientConfig = require('client-config');
 var WebRTC = {
   Client: Client,
   Utils: Utils,
   C: Constants,
-  Sound: require('./models/sound'),
-  Settings: require('./models/settings')
+  Sound: require('models/sound'),
+  Settings: require('models/settings')
 };
 
 module.exports = WebRTC;

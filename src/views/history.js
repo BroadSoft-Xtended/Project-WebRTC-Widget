@@ -1,7 +1,7 @@
 module.exports = HistoryView
 
-var Utils = require('../Utils');
-var Constants = require('../Constants');
+var Utils = require('webrtc-core/Utils');
+var Constants = require('webrtc-core/Constants');
 var PopupView = require('./popup');
 
 function HistoryView(sound, history, eventbus, callcontrol) {

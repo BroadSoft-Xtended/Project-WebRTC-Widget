@@ -1,6 +1,6 @@
 module.exports = IncomingCallView
 
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 var ExSIP = require('exsip');
 var PopupView = require('./popup');
 

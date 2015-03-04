@@ -1,7 +1,7 @@
 module.exports = SettingsView;
 
-var WebRTC_C = require('../Constants');
-var Utils = require('../Utils');
+var WebRTC_C = require('webrtc-core/Constants');
+var Utils = require('webrtc-core/Utils');
 var PopupView = require('./popup');
 
 function SettingsView(settings, configuration, eventbus, debug, sound) {

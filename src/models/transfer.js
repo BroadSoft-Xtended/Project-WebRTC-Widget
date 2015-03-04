@@ -1,6 +1,6 @@
 module.exports = Transfer;
 
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 
 function Transfer(sipstack, eventbus, configuration, callcontrol, transferView) {
   var self = {};

@@ -1,6 +1,6 @@
 module.exports = Timer;
 
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 
 function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView) {
   var self = {};

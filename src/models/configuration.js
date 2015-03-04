@@ -25,8 +25,8 @@ var Flags = {
 
 Configuration.Flags = Flags;
 
-var Utils = require('../Utils');
-var WebRTC_C = require('../Constants');
+var Utils = require('webrtc-core/Utils');
+var WebRTC_C = require('webrtc-core/Constants');
 var ExSIP = require('exsip');
 var jQuery = $ = require('jquery');
 // TODO : hack to test in node js directly

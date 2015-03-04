@@ -1,6 +1,6 @@
 module.exports = FileShare
 
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 var fileSaver = require('filesaver.js');
 
 function FileShare(sipstack, eventbus, debug, fileshareView) {

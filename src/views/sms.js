@@ -1,6 +1,6 @@
 module.exports = SMSView;
 
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 var PopupView = require('./popup');
 
 function SMSView(eventbus, debug, sound, sms) {

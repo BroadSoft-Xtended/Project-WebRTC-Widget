@@ -1,7 +1,7 @@
 module.exports = History
 
-var Utils = require('../Utils');
-var Constants = require('../Constants');
+var Utils = require('webrtc-core/Utils');
+var Constants = require('webrtc-core/Constants');
 
 function Page(number, callsValue) {
   var self = {};

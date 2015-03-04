@@ -1,7 +1,7 @@
 module.exports = ReinviteView
 
 var PopupView = require('./popup');
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 
 function ReinviteView(eventbus, reinvite) {
   var self = {};

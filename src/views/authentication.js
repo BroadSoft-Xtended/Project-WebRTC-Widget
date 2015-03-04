@@ -1,7 +1,7 @@
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
-var Utils = require('../Utils');
+var Utils = require('webrtc-core/Utils');
 var PopupView = require('./popup');
 
 function AuthenticationView(eventbus, authentication) {

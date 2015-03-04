@@ -1,15 +1,14 @@
 module.exports = ClientView;
 
 var fs = require('fs');
-var styles = fs.readFileSync(__dirname + '/../../styles/bundle.min.css', 'utf-8');
+var styles = require('style');
 var ejs = require('ejs');
 var $ = jQuery = require('jquery');
-var Icon = require('../Icon');
-var WebRTC_C = require('../Constants');
-var Utils = require('../Utils');
+var Icon = require('webrtc-core/Icon');
+var WebRTC_C = require('webrtc-core/Constants');
+var Utils = require('webrtc-core/Utils');
 var ExSIP = require('exsip');
-require('../models/eventbus');
-var ClientConfig = require('../../js/client-config.js.default');
+var ClientConfig = require('client-config');
 
 function ClientView(options, eventbus, debug, configuration, video, videobarView, sound, callcontrol, sipstack, transfer, authentication, 
   xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, stats) {

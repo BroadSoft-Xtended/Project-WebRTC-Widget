@@ -1,8 +1,8 @@
 module.exports = SIPStack;
 
 var ExSIP = require('exsip');
-var C = require('../Constants');
-var Utils = require('../Utils');
+var C = require('webrtc-core/Constants');
+var Utils = require('webrtc-core/Utils');
 
 function SIPStack(eventbus, configuration, settings, debug) {
   var self = {};

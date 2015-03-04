@@ -1,6 +1,6 @@
 module.exports = VideoBarView;
 
-var Icon = require('../Icon');
+var Icon = require('webrtc-core/Icon');
 var events;
 
 function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dialpadView, timer, video, callcontrolView, configuration) {
