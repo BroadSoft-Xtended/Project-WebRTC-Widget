@@ -2,7 +2,7 @@ module.exports = Sound;
 
 var $ = require('jquery');
 var fs = require('fs');
-var medias = require('media');
+var medias = require('bdsft-webrtc-media');
 
 function Sound(eventbus, configuration, sipstack) {
   var self = {};

@@ -7,9 +7,11 @@ JADE_FILES := $(shell glob-cli "templates/**/*.jade")
 STYLUS_FILES := $(shell glob-cli "styles/**/*.styl")
 
 
-all: build
+all: symlinks build
 
 build: dist/webrtc-bundle.min.js
+
+symlinks: node_modules/bdsft-webrtc-style node_modules/bdsft-webrtc-config node_modules/bdsft-webrtc-media node_modules/bdsft-webrtc-templates
 
 
 
@@ -21,6 +23,19 @@ dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
 
 dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js js/media.js js/style.js
 	browserify $(TRANSFORMS) src/WebRTC.js > $@
+
+## Create symlinks ##################################################################
+node_modules/bdsft-webrtc-style: js/style.js
+	ln -s ../js/style.js node_modules/bdsft-webrtc-style
+
+node_modules/bdsft-webrtc-config: js/client-config.js.default
+	ln -s ../js/client-config.js.default node_modules/bdsft-webrtc-config
+
+node_modules/bdsft-webrtc-media: js/media.js
+	ln -s ../js/media.js node_modules/bdsft-webrtc-media
+
+node_modules/bdsft-webrtc-templates: js/templates.js
+	ln -s ../js/templates.js node_modules/bdsft-webrtc-templates
 
 ## Compile styles ##################################################################
 

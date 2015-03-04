@@ -4,7 +4,7 @@ require('jquery.cookie')
 var Client = require('views/client');
 var Constants = require('webrtc-core/Constants');
 var Utils = require('webrtc-core/Utils');
-var ClientConfig = require('client-config');
+var ClientConfig = require('bdsft-webrtc-config');
 var WebRTC = {
   Client: Client,
   Utils: Utils,

@@ -1,5 +1,5 @@
 var $ = require('jquery');
-var templates = require('templates');
+var templates = require('bdsft-webrtc-templates');
 require('webrtc-core/prop');
 require('webrtc-core/cookieprop');
 require('filesaver.js');

@@ -1,14 +1,14 @@
 module.exports = ClientView;
 
 var fs = require('fs');
-var styles = require('style');
+var styles = require('bdsft-webrtc-style');
 var ejs = require('ejs');
 var $ = jQuery = require('jquery');
 var Icon = require('webrtc-core/Icon');
 var WebRTC_C = require('webrtc-core/Constants');
 var Utils = require('webrtc-core/Utils');
 var ExSIP = require('exsip');
-var ClientConfig = require('client-config');
+var ClientConfig = require('bdsft-webrtc-config');
 
 function ClientView(options, eventbus, debug, configuration, video, videobarView, sound, callcontrol, sipstack, transfer, authentication, 
   xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, stats) {
