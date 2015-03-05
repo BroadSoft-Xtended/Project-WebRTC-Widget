@@ -1,7 +1,7 @@
 module.exports = WhiteboardView;
 
 var PopupView = require('./popup');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function WhiteboardView(eventbus, sipstack) {
   var self = {};

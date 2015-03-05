@@ -1,7 +1,6 @@
 module.exports = IncomingCall
 
-var Utils = require('webrtc-core/Utils');
-var ExSIP = require('exsip');
+var Utils = require('webrtc-core').utils;
 
 function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
   var self = {};
@@ -39,11 +38,8 @@ function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
   };
 
   self.listeners = function() {
-    eventbus.on("failed", function(e) {
-      var error = e.cause;
-      if (error === ExSIP.C.causes.CANCELED) {
-        self.view.hide();
-      }
+    eventbus.on("canceled", function(e) {
+      self.view.hide();
     });
 
     eventbus.on("incomingCall", function(evt) {

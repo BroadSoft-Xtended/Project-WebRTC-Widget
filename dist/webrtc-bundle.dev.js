@@ -150,7 +150,7 @@ $.sketch.tools.eraser = {
   }
 };
 
-},{"jquery":234}],2:[function(require,module,exports){
+},{"jquery":214}],2:[function(require,module,exports){
 module.exports = Stats
   // Copyright (c) 2013 The Chromium Authors. All rights reserved.
   // Use of this source code is governed by a BSD-style license that can be
@@ -20617,478 +20617,6 @@ module.exports = function(arr, obj){
 };
 },{}],171:[function(require,module,exports){
 
-/**
- * This is the web browser implementation of `debug()`.
- *
- * Expose `debug()` as the module.
- */
-
-exports = module.exports = require('./debug');
-exports.log = log;
-exports.formatArgs = formatArgs;
-exports.save = save;
-exports.load = load;
-exports.useColors = useColors;
-
-/**
- * Use chrome.storage.local if we are in an app
- */
-
-var storage;
-
-if (typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined')
-  storage = chrome.storage.local;
-else
-  storage = window.localStorage;
-
-/**
- * Colors.
- */
-
-exports.colors = [
-  'lightseagreen',
-  'forestgreen',
-  'goldenrod',
-  'dodgerblue',
-  'darkorchid',
-  'crimson'
-];
-
-/**
- * Currently only WebKit-based Web Inspectors, Firefox >= v31,
- * and the Firebug extension (any Firefox version) are known
- * to support "%c" CSS customizations.
- *
- * TODO: add a `localStorage` variable to explicitly enable/disable colors
- */
-
-function useColors() {
-  // is webkit? http://stackoverflow.com/a/16459606/376773
-  return ('WebkitAppearance' in document.documentElement.style) ||
-    // is firebug? http://stackoverflow.com/a/398120/376773
-    (window.console && (console.firebug || (console.exception && console.table))) ||
-    // is firefox >= v31?
-    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
-}
-
-/**
- * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
- */
-
-exports.formatters.j = function(v) {
-  return JSON.stringify(v);
-};
-
-
-/**
- * Colorize log arguments if enabled.
- *
- * @api public
- */
-
-function formatArgs() {
-  var args = arguments;
-  var useColors = this.useColors;
-
-  args[0] = (useColors ? '%c' : '')
-    + this.namespace
-    + (useColors ? ' %c' : ' ')
-    + args[0]
-    + (useColors ? '%c ' : ' ')
-    + '+' + exports.humanize(this.diff);
-
-  if (!useColors) return args;
-
-  var c = 'color: ' + this.color;
-  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
-
-  // the final "%c" is somewhat tricky, because there could be other
-  // arguments passed either before or after the %c, so we need to
-  // figure out the correct index to insert the CSS into
-  var index = 0;
-  var lastC = 0;
-  args[0].replace(/%[a-z%]/g, function(match) {
-    if ('%%' === match) return;
-    index++;
-    if ('%c' === match) {
-      // we only are interested in the *last* %c
-      // (the user may have provided their own)
-      lastC = index;
-    }
-  });
-
-  args.splice(lastC, 0, c);
-  return args;
-}
-
-/**
- * Invokes `console.log()` when available.
- * No-op when `console.log` is not a "function".
- *
- * @api public
- */
-
-function log() {
-  // this hackery is required for IE8/9, where
-  // the `console.log` function doesn't have 'apply'
-  return 'object' === typeof console
-    && console.log
-    && Function.prototype.apply.call(console.log, console, arguments);
-}
-
-/**
- * Save `namespaces`.
- *
- * @param {String} namespaces
- * @api private
- */
-
-function save(namespaces) {
-  try {
-    if (null == namespaces) {
-      storage.removeItem('debug');
-    } else {
-      storage.debug = namespaces;
-    }
-  } catch(e) {}
-}
-
-/**
- * Load `namespaces`.
- *
- * @return {String} returns the previously persisted debug modes
- * @api private
- */
-
-function load() {
-  var r;
-  try {
-    r = storage.debug;
-  } catch(e) {}
-  return r;
-}
-
-/**
- * Enable namespaces listed in `localStorage.debug` initially.
- */
-
-exports.enable(load());
-
-},{"./debug":172}],172:[function(require,module,exports){
-
-/**
- * This is the common logic for both the Node.js and web browser
- * implementations of `debug()`.
- *
- * Expose `debug()` as the module.
- */
-
-exports = module.exports = debug;
-exports.coerce = coerce;
-exports.disable = disable;
-exports.enable = enable;
-exports.enabled = enabled;
-exports.humanize = require('ms');
-
-/**
- * The currently active debug mode names, and names to skip.
- */
-
-exports.names = [];
-exports.skips = [];
-
-/**
- * Map of special "%n" handling functions, for the debug "format" argument.
- *
- * Valid key names are a single, lowercased letter, i.e. "n".
- */
-
-exports.formatters = {};
-
-/**
- * Previously assigned color.
- */
-
-var prevColor = 0;
-
-/**
- * Previous log timestamp.
- */
-
-var prevTime;
-
-/**
- * Select a color.
- *
- * @return {Number}
- * @api private
- */
-
-function selectColor() {
-  return exports.colors[prevColor++ % exports.colors.length];
-}
-
-/**
- * Create a debugger with the given `namespace`.
- *
- * @param {String} namespace
- * @return {Function}
- * @api public
- */
-
-function debug(namespace) {
-
-  // define the `disabled` version
-  function disabled() {
-  }
-  disabled.enabled = false;
-
-  // define the `enabled` version
-  function enabled() {
-
-    var self = enabled;
-
-    // set `diff` timestamp
-    var curr = +new Date();
-    var ms = curr - (prevTime || curr);
-    self.diff = ms;
-    self.prev = prevTime;
-    self.curr = curr;
-    prevTime = curr;
-
-    // add the `color` if not set
-    if (null == self.useColors) self.useColors = exports.useColors();
-    if (null == self.color && self.useColors) self.color = selectColor();
-
-    var args = Array.prototype.slice.call(arguments);
-
-    args[0] = exports.coerce(args[0]);
-
-    if ('string' !== typeof args[0]) {
-      // anything else let's inspect with %o
-      args = ['%o'].concat(args);
-    }
-
-    // apply any `formatters` transformations
-    var index = 0;
-    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
-      // if we encounter an escaped % then don't increase the array index
-      if (match === '%%') return match;
-      index++;
-      var formatter = exports.formatters[format];
-      if ('function' === typeof formatter) {
-        var val = args[index];
-        match = formatter.call(self, val);
-
-        // now we need to remove `args[index]` since it's inlined in the `format`
-        args.splice(index, 1);
-        index--;
-      }
-      return match;
-    });
-
-    if ('function' === typeof exports.formatArgs) {
-      args = exports.formatArgs.apply(self, args);
-    }
-    var logFn = enabled.log || exports.log || console.log.bind(console);
-    logFn.apply(self, args);
-  }
-  enabled.enabled = true;
-
-  var fn = exports.enabled(namespace) ? enabled : disabled;
-
-  fn.namespace = namespace;
-
-  return fn;
-}
-
-/**
- * Enables a debug mode by namespaces. This can include modes
- * separated by a colon and wildcards.
- *
- * @param {String} namespaces
- * @api public
- */
-
-function enable(namespaces) {
-  exports.save(namespaces);
-
-  var split = (namespaces || '').split(/[\s,]+/);
-  var len = split.length;
-
-  for (var i = 0; i < len; i++) {
-    if (!split[i]) continue; // ignore empty strings
-    namespaces = split[i].replace(/\*/g, '.*?');
-    if (namespaces[0] === '-') {
-      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
-    } else {
-      exports.names.push(new RegExp('^' + namespaces + '$'));
-    }
-  }
-}
-
-/**
- * Disable debug output.
- *
- * @api public
- */
-
-function disable() {
-  exports.enable('');
-}
-
-/**
- * Returns true if the given mode name is enabled, false otherwise.
- *
- * @param {String} name
- * @return {Boolean}
- * @api public
- */
-
-function enabled(name) {
-  var i, len;
-  for (i = 0, len = exports.skips.length; i < len; i++) {
-    if (exports.skips[i].test(name)) {
-      return false;
-    }
-  }
-  for (i = 0, len = exports.names.length; i < len; i++) {
-    if (exports.names[i].test(name)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Coerce `val`.
- *
- * @param {Mixed} val
- * @return {Mixed}
- * @api private
- */
-
-function coerce(val) {
-  if (val instanceof Error) return val.stack || val.message;
-  return val;
-}
-
-},{"ms":173}],173:[function(require,module,exports){
-/**
- * Helpers.
- */
-
-var s = 1000;
-var m = s * 60;
-var h = m * 60;
-var d = h * 24;
-var y = d * 365.25;
-
-/**
- * Parse or format the given `val`.
- *
- * Options:
- *
- *  - `long` verbose formatting [false]
- *
- * @param {String|Number} val
- * @param {Object} options
- * @return {String|Number}
- * @api public
- */
-
-module.exports = function(val, options){
-  options = options || {};
-  if ('string' == typeof val) return parse(val);
-  return options.long
-    ? long(val)
-    : short(val);
-};
-
-/**
- * Parse the given `str` and return milliseconds.
- *
- * @param {String} str
- * @return {Number}
- * @api private
- */
-
-function parse(str) {
-  var match = /^((?:\d+)?\.?\d+) *(ms|seconds?|s|minutes?|m|hours?|h|days?|d|years?|y)?$/i.exec(str);
-  if (!match) return;
-  var n = parseFloat(match[1]);
-  var type = (match[2] || 'ms').toLowerCase();
-  switch (type) {
-    case 'years':
-    case 'year':
-    case 'y':
-      return n * y;
-    case 'days':
-    case 'day':
-    case 'd':
-      return n * d;
-    case 'hours':
-    case 'hour':
-    case 'h':
-      return n * h;
-    case 'minutes':
-    case 'minute':
-    case 'm':
-      return n * m;
-    case 'seconds':
-    case 'second':
-    case 's':
-      return n * s;
-    case 'ms':
-      return n;
-  }
-}
-
-/**
- * Short format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */
-
-function short(ms) {
-  if (ms >= d) return Math.round(ms / d) + 'd';
-  if (ms >= h) return Math.round(ms / h) + 'h';
-  if (ms >= m) return Math.round(ms / m) + 'm';
-  if (ms >= s) return Math.round(ms / s) + 's';
-  return ms + 'ms';
-}
-
-/**
- * Long format for `ms`.
- *
- * @param {Number} ms
- * @return {String}
- * @api private
- */
-
-function long(ms) {
-  return plural(ms, d, 'day')
-    || plural(ms, h, 'hour')
-    || plural(ms, m, 'minute')
-    || plural(ms, s, 'second')
-    || ms + ' ms';
-}
-
-/**
- * Pluralization helper.
- */
-
-function plural(ms, n, name) {
-  if (ms < n) return;
-  if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
-  return Math.ceil(ms / n) + ' ' + name + 's';
-}
-
-},{}],174:[function(require,module,exports){
-
 /*!
  * EJS
  * Copyright(c) 2012 TJ Holowaychuk <tj@vision-media.ca>
@@ -21451,7 +20979,7 @@ if (require.extensions) {
   });
 }
 
-},{"./filters":175,"./utils":176,"fs":7,"path":151}],175:[function(require,module,exports){
+},{"./filters":172,"./utils":173,"fs":7,"path":151}],172:[function(require,module,exports){
 /*!
  * EJS - Filters
  * Copyright(c) 2010 TJ Holowaychuk <tj@vision-media.ca>
@@ -21654,7 +21182,7 @@ exports.json = function(obj){
   return JSON.stringify(obj);
 };
 
-},{}],176:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 
 /*!
  * EJS
@@ -21680,376 +21208,7 @@ exports.escape = function(html){
 };
  
 
-},{}],177:[function(require,module,exports){
-'use strict';
-
-var isEmpty = require('es5-ext/object/is-empty')
-  , value   = require('es5-ext/object/valid-value')
-
-  , hasOwnProperty = Object.prototype.hasOwnProperty;
-
-module.exports = function (obj/*, type*/) {
-	var type;
-	value(obj);
-	type = arguments[1];
-	if (arguments.length > 1) {
-		return hasOwnProperty.call(obj, '__ee__') && Boolean(obj.__ee__[type]);
-	}
-	return obj.hasOwnProperty('__ee__') && !isEmpty(obj.__ee__);
-};
-
-},{"es5-ext/object/is-empty":184,"es5-ext/object/valid-value":190}],178:[function(require,module,exports){
-'use strict';
-
-var d        = require('d')
-  , callable = require('es5-ext/object/valid-callable')
-
-  , apply = Function.prototype.apply, call = Function.prototype.call
-  , create = Object.create, defineProperty = Object.defineProperty
-  , defineProperties = Object.defineProperties
-  , hasOwnProperty = Object.prototype.hasOwnProperty
-  , descriptor = { configurable: true, enumerable: false, writable: true }
-
-  , on, once, off, emit, methods, descriptors, base;
-
-on = function (type, listener) {
-	var data;
-
-	callable(listener);
-
-	if (!hasOwnProperty.call(this, '__ee__')) {
-		data = descriptor.value = create(null);
-		defineProperty(this, '__ee__', descriptor);
-		descriptor.value = null;
-	} else {
-		data = this.__ee__;
-	}
-	if (!data[type]) data[type] = listener;
-	else if (typeof data[type] === 'object') data[type].push(listener);
-	else data[type] = [data[type], listener];
-
-	return this;
-};
-
-once = function (type, listener) {
-	var once, self;
-
-	callable(listener);
-	self = this;
-	on.call(this, type, once = function () {
-		off.call(self, type, once);
-		apply.call(listener, this, arguments);
-	});
-
-	once.__eeOnceListener__ = listener;
-	return this;
-};
-
-off = function (type, listener) {
-	var data, listeners, candidate, i;
-
-	callable(listener);
-
-	if (!hasOwnProperty.call(this, '__ee__')) return this;
-	data = this.__ee__;
-	if (!data[type]) return this;
-	listeners = data[type];
-
-	if (typeof listeners === 'object') {
-		for (i = 0; (candidate = listeners[i]); ++i) {
-			if ((candidate === listener) ||
-					(candidate.__eeOnceListener__ === listener)) {
-				if (listeners.length === 2) data[type] = listeners[i ? 0 : 1];
-				else listeners.splice(i, 1);
-			}
-		}
-	} else {
-		if ((listeners === listener) ||
-				(listeners.__eeOnceListener__ === listener)) {
-			delete data[type];
-		}
-	}
-
-	return this;
-};
-
-emit = function (type) {
-	var i, l, listener, listeners, args;
-
-	if (!hasOwnProperty.call(this, '__ee__')) return;
-	listeners = this.__ee__[type];
-	if (!listeners) return;
-
-	if (typeof listeners === 'object') {
-		l = arguments.length;
-		args = new Array(l - 1);
-		for (i = 1; i < l; ++i) args[i - 1] = arguments[i];
-
-		listeners = listeners.slice();
-		for (i = 0; (listener = listeners[i]); ++i) {
-			apply.call(listener, this, args);
-		}
-	} else {
-		switch (arguments.length) {
-		case 1:
-			call.call(listeners, this);
-			break;
-		case 2:
-			call.call(listeners, this, arguments[1]);
-			break;
-		case 3:
-			call.call(listeners, this, arguments[1], arguments[2]);
-			break;
-		default:
-			l = arguments.length;
-			args = new Array(l - 1);
-			for (i = 1; i < l; ++i) {
-				args[i - 1] = arguments[i];
-			}
-			apply.call(listeners, this, args);
-		}
-	}
-};
-
-methods = {
-	on: on,
-	once: once,
-	off: off,
-	emit: emit
-};
-
-descriptors = {
-	on: d(on),
-	once: d(once),
-	off: d(off),
-	emit: d(emit)
-};
-
-base = defineProperties({}, descriptors);
-
-module.exports = exports = function (o) {
-	return (o == null) ? create(base) : defineProperties(Object(o), descriptors);
-};
-exports.methods = methods;
-
-},{"d":179,"es5-ext/object/valid-callable":189}],179:[function(require,module,exports){
-'use strict';
-
-var assign        = require('es5-ext/object/assign')
-  , normalizeOpts = require('es5-ext/object/normalize-options')
-  , isCallable    = require('es5-ext/object/is-callable')
-  , contains      = require('es5-ext/string/#/contains')
-
-  , d;
-
-d = module.exports = function (dscr, value/*, options*/) {
-	var c, e, w, options, desc;
-	if ((arguments.length < 2) || (typeof dscr !== 'string')) {
-		options = value;
-		value = dscr;
-		dscr = null;
-	} else {
-		options = arguments[2];
-	}
-	if (dscr == null) {
-		c = w = true;
-		e = false;
-	} else {
-		c = contains.call(dscr, 'c');
-		e = contains.call(dscr, 'e');
-		w = contains.call(dscr, 'w');
-	}
-
-	desc = { value: value, configurable: c, enumerable: e, writable: w };
-	return !options ? desc : assign(normalizeOpts(options), desc);
-};
-
-d.gs = function (dscr, get, set/*, options*/) {
-	var c, e, options, desc;
-	if (typeof dscr !== 'string') {
-		options = set;
-		set = get;
-		get = dscr;
-		dscr = null;
-	} else {
-		options = arguments[3];
-	}
-	if (get == null) {
-		get = undefined;
-	} else if (!isCallable(get)) {
-		options = get;
-		get = set = undefined;
-	} else if (set == null) {
-		set = undefined;
-	} else if (!isCallable(set)) {
-		options = set;
-		set = undefined;
-	}
-	if (dscr == null) {
-		c = true;
-		e = false;
-	} else {
-		c = contains.call(dscr, 'c');
-		e = contains.call(dscr, 'e');
-	}
-
-	desc = { get: get, set: set, configurable: c, enumerable: e };
-	return !options ? desc : assign(normalizeOpts(options), desc);
-};
-
-},{"es5-ext/object/assign":180,"es5-ext/object/is-callable":183,"es5-ext/object/normalize-options":188,"es5-ext/string/#/contains":191}],180:[function(require,module,exports){
-'use strict';
-
-module.exports = require('./is-implemented')()
-	? Object.assign
-	: require('./shim');
-
-},{"./is-implemented":181,"./shim":182}],181:[function(require,module,exports){
-'use strict';
-
-module.exports = function () {
-	var assign = Object.assign, obj;
-	if (typeof assign !== 'function') return false;
-	obj = { foo: 'raz' };
-	assign(obj, { bar: 'dwa' }, { trzy: 'trzy' });
-	return (obj.foo + obj.bar + obj.trzy) === 'razdwatrzy';
-};
-
-},{}],182:[function(require,module,exports){
-'use strict';
-
-var keys  = require('../keys')
-  , value = require('../valid-value')
-
-  , max = Math.max;
-
-module.exports = function (dest, src/*, …srcn*/) {
-	var error, i, l = max(arguments.length, 2), assign;
-	dest = Object(value(dest));
-	assign = function (key) {
-		try { dest[key] = src[key]; } catch (e) {
-			if (!error) error = e;
-		}
-	};
-	for (i = 1; i < l; ++i) {
-		src = arguments[i];
-		keys(src).forEach(assign);
-	}
-	if (error !== undefined) throw error;
-	return dest;
-};
-
-},{"../keys":185,"../valid-value":190}],183:[function(require,module,exports){
-// Deprecated
-
-'use strict';
-
-module.exports = function (obj) { return typeof obj === 'function'; };
-
-},{}],184:[function(require,module,exports){
-'use strict';
-
-var value = require('./valid-value')
-
-  , propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-module.exports = function (obj) {
-	var i;
-	value(obj);
-	for (i in obj) { //jslint: ignore
-		if (propertyIsEnumerable.call(obj, i)) return false;
-	}
-	return true;
-};
-
-},{"./valid-value":190}],185:[function(require,module,exports){
-'use strict';
-
-module.exports = require('./is-implemented')()
-	? Object.keys
-	: require('./shim');
-
-},{"./is-implemented":186,"./shim":187}],186:[function(require,module,exports){
-'use strict';
-
-module.exports = function () {
-	try {
-		Object.keys('primitive');
-		return true;
-	} catch (e) { return false; }
-};
-
-},{}],187:[function(require,module,exports){
-'use strict';
-
-var keys = Object.keys;
-
-module.exports = function (object) {
-	return keys(object == null ? object : Object(object));
-};
-
-},{}],188:[function(require,module,exports){
-'use strict';
-
-var forEach = Array.prototype.forEach, create = Object.create;
-
-var process = function (src, obj) {
-	var key;
-	for (key in src) obj[key] = src[key];
-};
-
-module.exports = function (options/*, …options*/) {
-	var result = create(null);
-	forEach.call(arguments, function (options) {
-		if (options == null) return;
-		process(Object(options), result);
-	});
-	return result;
-};
-
-},{}],189:[function(require,module,exports){
-'use strict';
-
-module.exports = function (fn) {
-	if (typeof fn !== 'function') throw new TypeError(fn + " is not a function");
-	return fn;
-};
-
-},{}],190:[function(require,module,exports){
-'use strict';
-
-module.exports = function (value) {
-	if (value == null) throw new TypeError("Cannot use null or undefined");
-	return value;
-};
-
-},{}],191:[function(require,module,exports){
-'use strict';
-
-module.exports = require('./is-implemented')()
-	? String.prototype.contains
-	: require('./shim');
-
-},{"./is-implemented":192,"./shim":193}],192:[function(require,module,exports){
-'use strict';
-
-var str = 'razdwatrzy';
-
-module.exports = function () {
-	if (typeof str.contains !== 'function') return false;
-	return ((str.contains('dwa') === true) && (str.contains('foo') === false));
-};
-
-},{}],193:[function(require,module,exports){
-'use strict';
-
-var indexOf = String.prototype.indexOf;
-
-module.exports = function (searchString/*, position*/) {
-	return indexOf.call(this, searchString, arguments[1]) > -1;
-};
-
-},{}],194:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 var grammar = module.exports = {
   v: [{
       name: 'version',
@@ -22276,7 +21435,7 @@ Object.keys(grammar).forEach(function (key) {
   });
 }); 
 
-},{}],195:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 var parser = require('./parser');
 var writer = require('./writer');
 
@@ -22286,7 +21445,7 @@ exports.parseFmtpConfig = parser.parseFmtpConfig;
 exports.parsePayloads = parser.parsePayloads;
 exports.parseRemoteCandidates = parser.parseRemoteCandidates;
 
-},{"./parser":196,"./writer":197}],196:[function(require,module,exports){
+},{"./parser":176,"./writer":177}],176:[function(require,module,exports){
 var toIntIfInt = function (v) {
   return String(Number(v)) === v ? Number(v) : v;
 };
@@ -22381,7 +21540,7 @@ exports.parseRemoteCandidates = function (str) {
   return candidates;
 };
 
-},{"./grammar":194}],197:[function(require,module,exports){
+},{"./grammar":174}],177:[function(require,module,exports){
 var grammar = require('./grammar');
 
 // customized util.format - discards excess arguments and can void middle ones
@@ -22497,7 +21656,7 @@ module.exports = function (session, opts) {
   return sdp.join('\r\n') + '\r\n';
 };
 
-},{"./grammar":194}],198:[function(require,module,exports){
+},{"./grammar":174}],178:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -22542,7 +21701,7 @@ function ws(uri, protocols, opts) {
 
 if (WebSocket) ws.prototype = WebSocket.prototype;
 
-},{}],199:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 module.exports={
   "name": "exsip",
   "title": "ExSIP",
@@ -22596,7 +21755,7 @@ module.exports={
   }
 }
 
-},{}],200:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 var pkg = require('../package.json');
 
 var C = {
@@ -22758,7 +21917,7 @@ var C = {
 
 module.exports = C;
 
-},{"../package.json":199}],201:[function(require,module,exports){
+},{"../package.json":179}],181:[function(require,module,exports){
 module.exports = Dialog;
 
 
@@ -22999,7 +22158,7 @@ Dialog.prototype = {
   }
 };
 
-},{"./Constants":200,"./Dialog/RequestSender":202,"./SIPMessage":219,"./Transactions":221,"./Utils":225}],202:[function(require,module,exports){
+},{"./Constants":180,"./Dialog/RequestSender":182,"./SIPMessage":199,"./Transactions":201,"./Utils":205}],182:[function(require,module,exports){
 module.exports = DialogRequestSender;
 
 /**
@@ -23089,7 +22248,7 @@ DialogRequestSender.prototype = {
     }
   }
 };
-},{"../Constants":200,"../RTCSession":213,"../RequestSender":218,"../Transactions":221}],203:[function(require,module,exports){
+},{"../Constants":180,"../RTCSession":193,"../RequestSender":198,"../Transactions":201}],183:[function(require,module,exports){
 module.exports = DigestAuthentication;
 
 
@@ -23251,7 +22410,7 @@ DigestAuthentication.prototype.updateNcHex = function() {
   var hex = Number(this.nc).toString(16);
   this.ncHex = '00000000'.substr(0, 8-hex.length) + hex;
 };
-},{"./Utils":225}],204:[function(require,module,exports){
+},{"./Utils":205}],184:[function(require,module,exports){
 module.exports = EventEmitter;
 
 
@@ -23451,7 +22610,7 @@ EventEmitter.prototype = {
     this.oneTimeListeners[event] = [];
   }
 };
-},{"./LoggerFactory":209}],205:[function(require,module,exports){
+},{"./LoggerFactory":189}],185:[function(require,module,exports){
 var ExSIP = {
   C: require('./Constants'),
   Exceptions: require('./Exceptions'),
@@ -23489,7 +22648,7 @@ Object.defineProperties(ExSIP, {
   }
 });
 
-},{"../package.json":199,"./Constants":200,"./Exceptions":206,"./Grammar":207,"./NameAddrHeader":211,"./RTCSession":213,"./UA":223,"./URI":224,"./Utils":225,"./WebRTC":226}],206:[function(require,module,exports){
+},{"../package.json":179,"./Constants":180,"./Exceptions":186,"./Grammar":187,"./NameAddrHeader":191,"./RTCSession":193,"./UA":203,"./URI":204,"./Utils":205,"./WebRTC":206}],186:[function(require,module,exports){
 /**
  * @namespace Exceptions
  * @memberOf ExSIP
@@ -23549,7 +22708,7 @@ var Exceptions = {
 };
 
 module.exports = Exceptions;
-},{}],207:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 module.exports = (function(){
   /*
    * Generated by PEG.js 0.7.0.
@@ -36074,7 +35233,7 @@ module.exports = (function(){
   return result;
 })();
 
-},{"./NameAddrHeader":211,"./URI":224}],208:[function(require,module,exports){
+},{"./NameAddrHeader":191,"./URI":204}],188:[function(require,module,exports){
 module.exports = Logger;
 
 function DateFmt(fstr) {
@@ -36150,7 +35309,7 @@ Logger.prototype.getTime = function() {
 Logger.prototype.getTimeFor = function(date) {
   return this.fmt.format(date);
 };
-},{}],209:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 module.exports = LoggerFactory;
 
 
@@ -36295,7 +35454,7 @@ LoggerFactory.prototype.getLogger = function(category, label) {
   }
 };
 
-},{"./Logger":208}],210:[function(require,module,exports){
+},{"./Logger":188}],190:[function(require,module,exports){
 module.exports = Message;
 
 function Message(ua) {
@@ -36524,7 +35683,7 @@ Message.prototype.newMessage = function(originator, request) {
     request: request
   });
 };
-},{"./Constants":200,"./EventEmitter":204,"./Exceptions":206,"./RequestSender":218,"./SIPMessage":219,"./Transactions":221,"./Utils":225}],211:[function(require,module,exports){
+},{"./Constants":180,"./EventEmitter":184,"./Exceptions":186,"./RequestSender":198,"./SIPMessage":199,"./Transactions":201,"./Utils":205}],191:[function(require,module,exports){
 module.exports = NameAddrHeader;
 
 
@@ -36633,7 +35792,7 @@ NameAddrHeader.parse = function(name_addr_header) {
     return undefined;
   }
 };
-},{"./Grammar":207,"./URI":224}],212:[function(require,module,exports){
+},{"./Grammar":187,"./URI":204}],192:[function(require,module,exports){
 var Parser = {};
 
 module.exports = Parser;
@@ -36891,7 +36050,7 @@ Parser.writeSDP = sdp_transform.write;
 Parser.parseFmtpConfig = sdp_transform.parseFmtpConfig;
 Parser.parsePayloads = sdp_transform.parsePayloads;
 Parser.parseRemoteCandidates = sdp_transform.parseRemoteCandidates;
-},{"./Grammar":207,"./SIPMessage":219,"sdp-transform":195}],213:[function(require,module,exports){
+},{"./Grammar":187,"./SIPMessage":199,"sdp-transform":175}],193:[function(require,module,exports){
 module.exports = RTCSession;
 
 
@@ -39350,7 +38509,7 @@ RTCSession.prototype.onReadyToReinvite = function() {
     this.unhold();
   }
 };
-},{"./Constants":200,"./Dialog":201,"./EventEmitter":204,"./Exceptions":206,"./Parser":212,"./RTCSession/DTMF":214,"./RTCSession/RTCMediaHandler":216,"./RequestSender":218,"./SIPMessage":219,"./Timers":220,"./UA":223,"./Utils":225,"./WebRTC":226}],214:[function(require,module,exports){
+},{"./Constants":180,"./Dialog":181,"./EventEmitter":184,"./Exceptions":186,"./Parser":192,"./RTCSession/DTMF":194,"./RTCSession/RTCMediaHandler":196,"./RequestSender":198,"./SIPMessage":199,"./Timers":200,"./UA":203,"./Utils":205,"./WebRTC":206}],194:[function(require,module,exports){
 module.exports = DTMF;
 
 
@@ -39609,7 +38768,7 @@ DTMF.prototype.init_incoming = function(request) {
     });
   }
 };
-},{"../EventEmitter":204,"../Exceptions":206,"../RTCSession":213,"../Utils":225}],215:[function(require,module,exports){
+},{"../EventEmitter":184,"../Exceptions":186,"../RTCSession":193,"../Utils":205}],195:[function(require,module,exports){
 module.exports = DataChannel;
 
 var EventEmitter = require('../EventEmitter');
@@ -39721,7 +38880,7 @@ DataChannel.prototype.initSendChannel = function() {
     self.logger.error('Create Data channel failed with exception: ' + e.message);
   }
 };
-},{"../EventEmitter":204}],216:[function(require,module,exports){
+},{"../EventEmitter":184}],196:[function(require,module,exports){
 module.exports = RTCMediaHandler;
 
 /**
@@ -40195,7 +39354,7 @@ RTCMediaHandler.prototype = {
     }
   }
 };
-},{"../Constants":200,"../Utils":225,"../WebRTC":226,"./DataChannel":215}],217:[function(require,module,exports){
+},{"../Constants":180,"../Utils":205,"../WebRTC":206,"./DataChannel":195}],197:[function(require,module,exports){
 module.exports = Registrator;
 
 
@@ -40505,7 +39664,7 @@ Registrator.prototype = {
     }
   }
 };
-},{"./Constants":200,"./RequestSender":218,"./SIPMessage":219,"./Utils":225}],218:[function(require,module,exports){
+},{"./Constants":180,"./RequestSender":198,"./SIPMessage":199,"./Utils":205}],198:[function(require,module,exports){
 module.exports = RequestSender;
 
 
@@ -40656,7 +39815,7 @@ RequestSender.prototype = {
 
   }
 };
-},{"./Constants":200,"./DigestAuthentication":203,"./Transactions":221,"./UA":223}],219:[function(require,module,exports){
+},{"./Constants":180,"./DigestAuthentication":183,"./Transactions":201,"./UA":203}],199:[function(require,module,exports){
 module.exports = {
   OutgoingRequest: OutgoingRequest,
   IncomingRequest: IncomingRequest,
@@ -41213,7 +40372,7 @@ function IncomingResponse(ua) {
 
 IncomingResponse.prototype = new IncomingMessage();
 
-},{"./Constants":200,"./Grammar":207,"./NameAddrHeader":211,"./Utils":225}],220:[function(require,module,exports){
+},{"./Constants":180,"./Grammar":187,"./NameAddrHeader":191,"./Utils":205}],200:[function(require,module,exports){
 var T1 = 500,
   T2 = 4000,
   T4 = 5000;
@@ -41237,7 +40396,7 @@ var Timers = {
 
 module.exports = Timers;
 
-},{}],221:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 module.exports = {
   C: null,
   NonInviteClientTransaction: NonInviteClientTransaction,
@@ -41991,7 +41150,7 @@ function checkTransaction(ua, request) {
   }
 }
 
-},{"./Constants":200,"./EventEmitter":204,"./Timers":220}],222:[function(require,module,exports){
+},{"./Constants":180,"./EventEmitter":184,"./Timers":200}],202:[function(require,module,exports){
 (function (global){
 module.exports = Transport;
 
@@ -42308,7 +41467,7 @@ Transport.prototype = {
   }
 };
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Constants":200,"./Parser":212,"./SIPMessage":219,"./UA":223,"./sanityCheck":227,"ws":198}],223:[function(require,module,exports){
+},{"./Constants":180,"./Parser":192,"./SIPMessage":199,"./UA":203,"./sanityCheck":207,"ws":178}],203:[function(require,module,exports){
 module.exports = UA;
 
 
@@ -43925,7 +43084,7 @@ UA.configuration_check = {
     }
   }
 };
-},{"./Constants":200,"./EventEmitter":204,"./Exceptions":206,"./Grammar":207,"./LoggerFactory":209,"./Message":210,"./RTCSession":213,"./Registrator":217,"./Transactions":221,"./Transport":222,"./URI":224,"./Utils":225,"./WebRTC":226}],224:[function(require,module,exports){
+},{"./Constants":180,"./EventEmitter":184,"./Exceptions":186,"./Grammar":187,"./LoggerFactory":189,"./Message":190,"./RTCSession":193,"./Registrator":197,"./Transactions":201,"./Transport":202,"./URI":204,"./Utils":205,"./WebRTC":206}],204:[function(require,module,exports){
 module.exports = URI;
 
 
@@ -44140,7 +43299,7 @@ URI.parse = function(uri) {
     return undefined;
   }
 };
-},{"./Constants":200,"./Grammar":207,"./Utils":225}],225:[function(require,module,exports){
+},{"./Constants":180,"./Grammar":187,"./Utils":205}],205:[function(require,module,exports){
 var Utils = {};
 
 module.exports = Utils;
@@ -44653,7 +43812,7 @@ Utils.calculateMD5 = function(string) {
 
   return temp.toLowerCase();
 };
-},{"./Constants":200,"./Grammar":207,"./URI":224}],226:[function(require,module,exports){
+},{"./Constants":180,"./Grammar":187,"./URI":204}],206:[function(require,module,exports){
 var WebRTC = {};
 
 module.exports = WebRTC;
@@ -45067,7 +44226,7 @@ else {
   WebRTC.isSupported = false;
 }
 
-},{"./Constants":200,"./Utils":225}],227:[function(require,module,exports){
+},{"./Constants":180,"./Utils":205}],207:[function(require,module,exports){
 module.exports = sanityCheck;
 
 
@@ -45298,7 +44457,7 @@ function reply(status_code) {
 
   transport.send(response);
 }
-},{"./Constants":200,"./SIPMessage":219,"./Utils":225}],228:[function(require,module,exports){
+},{"./Constants":180,"./SIPMessage":199,"./Utils":205}],208:[function(require,module,exports){
 /* FileSaver.js
  * A saveAs() FileSaver implementation.
  * 2014-12-17
@@ -45544,7 +44703,7 @@ if (typeof module !== "undefined" && module.exports) {
   });
 }
 
-},{}],229:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 var jQuery = require('jquery');
 
 /*!
@@ -45868,7 +45027,7 @@ $.extend( $.ui, {
 
 })( jQuery );
 
-},{"jquery":234}],230:[function(require,module,exports){
+},{"jquery":214}],210:[function(require,module,exports){
 var jQuery = require('jquery');
 require('./core');
 require('./mouse');
@@ -46833,7 +45992,7 @@ $.ui.plugin.add("draggable", "zIndex", {
 
 })(jQuery);
 
-},{"./core":229,"./mouse":231,"./widget":232,"jquery":234}],231:[function(require,module,exports){
+},{"./core":209,"./mouse":211,"./widget":212,"jquery":214}],211:[function(require,module,exports){
 var jQuery = require('jquery');
 require('./widget');
 
@@ -47007,7 +46166,7 @@ $.widget("ui.mouse", {
 
 })(jQuery);
 
-},{"./widget":232,"jquery":234}],232:[function(require,module,exports){
+},{"./widget":212,"jquery":214}],212:[function(require,module,exports){
 var jQuery = require('jquery');
 
 /*!
@@ -47532,7 +46691,7 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 
 })( jQuery );
 
-},{"jquery":234}],233:[function(require,module,exports){
+},{"jquery":214}],213:[function(require,module,exports){
 /*!
  * jQuery Cookie Plugin v1.4.1
  * https://github.com/carhartl/jquery-cookie
@@ -47651,7 +46810,7 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 
 }));
 
-},{"jquery":234}],234:[function(require,module,exports){
+},{"jquery":214}],214:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.1.3
  * http://jquery.com/
@@ -56858,11 +56017,11 @@ return jQuery;
 
 }));
 
-},{}],235:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 module.exports = Authentication;
 
 var $ = require('jquery');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function Authentication(eventbus, settings, configuration, debug, authenticationView) {
   var self = {};
@@ -56913,12 +56072,12 @@ function Authentication(eventbus, settings, configuration, debug, authentication
 
   return self;
 }
-},{"jquery":234,"webrtc-core/Utils":500}],236:[function(require,module,exports){
+},{"jquery":214,"webrtc-core":474}],216:[function(require,module,exports){
 module.exports = CallControl;
 
 var $ = require('jquery');
 var fs = require('fs');
-var C = require('webrtc-core/Constants');
+var C = require('webrtc-core').constants;
 
 function CallControl(eventbus, configuration, sipstack, debug, callcontrolView, sound) {
   var self = {};
@@ -57034,7 +56193,7 @@ function CallControl(eventbus, configuration, sipstack, debug, callcontrolView, 
 
   return self;
 }
-},{"fs":7,"jquery":234,"webrtc-core/Constants":497}],237:[function(require,module,exports){
+},{"fs":7,"jquery":214,"webrtc-core":474}],217:[function(require,module,exports){
 module.exports = Configuration;
 
 var Flags = {
@@ -57062,9 +56221,8 @@ var Flags = {
 
 Configuration.Flags = Flags;
 
-var Utils = require('webrtc-core/Utils');
-var WebRTC_C = require('webrtc-core/Constants');
-var ExSIP = require('exsip');
+var Utils = require('webrtc-core').utils;
+var WebRTC_C = require('webrtc-core').constants;
 var jQuery = $ = require('jquery');
 // TODO : hack to test in node js directly
 if(typeof document === 'undefined') {
@@ -57127,8 +56285,8 @@ function Configuration(options, eventbus, debug, settings) {
   });
 
   self.init = function(options) { 
-    debug('configuration options : ' + ExSIP.Utils.toString(options));
-    debug('configuration : ' + ExSIP.Utils.toString(self));
+    // debug('configuration options : ' + ExSIP.Utils.toString(options));
+    // debug('configuration : ' + ExSIP.Utils.toString(self));
     if (self.features) {
       self.setClientConfigFlags(parseInt(self.features, 10));
     }
@@ -57345,10 +56503,10 @@ function Configuration(options, eventbus, debug, settings) {
 }
 
 
-},{"exsip":205,"jquery":234,"webrtc-core/Constants":497,"webrtc-core/Utils":500}],238:[function(require,module,exports){
+},{"jquery":214,"webrtc-core":474}],218:[function(require,module,exports){
 module.exports = ConnectionStatus
 
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function ConnectionStatus(options, eventbus, configuration, connectionstatusView) {
   var self = {};
@@ -57382,188 +56540,10 @@ function ConnectionStatus(options, eventbus, configuration, connectionstatusView
 
   return self;
 }
-},{"webrtc-core/Utils":500}],239:[function(require,module,exports){
-module.exports = Debug
-
-var stacktrace = require('stacktrace-js');
-var debug = require('debug');
-var enabled = {};
-
-function Debug(options) {
-	options = options || {};
-	var id = options && options.id || options || '';
-	if (options.debug) {
-		enabled[id] = '*:' + id;
-	} else {
-		delete enabled[id];
-	}
-	updateEnabled();
-
-	return function(msg) {
-		var prefix = (options.name || caller()) + ':' + id;
-		debug(prefix)(msg);
-	};
-}
-
-var caller = function(){
-	var list = stacktrace();
-	for(var i=list.length-1; i >= 0; i--) {
-		var match = null;
-		if((match = list[i].match(/([A-Z]\S*).*@/g))) {
-			if(match !== 'Object') {
-				return match;				
-			}
-		}
-	}
-
-	return stacktrace().pop().match('(.*)@').pop();
-}
-var updateEnabled = function() {
-	var values = [];
-	Object.keys(enabled).forEach(function(key) {
-		values.push(enabled[key]);
-	});
-	debug.enable(values.join(','));
-};
-// exports.enable = function(id){
-// 	enabledList.push('*'+id);
-// 	var enabledStr = enabledList.join(',');
-// 	debug.enable(enabledStr);
-// };
-// exports.disable = function(){
-// 	enabledList = [];
-// 	debug.disable();
-// };
-// exports.log = debug.log;
-},{"debug":171,"stacktrace-js":256}],240:[function(require,module,exports){
-module.exports = EventBus;
-
-var ee = require('event-emitter');
-
-function EventBus() {
-	var self = {};
-
-	var emitter = ee({});
-	self.test = '121';
-	
-	self.on = function(type, listener){
-		if(Array.isArray(type)) {
-			type.forEach(function(t) {
-				emitter.on(t, listener);
-			});
-		} else {
-			emitter.on(type, listener);
-		}
-	};
-	self.once = function(type, listener){
-		if(Array.isArray(type)) {
-			type.forEach(function(t) {
-				emitter.once(t, listener);
-			});
-		} else {
-			emitter.once(type, listener);
-		}		
-	};
-	self.emit = function(type, obj){
-		if(Array.isArray(type)) {
-			type.forEach(function(t) {
-				emitter.emit(t, obj);
-			});
-		} else {
-			emitter.emit(type, obj);
-		}
-	};
-	self.attachView = function(view) {
-		self.emit('attachView', {
-			view: view
-		});
-	};
-	self.message = function(text, level) {
-		self.emit('message', {
-			text: text,
-			level: level
-		});
-	};
-	self.smsRemovedFailed = function(inboxItem) {
-		self.emit('smsRemovedFailed', {inboxItem: inboxItem});
-	};
-	self.smsRemoved = function(inboxItem) {
-		self.emit('smsRemoved', {inboxItem: inboxItem});
-	};
-	self.smsRemoving = function(inboxItem) {
-		self.emit('smsRemoving', {inboxItem: inboxItem});
-	};
-	self.smsSending = function() {
-		self.emit('smsSending', {});
-	};
-	self.shareFile = function(file) {		
-		self.emit('shareFile', {
-			file: file
-		});
-	};
-	self.digit = function(digit, isFromDestination) {		
-		self.emit('digit', {
-			digit: digit,
-			isFromDestination: isFromDestination
-		});
-	};
-	self.viewChanged = function(view) {
-		self.emit('viewChanged', {
-			visible: view.visible,
-			view: view.name || view._name.replace(/view$/i, '')
-		});
-	};
-	self.resolutionChanged = function(resolution) {
-		self.emit('resolutionChanged', {
-			type: resolution.resolutionType || resolution.type,
-			encoding: resolution.resolutionEncoding || resolution.encoding,
-			display: resolution.resolutionDisplay || resolution.display
-		});
-	};
-	self.bandwidthChanged = function(bandwidth) {
-		self.emit('bandwidthChanged', {
-			type: bandwidth.bandwidthLow || bandwidth.low,
-			encoding: bandwidth.bandwidthMed || bandwidth.med,
-			display: bandwidth.bandwidthHigh || bandwidth.high
-		});
-	};
-	self.authenticationFailed = function(authentication) {
-		self.emit('authenticationFailed', {
-			userid: authentication.userid,
-			authUserid: authentication.authUserid,
-			password: authentication.password
-		});
-	};
-	self.calling = function(destination, session) {
-		self.emit('calling', {
-			destination: destination,
-			session: session
-		});
-	};
-	self.modifier = function(which) {
-		self.emit('modifier', {
-			which: which
-		});
-	};
-	self.screenshare = function(enabled) {
-		self.emit('screenshare', {
-			enabled: enabled
-		});
-	};
-	self.signIn = function() {
-		self.emit('signIn');
-	};
-	self.signOut = function() {
-		self.emit('signOut');
-	};
-
-	return self;
-}
-
-},{"event-emitter":178}],241:[function(require,module,exports){
+},{"webrtc-core":474}],219:[function(require,module,exports){
 module.exports = FileShare
 
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 var fileSaver = require('filesaver.js');
 
 function FileShare(sipstack, eventbus, debug, fileshareView) {
@@ -57656,11 +56636,11 @@ function FileShare(sipstack, eventbus, debug, fileshareView) {
 
   return self;
 }
-},{"filesaver.js":228,"webrtc-core/Utils":500}],242:[function(require,module,exports){
+},{"filesaver.js":208,"webrtc-core":474}],220:[function(require,module,exports){
 module.exports = History
 
-var Utils = require('webrtc-core/Utils');
-var Constants = require('webrtc-core/Constants');
+var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 
 function Page(number, callsValue) {
   var self = {};
@@ -57888,11 +56868,10 @@ function History(stats, configuration, eventbus, historyView) {
   return self;
 
 }
-},{"webrtc-core/Constants":497,"webrtc-core/Utils":500}],243:[function(require,module,exports){
+},{"webrtc-core":474}],221:[function(require,module,exports){
 module.exports = IncomingCall
 
-var Utils = require('webrtc-core/Utils');
-var ExSIP = require('exsip');
+var Utils = require('webrtc-core').utils;
 
 function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
   var self = {};
@@ -57930,11 +56909,8 @@ function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
   };
 
   self.listeners = function() {
-    eventbus.on("failed", function(e) {
-      var error = e.cause;
-      if (error === ExSIP.C.causes.CANCELED) {
-        self.view.hide();
-      }
+    eventbus.on("canceled", function(e) {
+      self.view.hide();
     });
 
     eventbus.on("incomingCall", function(evt) {
@@ -57950,7 +56926,7 @@ function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
 
   return self;
 }
-},{"exsip":205,"webrtc-core/Utils":500}],244:[function(require,module,exports){
+},{"webrtc-core":474}],222:[function(require,module,exports){
 module.exports = Messages
 
 function Messages(eventbus, configuration, messagesView) {
@@ -58030,7 +57006,7 @@ function Messages(eventbus, configuration, messagesView) {
 
   return self;
 }
-},{}],245:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 module.exports = Reinvite
 
 function Reinvite(eventbus, reinviteView) {
@@ -58065,11 +57041,11 @@ function Reinvite(eventbus, reinviteView) {
 
   return self;
 }
-},{}],246:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 module.exports = Settings;
 
-var WebRTC_C = require('webrtc-core/Constants');
-var Utils = require('webrtc-core/Utils');
+var WebRTC_C = require('webrtc-core').constants;
+var Utils = require('webrtc-core').utils;
 
 function Settings(configuration, settingsView, eventbus, debug) {
   var self = {};
@@ -58294,350 +57270,11 @@ function Settings(configuration, settingsView, eventbus, debug) {
 
   return self;
 }
-},{"webrtc-core/Constants":497,"webrtc-core/Utils":500}],247:[function(require,module,exports){
-module.exports = SIPStack;
-
-var ExSIP = require('exsip');
-var C = require('webrtc-core/Constants');
-var Utils = require('webrtc-core/Utils');
-
-function SIPStack(eventbus, configuration, settings, debug) {
-  var self = {};
-
-  self.ua = null;
-  self.activeSession = null;
-  self.sessions = [];
-
-  var setActiveSession = function(session) {
-    debug("setting active session to " + session.id);
-    self.activeSession = session;
-  };
-
-  self.listeners = function() {
-    eventbus.on("signOut", function(e) {
-      self.unregister();
-    });
-    eventbus.on("signIn", function(e) {
-      self.init();
-    });
-    eventbus.on("connected", function(e) {
-      self.updateUserMedia();
-    });
-    eventbus.on("resumed", function(e) {
-      setActiveSession(e.sender);
-    });
-    eventbus.on("started", function(e) {
-      setActiveSession(e.sender);
-    });
-    eventbus.on("resolutionChanged", function(e) {
-      self.updateRtcMediaHandlerOptions();
-      self.updateUserMedia();
-    });
-    eventbus.on("bandwidthChanged", function(e) {
-      self.updateRtcMediaHandlerOptions();
-    });
-    eventbus.once("started", function(e) {
-      var dtmfTones = Utils.parseDTMFTones(configuration.destination);
-      if (dtmfTones) {
-        debug("DTMF tones found in destination - sending DTMF tones : " + dtmfTones);
-        self.sendDTMF(dtmfTones);
-      }
-    });
-    eventbus.on('authenticate', function(e) {
-      self.init(e);
-    });
-  };
-  self.getLocalStreams = function() {
-    return self.activeSession ? self.activeSession.getLocalStreams() : null;
-  };
-  self.getRemoteStreams = function() {
-    return self.activeSession ? self.activeSession.getRemoteStreams() : null;
-  };
-  self.getSessionId = function() {
-    return self.activeSession.id.replace(/\./g, '');
-  };
-  self.terminateSession = function(session) {
-    session = session || self.activeSession;
-    if (!session) {
-      return;
-    }
-    var index = self.sessions.indexOf(session);
-    if (index !== -1) {
-      self.sessions.splice(index, index + 1);
-    }
-    if (session.status !== ExSIP.RTCSession.C.STATUS_TERMINATED) {
-      session.terminate();
-    }
-    if (session === self.activeSession) {
-      debug("clearing active session");
-      self.activeSession = null;
-    }
-    eventbus.viewChanged(self);
-  };
-  self.terminateSessions = function() {
-    var allSessions = [];
-    allSessions = allSessions.concat(self.sessions);
-    for (var i = 0; i < allSessions.length; i++) {
-      self.terminateSession(allSessions[i]);
-    }
-  };
-  self.holdAndAnswer = function(session) {
-    var firstSession = self.activeSession;
-    session.on('ended', function() {
-      eventbus.emit('message', {text: 'Resuming with ' + firstSession.remote_identity.uri.user, level: 'normal'});
-      debug("incoming call ended - unholding first call");
-      firstSession.unhold(function() {
-        debug("unhold first call successful");
-      });
-    });
-    self.activeSession.hold(function() {
-      debug("hold successful - answering incoming call");
-      self.answer(session);
-    });
-  };
-  self.answer = function(session) {
-    session.answer(configuration.getExSIPOptions());
-  };
-  self.hold = function(successCallback, failureCallback) {
-    if (self.activeSession) {
-      self.activeSession.hold(successCallback, failureCallback);
-    }
-  };
-  self.unhold = function(successCallback, failureCallback) {
-    if (self.activeSession) {
-      self.activeSession.unhold(successCallback, failureCallback);
-    }
-  };
-  self.reconnectUserMedia = function(successCallback, failureCallback) {
-    var onUserMediaUpdateSuccess = function(localMedia) {
-      debug("reconnect user media successful");
-      if (self.activeSession) {
-        self.activeSession.changeSession({
-          localMedia: localMedia
-        }, function() {
-          debug("session changed successfully");
-          if (successCallback) {
-            successCallback(localMedia);
-          }
-        }, failureCallback);
-      } else if (successCallback) {
-        successCallback(localMedia);
-      }
-    };
-    self.updateUserMedia(onUserMediaUpdateSuccess, failureCallback);
-  };
-  self.call = function(destination) {
-    var session = self.ua.call(destination, configuration.getExSIPOptions());
-    session.on('failed', function(e) {
-      eventbus.emit('failed', e.data);
-    });
-    eventbus.calling(destination, session);
-  };
-  self.sendDTMF = function(digit) {
-    self.activeSession.sendDTMF(digit, configuration.getDTMFOptions());
-  };
-  self.isStarted = function() {
-    return self.getCallState() === C.STATE_STARTED;
-  };
-  self.unregister = function() {
-    return self.ua && self.ua.unregister();
-  };
-  self.register = function() {
-    return self.ua && self.ua.register();
-  };
-  self.isRegistered = function() {
-    return self.ua && self.ua.isRegistered();
-  };
-  self.sendData = function(data) {
-    if (self.activeSession) {
-      self.activeSession.sendData(data);
-    }
-  };
-  self.transfer = function(transferTarget, isAttended) {
-    if (isAttended) {
-      self.ua.attendedTransfer(transferTarget, self.activeSession);
-    } else {
-      self.ua.transfer(transferTarget, self.activeSession);
-    }
-  };
-  self.updateRtcMediaHandlerOptions = function() {
-    if (typeof(self.ua) === 'undefined') {
-      return;
-    }
-
-    self.ua.setRtcMediaHandlerOptions(configuration.getRtcMediaHandlerOptions());
-  };
-  self.getCallState = function() {
-    if (self.sessions.length > 0) {
-      if (self.sessions.length === 1 && !self.sessions[0].isStarted()) {
-        return C.STATE_CALLING;
-      } else {
-        if (self.activeSession && self.activeSession.isHeld()) {
-          return C.STATE_STARTED + " " + C.STATE_HELD;
-        } else {
-          return C.STATE_STARTED;
-        }
-      }
-    } else {
-      if (self.ua && self.ua.isConnected && self.ua.isConnected()) {
-        return C.STATE_CONNECTED;
-      } else {
-        return C.STATE_DISCONNECTED;
-      }
-    }
-  };
-  self.updateUserMedia = function(userMediaCallback, failureCallback) {
-    if (!configuration.disabled && (configuration.enableConnectLocalMedia || self.activeSession)) {
-      // Connect to local stream
-      var options = configuration.getExSIPOptions();
-      self.ua.getUserMedia(options, function(localStream) {
-        eventbus.emit('userMediaUpdated', localStream);
-        if (self.activeSession) {
-          debug("changing active session ...");
-          self.activeSession.changeSession({
-            localMedia: localStream,
-            createOfferConstraints: options.createOfferConstraints
-          }, function() {
-            debug('change session succeeded');
-          }, function() {
-            debug('change session failed');
-          });
-        }
-
-        if (userMediaCallback) {
-          userMediaCallback(localStream);
-        }
-      }, function(e) {
-        eventbus.emit('message', {text: configuration.messageGetUserMedia || "Get User Media Failed", level: "alert"});
-        if (failureCallback) {
-          failureCallback(e);
-        }
-      }, true);
-    }
-  };
-
-  // Incoming reinvite function
-  self.incomingReInvite = function(e) {
-    if (configuration.enableAutoAcceptReInvite) {
-      debug("auto accepting reInvite");
-      e.data.session.acceptReInvite();
-    } else {
-      eventbus.emit('reInvite', e.data);
-    }
-  };
-
-  self.incomingCall = function(evt) {
-    var session = evt.data.session;
-    if (!self.activeSession && settings.autoAnswer) {
-      session.answer(configuration.getExSIPOptions());
-    } else {
-      eventbus.emit('incomingCall', evt);
-    }
-  };
-
-  self.init = function(data) {
-    try {
-      if (self.ua) {
-        debug('stopping existing UA');
-        self.ua.stop();
-      }
-
-      if (configuration.disabled) {
-        debug('sipstack disabled');
-        return;
-      }
-      self.ua = new ExSIP.UA(configuration.getExSIPConfig(data));
-
-      self.updateRtcMediaHandlerOptions();
-
-      // Start SIP Stack
-      self.ua.start();
-
-      // sipStack callbacks
-      self.ua.on('connected', function(e) {
-        eventbus.viewChanged(self);
-        var hasListeners = require('event-emitter/has-listeners');
-        eventbus.emit('connected', e);
-      });
-      self.ua.on('disconnected', function(e) {
-        eventbus.viewChanged(self);
-        eventbus.emit('disconnected', e);
-      });
-      self.ua.on('onReInvite', function(e) {
-        debug("incoming onReInvite event");
-        self.incomingReInvite(e);
-      });
-      self.ua.on('newRTCSession', function(e) {
-        var session = e.data.session;
-        self.sessions.push(session);
-        eventbus.viewChanged(self);
-
-        // call event handlers
-        session.on('progress', function(e) {
-          eventbus.emit('progress', e);
-        });
-        session.on('failed', function(e) {
-          var data = e.data;
-          data.sender = e.sender;
-          eventbus.emit('failed', data);
-        });
-        session.on('started', function(e) {
-          eventbus.viewChanged(self);
-          eventbus.emit('started', e);
-        });
-        session.on('resumed', function(e) {
-          eventbus.viewChanged(self);
-          eventbus.emit('resumed', e);
-        });
-        session.on('held', function(e) {
-          eventbus.viewChanged(self);
-          eventbus.emit('held', e);
-        });
-        session.on('ended', function(e) {
-          eventbus.emit('ended', e);
-        });
-        session.on('newDTMF', function(e) {
-          eventbus.emit('newDTMF', e);
-        });
-        session.on('dataSent', function(e) {
-          eventbus.emit('dataSent', e);
-        });
-        session.on('dataReceived', function(e) {
-          eventbus.emit('dataReceived', e);
-        });
-        // handle incoming call
-        if (e.data.session.direction === "incoming") {
-          self.incomingCall(e);
-        } else {
-          if (!self.activeSession) {
-            debug('new active session : ' + session.id);
-            self.activeSession = session;
-          }
-        }
-      });
-
-      self.ua.on('registered', function() {
-        eventbus.emit('registered');
-      });
-      self.ua.on('unregistered', function() {
-        eventbus.emit('unregistered');
-      });
-      self.ua.on('registrationFailed', function(e) {
-        eventbus.emit('registrationFailed', e);
-      });
-    } catch (e) {
-      debug(e.stack);
-      debug('could not init sip stack');
-    }
-  };
-
-  return self;
-}
-},{"event-emitter/has-listeners":177,"exsip":205,"webrtc-core/Constants":497,"webrtc-core/Utils":500}],248:[function(require,module,exports){
+},{"webrtc-core":474}],225:[function(require,module,exports){
 module.exports = SMS;
 
-var DateFormat = require('webrtc-core/DateFormat');
-var Utils = require('webrtc-core/Utils');
+var DateFormat = require('webrtc-core').dateformat;
+var Utils = require('webrtc-core').utils;
 
 function InboxItem(sms, message) {
   var self = {};
@@ -58853,10 +57490,8 @@ function SMS(eventbus, debug, smsprovider, sound, smsView) {
 
   return self;
 }
-},{"webrtc-core/DateFormat":498,"webrtc-core/Utils":500}],249:[function(require,module,exports){
+},{"webrtc-core":474}],226:[function(require,module,exports){
 module.exports = SMSProvider;
-
-var ExSIP = require('exsip');
 
 function SMSProvider(eventbus, debug) {
   var self = {};
@@ -58869,7 +57504,7 @@ function SMSProvider(eventbus, debug) {
     if (self.sessionid) {
       url += ";jsessionid=" + self.sessionid;
     }
-    debug("Request to " + url + " : " + ExSIP.Utils.toString(jsonData));
+    debug("Request to " + url + " : " + JSON.stringify(jsonData));
     $.ajax({
         crossDomain: true,
         contentType: type === "GET" ? "text/plain" : "text/plain",
@@ -58880,12 +57515,12 @@ function SMSProvider(eventbus, debug) {
       })
       .done(function(msg) {
         if (msg.status === "empty" || msg.status === "success" || msg.status.code === "0000001") {
-          debug("Response successful : " + ExSIP.Utils.toString(msg));
+          debug("Response successful : " + JSON.stringify(msg));
           if (successCallback) {
             successCallback(msg);
           }
         } else {
-          debug("Response failed : " + ExSIP.Utils.toString(msg));
+          debug("Response failed : " + JSON.stringify(msg));
           if (failureCallback) {
             failureCallback(msg.status.message);
           }
@@ -58901,7 +57536,7 @@ function SMSProvider(eventbus, debug) {
 
   self.getUpdate = function(onNotification, onFailure) {
     var onSuccess = function(msg) {
-      debug("received notification : " + ExSIP.Utils.toString(msg));
+      debug("received notification : " + JSON.stringify(msg));
       onNotification(msg.notifications);
     };
     var data = {
@@ -58937,7 +57572,7 @@ function SMSProvider(eventbus, debug) {
   };
   self.readAll = function(onFailure) {
     var onSuccess = function(msg) {
-      debug("Read all mgs : " + ExSIP.Utils.toString(msg.messages));
+      debug("Read all mgs : " + JSON.stringify(msg.messages));
       eventbus.emit('smsReadAll', {
         messages: msg.messages
       });
@@ -58963,7 +57598,7 @@ function SMSProvider(eventbus, debug) {
 
   return self;
 }
-},{"exsip":205}],250:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 module.exports = Sound;
 
 var $ = require('jquery');
@@ -59089,10 +57724,10 @@ function Sound(eventbus, configuration, sipstack) {
   return self;
 }
 
-},{"bdsft-webrtc-media":4,"fs":7,"jquery":234}],251:[function(require,module,exports){
+},{"bdsft-webrtc-media":4,"fs":7,"jquery":214}],228:[function(require,module,exports){
 module.exports = Stats;
 
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
   var self = {};
@@ -59250,10 +57885,10 @@ function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
 
   return self;
 }
-},{"../../js/stats":2,"webrtc-core/Utils":500}],252:[function(require,module,exports){
+},{"../../js/stats":2,"webrtc-core":474}],229:[function(require,module,exports){
 module.exports = Timer;
 
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView) {
   var self = {};
@@ -59321,10 +57956,10 @@ function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView
 
   return self;
 }
-},{"webrtc-core/Utils":500}],253:[function(require,module,exports){
+},{"webrtc-core":474}],230:[function(require,module,exports){
 module.exports = Transfer;
 
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function Transfer(sipstack, eventbus, configuration, callcontrol, transferView) {
   var self = {};
@@ -59354,7 +57989,7 @@ function Transfer(sipstack, eventbus, configuration, callcontrol, transferView) 
 
   return self;
 }
-},{"webrtc-core/Utils":500}],254:[function(require,module,exports){
+},{"webrtc-core":474}],231:[function(require,module,exports){
 module.exports = Video;
 
 function Video(eventbus, debug, settings, videoView) {
@@ -59422,7 +58057,7 @@ function Video(eventbus, debug, settings, videoView) {
 
   return self;
 }
-},{}],255:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 module.exports = XMPP;
 
 var XMPP = require('stanza.io');
@@ -59473,520 +58108,7 @@ function XMPP(debug, eventbus) {
 
   return self;
 }
-},{"stanza.io":257}],256:[function(require,module,exports){
-// Domain Public by Eric Wendelin http://www.eriwen.com/ (2008)
-//                  Luke Smith http://lucassmith.name/ (2008)
-//                  Loic Dachary <loic@dachary.org> (2008)
-//                  Johan Euphrosine <proppy@aminche.com> (2008)
-//                  Oyvind Sean Kinsey http://kinsey.no/blog (2010)
-//                  Victor Homyakov <victor-homyakov@users.sourceforge.net> (2010)
-/*global module, exports, define, ActiveXObject*/
-(function(global, factory) {
-    if (typeof exports === 'object') {
-        // Node
-        module.exports = factory();
-    } else if (typeof define === 'function' && define.amd) {
-        // AMD
-        define(factory);
-    } else {
-        // Browser globals
-        global.printStackTrace = factory();
-    }
-}(this, function() {
-    /**
-     * Main function giving a function stack trace with a forced or passed in Error
-     *
-     * @cfg {Error} e The error to create a stacktrace from (optional)
-     * @cfg {Boolean} guess If we should try to resolve the names of anonymous functions
-     * @return {Array} of Strings with functions, lines, files, and arguments where possible
-     */
-    function printStackTrace(options) {
-        options = options || {guess: true};
-        var ex = options.e || null, guess = !!options.guess, mode = options.mode || null;
-        var p = new printStackTrace.implementation(), result = p.run(ex, mode);
-        return (guess) ? p.guessAnonymousFunctions(result) : result;
-    }
-
-    printStackTrace.implementation = function() {
-    };
-
-    printStackTrace.implementation.prototype = {
-        /**
-         * @param {Error} [ex] The error to create a stacktrace from (optional)
-         * @param {String} [mode] Forced mode (optional, mostly for unit tests)
-         */
-        run: function(ex, mode) {
-            ex = ex || this.createException();
-            mode = mode || this.mode(ex);
-            if (mode === 'other') {
-                return this.other(arguments.callee);
-            } else {
-                return this[mode](ex);
-            }
-        },
-
-        createException: function() {
-            try {
-                this.undef();
-            } catch (e) {
-                return e;
-            }
-        },
-
-        /**
-         * Mode could differ for different exception, e.g.
-         * exceptions in Chrome may or may not have arguments or stack.
-         *
-         * @return {String} mode of operation for the exception
-         */
-        mode: function(e) {
-            if (typeof window !== 'undefined' && window.navigator.userAgent.indexOf('PhantomJS') > -1) {
-                return 'phantomjs';
-            }
-
-            if (e['arguments'] && e.stack) {
-                return 'chrome';
-            }
-
-            if (e.stack && e.sourceURL) {
-                return 'safari';
-            }
-
-            if (e.stack && e.number) {
-                return 'ie';
-            }
-
-            if (e.stack && e.fileName) {
-                return 'firefox';
-            }
-
-            if (e.message && e['opera#sourceloc']) {
-                // e.message.indexOf("Backtrace:") > -1 -> opera9
-                // 'opera#sourceloc' in e -> opera9, opera10a
-                // !e.stacktrace -> opera9
-                if (!e.stacktrace) {
-                    return 'opera9'; // use e.message
-                }
-                if (e.message.indexOf('\n') > -1 && e.message.split('\n').length > e.stacktrace.split('\n').length) {
-                    // e.message may have more stack entries than e.stacktrace
-                    return 'opera9'; // use e.message
-                }
-                return 'opera10a'; // use e.stacktrace
-            }
-
-            if (e.message && e.stack && e.stacktrace) {
-                // e.stacktrace && e.stack -> opera10b
-                if (e.stacktrace.indexOf("called from line") < 0) {
-                    return 'opera10b'; // use e.stacktrace, format differs from 'opera10a'
-                }
-                // e.stacktrace && e.stack -> opera11
-                return 'opera11'; // use e.stacktrace, format differs from 'opera10a', 'opera10b'
-            }
-
-            if (e.stack && !e.fileName) {
-                // Chrome 27 does not have e.arguments as earlier versions,
-                // but still does not have e.fileName as Firefox
-                return 'chrome';
-            }
-
-            return 'other';
-        },
-
-        /**
-         * Given a context, function name, and callback function, overwrite it so that it calls
-         * printStackTrace() first with a callback and then runs the rest of the body.
-         *
-         * @param {Object} context of execution (e.g. window)
-         * @param {String} functionName to instrument
-         * @param {Function} callback function to call with a stack trace on invocation
-         */
-        instrumentFunction: function(context, functionName, callback) {
-            context = context || window;
-            var original = context[functionName];
-            context[functionName] = function instrumented() {
-                callback.call(this, printStackTrace().slice(4));
-                return context[functionName]._instrumented.apply(this, arguments);
-            };
-            context[functionName]._instrumented = original;
-        },
-
-        /**
-         * Given a context and function name of a function that has been
-         * instrumented, revert the function to it's original (non-instrumented)
-         * state.
-         *
-         * @param {Object} context of execution (e.g. window)
-         * @param {String} functionName to de-instrument
-         */
-        deinstrumentFunction: function(context, functionName) {
-            if (context[functionName].constructor === Function &&
-                context[functionName]._instrumented &&
-                context[functionName]._instrumented.constructor === Function) {
-                context[functionName] = context[functionName]._instrumented;
-            }
-        },
-
-        /**
-         * Given an Error object, return a formatted Array based on Chrome's stack string.
-         *
-         * @param e - Error object to inspect
-         * @return Array<String> of function calls, files and line numbers
-         */
-        chrome: function(e) {
-            return (e.stack + '\n')
-                .replace(/^[\s\S]+?\s+at\s+/, ' at ') // remove message
-                .replace(/^\s+(at eval )?at\s+/gm, '') // remove 'at' and indentation
-                .replace(/^([^\(]+?)([\n$])/gm, '{anonymous}() ($1)$2')
-                .replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}() ($1)')
-                .replace(/^(.+) \((.+)\)$/gm, '$1@$2')
-                .split('\n')
-                .slice(0, -1);
-        },
-
-        /**
-         * Given an Error object, return a formatted Array based on Safari's stack string.
-         *
-         * @param e - Error object to inspect
-         * @return Array<String> of function calls, files and line numbers
-         */
-        safari: function(e) {
-            return e.stack.replace(/\[native code\]\n/m, '')
-                .replace(/^(?=\w+Error\:).*$\n/m, '')
-                .replace(/^@/gm, '{anonymous}()@')
-                .split('\n');
-        },
-
-        /**
-         * Given an Error object, return a formatted Array based on IE's stack string.
-         *
-         * @param e - Error object to inspect
-         * @return Array<String> of function calls, files and line numbers
-         */
-        ie: function(e) {
-            return e.stack
-                .replace(/^\s*at\s+(.*)$/gm, '$1')
-                .replace(/^Anonymous function\s+/gm, '{anonymous}() ')
-                .replace(/^(.+)\s+\((.+)\)$/gm, '$1@$2')
-                .split('\n')
-                .slice(1);
-        },
-
-        /**
-         * Given an Error object, return a formatted Array based on Firefox's stack string.
-         *
-         * @param e - Error object to inspect
-         * @return Array<String> of function calls, files and line numbers
-         */
-        firefox: function(e) {
-            return e.stack.replace(/(?:\n@:0)?\s+$/m, '')
-                .replace(/^(?:\((\S*)\))?@/gm, '{anonymous}($1)@')
-                .split('\n');
-        },
-
-        opera11: function(e) {
-            var ANON = '{anonymous}', lineRE = /^.*line (\d+), column (\d+)(?: in (.+))? in (\S+):$/;
-            var lines = e.stacktrace.split('\n'), result = [];
-
-            for (var i = 0, len = lines.length; i < len; i += 2) {
-                var match = lineRE.exec(lines[i]);
-                if (match) {
-                    var location = match[4] + ':' + match[1] + ':' + match[2];
-                    var fnName = match[3] || "global code";
-                    fnName = fnName.replace(/<anonymous function: (\S+)>/, "$1").replace(/<anonymous function>/, ANON);
-                    result.push(fnName + '@' + location + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
-                }
-            }
-
-            return result;
-        },
-
-        opera10b: function(e) {
-            // "<anonymous function: run>([arguments not available])@file://localhost/G:/js/stacktrace.js:27\n" +
-            // "printStackTrace([arguments not available])@file://localhost/G:/js/stacktrace.js:18\n" +
-            // "@file://localhost/G:/js/test/functional/testcase1.html:15"
-            var lineRE = /^(.*)@(.+):(\d+)$/;
-            var lines = e.stacktrace.split('\n'), result = [];
-
-            for (var i = 0, len = lines.length; i < len; i++) {
-                var match = lineRE.exec(lines[i]);
-                if (match) {
-                    var fnName = match[1] ? (match[1] + '()') : "global code";
-                    result.push(fnName + '@' + match[2] + ':' + match[3]);
-                }
-            }
-
-            return result;
-        },
-
-        /**
-         * Given an Error object, return a formatted Array based on Opera 10's stacktrace string.
-         *
-         * @param e - Error object to inspect
-         * @return Array<String> of function calls, files and line numbers
-         */
-        opera10a: function(e) {
-            // "  Line 27 of linked script file://localhost/G:/js/stacktrace.js\n"
-            // "  Line 11 of inline#1 script in file://localhost/G:/js/test/functional/testcase1.html: In function foo\n"
-            var ANON = '{anonymous}', lineRE = /Line (\d+).*script (?:in )?(\S+)(?:: In function (\S+))?$/i;
-            var lines = e.stacktrace.split('\n'), result = [];
-
-            for (var i = 0, len = lines.length; i < len; i += 2) {
-                var match = lineRE.exec(lines[i]);
-                if (match) {
-                    var fnName = match[3] || ANON;
-                    result.push(fnName + '()@' + match[2] + ':' + match[1] + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
-                }
-            }
-
-            return result;
-        },
-
-        // Opera 7.x-9.2x only!
-        opera9: function(e) {
-            // "  Line 43 of linked script file://localhost/G:/js/stacktrace.js\n"
-            // "  Line 7 of inline#1 script in file://localhost/G:/js/test/functional/testcase1.html\n"
-            var ANON = '{anonymous}', lineRE = /Line (\d+).*script (?:in )?(\S+)/i;
-            var lines = e.message.split('\n'), result = [];
-
-            for (var i = 2, len = lines.length; i < len; i += 2) {
-                var match = lineRE.exec(lines[i]);
-                if (match) {
-                    result.push(ANON + '()@' + match[2] + ':' + match[1] + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
-                }
-            }
-
-            return result;
-        },
-
-        phantomjs: function(e) {
-            var ANON = '{anonymous}', lineRE = /(\S+) \((\S+)\)/i;
-            var lines = e.stack.split('\n'), result = [];
-
-            for (var i = 1, len = lines.length; i < len; i++) {
-                lines[i] = lines[i].replace(/^\s+at\s+/gm, '');
-                var match = lineRE.exec(lines[i]);
-                if (match) {
-                    result.push(match[1] + '()@' + match[2]);
-                }
-                else {
-                    result.push(ANON + '()@' + lines[i]);
-                }
-            }
-
-            return result;
-        },
-
-        // Safari 5-, IE 9-, and others
-        other: function(curr) {
-            var ANON = '{anonymous}', fnRE = /function(?:\s+([\w$]+))?\s*\(/, stack = [], fn, args, maxStackSize = 10;
-            var slice = Array.prototype.slice;
-            while (curr && stack.length < maxStackSize) {
-                fn = fnRE.test(curr.toString()) ? RegExp.$1 || ANON : ANON;
-                try {
-                    args = slice.call(curr['arguments'] || []);
-                } catch (e) {
-                    args = ['Cannot access arguments: ' + e];
-                }
-                stack[stack.length] = fn + '(' + this.stringifyArguments(args) + ')';
-                try {
-                    curr = curr.caller;
-                } catch (e) {
-                    stack[stack.length] = 'Cannot access caller: ' + e;
-                    break;
-                }
-            }
-            return stack;
-        },
-
-        /**
-         * Given arguments array as a String, substituting type names for non-string types.
-         *
-         * @param {Arguments,Array} args
-         * @return {String} stringified arguments
-         */
-        stringifyArguments: function(args) {
-            var result = [];
-            var slice = Array.prototype.slice;
-            for (var i = 0; i < args.length; ++i) {
-                var arg = args[i];
-                if (arg === undefined) {
-                    result[i] = 'undefined';
-                } else if (arg === null) {
-                    result[i] = 'null';
-                } else if (arg.constructor) {
-                    // TODO constructor comparison does not work for iframes
-                    if (arg.constructor === Array) {
-                        if (arg.length < 3) {
-                            result[i] = '[' + this.stringifyArguments(arg) + ']';
-                        } else {
-                            result[i] = '[' + this.stringifyArguments(slice.call(arg, 0, 1)) + '...' + this.stringifyArguments(slice.call(arg, -1)) + ']';
-                        }
-                    } else if (arg.constructor === Object) {
-                        result[i] = '#object';
-                    } else if (arg.constructor === Function) {
-                        result[i] = '#function';
-                    } else if (arg.constructor === String) {
-                        result[i] = '"' + arg + '"';
-                    } else if (arg.constructor === Number) {
-                        result[i] = arg;
-                    } else {
-                        result[i] = '?';
-                    }
-                }
-            }
-            return result.join(',');
-        },
-
-        sourceCache: {},
-
-        /**
-         * @return {String} the text from a given URL
-         */
-        ajax: function(url) {
-            var req = this.createXMLHTTPObject();
-            if (req) {
-                try {
-                    req.open('GET', url, false);
-                    //req.overrideMimeType('text/plain');
-                    //req.overrideMimeType('text/javascript');
-                    req.send(null);
-                    //return req.status == 200 ? req.responseText : '';
-                    return req.responseText;
-                } catch (e) {
-                }
-            }
-            return '';
-        },
-
-        /**
-         * Try XHR methods in order and store XHR factory.
-         *
-         * @return {XMLHttpRequest} XHR function or equivalent
-         */
-        createXMLHTTPObject: function() {
-            var xmlhttp, XMLHttpFactories = [
-                function() {
-                    return new XMLHttpRequest();
-                }, function() {
-                    return new ActiveXObject('Msxml2.XMLHTTP');
-                }, function() {
-                    return new ActiveXObject('Msxml3.XMLHTTP');
-                }, function() {
-                    return new ActiveXObject('Microsoft.XMLHTTP');
-                }
-            ];
-            for (var i = 0; i < XMLHttpFactories.length; i++) {
-                try {
-                    xmlhttp = XMLHttpFactories[i]();
-                    // Use memoization to cache the factory
-                    this.createXMLHTTPObject = XMLHttpFactories[i];
-                    return xmlhttp;
-                } catch (e) {
-                }
-            }
-        },
-
-        /**
-         * Given a URL, check if it is in the same domain (so we can get the source
-         * via Ajax).
-         *
-         * @param url {String} source url
-         * @return {Boolean} False if we need a cross-domain request
-         */
-        isSameDomain: function(url) {
-            return typeof location !== "undefined" && url.indexOf(location.hostname) !== -1; // location may not be defined, e.g. when running from nodejs.
-        },
-
-        /**
-         * Get source code from given URL if in the same domain.
-         *
-         * @param url {String} JS source URL
-         * @return {Array} Array of source code lines
-         */
-        getSource: function(url) {
-            // TODO reuse source from script tags?
-            if (!(url in this.sourceCache)) {
-                this.sourceCache[url] = this.ajax(url).split('\n');
-            }
-            return this.sourceCache[url];
-        },
-
-        guessAnonymousFunctions: function(stack) {
-            for (var i = 0; i < stack.length; ++i) {
-                var reStack = /\{anonymous\}\(.*\)@(.*)/,
-                    reRef = /^(.*?)(?::(\d+))(?::(\d+))?(?: -- .+)?$/,
-                    frame = stack[i], ref = reStack.exec(frame);
-
-                if (ref) {
-                    var m = reRef.exec(ref[1]);
-                    if (m) { // If falsey, we did not get any file/line information
-                        var file = m[1], lineno = m[2], charno = m[3] || 0;
-                        if (file && this.isSameDomain(file) && lineno) {
-                            var functionName = this.guessAnonymousFunction(file, lineno, charno);
-                            stack[i] = frame.replace('{anonymous}', functionName);
-                        }
-                    }
-                }
-            }
-            return stack;
-        },
-
-        guessAnonymousFunction: function(url, lineNo, charNo) {
-            var ret;
-            try {
-                ret = this.findFunctionName(this.getSource(url), lineNo);
-            } catch (e) {
-                ret = 'getSource failed with url: ' + url + ', exception: ' + e.toString();
-            }
-            return ret;
-        },
-
-        findFunctionName: function(source, lineNo) {
-            // FIXME findFunctionName fails for compressed source
-            // (more than one function on the same line)
-            // function {name}({args}) m[1]=name m[2]=args
-            var reFunctionDeclaration = /function\s+([^(]*?)\s*\(([^)]*)\)/;
-            // {name} = function ({args}) TODO args capture
-            // /['"]?([0-9A-Za-z_]+)['"]?\s*[:=]\s*function(?:[^(]*)/
-            var reFunctionExpression = /['"]?([$_A-Za-z][$_A-Za-z0-9]*)['"]?\s*[:=]\s*function\b/;
-            // {name} = eval()
-            var reFunctionEvaluation = /['"]?([$_A-Za-z][$_A-Za-z0-9]*)['"]?\s*[:=]\s*(?:eval|new Function)\b/;
-            // Walk backwards in the source lines until we find
-            // the line which matches one of the patterns above
-            var code = "", line, maxLines = Math.min(lineNo, 20), m, commentPos;
-            for (var i = 0; i < maxLines; ++i) {
-                // lineNo is 1-based, source[] is 0-based
-                line = source[lineNo - i - 1];
-                commentPos = line.indexOf('//');
-                if (commentPos >= 0) {
-                    line = line.substr(0, commentPos);
-                }
-                // TODO check other types of comments? Commented code may lead to false positive
-                if (line) {
-                    code = line + code;
-                    m = reFunctionExpression.exec(code);
-                    if (m && m[1]) {
-                        return m[1];
-                    }
-                    m = reFunctionDeclaration.exec(code);
-                    if (m && m[1]) {
-                        //return m[1] + "(" + (m[2] || "") + ")";
-                        return m[1];
-                    }
-                    m = reFunctionEvaluation.exec(code);
-                    if (m && m[1]) {
-                        return m[1];
-                    }
-                }
-            }
-            return '(?)';
-        }
-    };
-
-    return printStackTrace;
-}));
-
-},{}],257:[function(require,module,exports){
+},{"stanza.io":233}],233:[function(require,module,exports){
 'use strict';
 
 exports.VERSION = '7.0.6';
@@ -60002,7 +58124,7 @@ exports.createClient = function (opts) {
     return client;
 };
 
-},{"./lib/client":258,"./lib/plugins":281,"xmpp-jid":475}],258:[function(require,module,exports){
+},{"./lib/client":234,"./lib/plugins":257,"xmpp-jid":451}],234:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -60471,7 +58593,7 @@ Client.prototype.sendStreamError = function (data) {
 
 module.exports = Client;
 
-},{"./plugins/bind":261,"./plugins/bosh":265,"./plugins/features":276,"./plugins/oldwebsocket":292,"./plugins/sasl":303,"./plugins/session":304,"./plugins/smacks":306,"./plugins/websocket":310,"./sm":311,"./stanza/error":325,"./stanza/iq":334,"./stanza/message":340,"./stanza/presence":346,"./stanza/streamError":364,"alt-sasl-digest-md5":373,"bluebird":388,"hostmeta":390,"jxt":432,"jxt-xmpp-types":431,"node-uuid":445,"sasl-anonymous":447,"sasl-external":449,"sasl-plain":451,"sasl-scram-sha-1":452,"saslmechanisms":472,"underscore":473,"util":168,"wildemitter":474,"xmpp-jid":475}],259:[function(require,module,exports){
+},{"./plugins/bind":237,"./plugins/bosh":241,"./plugins/features":252,"./plugins/oldwebsocket":268,"./plugins/sasl":279,"./plugins/session":280,"./plugins/smacks":282,"./plugins/websocket":286,"./sm":287,"./stanza/error":301,"./stanza/iq":310,"./stanza/message":316,"./stanza/presence":322,"./stanza/streamError":340,"alt-sasl-digest-md5":349,"bluebird":364,"hostmeta":366,"jxt":408,"jxt-xmpp-types":407,"node-uuid":421,"sasl-anonymous":423,"sasl-external":425,"sasl-plain":427,"sasl-scram-sha-1":428,"saslmechanisms":448,"underscore":449,"util":168,"wildemitter":450,"xmpp-jid":451}],235:[function(require,module,exports){
 'use strict';
 
 
@@ -60494,7 +58616,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],260:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 'use strict';
 
 
@@ -60549,7 +58671,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/avatar":312}],261:[function(require,module,exports){
+},{"../stanza/avatar":288}],237:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -60591,7 +58713,7 @@ module.exports = function (client, stanzas, config) {
     });
 };
 
-},{"../stanza/bind":313,"xmpp-jid":475}],262:[function(require,module,exports){
+},{"../stanza/bind":289,"xmpp-jid":451}],238:[function(require,module,exports){
 'use strict';
 
 
@@ -60640,7 +58762,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/blocking":314}],263:[function(require,module,exports){
+},{"../stanza/blocking":290}],239:[function(require,module,exports){
 'use strict';
 
 
@@ -60660,7 +58782,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/bob":315}],264:[function(require,module,exports){
+},{"../stanza/bob":291}],240:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -60709,7 +58831,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/bookmarks":316,"underscore":473,"xmpp-jid":475}],265:[function(require,module,exports){
+},{"../stanza/bookmarks":292,"underscore":449,"xmpp-jid":451}],241:[function(require,module,exports){
 'use strict';
 
 var BOSHConnection = require('../transports/bosh');
@@ -60721,7 +58843,7 @@ module.exports = function (client, stanzas) {
     client.transports.bosh = BOSHConnection;
 };
 
-},{"../stanza/bosh":317,"../transports/bosh":370}],266:[function(require,module,exports){
+},{"../stanza/bosh":293,"../transports/bosh":346}],242:[function(require,module,exports){
 'use strict';
 
 
@@ -60792,7 +58914,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/carbons":319}],267:[function(require,module,exports){
+},{"../stanza/carbons":295}],243:[function(require,module,exports){
 'use strict';
 
 
@@ -60815,7 +58937,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],268:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 'use strict';
 
 
@@ -60837,7 +58959,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/command":320}],269:[function(require,module,exports){
+},{"../stanza/command":296}],245:[function(require,module,exports){
 'use strict';
 
 
@@ -60852,7 +58974,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],270:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 'use strict';
 
 
@@ -60881,7 +59003,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/csi":321}],271:[function(require,module,exports){
+},{"../stanza/csi":297}],247:[function(require,module,exports){
 'use strict';
 
 
@@ -60900,7 +59022,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/dataforms":322}],272:[function(require,module,exports){
+},{"../stanza/dataforms":298}],248:[function(require,module,exports){
 'use strict';
 
 
@@ -60909,7 +59031,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:delay');
 };
 
-},{"../stanza/delayed":323}],273:[function(require,module,exports){
+},{"../stanza/delayed":299}],249:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -61190,7 +59312,7 @@ module.exports = function (client, stanzas) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../stanza/caps":318,"../stanza/disco":324,"../stanza/rsm":356,"buffer":9,"iana-hashes":393,"underscore":473,"xmpp-jid":475}],274:[function(require,module,exports){
+},{"../stanza/caps":294,"../stanza/disco":300,"../stanza/rsm":332,"buffer":9,"iana-hashes":369,"underscore":449,"xmpp-jid":451}],250:[function(require,module,exports){
 'use strict';
 
 
@@ -61198,7 +59320,7 @@ module.exports = function (client) {
     client.disco.addFeature('jid\\20escaping');
 };
 
-},{}],275:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 'use strict';
 
 
@@ -61230,7 +59352,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/extdisco":326}],276:[function(require,module,exports){
+},{"../stanza/extdisco":302}],252:[function(require,module,exports){
 'use strict';
 
 var async = require('async');
@@ -61294,7 +59416,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/streamFeatures":365,"async":387}],277:[function(require,module,exports){
+},{"../stanza/streamFeatures":341,"async":363}],253:[function(require,module,exports){
 'use strict';
 
 
@@ -61304,7 +59426,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:forward:0');
 };
 
-},{"../stanza/forwarded":328}],278:[function(require,module,exports){
+},{"../stanza/forwarded":304}],254:[function(require,module,exports){
 'use strict';
 
 
@@ -61336,7 +59458,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/geoloc":330}],279:[function(require,module,exports){
+},{"../stanza/geoloc":306}],255:[function(require,module,exports){
 'use strict';
 
 var hashes = require('iana-hashes');
@@ -61353,7 +59475,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/hash":331,"iana-hashes":393}],280:[function(require,module,exports){
+},{"../stanza/hash":307,"iana-hashes":369}],256:[function(require,module,exports){
 'use strict';
 
 
@@ -61361,7 +59483,7 @@ module.exports = function (client) {
     client.disco.addFeature('urn:xmpp:idle:1');
 };
 
-},{}],281:[function(require,module,exports){
+},{}],257:[function(require,module,exports){
 'use strict';
 
 module.exports = function (client) {
@@ -61412,7 +59534,7 @@ module.exports = function (client) {
     client.use(require('./version'));
 };
 
-},{"./attention":259,"./avatar":260,"./blocking":262,"./bob":263,"./bookmarks":264,"./carbons":266,"./chatstates":267,"./command":268,"./correction":269,"./csi":270,"./dataforms":271,"./delayed":272,"./disco":273,"./escaping":274,"./extdisco":275,"./forwarding":277,"./geoloc":278,"./hashes":279,"./idle":280,"./invisible":282,"./jidprep":283,"./jingle":284,"./json":285,"./keepalive":286,"./logging":287,"./mam":288,"./mood":289,"./muc":290,"./nick":291,"./oob":293,"./ping":294,"./private":295,"./psa":296,"./pubsub":297,"./reach":298,"./receipts":299,"./register":300,"./roster":301,"./rtt":302,"./shim":305,"./time":307,"./vcard":308,"./version":309}],282:[function(require,module,exports){
+},{"./attention":235,"./avatar":236,"./blocking":238,"./bob":239,"./bookmarks":240,"./carbons":242,"./chatstates":243,"./command":244,"./correction":245,"./csi":246,"./dataforms":247,"./delayed":248,"./disco":249,"./escaping":250,"./extdisco":251,"./forwarding":253,"./geoloc":254,"./hashes":255,"./idle":256,"./invisible":258,"./jidprep":259,"./jingle":260,"./json":261,"./keepalive":262,"./logging":263,"./mam":264,"./mood":265,"./muc":266,"./nick":267,"./oob":269,"./ping":270,"./private":271,"./psa":272,"./pubsub":273,"./reach":274,"./receipts":275,"./register":276,"./roster":277,"./rtt":278,"./shim":281,"./time":283,"./vcard":284,"./version":285}],258:[function(require,module,exports){
 'use strict';
 
 
@@ -61435,7 +59557,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/visibility":369}],283:[function(require,module,exports){
+},{"../stanza/visibility":345}],259:[function(require,module,exports){
 'use strict';
 
 
@@ -61451,7 +59573,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/jidprep":335}],284:[function(require,module,exports){
+},{"../stanza/jidprep":311}],260:[function(require,module,exports){
 'use strict';
 
 var Jingle = require('jingle');
@@ -61554,7 +59676,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/file":327,"../stanza/iceUdp":333,"../stanza/jingle":336,"../stanza/rtp":357,"jingle":409}],285:[function(require,module,exports){
+},{"../stanza/file":303,"../stanza/iceUdp":309,"../stanza/jingle":312,"../stanza/rtp":333,"jingle":385}],261:[function(require,module,exports){
 'use strict';
 
 
@@ -61563,7 +59685,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:json:0');
 };
 
-},{"../stanza/json":337}],286:[function(require,module,exports){
+},{"../stanza/json":313}],262:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -61622,7 +59744,7 @@ module.exports = function (client) {
     });
 };
 
-},{"bluebird":388}],287:[function(require,module,exports){
+},{"bluebird":364}],263:[function(require,module,exports){
 'use strict';
 
 
@@ -61640,7 +59762,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/logging":338}],288:[function(require,module,exports){
+},{"../stanza/logging":314}],264:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -61787,7 +59909,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/mam":339,"bluebird":388,"xmpp-jid":475}],289:[function(require,module,exports){
+},{"../stanza/mam":315,"bluebird":364,"xmpp-jid":451}],265:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/mood';
@@ -61824,7 +59946,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/mood":341}],290:[function(require,module,exports){
+},{"../stanza/mood":317}],266:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -62074,7 +60196,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/hats":332,"../stanza/muc":342,"underscore":473,"xmpp-jid":475}],291:[function(require,module,exports){
+},{"../stanza/hats":308,"../stanza/muc":318,"underscore":449,"xmpp-jid":451}],267:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/nick';
@@ -62107,7 +60229,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/nick":343}],292:[function(require,module,exports){
+},{"../stanza/nick":319}],268:[function(require,module,exports){
 'use strict';
 
 var OldWSConnection = require('../transports/old-websocket');
@@ -62119,7 +60241,7 @@ module.exports = function (client, stanzas) {
     client.transports['old-websocket'] = OldWSConnection;
 };
 
-},{"../stanza/stream":363,"../transports/old-websocket":371}],293:[function(require,module,exports){
+},{"../stanza/stream":339,"../transports/old-websocket":347}],269:[function(require,module,exports){
 'use strict';
 
 
@@ -62128,7 +60250,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('jabber:x:oob');
 };
 
-},{"../stanza/oob":344}],294:[function(require,module,exports){
+},{"../stanza/oob":320}],270:[function(require,module,exports){
 'use strict';
 
 
@@ -62150,7 +60272,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/ping":345}],295:[function(require,module,exports){
+},{"../stanza/ping":321}],271:[function(require,module,exports){
 'use strict';
 
 
@@ -62172,7 +60294,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/private":347}],296:[function(require,module,exports){
+},{"../stanza/private":323}],272:[function(require,module,exports){
 'use strict';
 
 
@@ -62181,7 +60303,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:psa');
 };
 
-},{"../stanza/psa":348}],297:[function(require,module,exports){
+},{"../stanza/psa":324}],273:[function(require,module,exports){
 'use strict';
 
 
@@ -62435,7 +60557,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/pubsub":349,"../stanza/pubsubError":350,"../stanza/pubsubEvents":351,"../stanza/pubsubOwner":352}],298:[function(require,module,exports){
+},{"../stanza/pubsub":325,"../stanza/pubsubError":326,"../stanza/pubsubEvents":327,"../stanza/pubsubOwner":328}],274:[function(require,module,exports){
 'use strict';
 
 
@@ -62477,7 +60599,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/reach":353}],299:[function(require,module,exports){
+},{"../stanza/reach":329}],275:[function(require,module,exports){
 'use strict';
 
 module.exports = function (client) {
@@ -62503,7 +60625,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],300:[function(require,module,exports){
+},{}],276:[function(require,module,exports){
 'use strict';
 
 
@@ -62538,7 +60660,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/register":354}],301:[function(require,module,exports){
+},{"../stanza/register":330}],277:[function(require,module,exports){
 'use strict';
 
 
@@ -62618,7 +60740,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/roster":355}],302:[function(require,module,exports){
+},{"../stanza/roster":331}],278:[function(require,module,exports){
 'use strict';
 
 
@@ -62635,7 +60757,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/rtt":358}],303:[function(require,module,exports){
+},{"../stanza/rtt":334}],279:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -62714,7 +60836,7 @@ module.exports = function (client, stanzas) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../stanza/sasl":359,"buffer":9}],304:[function(require,module,exports){
+},{"../stanza/sasl":335,"buffer":9}],280:[function(require,module,exports){
 'use strict';
 
 
@@ -62752,7 +60874,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/session":360}],305:[function(require,module,exports){
+},{"../stanza/session":336}],281:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/shim';
@@ -62765,7 +60887,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature(NS + '#SubID', NS);
 };
 
-},{"../stanza/shim":361}],306:[function(require,module,exports){
+},{"../stanza/shim":337}],282:[function(require,module,exports){
 'use strict';
 
 
@@ -62824,7 +60946,7 @@ module.exports = function (client, stanzas, config) {
     client.registerFeature('streamManagement', 500, smacks);
 };
 
-},{"../stanza/sm":362}],307:[function(require,module,exports){
+},{"../stanza/sm":338}],283:[function(require,module,exports){
 'use strict';
 
 
@@ -62852,7 +60974,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/time":366}],308:[function(require,module,exports){
+},{"../stanza/time":342}],284:[function(require,module,exports){
 'use strict';
 
 
@@ -62877,7 +60999,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/vcard":367}],309:[function(require,module,exports){
+},{"../stanza/vcard":343}],285:[function(require,module,exports){
 'use strict';
 
 
@@ -62903,7 +61025,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/version":368}],310:[function(require,module,exports){
+},{"../stanza/version":344}],286:[function(require,module,exports){
 'use strict';
 
 var WSConnection = require('../transports/websocket');
@@ -62915,7 +61037,7 @@ module.exports = function (client, stanzas) {
     client.transports.websocket = WSConnection;
 };
 
-},{"../stanza/framing":329,"../transports/websocket":372}],311:[function(require,module,exports){
+},{"../stanza/framing":305,"../transports/websocket":348}],287:[function(require,module,exports){
 'use strict';
 
 var MAX_SEQ = Math.pow(2, 32);
@@ -63060,7 +61182,7 @@ Object.defineProperties(StreamManagement.prototype, {
 
 module.exports = StreamManagement;
 
-},{}],312:[function(require,module,exports){
+},{}],288:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -63111,7 +61233,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"underscore":473}],313:[function(require,module,exports){
+},{"underscore":449}],289:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-bind';
@@ -63138,7 +61260,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],314:[function(require,module,exports){
+},{}],290:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -63208,7 +61330,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":475}],315:[function(require,module,exports){
+},{"xmpp-jid":451}],291:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:bob';
@@ -63243,7 +61365,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],316:[function(require,module,exports){
+},{}],292:[function(require,module,exports){
 'use strict';
 
 
@@ -63276,7 +61398,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],317:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/httpbind';
@@ -63347,7 +61469,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],318:[function(require,module,exports){
+},{}],294:[function(require,module,exports){
 'use strict';
 
 
@@ -63375,7 +61497,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],319:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 'use strict';
 
 
@@ -63431,7 +61553,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],320:[function(require,module,exports){
+},{}],296:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/commands';
@@ -63513,7 +61635,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],321:[function(require,module,exports){
+},{}],297:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:csi';
@@ -63548,7 +61670,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],322:[function(require,module,exports){
+},{}],298:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -63833,7 +61955,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":475}],323:[function(require,module,exports){
+},{"xmpp-jid":451}],299:[function(require,module,exports){
 'use strict';
 
 
@@ -63860,7 +61982,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],324:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 'use strict';
 
 var NSInfo = 'http://jabber.org/protocol/disco#info';
@@ -63932,7 +62054,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],325:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 'use strict';
 
 var ERR_NS = 'urn:ietf:params:xml:ns:xmpp-stanzas';
@@ -64026,7 +62148,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],326:[function(require,module,exports){
+},{}],302:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:extdisco:1';
@@ -64078,7 +62200,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],327:[function(require,module,exports){
+},{}],303:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:apps:file-transfer:3';
@@ -64145,7 +62267,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],328:[function(require,module,exports){
+},{}],304:[function(require,module,exports){
 'use strict';
 
 module.exports = function (stanza) {
@@ -64175,7 +62297,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],329:[function(require,module,exports){
+},{}],305:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-framing';
@@ -64209,7 +62331,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],330:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/geoloc';
@@ -64255,7 +62377,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],331:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 'use strict';
 
 
@@ -64271,7 +62393,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],332:[function(require,module,exports){
+},{}],308:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:hats:0';
@@ -64297,7 +62419,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],333:[function(require,module,exports){
+},{}],309:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:transports:ice-udp:1';
@@ -64387,7 +62509,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],334:[function(require,module,exports){
+},{}],310:[function(require,module,exports){
 'use strict';
 
 
@@ -64434,7 +62556,7 @@ module.exports = function (stanza) {
     };
 };
 
-},{}],335:[function(require,module,exports){
+},{}],311:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -64461,7 +62583,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":475}],336:[function(require,module,exports){
+},{"xmpp-jid":451}],312:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:1';
@@ -64580,7 +62702,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],337:[function(require,module,exports){
+},{}],313:[function(require,module,exports){
 'use strict';
 
 
@@ -64612,7 +62734,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],338:[function(require,module,exports){
+},{}],314:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:eventlog';
@@ -64662,7 +62784,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],339:[function(require,module,exports){
+},{}],315:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -64778,7 +62900,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":475}],340:[function(require,module,exports){
+},{"xmpp-jid":451}],316:[function(require,module,exports){
 'use strict';
 
 
@@ -64824,7 +62946,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],341:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/mood';
@@ -64935,7 +63057,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],342:[function(require,module,exports){
+},{}],318:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/muc';
@@ -65210,7 +63332,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],343:[function(require,module,exports){
+},{}],319:[function(require,module,exports){
 'use strict';
 
 
@@ -65231,7 +63353,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],344:[function(require,module,exports){
+},{}],320:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:x:oob';
@@ -65253,7 +63375,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],345:[function(require,module,exports){
+},{}],321:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:ping';
@@ -65271,7 +63393,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],346:[function(require,module,exports){
+},{}],322:[function(require,module,exports){
 'use strict';
 
 
@@ -65345,7 +63467,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],347:[function(require,module,exports){
+},{}],323:[function(require,module,exports){
 'use strict';
 
 
@@ -65362,7 +63484,7 @@ module.exports = function (stanza) {
 };
 
 
-},{}],348:[function(require,module,exports){
+},{}],324:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:psa';
@@ -65391,7 +63513,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],349:[function(require,module,exports){
+},{}],325:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub';
@@ -65580,7 +63702,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],350:[function(require,module,exports){
+},{}],326:[function(require,module,exports){
 'use strict';
 
 var ERRNS = 'http://jabber.org/protocol/pubsub#errors';
@@ -65616,7 +63738,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],351:[function(require,module,exports){
+},{}],327:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub#event';
@@ -65749,7 +63871,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],352:[function(require,module,exports){
+},{}],328:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub#owner';
@@ -65858,7 +63980,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],353:[function(require,module,exports){
+},{}],329:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -65923,7 +64045,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"underscore":473}],354:[function(require,module,exports){
+},{"underscore":449}],330:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:register';
@@ -65974,7 +64096,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],355:[function(require,module,exports){
+},{}],331:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:roster';
@@ -66027,7 +64149,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],356:[function(require,module,exports){
+},{}],332:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/rsm';
@@ -66064,7 +64186,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],357:[function(require,module,exports){
+},{}],333:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:apps:rtp:1';
@@ -66359,7 +64481,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],358:[function(require,module,exports){
+},{}],334:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:rtt:0';
@@ -66464,7 +64586,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],359:[function(require,module,exports){
+},{}],335:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
@@ -66587,7 +64709,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],360:[function(require,module,exports){
+},{}],336:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-session';
@@ -66614,7 +64736,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],361:[function(require,module,exports){
+},{}],337:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/shim';
@@ -66660,7 +64782,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],362:[function(require,module,exports){
+},{}],338:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:sm:3';
@@ -66755,7 +64877,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],363:[function(require,module,exports){
+},{}],339:[function(require,module,exports){
 'use strict';
 
 
@@ -66776,7 +64898,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],364:[function(require,module,exports){
+},{}],340:[function(require,module,exports){
 'use strict';
 
 var ERR_NS = 'urn:ietf:params:xml:ns:xmpp-streams';
@@ -66854,7 +64976,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],365:[function(require,module,exports){
+},{}],341:[function(require,module,exports){
 'use strict';
 
 
@@ -66883,7 +65005,7 @@ module.exports = function (stanza) {
     stanza.extend(StreamFeatures, SubscriptionPreApprovalFeature);
 };
 
-},{}],366:[function(require,module,exports){
+},{}],342:[function(require,module,exports){
 'use strict';
 
 
@@ -66904,7 +65026,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],367:[function(require,module,exports){
+},{}],343:[function(require,module,exports){
 'use strict';
 
 var NS = 'vcard-temp';
@@ -67019,7 +65141,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],368:[function(require,module,exports){
+},{}],344:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:version';
@@ -67044,7 +65166,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],369:[function(require,module,exports){
+},{}],345:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:invisible:0';
@@ -67057,7 +65179,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],370:[function(require,module,exports){
+},{}],346:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -67297,7 +65419,7 @@ BOSHConnection.prototype.request = function (bosh) {
 module.exports = BOSHConnection;
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":152,"bluebird":388,"buffer":9,"request":389,"underscore":473,"util":168,"wildemitter":474}],371:[function(require,module,exports){
+},{"_process":152,"bluebird":364,"buffer":9,"request":365,"underscore":449,"util":168,"wildemitter":450}],347:[function(require,module,exports){
 'use strict';
 
 var WSConnection = require('./websocket');
@@ -67408,7 +65530,7 @@ OldWSConnection.prototype.closeHeader = function () {
 
 module.exports = OldWSConnection;
 
-},{"./websocket":372,"underscore":473,"util":168}],372:[function(require,module,exports){
+},{"./websocket":348,"underscore":449,"util":168}],348:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -67565,7 +65687,7 @@ WSConnection.prototype.send = function (data) {
 module.exports = WSConnection;
 
 }).call(this,require("buffer").Buffer)
-},{"async":387,"buffer":9,"faye-websocket":8,"util":168,"wildemitter":474}],373:[function(require,module,exports){
+},{"async":363,"buffer":9,"faye-websocket":8,"util":168,"wildemitter":450}],349:[function(require,module,exports){
 var randomBytes = require('randombytes');
 var createHash = require('create-hash');
 
@@ -67706,33 +65828,33 @@ Mechanism.prototype.challenge = function(chal) {
 
 module.exports = Mechanism;
 
-},{"create-hash":374,"randombytes":386}],374:[function(require,module,exports){
+},{"create-hash":350,"randombytes":362}],350:[function(require,module,exports){
 module.exports=require(101)
-},{"./md5":376,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":377,"ripemd160":378,"sha.js":380,"stream":166}],375:[function(require,module,exports){
+},{"./md5":352,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":353,"ripemd160":354,"sha.js":356,"stream":166}],351:[function(require,module,exports){
 module.exports=require(102)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],376:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],352:[function(require,module,exports){
 module.exports=require(103)
-},{"./helpers":375,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],377:[function(require,module,exports){
+},{"./helpers":351,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],353:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],378:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],354:[function(require,module,exports){
 module.exports=require(104)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],379:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],355:[function(require,module,exports){
 module.exports=require(105)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],380:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],356:[function(require,module,exports){
 module.exports=require(106)
-},{"./sha1":381,"./sha224":382,"./sha256":383,"./sha384":384,"./sha512":385,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],381:[function(require,module,exports){
+},{"./sha1":357,"./sha224":358,"./sha256":359,"./sha384":360,"./sha512":361,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],357:[function(require,module,exports){
 module.exports=require(107)
-},{"./hash":379,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":377}],382:[function(require,module,exports){
+},{"./hash":355,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":353}],358:[function(require,module,exports){
 module.exports=require(108)
-},{"./hash":379,"./sha256":383,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":377}],383:[function(require,module,exports){
+},{"./hash":355,"./sha256":359,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":353}],359:[function(require,module,exports){
 module.exports=require(109)
-},{"./hash":379,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":377}],384:[function(require,module,exports){
+},{"./hash":355,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":353}],360:[function(require,module,exports){
 module.exports=require(110)
-},{"./hash":379,"./sha512":385,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":377}],385:[function(require,module,exports){
+},{"./hash":355,"./sha512":361,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":353}],361:[function(require,module,exports){
 module.exports=require(111)
-},{"./hash":379,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":377}],386:[function(require,module,exports){
+},{"./hash":355,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":353}],362:[function(require,module,exports){
 module.exports=require(147)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js":147,"_process":152,"buffer":9}],387:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js":147,"_process":152,"buffer":9}],363:[function(require,module,exports){
 (function (process){
 /*!
  * async
@@ -68859,7 +66981,7 @@ module.exports=require(147)
 }());
 
 }).call(this,require('_process'))
-},{"_process":152}],388:[function(require,module,exports){
+},{"_process":152}],364:[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -73526,7 +71648,7 @@ module.exports = ret;
 },{"./es5.js":14}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":152}],389:[function(require,module,exports){
+},{"_process":152}],365:[function(require,module,exports){
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -74022,7 +72144,7 @@ function b64_enc (data) {
 }));
 //UMD FOOTER END
 
-},{}],390:[function(require,module,exports){
+},{}],366:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -74071,7 +72193,7 @@ module.exports = function (opts, cb) {
     }).nodeify(cb);
 };
 
-},{"./lib/xrd":391,"bluebird":388,"jxt":432,"request":392}],391:[function(require,module,exports){
+},{"./lib/xrd":367,"bluebird":364,"jxt":408,"request":368}],367:[function(require,module,exports){
 'use strict';
 
 var jxt = require('jxt');
@@ -74126,7 +72248,7 @@ module.exports = function (registry) {
     return XRD;
 };
 
-},{"jxt":432}],392:[function(require,module,exports){
+},{"jxt":408}],368:[function(require,module,exports){
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -74539,7 +72661,7 @@ function b64_enc (data) {
     return enc;
 }
 
-},{}],393:[function(require,module,exports){
+},{}],369:[function(require,module,exports){
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
 var getHashes = require('./lib/get-hashes');
@@ -74584,7 +72706,7 @@ exports.createHmac = function (algorithm, key) {
     return createHmac(algorithm, key);
 };
 
-},{"./lib/get-hashes":394,"create-hash":395,"create-hmac":407}],394:[function(require,module,exports){
+},{"./lib/get-hashes":370,"create-hash":371,"create-hmac":383}],370:[function(require,module,exports){
 var crypto = require('crypto');
 
 
@@ -74592,35 +72714,35 @@ module.exports = function () {
     return crypto.getHashes();
 };
 
-},{"crypto":13}],395:[function(require,module,exports){
+},{"crypto":13}],371:[function(require,module,exports){
 module.exports=require(101)
-},{"./md5":397,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":398,"ripemd160":399,"sha.js":401,"stream":166}],396:[function(require,module,exports){
+},{"./md5":373,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":374,"ripemd160":375,"sha.js":377,"stream":166}],372:[function(require,module,exports){
 module.exports=require(102)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],397:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],373:[function(require,module,exports){
 module.exports=require(103)
-},{"./helpers":396,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],398:[function(require,module,exports){
+},{"./helpers":372,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],374:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],399:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],375:[function(require,module,exports){
 module.exports=require(104)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],400:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],376:[function(require,module,exports){
 module.exports=require(105)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],401:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],377:[function(require,module,exports){
 module.exports=require(106)
-},{"./sha1":402,"./sha224":403,"./sha256":404,"./sha384":405,"./sha512":406,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],402:[function(require,module,exports){
+},{"./sha1":378,"./sha224":379,"./sha256":380,"./sha384":381,"./sha512":382,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],378:[function(require,module,exports){
 module.exports=require(107)
-},{"./hash":400,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":398}],403:[function(require,module,exports){
+},{"./hash":376,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":374}],379:[function(require,module,exports){
 module.exports=require(108)
-},{"./hash":400,"./sha256":404,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":398}],404:[function(require,module,exports){
+},{"./hash":376,"./sha256":380,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":374}],380:[function(require,module,exports){
 module.exports=require(109)
-},{"./hash":400,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":398}],405:[function(require,module,exports){
+},{"./hash":376,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":374}],381:[function(require,module,exports){
 module.exports=require(110)
-},{"./hash":400,"./sha512":406,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":398}],406:[function(require,module,exports){
+},{"./hash":376,"./sha512":382,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":374}],382:[function(require,module,exports){
 module.exports=require(111)
-},{"./hash":400,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":398}],407:[function(require,module,exports){
+},{"./hash":376,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":374}],383:[function(require,module,exports){
 module.exports=require(112)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hmac/browser.js":112,"buffer":9,"create-hash/browser":395,"inherits":408,"stream":166}],408:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hmac/browser.js":112,"buffer":9,"create-hash/browser":371,"inherits":384,"stream":166}],384:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],409:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],385:[function(require,module,exports){
 var util = require('util');
 var intersect = require('intersect');
 var WildEmitter = require('wildemitter');
@@ -75028,7 +73150,7 @@ SessionManager.prototype.process = function (req) {
 
 module.exports = SessionManager;
 
-},{"intersect":411,"jingle-filetransfer-session":412,"jingle-media-session":421,"jingle-session":429,"util":168,"webrtcsupport":430,"wildemitter":474}],410:[function(require,module,exports){
+},{"intersect":387,"jingle-filetransfer-session":388,"jingle-media-session":397,"jingle-session":405,"util":168,"webrtcsupport":406,"wildemitter":450}],386:[function(require,module,exports){
 var arr = [];
 var each = arr.forEach;
 var slice = arr.slice;
@@ -75045,7 +73167,7 @@ module.exports = function(obj) {
     return obj;
 };
 
-},{}],411:[function(require,module,exports){
+},{}],387:[function(require,module,exports){
 module.exports = intersect;
 
 function intersect (a, b) {
@@ -75077,7 +73199,7 @@ function indexOf(arr, el) {
   return -1;
 }
 
-},{}],412:[function(require,module,exports){
+},{}],388:[function(require,module,exports){
 var util = require('util');
 var extend = require('extend-object');
 var BaseSession = require('jingle-session');
@@ -75347,7 +73469,7 @@ FileTransferSession.prototype = extend(FileTransferSession.prototype, {
 
 module.exports = FileTransferSession;
 
-},{"extend-object":410,"filetransfer":413,"jingle-session":429,"rtcpeerconnection":420,"util":168}],413:[function(require,module,exports){
+},{"extend-object":386,"filetransfer":389,"jingle-session":405,"rtcpeerconnection":396,"util":168}],389:[function(require,module,exports){
 var async = require('async');
 //var webrtcsupport = require('webrtcsupport');
 var WildEmitter = require('wildemitter');
@@ -75475,7 +73597,7 @@ module.exports.support = window && window.File && window.FileReader && window.Bl
 module.exports.Sender = Sender;
 module.exports.Receiver = Receiver;
 
-},{"async":387,"iana-hashes":393,"util":168,"wildemitter":474}],414:[function(require,module,exports){
+},{"async":363,"iana-hashes":369,"util":168,"wildemitter":450}],390:[function(require,module,exports){
 var toSDP = require('./lib/tosdp');
 var toJSON = require('./lib/tojson');
 
@@ -75597,7 +73719,7 @@ exports.toCandidateJSON = toJSON.toCandidateJSON;
 exports.toMediaJSON = toJSON.toMediaJSON;
 exports.toSessionJSON = toJSON.toSessionJSON;
 
-},{"./lib/tojson":417,"./lib/tosdp":418}],415:[function(require,module,exports){
+},{"./lib/tojson":393,"./lib/tosdp":394}],391:[function(require,module,exports){
 exports.lines = function (sdp) {
     return sdp.split('\r\n').filter(function (line) {
         return line.length > 0;
@@ -75858,7 +73980,7 @@ exports.bandwidth = function (line) {
     return parsed;
 };
 
-},{}],416:[function(require,module,exports){
+},{}],392:[function(require,module,exports){
 module.exports = {
     initiator: {
         incoming: {
@@ -75906,7 +74028,7 @@ module.exports = {
     }
 };
 
-},{}],417:[function(require,module,exports){
+},{}],393:[function(require,module,exports){
 var SENDERS = require('./senders');
 var parsers = require('./parsers');
 var idCounter = Math.random();
@@ -76112,7 +74234,7 @@ exports.toCandidateJSON = function (line) {
     return candidate;
 };
 
-},{"./parsers":415,"./senders":416}],418:[function(require,module,exports){
+},{"./parsers":391,"./senders":392}],394:[function(require,module,exports){
 var SENDERS = require('./senders');
 
 
@@ -76328,7 +74450,7 @@ exports.toCandidateSDP = function (candidate) {
     return 'a=candidate:' + sdp.join(' ');
 };
 
-},{"./senders":416}],419:[function(require,module,exports){
+},{"./senders":392}],395:[function(require,module,exports){
 // based on https://github.com/ESTOS/strophe.jingle/
 // adds wildemitter support
 var util = require('util');
@@ -76565,7 +74687,7 @@ TraceablePeerConnection.prototype.getStats = function (callback, errback) {
 
 module.exports = TraceablePeerConnection;
 
-},{"util":168,"webrtcsupport":430,"wildemitter":474}],420:[function(require,module,exports){
+},{"util":168,"webrtcsupport":406,"wildemitter":450}],396:[function(require,module,exports){
 var _ = require('underscore');
 var util = require('util');
 var webrtc = require('webrtcsupport');
@@ -77280,7 +75402,7 @@ PeerConnection.prototype.getStats = function (cb) {
 
 module.exports = PeerConnection;
 
-},{"sdp-jingle-json":414,"traceablepeerconnection":419,"underscore":473,"util":168,"webrtcsupport":430,"wildemitter":474}],421:[function(require,module,exports){
+},{"sdp-jingle-json":390,"traceablepeerconnection":395,"underscore":449,"util":168,"webrtcsupport":406,"wildemitter":450}],397:[function(require,module,exports){
 var util = require('util');
 var extend = require('extend-object');
 var BaseSession = require('jingle-session');
@@ -77872,21 +75994,21 @@ MediaSession.prototype = extend(MediaSession.prototype, {
 
 module.exports = MediaSession;
 
-},{"extend-object":410,"jingle-session":429,"rtcpeerconnection":428,"util":168}],422:[function(require,module,exports){
-module.exports=require(414)
-},{"./lib/tojson":425,"./lib/tosdp":426,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/index.js":414}],423:[function(require,module,exports){
-module.exports=require(415)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/parsers.js":415}],424:[function(require,module,exports){
-module.exports=require(416)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/senders.js":416}],425:[function(require,module,exports){
-module.exports=require(417)
-},{"./parsers":423,"./senders":424,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tojson.js":417}],426:[function(require,module,exports){
-module.exports=require(418)
-},{"./senders":424,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tosdp.js":418}],427:[function(require,module,exports){
-module.exports=require(419)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/traceablepeerconnection/index.js":419,"util":168,"webrtcsupport":430,"wildemitter":474}],428:[function(require,module,exports){
-module.exports=require(420)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/rtcpeerconnection.js":420,"sdp-jingle-json":422,"traceablepeerconnection":427,"underscore":473,"util":168,"webrtcsupport":430,"wildemitter":474}],429:[function(require,module,exports){
+},{"extend-object":386,"jingle-session":405,"rtcpeerconnection":404,"util":168}],398:[function(require,module,exports){
+module.exports=require(390)
+},{"./lib/tojson":401,"./lib/tosdp":402,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/index.js":390}],399:[function(require,module,exports){
+module.exports=require(391)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/parsers.js":391}],400:[function(require,module,exports){
+module.exports=require(392)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/senders.js":392}],401:[function(require,module,exports){
+module.exports=require(393)
+},{"./parsers":399,"./senders":400,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tojson.js":393}],402:[function(require,module,exports){
+module.exports=require(394)
+},{"./senders":400,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tosdp.js":394}],403:[function(require,module,exports){
+module.exports=require(395)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/traceablepeerconnection/index.js":395,"util":168,"webrtcsupport":406,"wildemitter":450}],404:[function(require,module,exports){
+module.exports=require(396)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/rtcpeerconnection.js":396,"sdp-jingle-json":398,"traceablepeerconnection":403,"underscore":449,"util":168,"webrtcsupport":406,"wildemitter":450}],405:[function(require,module,exports){
 var util = require('util');
 var async = require('async');
 var extend = require('extend-object');
@@ -78231,7 +76353,7 @@ JingleSession.prototype = extend(JingleSession.prototype, {
 
 module.exports = JingleSession;
 
-},{"async":387,"extend-object":410,"util":168,"wildemitter":474}],430:[function(require,module,exports){
+},{"async":363,"extend-object":386,"util":168,"wildemitter":450}],406:[function(require,module,exports){
 // created by @HenrikJoreteg
 var prefix;
 
@@ -78278,7 +76400,7 @@ module.exports = {
     getUserMedia: getUserMedia
 };
 
-},{}],431:[function(require,module,exports){
+},{}],407:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -78433,7 +76555,7 @@ module.exports = function (JXT) {
     );
 };
 
-},{"xmpp-jid":475}],432:[function(require,module,exports){
+},{"xmpp-jid":451}],408:[function(require,module,exports){
 'use strict';
 
 var ltx = require('ltx');
@@ -78619,7 +76741,7 @@ JXT.getGlobalJXT = function () {
 
 module.exports = JXT;
 
-},{"./lib/helpers":433,"./lib/stanza":434,"./lib/types":435,"extend-object":438,"ltx":441,"node-uuid":445}],433:[function(require,module,exports){
+},{"./lib/helpers":409,"./lib/stanza":410,"./lib/types":411,"extend-object":414,"ltx":417,"node-uuid":421}],409:[function(require,module,exports){
 'use strict';
 
 var ltx = require('ltx');
@@ -78900,7 +77022,7 @@ exports.setBoolSub = function (xml, NS, element, value) {
     }
 };
 
-},{"ltx":441}],434:[function(require,module,exports){
+},{"ltx":417}],410:[function(require,module,exports){
 'use strict';
 
 var helpers = require('./helpers');
@@ -79013,7 +77135,7 @@ module.exports = function (JXT, opts) {
     return Stanza;
 };
 
-},{"./helpers":433,"extend-object":438}],435:[function(require,module,exports){
+},{"./helpers":409,"extend-object":414}],411:[function(require,module,exports){
 'use strict';
 
 var fromB64 = require('atob');
@@ -79406,7 +77528,7 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
     };
 };
 
-},{"./helpers":433,"atob":436,"btoa":437,"extend-object":438}],436:[function(require,module,exports){
+},{"./helpers":409,"atob":412,"btoa":413,"extend-object":414}],412:[function(require,module,exports){
 (function (Buffer){
 (function () {
   "use strict";
@@ -79419,7 +77541,7 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
 }());
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],437:[function(require,module,exports){
+},{"buffer":9}],413:[function(require,module,exports){
 (function (Buffer){
 (function () {
   "use strict";
@@ -79441,9 +77563,9 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
 }());
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],438:[function(require,module,exports){
-module.exports=require(410)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/extend-object/extend-object.js":410}],439:[function(require,module,exports){
+},{"buffer":9}],414:[function(require,module,exports){
+module.exports=require(386)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/extend-object/extend-object.js":386}],415:[function(require,module,exports){
 'use strict';
 
 var util = require('util')
@@ -79555,7 +77677,7 @@ DOMElement.prototype.removeChild = function (el) {
 
 module.exports = DOMElement
 
-},{"./element":440,"util":168}],440:[function(require,module,exports){
+},{"./element":416,"util":168}],416:[function(require,module,exports){
 'use strict';
 
 /**
@@ -79933,7 +78055,7 @@ function escapeXmlText(s) {
 exports.Element = Element
 exports.escapeXml = escapeXml
 
-},{}],441:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 'use strict';
 
 /* Cause browserify to bundle SAX parsers: */
@@ -79943,7 +78065,7 @@ parse.availableSaxParsers.push(parse.bestSaxParser = require('./sax/sax_ltx'))
 
 /* SHIM */
 module.exports = require('./index')
-},{"./index":442,"./parse":443,"./sax/sax_ltx":444}],442:[function(require,module,exports){
+},{"./index":418,"./parse":419,"./sax/sax_ltx":420}],418:[function(require,module,exports){
 'use strict';
 
 var parse = require('./parse')
@@ -79970,7 +78092,7 @@ exports.Parser = parse.Parser
 exports.availableSaxParsers = parse.availableSaxParsers
 exports.bestSaxParser = parse.bestSaxParser
 
-},{"./dom-element":439,"./element":440,"./parse":443}],443:[function(require,module,exports){
+},{"./dom-element":415,"./element":416,"./parse":419}],419:[function(require,module,exports){
 'use strict';
 
 var events = require('events')
@@ -80089,7 +78211,7 @@ exports.parse = function(data, saxParser) {
     }
 }
 
-},{"./dom-element":439,"events":148,"util":168}],444:[function(require,module,exports){
+},{"./dom-element":415,"events":148,"util":168}],420:[function(require,module,exports){
 'use strict';
 
 var util = require('util')
@@ -80261,7 +78383,7 @@ function unescapeXml(s) {
         replace(/\&(nbsp|#160);/g, '\n')
 }
 
-},{"events":148,"util":168}],445:[function(require,module,exports){
+},{"events":148,"util":168}],421:[function(require,module,exports){
 //     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -80508,7 +78630,7 @@ function unescapeXml(s) {
   }
 }).call(this);
 
-},{}],446:[function(require,module,exports){
+},{}],422:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -80564,7 +78686,7 @@ function unescapeXml(s) {
   
 }));
 
-},{}],447:[function(require,module,exports){
+},{}],423:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -80584,7 +78706,7 @@ function unescapeXml(s) {
   
 }));
 
-},{"./lib/mechanism":446}],448:[function(require,module,exports){
+},{"./lib/mechanism":422}],424:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -80640,9 +78762,9 @@ function unescapeXml(s) {
   
 }));
 
-},{}],449:[function(require,module,exports){
-arguments[4][447][0].apply(exports,arguments)
-},{"./lib/mechanism":448,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":447}],450:[function(require,module,exports){
+},{}],425:[function(require,module,exports){
+arguments[4][423][0].apply(exports,arguments)
+},{"./lib/mechanism":424,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":423}],426:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -80709,9 +78831,9 @@ arguments[4][447][0].apply(exports,arguments)
   
 }));
 
-},{}],451:[function(require,module,exports){
-arguments[4][447][0].apply(exports,arguments)
-},{"./lib/mechanism":450,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":447}],452:[function(require,module,exports){
+},{}],427:[function(require,module,exports){
+arguments[4][423][0].apply(exports,arguments)
+},{"./lib/mechanism":426,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":423}],428:[function(require,module,exports){
 (function (Buffer){
 var bitops = require('./lib/bitops');
 var utils = require('./lib/utils');
@@ -80821,7 +78943,7 @@ RESP.final = function () {
 module.exports = Mechanism;
 
 }).call(this,require("buffer").Buffer)
-},{"./lib/bitops":453,"./lib/utils":454,"buffer":9}],453:[function(require,module,exports){
+},{"./lib/bitops":429,"./lib/utils":430,"buffer":9}],429:[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
@@ -80851,7 +78973,7 @@ exports.Hi = function (text, salt, iterations) {
 
 
 }).call(this,require("buffer").Buffer)
-},{"bitwise-xor":455,"buffer":9,"create-hash":456,"create-hmac":468}],454:[function(require,module,exports){
+},{"bitwise-xor":431,"buffer":9,"create-hash":432,"create-hmac":444}],430:[function(require,module,exports){
 var randomBytes = require('randombytes');
 
 
@@ -80887,7 +79009,7 @@ exports.genNonce = function (len) {
     return randomBytes((len || 32) / 2).toString('hex');
 };
 
-},{"randombytes":470}],455:[function(require,module,exports){
+},{"randombytes":446}],431:[function(require,module,exports){
 (function (Buffer){
 module.exports = xor
 
@@ -80908,37 +79030,37 @@ function xor(a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],456:[function(require,module,exports){
+},{"buffer":9}],432:[function(require,module,exports){
 module.exports=require(101)
-},{"./md5":458,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":459,"ripemd160":460,"sha.js":462,"stream":166}],457:[function(require,module,exports){
+},{"./md5":434,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":435,"ripemd160":436,"sha.js":438,"stream":166}],433:[function(require,module,exports){
 module.exports=require(102)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],458:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],434:[function(require,module,exports){
 module.exports=require(103)
-},{"./helpers":457,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],459:[function(require,module,exports){
+},{"./helpers":433,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],435:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],460:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],436:[function(require,module,exports){
 module.exports=require(104)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],461:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],437:[function(require,module,exports){
 module.exports=require(105)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],462:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],438:[function(require,module,exports){
 module.exports=require(106)
-},{"./sha1":463,"./sha224":464,"./sha256":465,"./sha384":466,"./sha512":467,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],463:[function(require,module,exports){
+},{"./sha1":439,"./sha224":440,"./sha256":441,"./sha384":442,"./sha512":443,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],439:[function(require,module,exports){
 module.exports=require(107)
-},{"./hash":461,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":459}],464:[function(require,module,exports){
+},{"./hash":437,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":435}],440:[function(require,module,exports){
 module.exports=require(108)
-},{"./hash":461,"./sha256":465,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":459}],465:[function(require,module,exports){
+},{"./hash":437,"./sha256":441,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":435}],441:[function(require,module,exports){
 module.exports=require(109)
-},{"./hash":461,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":459}],466:[function(require,module,exports){
+},{"./hash":437,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":435}],442:[function(require,module,exports){
 module.exports=require(110)
-},{"./hash":461,"./sha512":467,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":459}],467:[function(require,module,exports){
+},{"./hash":437,"./sha512":443,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":435}],443:[function(require,module,exports){
 module.exports=require(111)
-},{"./hash":461,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":459}],468:[function(require,module,exports){
+},{"./hash":437,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":435}],444:[function(require,module,exports){
 module.exports=require(112)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hmac/browser.js":112,"buffer":9,"create-hash/browser":456,"inherits":469,"stream":166}],469:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hmac/browser.js":112,"buffer":9,"create-hash/browser":432,"inherits":445,"stream":166}],445:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],470:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],446:[function(require,module,exports){
 module.exports=require(147)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js":147,"_process":152,"buffer":9}],471:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js":147,"_process":152,"buffer":9}],447:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -81011,7 +79133,7 @@ module.exports=require(147)
   
 }));
 
-},{}],472:[function(require,module,exports){
+},{}],448:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -81031,7 +79153,7 @@ module.exports=require(147)
   
 }));
 
-},{"./lib/factory":471}],473:[function(require,module,exports){
+},{"./lib/factory":447}],449:[function(require,module,exports){
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -82376,7 +80498,7 @@ module.exports=require(147)
   }
 }).call(this);
 
-},{}],474:[function(require,module,exports){
+},{}],450:[function(require,module,exports){
 /*
 WildEmitter.js is a slim little event emitter by @henrikjoreteg largely based 
 on @visionmedia's Emitter from UI Kit.
@@ -82517,7 +80639,7 @@ WildEmitter.prototype.getWildcardCallbacks = function (eventName) {
     return result;
 };
 
-},{}],475:[function(require,module,exports){
+},{}],451:[function(require,module,exports){
 'use strict';
 
 var StringPrep = require('./lib/stringprep');
@@ -82712,7 +80834,7 @@ exports.JID.prototype.toJSON = function () {
     return this.full;
 };
 
-},{"./lib/stringprep":476}],476:[function(require,module,exports){
+},{"./lib/stringprep":452}],452:[function(require,module,exports){
 'use strict';
 
 var punycode = require('punycode');
@@ -82734,11 +80856,11 @@ exports.resourceprep = function (str) {
     return str;
 };
 
-},{"punycode":153}],477:[function(require,module,exports){
+},{"punycode":153}],453:[function(require,module,exports){
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
 function AuthenticationView(eventbus, authentication) {
@@ -82769,10 +80891,10 @@ function AuthenticationView(eventbus, authentication) {
 
   return self;
 }
-},{"./popup":486,"jquery":234,"webrtc-core/Utils":500}],478:[function(require,module,exports){
+},{"./popup":462,"jquery":214,"webrtc-core":474}],454:[function(require,module,exports){
 module.exports = CallControlView
 
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
 function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, dialpadView) {
@@ -82847,17 +80969,15 @@ function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, di
 
   return self;
 }
-},{"./popup":486,"webrtc-core/Utils":500}],479:[function(require,module,exports){
+},{"./popup":462,"webrtc-core":474}],455:[function(require,module,exports){
 module.exports = ClientView;
 
 var fs = require('fs');
 var styles = require('bdsft-webrtc-style');
 var ejs = require('ejs');
 var $ = jQuery = require('jquery');
-var Icon = require('webrtc-core/Icon');
-var WebRTC_C = require('webrtc-core/Constants');
-var Utils = require('webrtc-core/Utils');
-var ExSIP = require('exsip');
+var WebRTC_C = require('webrtc-core').constants;
+var Utils = require('webrtc-core').utils;
 var ClientConfig = require('bdsft-webrtc-config');
 
 function ClientView(options, eventbus, debug, configuration, video, videobarView, sound, callcontrol, sipstack, transfer, authentication, 
@@ -83038,7 +81158,7 @@ function ClientView(options, eventbus, debug, configuration, video, videobarView
 }
 
 exports.constructor = ClientView;
-},{"bdsft-webrtc-config":3,"bdsft-webrtc-style":5,"ejs":174,"exsip":205,"fs":7,"jquery":234,"webrtc-core/Constants":497,"webrtc-core/Icon":499,"webrtc-core/Utils":500}],480:[function(require,module,exports){
+},{"bdsft-webrtc-config":3,"bdsft-webrtc-style":5,"ejs":171,"fs":7,"jquery":214,"webrtc-core":474}],456:[function(require,module,exports){
 module.exports = ConnectionStatusView
 
 function ConnectionStatusView() {
@@ -83094,7 +81214,7 @@ function ConnectionStatusView() {
 
   return self;
 }
-},{}],481:[function(require,module,exports){
+},{}],457:[function(require,module,exports){
 module.exports = DialpadView
 
 function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
@@ -83112,7 +81232,7 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView, 
 
   return self;
 }
-},{}],482:[function(require,module,exports){
+},{}],458:[function(require,module,exports){
 module.exports = FileShareView
 
 function FileShareView(eventbus) {
@@ -83144,11 +81264,11 @@ function FileShareView(eventbus) {
 
   return self;
 }
-},{}],483:[function(require,module,exports){
+},{}],459:[function(require,module,exports){
 module.exports = HistoryView
 
-var Utils = require('webrtc-core/Utils');
-var Constants = require('webrtc-core/Constants');
+var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 var PopupView = require('./popup');
 
 function HistoryView(sound, history, eventbus, callcontrol) {
@@ -83278,11 +81398,10 @@ function HistoryView(sound, history, eventbus, callcontrol) {
   return self;
 
 }
-},{"./popup":486,"webrtc-core/Constants":497,"webrtc-core/Utils":500}],484:[function(require,module,exports){
+},{"./popup":462,"webrtc-core":474}],460:[function(require,module,exports){
 module.exports = IncomingCallView
 
-var Utils = require('webrtc-core/Utils');
-var ExSIP = require('exsip');
+var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
 function IncomingCallView(eventbus, incomingcall) {
@@ -83313,7 +81432,7 @@ function IncomingCallView(eventbus, incomingcall) {
 
   return self;
 }
-},{"./popup":486,"exsip":205,"webrtc-core/Utils":500}],485:[function(require,module,exports){
+},{"./popup":462,"webrtc-core":474}],461:[function(require,module,exports){
 module.exports = MessagesView
 
 function MessagesView() {
@@ -83334,7 +81453,7 @@ function MessagesView() {
 
   return self;
 }
-},{}],486:[function(require,module,exports){
+},{}],462:[function(require,module,exports){
 module.exports = PopupView;
 
 var $ = require('jquery');
@@ -83374,11 +81493,11 @@ function PopupView(eventbus) {
 
   return self;
 }
-},{"jquery":234}],487:[function(require,module,exports){
+},{"jquery":214}],463:[function(require,module,exports){
 module.exports = ReinviteView
 
 var PopupView = require('./popup');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function ReinviteView(eventbus, reinvite) {
   var self = {};
@@ -83398,11 +81517,11 @@ function ReinviteView(eventbus, reinvite) {
 
   return self;
 }
-},{"./popup":486,"webrtc-core/Utils":500}],488:[function(require,module,exports){
+},{"./popup":462,"webrtc-core":474}],464:[function(require,module,exports){
 module.exports = SettingsView;
 
-var WebRTC_C = require('webrtc-core/Constants');
-var Utils = require('webrtc-core/Utils');
+var WebRTC_C = require('webrtc-core').constants;
+var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
 function SettingsView(settings, configuration, eventbus, debug, sound) {
@@ -83530,10 +81649,10 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
 
   return self;
 }
-},{"./popup":486,"webrtc-core/Constants":497,"webrtc-core/Utils":500}],489:[function(require,module,exports){
+},{"./popup":462,"webrtc-core":474}],465:[function(require,module,exports){
 module.exports = SMSView;
 
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
 function SMSView(eventbus, debug, sound, sms) {
@@ -83686,11 +81805,11 @@ function SMSView(eventbus, debug, sound, sms) {
 
   return self;
 }
-},{"./popup":486,"webrtc-core/Utils":500}],490:[function(require,module,exports){
+},{"./popup":462,"webrtc-core":474}],466:[function(require,module,exports){
 module.exports = StatsView;
 
 var PopupView = require('./popup');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function StatsView(eventbus) {
   var self = {};
@@ -83742,7 +81861,7 @@ function StatsView(eventbus) {
 
   return self;
 }
-},{"./popup":486,"webrtc-core/Utils":500}],491:[function(require,module,exports){
+},{"./popup":462,"webrtc-core":474}],467:[function(require,module,exports){
 module.exports = TimerView;
 
 function TimerView() {
@@ -83752,11 +81871,11 @@ function TimerView() {
 
   return self;
 }
-},{}],492:[function(require,module,exports){
+},{}],468:[function(require,module,exports){
 module.exports = TransferView;
 
 var PopupView = require('./popup');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function TransferView(sound, eventbus, transfer) {
   var self = {};
@@ -83786,7 +81905,7 @@ function TransferView(sound, eventbus, transfer) {
 
   return self;
 }
-},{"./popup":486,"webrtc-core/Utils":500}],493:[function(require,module,exports){
+},{"./popup":462,"webrtc-core":474}],469:[function(require,module,exports){
 module.exports = VideoView;
 require('jquery-ui/draggable');
 
@@ -83838,10 +81957,10 @@ function VideoView(settings, configuration, historyView, video) {
 
   return self;
 }
-},{"jquery-ui/draggable":230}],494:[function(require,module,exports){
+},{"jquery-ui/draggable":210}],470:[function(require,module,exports){
 module.exports = VideoBarView;
 
-var Icon = require('webrtc-core/Icon');
+var Icon = require('webrtc-core').icon;
 var events;
 
 function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dialpadView, timer, video, callcontrolView, configuration) {
@@ -84057,11 +82176,11 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
 
   return self;
 }
-},{"webrtc-core/Icon":499}],495:[function(require,module,exports){
+},{"webrtc-core":474}],471:[function(require,module,exports){
 module.exports = WhiteboardView;
 
 var PopupView = require('./popup');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function WhiteboardView(eventbus, sipstack) {
   var self = {};
@@ -84226,14 +82345,14 @@ function WhiteboardView(eventbus, sipstack) {
 
   return self;
 }
-},{"../../js/sketch":1,"./popup":486,"webrtc-core/Utils":500}],496:[function(require,module,exports){
+},{"../../js/sketch":1,"./popup":462,"webrtc-core":474}],472:[function(require,module,exports){
 module.exports = XMPPView;
 
 // var View = require('ampersand-view');
 // var GroupedCollectionView = require('ampersand-grouped-collection-view');
 // var ChatInputView = require('otalk-chat-input-view');
 var PopupView = require('./popup');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 var $ = require('jquery');
 
 function XMPPView(debug, eventbus, configuration, sound, xmpp) {
@@ -84337,7 +82456,266 @@ function XMPPView(debug, eventbus, configuration, sound, xmpp) {
 
   return self;
 }
-},{"./popup":486,"jquery":234,"webrtc-core/Utils":500}],497:[function(require,module,exports){
+},{"./popup":462,"jquery":214,"webrtc-core":474}],473:[function(require,module,exports){
+/*
+ *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
+ *
+ *  Use of this source code is governed by a BSD-style license
+ *  that can be found in the LICENSE file in the root of the source
+ *  tree.
+ */
+
+/* More information about these options at jshint.com/docs/options */
+/* global mozRTCIceCandidate, mozRTCPeerConnection,
+mozRTCSessionDescription, webkitRTCPeerConnection */
+/* exported trace,requestUserMedia */
+
+'use strict';
+
+var RTCPeerConnection = null;
+var getUserMedia = null;
+var attachMediaStream = null;
+var reattachMediaStream = null;
+var webrtcDetectedBrowser = null;
+var webrtcDetectedVersion = null;
+
+function trace(text) {
+  // This function is used for logging.
+  if (text[text.length - 1] === '\n') {
+    text = text.substring(0, text.length - 1);
+  }
+  if (window.performance) {
+    var now = (window.performance.now() / 1000).toFixed(3);
+    console.log(now + ': ' + text);
+  } else {
+    console.log(text);
+  }
+}
+
+if (typeof navigator !== 'undefined' && navigator.mozGetUserMedia) {
+  console.log('This appears to be Firefox');
+
+  webrtcDetectedBrowser = 'firefox';
+
+  webrtcDetectedVersion =
+    parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1], 10);
+
+  // The RTCPeerConnection object.
+  RTCPeerConnection = function(pcConfig, pcConstraints) {
+    // .urls is not supported in FF yet.
+    if (pcConfig && pcConfig.iceServers) {
+      for (var i = 0; i < pcConfig.iceServers.length; i++) {
+        if (pcConfig.iceServers[i].hasOwnProperty('urls')) {
+          pcConfig.iceServers[i].url = pcConfig.iceServers[i].urls;
+          delete pcConfig.iceServers[i].urls;
+        }
+      }
+    }
+    return new mozRTCPeerConnection(pcConfig, pcConstraints);
+  };
+
+  // The RTCSessionDescription object.
+  window.RTCSessionDescription = mozRTCSessionDescription;
+
+  // The RTCIceCandidate object.
+  window.RTCIceCandidate = mozRTCIceCandidate;
+
+  // getUserMedia shim (only difference is the prefix).
+  // Code from Adam Barth.
+  getUserMedia = navigator.mozGetUserMedia.bind(navigator);
+  navigator.getUserMedia = getUserMedia;
+
+  // Shim for MediaStreamTrack.getSources.
+  MediaStreamTrack.getSources = function(successCb) {
+    setTimeout(function() {
+      var infos = [
+        {kind: 'audio', id: 'default', label:'', facing:''},
+        {kind: 'video', id: 'default', label:'', facing:''}
+      ];
+      successCb(infos);
+    }, 0);
+  };
+
+  // Creates ICE server from the URL for FF.
+  window.createIceServer = function(url, username, password) {
+    var iceServer = null;
+    var urlParts = url.split(':');
+    if (urlParts[0].indexOf('stun') === 0) {
+      // Create ICE server with STUN URL.
+      iceServer = {
+        'url': url
+      };
+    } else if (urlParts[0].indexOf('turn') === 0) {
+      if (webrtcDetectedVersion < 27) {
+        // Create iceServer with turn url.
+        // Ignore the transport parameter from TURN url for FF version <=27.
+        var turnUrlParts = url.split('?');
+        // Return null for createIceServer if transport=tcp.
+        if (turnUrlParts.length === 1 ||
+          turnUrlParts[1].indexOf('transport=udp') === 0) {
+          iceServer = {
+            'url': turnUrlParts[0],
+            'credential': password,
+            'username': username
+          };
+        }
+      } else {
+        // FF 27 and above supports transport parameters in TURN url,
+        // So passing in the full url to create iceServer.
+        iceServer = {
+          'url': url,
+          'credential': password,
+          'username': username
+        };
+      }
+    }
+    return iceServer;
+  };
+
+  window.createIceServers = function(urls, username, password) {
+    var iceServers = [];
+    // Use .url for FireFox.
+    for (var i = 0; i < urls.length; i++) {
+      var iceServer =
+        window.createIceServer(urls[i], username, password);
+      if (iceServer !== null) {
+        iceServers.push(iceServer);
+      }
+    }
+    return iceServers;
+  };
+
+  // Attach a media stream to an element.
+  attachMediaStream = function(element, stream) {
+    console.log('Attaching media stream');
+    element.mozSrcObject = stream;
+  };
+
+  reattachMediaStream = function(to, from) {
+    console.log('Reattaching media stream');
+    to.mozSrcObject = from.mozSrcObject;
+  };
+
+} else if (typeof navigator !== 'undefined' && navigator.webkitGetUserMedia) {
+  console.log('This appears to be Chrome');
+
+  webrtcDetectedBrowser = 'chrome';
+  // Temporary fix until crbug/374263 is fixed.
+  // Setting Chrome version to 999, if version is unavailable.
+  var result = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+  if (result !== null) {
+    webrtcDetectedVersion = parseInt(result[2], 10);
+  } else {
+    webrtcDetectedVersion = 999;
+  }
+
+  // Creates iceServer from the url for Chrome M33 and earlier.
+  window.createIceServer = function(url, username, password) {
+    var iceServer = null;
+    var urlParts = url.split(':');
+    if (urlParts[0].indexOf('stun') === 0) {
+      // Create iceServer with stun url.
+      iceServer = {
+        'url': url
+      };
+    } else if (urlParts[0].indexOf('turn') === 0) {
+      // Chrome M28 & above uses below TURN format.
+      iceServer = {
+        'url': url,
+        'credential': password,
+        'username': username
+      };
+    }
+    return iceServer;
+  };
+
+  // Creates an ICEServer object from multiple URLs.
+  window.createIceServers = function(urls, username, password) {
+    return {
+      'urls': urls,
+      'credential': password,
+      'username': username
+    };
+  };
+
+  // The RTCPeerConnection object.
+  RTCPeerConnection = function(pcConfig, pcConstraints) {
+    return new webkitRTCPeerConnection(pcConfig, pcConstraints);
+  };
+
+  // Get UserMedia (only difference is the prefix).
+  // Code from Adam Barth.
+  getUserMedia = navigator.webkitGetUserMedia.bind(navigator);
+  navigator.getUserMedia = getUserMedia;
+
+  // Attach a media stream to an element.
+  attachMediaStream = function(element, stream) {
+    if (typeof element.srcObject !== 'undefined') {
+      element.srcObject = stream;
+    } else if (typeof element.mozSrcObject !== 'undefined') {
+      element.mozSrcObject = stream;
+    } else if (typeof element.src !== 'undefined') {
+      element.src = URL.createObjectURL(stream);
+    } else {
+      console.log('Error attaching stream to element.');
+    }
+  };
+
+  reattachMediaStream = function(to, from) {
+    to.src = from.src;
+  };
+} else {
+  console.log('Browser does not appear to be WebRTC-capable');
+}
+
+// Returns the result of getUserMedia as a Promise.
+function requestUserMedia(constraints) {
+  return new Promise(function(resolve, reject) {
+    var onSuccess = function(stream) {
+      resolve(stream);
+    };
+    var onError = function(error) {
+      reject(error);
+    };
+
+    try {
+      getUserMedia(constraints, onSuccess, onError);
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = {
+    RTCPeerConnection: RTCPeerConnection,
+    getUserMedia: getUserMedia,
+    attachMediaStream: attachMediaStream,
+    reattachMediaStream: reattachMediaStream,
+    webrtcDetectedBrowser: webrtcDetectedBrowser,
+    webrtcDetectedVersion: webrtcDetectedVersion,
+    requestUserMedia: requestUserMedia,
+    trace: trace
+  };
+}
+
+},{}],474:[function(require,module,exports){
+var exsip = require('ExSIP');
+var adapter = require('./adapter');
+var constants = require('./constants');
+var cookieprop = require('./cookieprop');
+var dateformat = require('./dateformat');
+var icon = require('./icon');
+var prop = require('./prop');
+var utils = require('./utils');
+var eventbus = require('./eventbus');
+var debug = require('./debug');
+var sipstack = require('./sipstack');
+
+
+module.exports = {exsip: exsip, adapter: adapter, constants: constants, cookieprop: cookieprop, dateformat:  dateformat,
+icon: icon, prop: prop, utils: utils, eventbus: eventbus, debug: debug, sipstack: sipstack};
+},{"./adapter":473,"./constants":475,"./cookieprop":476,"./dateformat":477,"./debug":478,"./eventbus":479,"./icon":480,"./prop":481,"./sipstack":482,"./utils":483,"ExSIP":495}],475:[function(require,module,exports){
 var C = {
     // RTCSession states
   STATE_CONNECTED: "connected",
@@ -84395,7 +82773,50 @@ C.WIDESCREEN_RESOLUTIONS = {
 };
 
 module.exports = C;
-},{}],498:[function(require,module,exports){
+},{}],476:[function(require,module,exports){
+module.exports = CookieProp;
+
+var Prop = require('./prop');
+var C = require('./constants');
+var Utils = require('./utils');
+var $ = require('jquery');
+
+function CookieProp(obj, prop, cookie, expires) {
+
+	var self = {};
+
+	self.__proto__ = Prop(obj, prop);
+
+	var superSet = self.__proto__.__set;
+
+	cookie = cookie || Utils.camelize(obj._name + ' ' + self._name);
+	expires = expires || C.EXPIRES;
+
+	self.__proto__.__init = function() {
+		if(prop.value) {
+			obj[self._name] = prop.value();
+		}	else {
+ 			obj[self._name] = $.cookie(cookie);
+		}
+ 	};
+	self.__proto__.__set = function(value) {
+		superSet(value);
+		self.__persist(value);
+	};
+	self.__proto__.__persist = function(value) {
+		if (value) {
+			// console.log('set cookie value : '+cookie, value);
+			$.cookie(cookie, value, {
+				expires: expires
+			});
+		} else {
+			$.removeCookie(cookie);
+		}
+	}
+
+	return self;
+}
+},{"./constants":475,"./prop":481,"./utils":483,"jquery":572}],477:[function(require,module,exports){
 module.exports = DateFormat;
 var C = {
   dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
@@ -84456,7 +82877,188 @@ DateFormat.prototype = {
     return dateTxt;
   }
 };
-},{}],499:[function(require,module,exports){
+},{}],478:[function(require,module,exports){
+module.exports = Debug
+
+var stacktrace = require('stacktrace-js');
+var debug = require('debug');
+var enabled = {};
+
+function Debug(options) {
+	options = options || {};
+	var id = options && options.id || options || '';
+	if (options.debug) {
+		enabled[id] = '*:' + id;
+	} else {
+		delete enabled[id];
+	}
+	updateEnabled();
+
+	return function(msg) {
+		var prefix = (options.name || caller()) + ':' + id;
+		debug(prefix)(msg);
+	};
+}
+
+var caller = function(){
+	var list = stacktrace();
+	for(var i=list.length-1; i >= 0; i--) {
+		var match = null;
+		if((match = list[i].match(/([A-Z]\S*).*@/g))) {
+			if(match !== 'Object') {
+				return match;				
+			}
+		}
+	}
+
+	return stacktrace().pop().match('(.*)@').pop();
+}
+var updateEnabled = function() {
+	var values = [];
+	Object.keys(enabled).forEach(function(key) {
+		values.push(enabled[key]);
+	});
+	debug.enable(values.join(','));
+};
+// exports.enable = function(id){
+// 	enabledList.push('*'+id);
+// 	var enabledStr = enabledList.join(',');
+// 	debug.enable(enabledStr);
+// };
+// exports.disable = function(){
+// 	enabledList = [];
+// 	debug.disable();
+// };
+// exports.log = debug.log;
+},{"debug":518,"stacktrace-js":573}],479:[function(require,module,exports){
+module.exports = EventBus;
+
+var ee = require('event-emitter');
+
+function EventBus() {
+	var self = {};
+
+	var emitter = ee({});
+	self.test = '121';
+	
+	self.on = function(type, listener){
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.on(t, listener);
+			});
+		} else {
+			emitter.on(type, listener);
+		}
+	};
+	self.once = function(type, listener){
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.once(t, listener);
+			});
+		} else {
+			emitter.once(type, listener);
+		}		
+	};
+	self.emit = function(type, obj){
+		if(Array.isArray(type)) {
+			type.forEach(function(t) {
+				emitter.emit(t, obj);
+			});
+		} else {
+			emitter.emit(type, obj);
+		}
+	};
+	self.attachView = function(view) {
+		self.emit('attachView', {
+			view: view
+		});
+	};
+	self.message = function(text, level) {
+		self.emit('message', {
+			text: text,
+			level: level
+		});
+	};
+	self.canceled = function() {
+		self.emit('canceled');
+	};
+	self.smsRemovedFailed = function(inboxItem) {
+		self.emit('smsRemovedFailed', {inboxItem: inboxItem});
+	};
+	self.smsRemoved = function(inboxItem) {
+		self.emit('smsRemoved', {inboxItem: inboxItem});
+	};
+	self.smsRemoving = function(inboxItem) {
+		self.emit('smsRemoving', {inboxItem: inboxItem});
+	};
+	self.smsSending = function() {
+		self.emit('smsSending', {});
+	};
+	self.shareFile = function(file) {		
+		self.emit('shareFile', {
+			file: file
+		});
+	};
+	self.digit = function(digit, isFromDestination) {		
+		self.emit('digit', {
+			digit: digit,
+			isFromDestination: isFromDestination
+		});
+	};
+	self.viewChanged = function(view) {
+		self.emit('viewChanged', {
+			visible: view.visible,
+			view: view.name || view._name.replace(/view$/i, '')
+		});
+	};
+	self.resolutionChanged = function(resolution) {
+		self.emit('resolutionChanged', {
+			type: resolution.resolutionType || resolution.type,
+			encoding: resolution.resolutionEncoding || resolution.encoding,
+			display: resolution.resolutionDisplay || resolution.display
+		});
+	};
+	self.bandwidthChanged = function(bandwidth) {
+		self.emit('bandwidthChanged', {
+			type: bandwidth.bandwidthLow || bandwidth.low,
+			encoding: bandwidth.bandwidthMed || bandwidth.med,
+			display: bandwidth.bandwidthHigh || bandwidth.high
+		});
+	};
+	self.authenticationFailed = function(authentication) {
+		self.emit('authenticationFailed', {
+			userid: authentication.userid,
+			authUserid: authentication.authUserid,
+			password: authentication.password
+		});
+	};
+	self.calling = function(destination, session) {
+		self.emit('calling', {
+			destination: destination,
+			session: session
+		});
+	};
+	self.modifier = function(which) {
+		self.emit('modifier', {
+			which: which
+		});
+	};
+	self.screenshare = function(enabled) {
+		self.emit('screenshare', {
+			enabled: enabled
+		});
+	};
+	self.signIn = function() {
+		self.emit('signIn');
+	};
+	self.signOut = function() {
+		self.emit('signOut');
+	};
+
+	return self;
+}
+
+},{"event-emitter":522}],480:[function(require,module,exports){
   module.exports = Icon;
 
   function Icon(element, sound) {
@@ -84490,7 +83092,427 @@ DateFormat.prototype = {
       });
     }
   };
-},{}],500:[function(require,module,exports){
+},{}],481:[function(require,module,exports){
+module.exports = Prop;
+
+function Prop(obj, prop) {
+	var self = {};
+
+	self._name = prop.name || prop;
+	var internal;
+	var data = obj.view && obj.view[self._name] || function(value){
+		if(arguments.length === 1) {
+			internal = value;
+		} else {
+			return internal;
+		}
+	};
+
+	var isCheckbox = function() {
+		return data.attr && data.attr('type') === 'checkbox';
+	};
+
+	var isTextbox = function() {
+		return data.attr && (data.attr('type') === 'text' || data.attr('type') === 'password');
+	};
+
+	var isSelect = function() {
+		return data[0] && data[0].nodeName && data[0].nodeName.match(/select/i);
+	};
+
+	self.__get = function(){
+		if(isCheckbox() && data.prop) {
+			return data.prop && data.prop('checked');
+		} 
+		else if((isTextbox() || isSelect()) && data.val) {
+			return data.val();
+		} 
+		else if(data.text) {
+			return data.text();
+		} 
+		else {
+			return data();
+		}
+	};
+	self.__init = function(){
+		if(prop.value) {
+			obj[self._name] = prop.value();
+		}	
+	};
+	self.__set = function(value){
+		if(prop.default && !value) {
+			value = prop.default;
+		}
+		if(isCheckbox()) {
+			data.prop('checked', value);
+		} 
+		else if((isTextbox() || isSelect()) && data.val) {
+			data.val(value);
+		} 
+		else if(data.text) {
+			data.text(value);
+		} 
+		else {
+			data(value);
+		}
+	};
+
+	self.define = function(){
+		Object.defineProperty(obj, self._name, {
+			writeable: false,
+			configurable: true,
+			get: prop.get || self.__get,
+			set: prop.set || self.__set
+		});	
+
+		self.__init();
+	};
+
+	return self;
+}
+},{}],482:[function(require,module,exports){
+module.exports = SIPStack;
+
+var ExSIP = require('exsip');
+var C = require('./constants');
+var Utils = require('./utils');
+
+function SIPStack(eventbus, configuration, settings, debug) {
+  var self = {};
+
+  self.ua = null;
+  self.activeSession = null;
+  self.sessions = [];
+
+  var setActiveSession = function(session) {
+    debug("setting active session to " + session.id);
+    self.activeSession = session;
+  };
+
+  self.listeners = function() {
+    eventbus.on("signOut", function(e) {
+      self.unregister();
+    });
+    eventbus.on("signIn", function(e) {
+      self.init();
+    });
+    eventbus.on("connected", function(e) {
+      self.updateUserMedia();
+    });
+    eventbus.on("resumed", function(e) {
+      setActiveSession(e.sender);
+    });
+    eventbus.on("started", function(e) {
+      setActiveSession(e.sender);
+    });
+    eventbus.on("resolutionChanged", function(e) {
+      self.updateRtcMediaHandlerOptions();
+      self.updateUserMedia();
+    });
+    eventbus.on("bandwidthChanged", function(e) {
+      self.updateRtcMediaHandlerOptions();
+    });
+    eventbus.once("started", function(e) {
+      var dtmfTones = Utils.parseDTMFTones(configuration.destination);
+      if (dtmfTones) {
+        debug("DTMF tones found in destination - sending DTMF tones : " + dtmfTones);
+        self.sendDTMF(dtmfTones);
+      }
+    });
+    eventbus.on('authenticate', function(e) {
+      self.init(e);
+    });
+  };
+  self.getLocalStreams = function() {
+    return self.activeSession ? self.activeSession.getLocalStreams() : null;
+  };
+  self.getRemoteStreams = function() {
+    return self.activeSession ? self.activeSession.getRemoteStreams() : null;
+  };
+  self.getSessionId = function() {
+    return self.activeSession.id.replace(/\./g, '');
+  };
+  self.terminateSession = function(session) {
+    session = session || self.activeSession;
+    if (!session) {
+      return;
+    }
+    var index = self.sessions.indexOf(session);
+    if (index !== -1) {
+      self.sessions.splice(index, index + 1);
+    }
+    if (session.status !== ExSIP.RTCSession.C.STATUS_TERMINATED) {
+      session.terminate();
+    }
+    if (session === self.activeSession) {
+      debug("clearing active session");
+      self.activeSession = null;
+    }
+    eventbus.viewChanged(self);
+  };
+  self.terminateSessions = function() {
+    var allSessions = [];
+    allSessions = allSessions.concat(self.sessions);
+    for (var i = 0; i < allSessions.length; i++) {
+      self.terminateSession(allSessions[i]);
+    }
+  };
+  self.holdAndAnswer = function(session) {
+    var firstSession = self.activeSession;
+    session.on('ended', function() {
+      eventbus.emit('message', {text: 'Resuming with ' + firstSession.remote_identity.uri.user, level: 'normal'});
+      debug("incoming call ended - unholding first call");
+      firstSession.unhold(function() {
+        debug("unhold first call successful");
+      });
+    });
+    self.activeSession.hold(function() {
+      debug("hold successful - answering incoming call");
+      self.answer(session);
+    });
+  };
+  self.answer = function(session) {
+    session.answer(configuration.getExSIPOptions());
+  };
+  self.hold = function(successCallback, failureCallback) {
+    if (self.activeSession) {
+      self.activeSession.hold(successCallback, failureCallback);
+    }
+  };
+  self.unhold = function(successCallback, failureCallback) {
+    if (self.activeSession) {
+      self.activeSession.unhold(successCallback, failureCallback);
+    }
+  };
+  self.reconnectUserMedia = function(successCallback, failureCallback) {
+    var onUserMediaUpdateSuccess = function(localMedia) {
+      debug("reconnect user media successful");
+      if (self.activeSession) {
+        self.activeSession.changeSession({
+          localMedia: localMedia
+        }, function() {
+          debug("session changed successfully");
+          if (successCallback) {
+            successCallback(localMedia);
+          }
+        }, failureCallback);
+      } else if (successCallback) {
+        successCallback(localMedia);
+      }
+    };
+    self.updateUserMedia(onUserMediaUpdateSuccess, failureCallback);
+  };
+  self.call = function(destination) {
+    var session = self.ua.call(destination, configuration.getExSIPOptions());
+    session.on('failed', function(e) {
+      eventbus.emit('failed', e.data);
+    });
+    eventbus.calling(destination, session);
+  };
+  self.sendDTMF = function(digit) {
+    self.activeSession.sendDTMF(digit, configuration.getDTMFOptions());
+  };
+  self.isStarted = function() {
+    return self.getCallState() === C.STATE_STARTED;
+  };
+  self.unregister = function() {
+    return self.ua && self.ua.unregister();
+  };
+  self.register = function() {
+    return self.ua && self.ua.register();
+  };
+  self.isRegistered = function() {
+    return self.ua && self.ua.isRegistered();
+  };
+  self.sendData = function(data) {
+    if (self.activeSession) {
+      self.activeSession.sendData(data);
+    }
+  };
+  self.transfer = function(transferTarget, isAttended) {
+    if (isAttended) {
+      self.ua.attendedTransfer(transferTarget, self.activeSession);
+    } else {
+      self.ua.transfer(transferTarget, self.activeSession);
+    }
+  };
+  self.updateRtcMediaHandlerOptions = function() {
+    if (typeof(self.ua) === 'undefined') {
+      return;
+    }
+
+    self.ua.setRtcMediaHandlerOptions(configuration.getRtcMediaHandlerOptions());
+  };
+  self.getCallState = function() {
+    if (self.sessions.length > 0) {
+      if (self.sessions.length === 1 && !self.sessions[0].isStarted()) {
+        return C.STATE_CALLING;
+      } else {
+        if (self.activeSession && self.activeSession.isHeld()) {
+          return C.STATE_STARTED + " " + C.STATE_HELD;
+        } else {
+          return C.STATE_STARTED;
+        }
+      }
+    } else {
+      if (self.ua && self.ua.isConnected && self.ua.isConnected()) {
+        return C.STATE_CONNECTED;
+      } else {
+        return C.STATE_DISCONNECTED;
+      }
+    }
+  };
+  self.updateUserMedia = function(userMediaCallback, failureCallback) {
+    if (!configuration.disabled && (configuration.enableConnectLocalMedia || self.activeSession)) {
+      // Connect to local stream
+      var options = configuration.getExSIPOptions();
+      self.ua.getUserMedia(options, function(localStream) {
+        eventbus.emit('userMediaUpdated', localStream);
+        if (self.activeSession) {
+          debug("changing active session ...");
+          self.activeSession.changeSession({
+            localMedia: localStream,
+            createOfferConstraints: options.createOfferConstraints
+          }, function() {
+            debug('change session succeeded');
+          }, function() {
+            debug('change session failed');
+          });
+        }
+
+        if (userMediaCallback) {
+          userMediaCallback(localStream);
+        }
+      }, function(e) {
+        eventbus.emit('message', {text: configuration.messageGetUserMedia || "Get User Media Failed", level: "alert"});
+        if (failureCallback) {
+          failureCallback(e);
+        }
+      }, true);
+    }
+  };
+
+  // Incoming reinvite function
+  self.incomingReInvite = function(e) {
+    if (configuration.enableAutoAcceptReInvite) {
+      debug("auto accepting reInvite");
+      e.data.session.acceptReInvite();
+    } else {
+      eventbus.emit('reInvite', e.data);
+    }
+  };
+
+  self.incomingCall = function(evt) {
+    var session = evt.data.session;
+    if (!self.activeSession && settings.autoAnswer) {
+      session.answer(configuration.getExSIPOptions());
+    } else {
+      eventbus.emit('incomingCall', evt);
+    }
+  };
+
+  self.init = function(data) {
+    try {
+      if (self.ua) {
+        debug('stopping existing UA');
+        self.ua.stop();
+      }
+
+      if (configuration.disabled) {
+        debug('sipstack disabled');
+        return;
+      }
+      self.ua = new ExSIP.UA(configuration.getExSIPConfig(data));
+
+      self.updateRtcMediaHandlerOptions();
+
+      // Start SIP Stack
+      self.ua.start();
+
+      // sipStack callbacks
+      self.ua.on('connected', function(e) {
+        eventbus.viewChanged(self);
+        var hasListeners = require('event-emitter/has-listeners');
+        eventbus.emit('connected', e);
+      });
+      self.ua.on('disconnected', function(e) {
+        eventbus.viewChanged(self);
+        eventbus.emit('disconnected', e);
+      });
+      self.ua.on('onReInvite', function(e) {
+        debug("incoming onReInvite event");
+        self.incomingReInvite(e);
+      });
+      self.ua.on('newRTCSession', function(e) {
+        var session = e.data.session;
+        self.sessions.push(session);
+        eventbus.viewChanged(self);
+
+        // call event handlers
+        session.on('progress', function(e) {
+          eventbus.emit('progress', e);
+        });
+        session.on('failed', function(e) {
+          var data = e.data;
+          data.sender = e.sender;
+          eventbus.emit('failed', data);
+          if(data.cause === ExSIP.C.causes.CANCELED) {
+            eventbus.canceled();
+          }
+        });
+        session.on('started', function(e) {
+          eventbus.viewChanged(self);
+          eventbus.emit('started', e);
+        });
+        session.on('resumed', function(e) {
+          eventbus.viewChanged(self);
+          eventbus.emit('resumed', e);
+        });
+        session.on('held', function(e) {
+          eventbus.viewChanged(self);
+          eventbus.emit('held', e);
+        });
+        session.on('ended', function(e) {
+          eventbus.emit('ended', e);
+        });
+        session.on('newDTMF', function(e) {
+          eventbus.emit('newDTMF', e);
+        });
+        session.on('dataSent', function(e) {
+          eventbus.emit('dataSent', e);
+        });
+        session.on('dataReceived', function(e) {
+          eventbus.emit('dataReceived', e);
+        });
+        // handle incoming call
+        if (e.data.session.direction === "incoming") {
+          self.incomingCall(e);
+        } else {
+          if (!self.activeSession) {
+            debug('new active session : ' + session.id);
+            self.activeSession = session;
+          }
+        }
+      });
+
+      self.ua.on('registered', function() {
+        eventbus.emit('registered');
+      });
+      self.ua.on('unregistered', function() {
+        eventbus.emit('unregistered');
+      });
+      self.ua.on('registrationFailed', function(e) {
+        eventbus.emit('registrationFailed', e);
+      });
+    } catch (e) {
+      debug(e.stack);
+      debug('could not init sip stack');
+    }
+  };
+
+  return self;
+}
+},{"./constants":475,"./utils":483,"event-emitter/has-listeners":521,"exsip":549}],483:[function(require,module,exports){
 var adapter = require('./adapter');
 
 var __slice = [].slice;
@@ -84751,496 +83773,1562 @@ var Utils = {
 };
 
 module.exports = Utils;
-},{"./adapter":501}],501:[function(require,module,exports){
-/*
- *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
+},{"./adapter":473}],484:[function(require,module,exports){
+module.exports=require(174)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/grammar.js":174}],485:[function(require,module,exports){
+module.exports=require(175)
+},{"./parser":486,"./writer":487,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/index.js":175}],486:[function(require,module,exports){
+module.exports=require(176)
+},{"./grammar":484,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/parser.js":176}],487:[function(require,module,exports){
+module.exports=require(177)
+},{"./grammar":484,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/writer.js":177}],488:[function(require,module,exports){
+module.exports=require(178)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/ws/lib/browser.js":178}],489:[function(require,module,exports){
+module.exports={
+  "name": "exsip",
+  "title": "ExSIP",
+  "description": "BroadSoft Javascript SIP library",
+  "version": "2.0.0",
+  "homepage": "http://www.broadsoft.com",
+  "author": {
+    "name": "BroadSoft, Inc."
+  },
+  "contributors": [
+    {}
+  ],
+  "main": "src/ExSIP.js",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "sip",
+    "websocket",
+    "webrtc",
+    "library"
+  ],
+  "dependencies": {
+    "sdp-transform": "0.6.1",
+    "ws": "0.4.32"
+  },
+  "devDependencies": {
+    "nodeunit": "0.9.0",
+    "grunt": "0.4.5",
+    "grunt-contrib-jshint": "0.10.0",
+    "grunt-contrib-concat": "0.5.0",
+    "grunt-contrib-uglify": "0.6.0",
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-contrib-symlink": "0.3.0",
+    "grunt-browserify": "3.0.1",
+    "grunt-jsdoc": "0.5.7",
+    "grunt-notify": ">=0.2.6",
+    "grunt-bumpx": "0.1.5",
+    "pegjs": "0.7.0",
+    "grunt-mocha-test": "0.12.7",
+    "expect": "1.6.0",
+    "mocha": "2.1.0"
+  },
+  "engines": {
+    "node": ">=0.8"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "grunt travis --verbose"
+  },
+  "readme": "## What you need to build ExSIP\n\nYou just need to have [Node.js](http://nodejs.org/) and [Git](http://git-scm.com/).\n\n\n### Node.js\n\n* [Install Node.js via package manager](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)\n  e.g. on fedora\n   yum install npm\n\n* [Install Node.js from sources](http://nodejs.org)\n\n### Git\n\n* [Install Git](http://git-scm.com/book/en/Getting-Started-Installing-Git)\n\n\n<<<<<<< HEAD:README\n### PhantomJS\n\n(optional, just for running unit tests)\n\n* [Install PhantomJS](http://phantomjs.org/download.html)\n* In modern Debian/Ubuntu systems PhantomJS can be installed via `apt-get install phantomjs`\n\n\n## How to build ExSIP\n=======\n## How to build JsSIP\n\nClone a copy of the main JsSIP git repository by running:\n```\n$ git clone https://github.com/versatica/JsSIP.git\n```\n>>>>>>> jssip050:BUILDING.md\n\nInstall grunt-cli globally:\n```\n$ npm install -g grunt-cli\n```\n\nEnter the directory and install the Node.js dependencies:\n```\n$ cd ExSIP && npm install\n```\n\nMake sure you have `grunt` installed by testing:\n```\n$ grunt -version\n```\n\n<<<<<<< HEAD:README\nFinally, run `grunt` command with no arguments to get a complete version of ExSIP:\n=======\nFinally, run `grunt dist` (or just `grunt`) to get an uncompressed version of JsSIP located at `builds/jssip-X.Y.Z.js` and a symlink `builds/jssip-last.js` pointing to it:\n>>>>>>> jssip050:BUILDING.md\n```\n$ grunt dist\n```\n\n<<<<<<< HEAD:README\nThe built version of ExSIP will be available in the `dist/` subdirectory in both flavors: normal (uncompressed)  and minified, both linted with [JSLint](http://jslint.com/). There will be also a file named `dist/exsip-devel.js` which is an exact copy of the uncompressed file.\n\n\n## Development version\n\nRun `grunt devel` for just generating the `dist/exsip-devel.js` file. An uncompressed ExSIP source file named `exsip-devel.js` will be created in `dist` directory.\n=======\nIn order to get a minified/production version of JsSIP run `grunt min` (note that you must have executed `grunt dist` before):\n```\n$ grunt min\n```\n>>>>>>> jssip050:BUILDING.md\n\n\n## Test units\n\n<<<<<<< HEAD:README\nExSIP includes test units based on [QUnit](http://qunitjs.com/). Test units use the `dist/exsip-devel.js` file. Run the tests as follows:\n```\n$ grunt test\n\nRunning \"qunit-serverless:all\" (qunit-serverless) task\n...\n654 tests complete (1.6 seconds)\n```\n=======\nJsSIP includes test units based on [QUnit](http://qunitjs.com/). Test units use the `builds/jssip-last.js` file. Run the tests as follows:\n```\n$ grunt test\n```\n\n\n## Development\n\n### Changes in JsSIP Grammar\n\nIf you modify `src/Grammar/src/Grammar.pegjs` then you need to recompile JsSIP Grammar file:\n```\n$ grunt grammar\n```\nAnd then build JsSIP again as explained above.\n\n### Changes in JsSIP SDP\n\nIf you modify `src/SDP/main.js` then you need to recompile JsSIP SDP file:\n```\n$ grunt sdp\n```\nAnd then build JsSIP again as explained above.\n>>>>>>> jssip050:BUILDING.md\n",
+  "readmeFilename": "README",
+  "_id": "exsip@2.0.0",
+  "dist": {
+    "shasum": "93a641b88db574f07069fa5464f2e5ea25fa0e2a"
+  },
+  "_resolved": "git+ssh://git@github.com:broadsoftxtended/ExSIP.git#841d132f973b5834c1b6646902818244bf65dce0",
+  "_from": "ExSIP@git+ssh://git@github.com:broadsoftxtended/ExSIP.git#cjs"
+}
+
+},{}],490:[function(require,module,exports){
+arguments[4][180][0].apply(exports,arguments)
+},{"../package.json":489,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Constants.js":180}],491:[function(require,module,exports){
+arguments[4][181][0].apply(exports,arguments)
+},{"./Constants":490,"./Dialog/RequestSender":492,"./SIPMessage":509,"./Transactions":511,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog.js":181}],492:[function(require,module,exports){
+arguments[4][182][0].apply(exports,arguments)
+},{"../Constants":490,"../RTCSession":503,"../RequestSender":508,"../Transactions":511,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog/RequestSender.js":182}],493:[function(require,module,exports){
+module.exports=require(183)
+},{"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/DigestAuthentication.js":183}],494:[function(require,module,exports){
+module.exports=require(184)
+},{"./LoggerFactory":499,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/EventEmitter.js":184}],495:[function(require,module,exports){
+arguments[4][185][0].apply(exports,arguments)
+},{"../package.json":489,"./Constants":490,"./Exceptions":496,"./Grammar":497,"./NameAddrHeader":501,"./RTCSession":503,"./UA":513,"./URI":514,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/ExSIP.js":185}],496:[function(require,module,exports){
+module.exports=require(186)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Exceptions.js":186}],497:[function(require,module,exports){
+module.exports=require(187)
+},{"./NameAddrHeader":501,"./URI":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Grammar.js":187}],498:[function(require,module,exports){
+module.exports=require(188)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Logger.js":188}],499:[function(require,module,exports){
+module.exports=require(189)
+},{"./Logger":498,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/LoggerFactory.js":189}],500:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./Constants":490,"./EventEmitter":494,"./Exceptions":496,"./RequestSender":508,"./SIPMessage":509,"./Transactions":511,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Message.js":190}],501:[function(require,module,exports){
+module.exports=require(191)
+},{"./Grammar":497,"./URI":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/NameAddrHeader.js":191}],502:[function(require,module,exports){
+module.exports=require(192)
+},{"./Grammar":497,"./SIPMessage":509,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Parser.js":192,"sdp-transform":485}],503:[function(require,module,exports){
+arguments[4][193][0].apply(exports,arguments)
+},{"./Constants":490,"./Dialog":491,"./EventEmitter":494,"./Exceptions":496,"./Parser":502,"./RTCSession/DTMF":504,"./RTCSession/RTCMediaHandler":506,"./RequestSender":508,"./SIPMessage":509,"./Timers":510,"./UA":513,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession.js":193}],504:[function(require,module,exports){
+module.exports=require(194)
+},{"../EventEmitter":494,"../Exceptions":496,"../RTCSession":503,"../Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DTMF.js":194}],505:[function(require,module,exports){
+module.exports=require(195)
+},{"../EventEmitter":494,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DataChannel.js":195}],506:[function(require,module,exports){
+arguments[4][196][0].apply(exports,arguments)
+},{"../Constants":490,"../Utils":515,"../WebRTC":516,"./DataChannel":505,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/RTCMediaHandler.js":196}],507:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"./Constants":490,"./RequestSender":508,"./SIPMessage":509,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Registrator.js":197}],508:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./Constants":490,"./DigestAuthentication":493,"./Transactions":511,"./UA":513,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RequestSender.js":198}],509:[function(require,module,exports){
+arguments[4][199][0].apply(exports,arguments)
+},{"./Constants":490,"./Grammar":497,"./NameAddrHeader":501,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/SIPMessage.js":199}],510:[function(require,module,exports){
+module.exports=require(200)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Timers.js":200}],511:[function(require,module,exports){
+arguments[4][201][0].apply(exports,arguments)
+},{"./Constants":490,"./EventEmitter":494,"./Timers":510,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transactions.js":201}],512:[function(require,module,exports){
+arguments[4][202][0].apply(exports,arguments)
+},{"./Constants":490,"./Parser":502,"./SIPMessage":509,"./UA":513,"./sanityCheck":517,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transport.js":202,"ws":488}],513:[function(require,module,exports){
+arguments[4][203][0].apply(exports,arguments)
+},{"./Constants":490,"./EventEmitter":494,"./Exceptions":496,"./Grammar":497,"./LoggerFactory":499,"./Message":500,"./RTCSession":503,"./Registrator":507,"./Transactions":511,"./Transport":512,"./URI":514,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/UA.js":203}],514:[function(require,module,exports){
+arguments[4][204][0].apply(exports,arguments)
+},{"./Constants":490,"./Grammar":497,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/URI.js":204}],515:[function(require,module,exports){
+arguments[4][205][0].apply(exports,arguments)
+},{"./Constants":490,"./Grammar":497,"./URI":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Utils.js":205}],516:[function(require,module,exports){
+arguments[4][206][0].apply(exports,arguments)
+},{"./Constants":490,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/WebRTC.js":206}],517:[function(require,module,exports){
+arguments[4][207][0].apply(exports,arguments)
+},{"./Constants":490,"./SIPMessage":509,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/sanityCheck.js":207}],518:[function(require,module,exports){
+
+/**
+ * This is the web browser implementation of `debug()`.
  *
- *  Use of this source code is governed by a BSD-style license
- *  that can be found in the LICENSE file in the root of the source
- *  tree.
+ * Expose `debug()` as the module.
  */
 
-/* More information about these options at jshint.com/docs/options */
-/* global mozRTCIceCandidate, mozRTCPeerConnection,
-mozRTCSessionDescription, webkitRTCPeerConnection */
-/* exported trace,requestUserMedia */
+exports = module.exports = require('./debug');
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
 
-'use strict';
+/**
+ * Use chrome.storage.local if we are in an app
+ */
 
-var RTCPeerConnection = null;
-var getUserMedia = null;
-var attachMediaStream = null;
-var reattachMediaStream = null;
-var webrtcDetectedBrowser = null;
-var webrtcDetectedVersion = null;
+var storage;
 
-function trace(text) {
-  // This function is used for logging.
-  if (text[text.length - 1] === '\n') {
-    text = text.substring(0, text.length - 1);
-  }
-  if (window.performance) {
-    var now = (window.performance.now() / 1000).toFixed(3);
-    console.log(now + ': ' + text);
-  } else {
-    console.log(text);
-  }
+if (typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined')
+  storage = chrome.storage.local;
+else
+  storage = window.localStorage;
+
+/**
+ * Colors.
+ */
+
+exports.colors = [
+  'lightseagreen',
+  'forestgreen',
+  'goldenrod',
+  'dodgerblue',
+  'darkorchid',
+  'crimson'
+];
+
+/**
+ * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+ * and the Firebug extension (any Firefox version) are known
+ * to support "%c" CSS customizations.
+ *
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors
+ */
+
+function useColors() {
+  // is webkit? http://stackoverflow.com/a/16459606/376773
+  return ('WebkitAppearance' in document.documentElement.style) ||
+    // is firebug? http://stackoverflow.com/a/398120/376773
+    (window.console && (console.firebug || (console.exception && console.table))) ||
+    // is firefox >= v31?
+    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+    (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
 }
 
-if (typeof navigator !== 'undefined' && navigator.mozGetUserMedia) {
-  console.log('This appears to be Firefox');
+/**
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+ */
 
-  webrtcDetectedBrowser = 'firefox';
+exports.formatters.j = function(v) {
+  return JSON.stringify(v);
+};
 
-  webrtcDetectedVersion =
-    parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1], 10);
 
-  // The RTCPeerConnection object.
-  RTCPeerConnection = function(pcConfig, pcConstraints) {
-    // .urls is not supported in FF yet.
-    if (pcConfig && pcConfig.iceServers) {
-      for (var i = 0; i < pcConfig.iceServers.length; i++) {
-        if (pcConfig.iceServers[i].hasOwnProperty('urls')) {
-          pcConfig.iceServers[i].url = pcConfig.iceServers[i].urls;
-          delete pcConfig.iceServers[i].urls;
-        }
-      }
-    }
-    return new mozRTCPeerConnection(pcConfig, pcConstraints);
-  };
+/**
+ * Colorize log arguments if enabled.
+ *
+ * @api public
+ */
 
-  // The RTCSessionDescription object.
-  window.RTCSessionDescription = mozRTCSessionDescription;
+function formatArgs() {
+  var args = arguments;
+  var useColors = this.useColors;
 
-  // The RTCIceCandidate object.
-  window.RTCIceCandidate = mozRTCIceCandidate;
+  args[0] = (useColors ? '%c' : '')
+    + this.namespace
+    + (useColors ? ' %c' : ' ')
+    + args[0]
+    + (useColors ? '%c ' : ' ')
+    + '+' + exports.humanize(this.diff);
 
-  // getUserMedia shim (only difference is the prefix).
-  // Code from Adam Barth.
-  getUserMedia = navigator.mozGetUserMedia.bind(navigator);
-  navigator.getUserMedia = getUserMedia;
+  if (!useColors) return args;
 
-  // Shim for MediaStreamTrack.getSources.
-  MediaStreamTrack.getSources = function(successCb) {
-    setTimeout(function() {
-      var infos = [
-        {kind: 'audio', id: 'default', label:'', facing:''},
-        {kind: 'video', id: 'default', label:'', facing:''}
-      ];
-      successCb(infos);
-    }, 0);
-  };
+  var c = 'color: ' + this.color;
+  args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
 
-  // Creates ICE server from the URL for FF.
-  window.createIceServer = function(url, username, password) {
-    var iceServer = null;
-    var urlParts = url.split(':');
-    if (urlParts[0].indexOf('stun') === 0) {
-      // Create ICE server with STUN URL.
-      iceServer = {
-        'url': url
-      };
-    } else if (urlParts[0].indexOf('turn') === 0) {
-      if (webrtcDetectedVersion < 27) {
-        // Create iceServer with turn url.
-        // Ignore the transport parameter from TURN url for FF version <=27.
-        var turnUrlParts = url.split('?');
-        // Return null for createIceServer if transport=tcp.
-        if (turnUrlParts.length === 1 ||
-          turnUrlParts[1].indexOf('transport=udp') === 0) {
-          iceServer = {
-            'url': turnUrlParts[0],
-            'credential': password,
-            'username': username
-          };
-        }
-      } else {
-        // FF 27 and above supports transport parameters in TURN url,
-        // So passing in the full url to create iceServer.
-        iceServer = {
-          'url': url,
-          'credential': password,
-          'username': username
-        };
-      }
-    }
-    return iceServer;
-  };
-
-  window.createIceServers = function(urls, username, password) {
-    var iceServers = [];
-    // Use .url for FireFox.
-    for (var i = 0; i < urls.length; i++) {
-      var iceServer =
-        window.createIceServer(urls[i], username, password);
-      if (iceServer !== null) {
-        iceServers.push(iceServer);
-      }
-    }
-    return iceServers;
-  };
-
-  // Attach a media stream to an element.
-  attachMediaStream = function(element, stream) {
-    console.log('Attaching media stream');
-    element.mozSrcObject = stream;
-  };
-
-  reattachMediaStream = function(to, from) {
-    console.log('Reattaching media stream');
-    to.mozSrcObject = from.mozSrcObject;
-  };
-
-} else if (typeof navigator !== 'undefined' && navigator.webkitGetUserMedia) {
-  console.log('This appears to be Chrome');
-
-  webrtcDetectedBrowser = 'chrome';
-  // Temporary fix until crbug/374263 is fixed.
-  // Setting Chrome version to 999, if version is unavailable.
-  var result = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
-  if (result !== null) {
-    webrtcDetectedVersion = parseInt(result[2], 10);
-  } else {
-    webrtcDetectedVersion = 999;
-  }
-
-  // Creates iceServer from the url for Chrome M33 and earlier.
-  window.createIceServer = function(url, username, password) {
-    var iceServer = null;
-    var urlParts = url.split(':');
-    if (urlParts[0].indexOf('stun') === 0) {
-      // Create iceServer with stun url.
-      iceServer = {
-        'url': url
-      };
-    } else if (urlParts[0].indexOf('turn') === 0) {
-      // Chrome M28 & above uses below TURN format.
-      iceServer = {
-        'url': url,
-        'credential': password,
-        'username': username
-      };
-    }
-    return iceServer;
-  };
-
-  // Creates an ICEServer object from multiple URLs.
-  window.createIceServers = function(urls, username, password) {
-    return {
-      'urls': urls,
-      'credential': password,
-      'username': username
-    };
-  };
-
-  // The RTCPeerConnection object.
-  RTCPeerConnection = function(pcConfig, pcConstraints) {
-    return new webkitRTCPeerConnection(pcConfig, pcConstraints);
-  };
-
-  // Get UserMedia (only difference is the prefix).
-  // Code from Adam Barth.
-  getUserMedia = navigator.webkitGetUserMedia.bind(navigator);
-  navigator.getUserMedia = getUserMedia;
-
-  // Attach a media stream to an element.
-  attachMediaStream = function(element, stream) {
-    if (typeof element.srcObject !== 'undefined') {
-      element.srcObject = stream;
-    } else if (typeof element.mozSrcObject !== 'undefined') {
-      element.mozSrcObject = stream;
-    } else if (typeof element.src !== 'undefined') {
-      element.src = URL.createObjectURL(stream);
-    } else {
-      console.log('Error attaching stream to element.');
-    }
-  };
-
-  reattachMediaStream = function(to, from) {
-    to.src = from.src;
-  };
-} else {
-  console.log('Browser does not appear to be WebRTC-capable');
-}
-
-// Returns the result of getUserMedia as a Promise.
-function requestUserMedia(constraints) {
-  return new Promise(function(resolve, reject) {
-    var onSuccess = function(stream) {
-      resolve(stream);
-    };
-    var onError = function(error) {
-      reject(error);
-    };
-
-    try {
-      getUserMedia(constraints, onSuccess, onError);
-    } catch (e) {
-      reject(e);
+  // the final "%c" is somewhat tricky, because there could be other
+  // arguments passed either before or after the %c, so we need to
+  // figure out the correct index to insert the CSS into
+  var index = 0;
+  var lastC = 0;
+  args[0].replace(/%[a-z%]/g, function(match) {
+    if ('%%' === match) return;
+    index++;
+    if ('%c' === match) {
+      // we only are interested in the *last* %c
+      // (the user may have provided their own)
+      lastC = index;
     }
   });
+
+  args.splice(lastC, 0, c);
+  return args;
 }
 
-if (typeof module !== 'undefined') {
-  module.exports = {
-    RTCPeerConnection: RTCPeerConnection,
-    getUserMedia: getUserMedia,
-    attachMediaStream: attachMediaStream,
-    reattachMediaStream: reattachMediaStream,
-    webrtcDetectedBrowser: webrtcDetectedBrowser,
-    webrtcDetectedVersion: webrtcDetectedVersion,
-    requestUserMedia: requestUserMedia,
-    trace: trace
-  };
+/**
+ * Invokes `console.log()` when available.
+ * No-op when `console.log` is not a "function".
+ *
+ * @api public
+ */
+
+function log() {
+  // this hackery is required for IE8/9, where
+  // the `console.log` function doesn't have 'apply'
+  return 'object' === typeof console
+    && console.log
+    && Function.prototype.apply.call(console.log, console, arguments);
 }
 
-},{}],502:[function(require,module,exports){
-module.exports = CookieProp;
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
 
-var Prop = require('./prop');
-var C = require('./Constants');
-var Utils = require('./Utils');
-var $ = require('jquery');
+function save(namespaces) {
+  try {
+    if (null == namespaces) {
+      storage.removeItem('debug');
+    } else {
+      storage.debug = namespaces;
+    }
+  } catch(e) {}
+}
 
-function CookieProp(obj, prop, cookie, expires) {
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
 
-	var self = {};
+function load() {
+  var r;
+  try {
+    r = storage.debug;
+  } catch(e) {}
+  return r;
+}
 
-	self.__proto__ = Prop(obj, prop);
+/**
+ * Enable namespaces listed in `localStorage.debug` initially.
+ */
 
-	var superSet = self.__proto__.__set;
+exports.enable(load());
 
-	cookie = cookie || Utils.camelize(obj._name + ' ' + self._name);
-	expires = expires || C.EXPIRES;
+},{"./debug":519}],519:[function(require,module,exports){
 
-	self.__proto__.__init = function() {
-		if(prop.value) {
-			obj[self._name] = prop.value();
-		}	else {
- 			obj[self._name] = $.cookie(cookie);
+/**
+ * This is the common logic for both the Node.js and web browser
+ * implementations of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = debug;
+exports.coerce = coerce;
+exports.disable = disable;
+exports.enable = enable;
+exports.enabled = enabled;
+exports.humanize = require('ms');
+
+/**
+ * The currently active debug mode names, and names to skip.
+ */
+
+exports.names = [];
+exports.skips = [];
+
+/**
+ * Map of special "%n" handling functions, for the debug "format" argument.
+ *
+ * Valid key names are a single, lowercased letter, i.e. "n".
+ */
+
+exports.formatters = {};
+
+/**
+ * Previously assigned color.
+ */
+
+var prevColor = 0;
+
+/**
+ * Previous log timestamp.
+ */
+
+var prevTime;
+
+/**
+ * Select a color.
+ *
+ * @return {Number}
+ * @api private
+ */
+
+function selectColor() {
+  return exports.colors[prevColor++ % exports.colors.length];
+}
+
+/**
+ * Create a debugger with the given `namespace`.
+ *
+ * @param {String} namespace
+ * @return {Function}
+ * @api public
+ */
+
+function debug(namespace) {
+
+  // define the `disabled` version
+  function disabled() {
+  }
+  disabled.enabled = false;
+
+  // define the `enabled` version
+  function enabled() {
+
+    var self = enabled;
+
+    // set `diff` timestamp
+    var curr = +new Date();
+    var ms = curr - (prevTime || curr);
+    self.diff = ms;
+    self.prev = prevTime;
+    self.curr = curr;
+    prevTime = curr;
+
+    // add the `color` if not set
+    if (null == self.useColors) self.useColors = exports.useColors();
+    if (null == self.color && self.useColors) self.color = selectColor();
+
+    var args = Array.prototype.slice.call(arguments);
+
+    args[0] = exports.coerce(args[0]);
+
+    if ('string' !== typeof args[0]) {
+      // anything else let's inspect with %o
+      args = ['%o'].concat(args);
+    }
+
+    // apply any `formatters` transformations
+    var index = 0;
+    args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+      // if we encounter an escaped % then don't increase the array index
+      if (match === '%%') return match;
+      index++;
+      var formatter = exports.formatters[format];
+      if ('function' === typeof formatter) {
+        var val = args[index];
+        match = formatter.call(self, val);
+
+        // now we need to remove `args[index]` since it's inlined in the `format`
+        args.splice(index, 1);
+        index--;
+      }
+      return match;
+    });
+
+    if ('function' === typeof exports.formatArgs) {
+      args = exports.formatArgs.apply(self, args);
+    }
+    var logFn = enabled.log || exports.log || console.log.bind(console);
+    logFn.apply(self, args);
+  }
+  enabled.enabled = true;
+
+  var fn = exports.enabled(namespace) ? enabled : disabled;
+
+  fn.namespace = namespace;
+
+  return fn;
+}
+
+/**
+ * Enables a debug mode by namespaces. This can include modes
+ * separated by a colon and wildcards.
+ *
+ * @param {String} namespaces
+ * @api public
+ */
+
+function enable(namespaces) {
+  exports.save(namespaces);
+
+  var split = (namespaces || '').split(/[\s,]+/);
+  var len = split.length;
+
+  for (var i = 0; i < len; i++) {
+    if (!split[i]) continue; // ignore empty strings
+    namespaces = split[i].replace(/\*/g, '.*?');
+    if (namespaces[0] === '-') {
+      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+    } else {
+      exports.names.push(new RegExp('^' + namespaces + '$'));
+    }
+  }
+}
+
+/**
+ * Disable debug output.
+ *
+ * @api public
+ */
+
+function disable() {
+  exports.enable('');
+}
+
+/**
+ * Returns true if the given mode name is enabled, false otherwise.
+ *
+ * @param {String} name
+ * @return {Boolean}
+ * @api public
+ */
+
+function enabled(name) {
+  var i, len;
+  for (i = 0, len = exports.skips.length; i < len; i++) {
+    if (exports.skips[i].test(name)) {
+      return false;
+    }
+  }
+  for (i = 0, len = exports.names.length; i < len; i++) {
+    if (exports.names[i].test(name)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Coerce `val`.
+ *
+ * @param {Mixed} val
+ * @return {Mixed}
+ * @api private
+ */
+
+function coerce(val) {
+  if (val instanceof Error) return val.stack || val.message;
+  return val;
+}
+
+},{"ms":520}],520:[function(require,module,exports){
+/**
+ * Helpers.
+ */
+
+var s = 1000;
+var m = s * 60;
+var h = m * 60;
+var d = h * 24;
+var y = d * 365.25;
+
+/**
+ * Parse or format the given `val`.
+ *
+ * Options:
+ *
+ *  - `long` verbose formatting [false]
+ *
+ * @param {String|Number} val
+ * @param {Object} options
+ * @return {String|Number}
+ * @api public
+ */
+
+module.exports = function(val, options){
+  options = options || {};
+  if ('string' == typeof val) return parse(val);
+  return options.long
+    ? long(val)
+    : short(val);
+};
+
+/**
+ * Parse the given `str` and return milliseconds.
+ *
+ * @param {String} str
+ * @return {Number}
+ * @api private
+ */
+
+function parse(str) {
+  var match = /^((?:\d+)?\.?\d+) *(ms|seconds?|s|minutes?|m|hours?|h|days?|d|years?|y)?$/i.exec(str);
+  if (!match) return;
+  var n = parseFloat(match[1]);
+  var type = (match[2] || 'ms').toLowerCase();
+  switch (type) {
+    case 'years':
+    case 'year':
+    case 'y':
+      return n * y;
+    case 'days':
+    case 'day':
+    case 'd':
+      return n * d;
+    case 'hours':
+    case 'hour':
+    case 'h':
+      return n * h;
+    case 'minutes':
+    case 'minute':
+    case 'm':
+      return n * m;
+    case 'seconds':
+    case 'second':
+    case 's':
+      return n * s;
+    case 'ms':
+      return n;
+  }
+}
+
+/**
+ * Short format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function short(ms) {
+  if (ms >= d) return Math.round(ms / d) + 'd';
+  if (ms >= h) return Math.round(ms / h) + 'h';
+  if (ms >= m) return Math.round(ms / m) + 'm';
+  if (ms >= s) return Math.round(ms / s) + 's';
+  return ms + 'ms';
+}
+
+/**
+ * Long format for `ms`.
+ *
+ * @param {Number} ms
+ * @return {String}
+ * @api private
+ */
+
+function long(ms) {
+  return plural(ms, d, 'day')
+    || plural(ms, h, 'hour')
+    || plural(ms, m, 'minute')
+    || plural(ms, s, 'second')
+    || ms + ' ms';
+}
+
+/**
+ * Pluralization helper.
+ */
+
+function plural(ms, n, name) {
+  if (ms < n) return;
+  if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+  return Math.ceil(ms / n) + ' ' + name + 's';
+}
+
+},{}],521:[function(require,module,exports){
+'use strict';
+
+var isEmpty = require('es5-ext/object/is-empty')
+  , value   = require('es5-ext/object/valid-value')
+
+  , hasOwnProperty = Object.prototype.hasOwnProperty;
+
+module.exports = function (obj/*, type*/) {
+	var type;
+	value(obj);
+	type = arguments[1];
+	if (arguments.length > 1) {
+		return hasOwnProperty.call(obj, '__ee__') && Boolean(obj.__ee__[type]);
+	}
+	return obj.hasOwnProperty('__ee__') && !isEmpty(obj.__ee__);
+};
+
+},{"es5-ext/object/is-empty":528,"es5-ext/object/valid-value":534}],522:[function(require,module,exports){
+'use strict';
+
+var d        = require('d')
+  , callable = require('es5-ext/object/valid-callable')
+
+  , apply = Function.prototype.apply, call = Function.prototype.call
+  , create = Object.create, defineProperty = Object.defineProperty
+  , defineProperties = Object.defineProperties
+  , hasOwnProperty = Object.prototype.hasOwnProperty
+  , descriptor = { configurable: true, enumerable: false, writable: true }
+
+  , on, once, off, emit, methods, descriptors, base;
+
+on = function (type, listener) {
+	var data;
+
+	callable(listener);
+
+	if (!hasOwnProperty.call(this, '__ee__')) {
+		data = descriptor.value = create(null);
+		defineProperty(this, '__ee__', descriptor);
+		descriptor.value = null;
+	} else {
+		data = this.__ee__;
+	}
+	if (!data[type]) data[type] = listener;
+	else if (typeof data[type] === 'object') data[type].push(listener);
+	else data[type] = [data[type], listener];
+
+	return this;
+};
+
+once = function (type, listener) {
+	var once, self;
+
+	callable(listener);
+	self = this;
+	on.call(this, type, once = function () {
+		off.call(self, type, once);
+		apply.call(listener, this, arguments);
+	});
+
+	once.__eeOnceListener__ = listener;
+	return this;
+};
+
+off = function (type, listener) {
+	var data, listeners, candidate, i;
+
+	callable(listener);
+
+	if (!hasOwnProperty.call(this, '__ee__')) return this;
+	data = this.__ee__;
+	if (!data[type]) return this;
+	listeners = data[type];
+
+	if (typeof listeners === 'object') {
+		for (i = 0; (candidate = listeners[i]); ++i) {
+			if ((candidate === listener) ||
+					(candidate.__eeOnceListener__ === listener)) {
+				if (listeners.length === 2) data[type] = listeners[i ? 0 : 1];
+				else listeners.splice(i, 1);
+			}
 		}
- 	};
-	self.__proto__.__set = function(value) {
-		superSet(value);
-		self.__persist(value);
-	};
-	self.__proto__.__persist = function(value) {
-		if (value) {
-			// console.log('set cookie value : '+cookie, value);
-			$.cookie(cookie, value, {
-				expires: expires
-			});
-		} else {
-			$.removeCookie(cookie);
+	} else {
+		if ((listeners === listener) ||
+				(listeners.__eeOnceListener__ === listener)) {
+			delete data[type];
 		}
 	}
 
-	return self;
-}
-},{"./Constants":497,"./Utils":500,"./prop":503,"jquery":234}],503:[function(require,module,exports){
-module.exports = Prop;
-
-function Prop(obj, prop) {
-	var self = {};
-
-	self._name = prop.name || prop;
-	var internal;
-	var data = obj.view && obj.view[self._name] || function(value){
-		if(arguments.length === 1) {
-			internal = value;
-		} else {
-			return internal;
-		}
-	};
-
-	var isCheckbox = function() {
-		return data.attr && data.attr('type') === 'checkbox';
-	};
-
-	var isTextbox = function() {
-		return data.attr && (data.attr('type') === 'text' || data.attr('type') === 'password');
-	};
-
-	var isSelect = function() {
-		return data[0] && data[0].nodeName && data[0].nodeName.match(/select/i);
-	};
-
-	self.__get = function(){
-		if(isCheckbox() && data.prop) {
-			return data.prop && data.prop('checked');
-		} 
-		else if((isTextbox() || isSelect()) && data.val) {
-			return data.val();
-		} 
-		else if(data.text) {
-			return data.text();
-		} 
-		else {
-			return data();
-		}
-	};
-	self.__init = function(){
-		if(prop.value) {
-			obj[self._name] = prop.value();
-		}	
-	};
-	self.__set = function(value){
-		if(prop.default && !value) {
-			value = prop.default;
-		}
-		if(isCheckbox()) {
-			data.prop('checked', value);
-		} 
-		else if((isTextbox() || isSelect()) && data.val) {
-			data.val(value);
-		} 
-		else if(data.text) {
-			data.text(value);
-		} 
-		else {
-			data(value);
-		}
-	};
-
-	self.define = function(){
-		Object.defineProperty(obj, self._name, {
-			writeable: false,
-			configurable: true,
-			get: prop.get || self.__get,
-			set: prop.set || self.__set
-		});	
-
-		self.__init();
-	};
-
-	return self;
-}
-},{}],504:[function(require,module,exports){
-var ExSIP = require('exsip');
-var jQuery = jquery = $ = require('jquery');
-require('jquery.cookie')
-var Client = require('views/client');
-var Constants = require('webrtc-core/Constants');
-var Utils = require('webrtc-core/Utils');
-var ClientConfig = require('bdsft-webrtc-config');
-var WebRTC = {
-  Client: Client,
-  Utils: Utils,
-  C: Constants,
-  Sound: require('models/sound'),
-  Settings: require('models/settings')
+	return this;
 };
 
-module.exports = WebRTC;
+emit = function (type) {
+	var i, l, listener, listeners, args;
 
-Object.defineProperties(WebRTC, {
-  version: {
-    get: function() {
-      return '<%= pkg.version %>';
-    }
-  },
-  name: {
-    get: function() {
-      return '<%= pkg.title %>';
-    }
-  }
-});
+	if (!hasOwnProperty.call(this, '__ee__')) return;
+	listeners = this.__ee__[type];
+	if (!listeners) return;
 
-jQuery.fn.putCursorAtEnd = function() {
+	if (typeof listeners === 'object') {
+		l = arguments.length;
+		args = new Array(l - 1);
+		for (i = 1; i < l; ++i) args[i - 1] = arguments[i];
 
-  return this.each(function() {
+		listeners = listeners.slice();
+		for (i = 0; (listener = listeners[i]); ++i) {
+			apply.call(listener, this, args);
+		}
+	} else {
+		switch (arguments.length) {
+		case 1:
+			call.call(listeners, this);
+			break;
+		case 2:
+			call.call(listeners, this, arguments[1]);
+			break;
+		case 3:
+			call.call(listeners, this, arguments[1], arguments[2]);
+			break;
+		default:
+			l = arguments.length;
+			args = new Array(l - 1);
+			for (i = 1; i < l; ++i) {
+				args[i - 1] = arguments[i];
+			}
+			apply.call(listeners, this, args);
+		}
+	}
+};
 
-    $(this).focus();
+methods = {
+	on: on,
+	once: once,
+	off: off,
+	emit: emit
+};
 
-    // If this function exists...
-    if (this.setSelectionRange) {
-      // ... then use it (Doesn't work in IE)
+descriptors = {
+	on: d(on),
+	once: d(once),
+	off: d(off),
+	emit: d(emit)
+};
 
-      // Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
-      var len = $(this).val().length * 2;
+base = defineProperties({}, descriptors);
 
-      this.setSelectionRange(len, len);
+module.exports = exports = function (o) {
+	return (o == null) ? create(base) : defineProperties(Object(o), descriptors);
+};
+exports.methods = methods;
 
+},{"d":523,"es5-ext/object/valid-callable":533}],523:[function(require,module,exports){
+'use strict';
+
+var assign        = require('es5-ext/object/assign')
+  , normalizeOpts = require('es5-ext/object/normalize-options')
+  , isCallable    = require('es5-ext/object/is-callable')
+  , contains      = require('es5-ext/string/#/contains')
+
+  , d;
+
+d = module.exports = function (dscr, value/*, options*/) {
+	var c, e, w, options, desc;
+	if ((arguments.length < 2) || (typeof dscr !== 'string')) {
+		options = value;
+		value = dscr;
+		dscr = null;
+	} else {
+		options = arguments[2];
+	}
+	if (dscr == null) {
+		c = w = true;
+		e = false;
+	} else {
+		c = contains.call(dscr, 'c');
+		e = contains.call(dscr, 'e');
+		w = contains.call(dscr, 'w');
+	}
+
+	desc = { value: value, configurable: c, enumerable: e, writable: w };
+	return !options ? desc : assign(normalizeOpts(options), desc);
+};
+
+d.gs = function (dscr, get, set/*, options*/) {
+	var c, e, options, desc;
+	if (typeof dscr !== 'string') {
+		options = set;
+		set = get;
+		get = dscr;
+		dscr = null;
+	} else {
+		options = arguments[3];
+	}
+	if (get == null) {
+		get = undefined;
+	} else if (!isCallable(get)) {
+		options = get;
+		get = set = undefined;
+	} else if (set == null) {
+		set = undefined;
+	} else if (!isCallable(set)) {
+		options = set;
+		set = undefined;
+	}
+	if (dscr == null) {
+		c = true;
+		e = false;
+	} else {
+		c = contains.call(dscr, 'c');
+		e = contains.call(dscr, 'e');
+	}
+
+	desc = { get: get, set: set, configurable: c, enumerable: e };
+	return !options ? desc : assign(normalizeOpts(options), desc);
+};
+
+},{"es5-ext/object/assign":524,"es5-ext/object/is-callable":527,"es5-ext/object/normalize-options":532,"es5-ext/string/#/contains":535}],524:[function(require,module,exports){
+'use strict';
+
+module.exports = require('./is-implemented')()
+	? Object.assign
+	: require('./shim');
+
+},{"./is-implemented":525,"./shim":526}],525:[function(require,module,exports){
+'use strict';
+
+module.exports = function () {
+	var assign = Object.assign, obj;
+	if (typeof assign !== 'function') return false;
+	obj = { foo: 'raz' };
+	assign(obj, { bar: 'dwa' }, { trzy: 'trzy' });
+	return (obj.foo + obj.bar + obj.trzy) === 'razdwatrzy';
+};
+
+},{}],526:[function(require,module,exports){
+'use strict';
+
+var keys  = require('../keys')
+  , value = require('../valid-value')
+
+  , max = Math.max;
+
+module.exports = function (dest, src/*, …srcn*/) {
+	var error, i, l = max(arguments.length, 2), assign;
+	dest = Object(value(dest));
+	assign = function (key) {
+		try { dest[key] = src[key]; } catch (e) {
+			if (!error) error = e;
+		}
+	};
+	for (i = 1; i < l; ++i) {
+		src = arguments[i];
+		keys(src).forEach(assign);
+	}
+	if (error !== undefined) throw error;
+	return dest;
+};
+
+},{"../keys":529,"../valid-value":534}],527:[function(require,module,exports){
+// Deprecated
+
+'use strict';
+
+module.exports = function (obj) { return typeof obj === 'function'; };
+
+},{}],528:[function(require,module,exports){
+'use strict';
+
+var value = require('./valid-value')
+
+  , propertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+module.exports = function (obj) {
+	var i;
+	value(obj);
+	for (i in obj) { //jslint: ignore
+		if (propertyIsEnumerable.call(obj, i)) return false;
+	}
+	return true;
+};
+
+},{"./valid-value":534}],529:[function(require,module,exports){
+'use strict';
+
+module.exports = require('./is-implemented')()
+	? Object.keys
+	: require('./shim');
+
+},{"./is-implemented":530,"./shim":531}],530:[function(require,module,exports){
+'use strict';
+
+module.exports = function () {
+	try {
+		Object.keys('primitive');
+		return true;
+	} catch (e) { return false; }
+};
+
+},{}],531:[function(require,module,exports){
+'use strict';
+
+var keys = Object.keys;
+
+module.exports = function (object) {
+	return keys(object == null ? object : Object(object));
+};
+
+},{}],532:[function(require,module,exports){
+'use strict';
+
+var forEach = Array.prototype.forEach, create = Object.create;
+
+var process = function (src, obj) {
+	var key;
+	for (key in src) obj[key] = src[key];
+};
+
+module.exports = function (options/*, …options*/) {
+	var result = create(null);
+	forEach.call(arguments, function (options) {
+		if (options == null) return;
+		process(Object(options), result);
+	});
+	return result;
+};
+
+},{}],533:[function(require,module,exports){
+'use strict';
+
+module.exports = function (fn) {
+	if (typeof fn !== 'function') throw new TypeError(fn + " is not a function");
+	return fn;
+};
+
+},{}],534:[function(require,module,exports){
+'use strict';
+
+module.exports = function (value) {
+	if (value == null) throw new TypeError("Cannot use null or undefined");
+	return value;
+};
+
+},{}],535:[function(require,module,exports){
+'use strict';
+
+module.exports = require('./is-implemented')()
+	? String.prototype.contains
+	: require('./shim');
+
+},{"./is-implemented":536,"./shim":537}],536:[function(require,module,exports){
+'use strict';
+
+var str = 'razdwatrzy';
+
+module.exports = function () {
+	if (typeof str.contains !== 'function') return false;
+	return ((str.contains('dwa') === true) && (str.contains('foo') === false));
+};
+
+},{}],537:[function(require,module,exports){
+'use strict';
+
+var indexOf = String.prototype.indexOf;
+
+module.exports = function (searchString/*, position*/) {
+	return indexOf.call(this, searchString, arguments[1]) > -1;
+};
+
+},{}],538:[function(require,module,exports){
+module.exports=require(174)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/grammar.js":174}],539:[function(require,module,exports){
+module.exports=require(175)
+},{"./parser":540,"./writer":541,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/index.js":175}],540:[function(require,module,exports){
+module.exports=require(176)
+},{"./grammar":538,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/parser.js":176}],541:[function(require,module,exports){
+module.exports=require(177)
+},{"./grammar":538,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/writer.js":177}],542:[function(require,module,exports){
+module.exports=require(178)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/ws/lib/browser.js":178}],543:[function(require,module,exports){
+module.exports=require(489)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/webrtc-core/node_modules/ExSIP/package.json":489}],544:[function(require,module,exports){
+arguments[4][180][0].apply(exports,arguments)
+},{"../package.json":543,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Constants.js":180}],545:[function(require,module,exports){
+arguments[4][181][0].apply(exports,arguments)
+},{"./Constants":544,"./Dialog/RequestSender":546,"./SIPMessage":563,"./Transactions":565,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog.js":181}],546:[function(require,module,exports){
+arguments[4][182][0].apply(exports,arguments)
+},{"../Constants":544,"../RTCSession":557,"../RequestSender":562,"../Transactions":565,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog/RequestSender.js":182}],547:[function(require,module,exports){
+module.exports=require(183)
+},{"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/DigestAuthentication.js":183}],548:[function(require,module,exports){
+module.exports=require(184)
+},{"./LoggerFactory":553,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/EventEmitter.js":184}],549:[function(require,module,exports){
+arguments[4][185][0].apply(exports,arguments)
+},{"../package.json":543,"./Constants":544,"./Exceptions":550,"./Grammar":551,"./NameAddrHeader":555,"./RTCSession":557,"./UA":567,"./URI":568,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/ExSIP.js":185}],550:[function(require,module,exports){
+module.exports=require(186)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Exceptions.js":186}],551:[function(require,module,exports){
+module.exports=require(187)
+},{"./NameAddrHeader":555,"./URI":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Grammar.js":187}],552:[function(require,module,exports){
+module.exports=require(188)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Logger.js":188}],553:[function(require,module,exports){
+module.exports=require(189)
+},{"./Logger":552,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/LoggerFactory.js":189}],554:[function(require,module,exports){
+arguments[4][190][0].apply(exports,arguments)
+},{"./Constants":544,"./EventEmitter":548,"./Exceptions":550,"./RequestSender":562,"./SIPMessage":563,"./Transactions":565,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Message.js":190}],555:[function(require,module,exports){
+module.exports=require(191)
+},{"./Grammar":551,"./URI":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/NameAddrHeader.js":191}],556:[function(require,module,exports){
+module.exports=require(192)
+},{"./Grammar":551,"./SIPMessage":563,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Parser.js":192,"sdp-transform":539}],557:[function(require,module,exports){
+arguments[4][193][0].apply(exports,arguments)
+},{"./Constants":544,"./Dialog":545,"./EventEmitter":548,"./Exceptions":550,"./Parser":556,"./RTCSession/DTMF":558,"./RTCSession/RTCMediaHandler":560,"./RequestSender":562,"./SIPMessage":563,"./Timers":564,"./UA":567,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession.js":193}],558:[function(require,module,exports){
+module.exports=require(194)
+},{"../EventEmitter":548,"../Exceptions":550,"../RTCSession":557,"../Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DTMF.js":194}],559:[function(require,module,exports){
+module.exports=require(195)
+},{"../EventEmitter":548,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DataChannel.js":195}],560:[function(require,module,exports){
+arguments[4][196][0].apply(exports,arguments)
+},{"../Constants":544,"../Utils":569,"../WebRTC":570,"./DataChannel":559,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/RTCMediaHandler.js":196}],561:[function(require,module,exports){
+arguments[4][197][0].apply(exports,arguments)
+},{"./Constants":544,"./RequestSender":562,"./SIPMessage":563,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Registrator.js":197}],562:[function(require,module,exports){
+arguments[4][198][0].apply(exports,arguments)
+},{"./Constants":544,"./DigestAuthentication":547,"./Transactions":565,"./UA":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RequestSender.js":198}],563:[function(require,module,exports){
+arguments[4][199][0].apply(exports,arguments)
+},{"./Constants":544,"./Grammar":551,"./NameAddrHeader":555,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/SIPMessage.js":199}],564:[function(require,module,exports){
+module.exports=require(200)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Timers.js":200}],565:[function(require,module,exports){
+arguments[4][201][0].apply(exports,arguments)
+},{"./Constants":544,"./EventEmitter":548,"./Timers":564,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transactions.js":201}],566:[function(require,module,exports){
+arguments[4][202][0].apply(exports,arguments)
+},{"./Constants":544,"./Parser":556,"./SIPMessage":563,"./UA":567,"./sanityCheck":571,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transport.js":202,"ws":542}],567:[function(require,module,exports){
+arguments[4][203][0].apply(exports,arguments)
+},{"./Constants":544,"./EventEmitter":548,"./Exceptions":550,"./Grammar":551,"./LoggerFactory":553,"./Message":554,"./RTCSession":557,"./Registrator":561,"./Transactions":565,"./Transport":566,"./URI":568,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/UA.js":203}],568:[function(require,module,exports){
+arguments[4][204][0].apply(exports,arguments)
+},{"./Constants":544,"./Grammar":551,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/URI.js":204}],569:[function(require,module,exports){
+arguments[4][205][0].apply(exports,arguments)
+},{"./Constants":544,"./Grammar":551,"./URI":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Utils.js":205}],570:[function(require,module,exports){
+arguments[4][206][0].apply(exports,arguments)
+},{"./Constants":544,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/WebRTC.js":206}],571:[function(require,module,exports){
+arguments[4][207][0].apply(exports,arguments)
+},{"./Constants":544,"./SIPMessage":563,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/sanityCheck.js":207}],572:[function(require,module,exports){
+module.exports=require(214)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/jquery/dist/jquery.js":214}],573:[function(require,module,exports){
+// Domain Public by Eric Wendelin http://www.eriwen.com/ (2008)
+//                  Luke Smith http://lucassmith.name/ (2008)
+//                  Loic Dachary <loic@dachary.org> (2008)
+//                  Johan Euphrosine <proppy@aminche.com> (2008)
+//                  Oyvind Sean Kinsey http://kinsey.no/blog (2010)
+//                  Victor Homyakov <victor-homyakov@users.sourceforge.net> (2010)
+/*global module, exports, define, ActiveXObject*/
+(function(global, factory) {
+    if (typeof exports === 'object') {
+        // Node
+        module.exports = factory();
+    } else if (typeof define === 'function' && define.amd) {
+        // AMD
+        define(factory);
     } else {
-      // ... otherwise replace the contents with itself
-      // (Doesn't work in Google Chrome)
-
-      $(this).val($(this).val());
-
+        // Browser globals
+        global.printStackTrace = factory();
+    }
+}(this, function() {
+    /**
+     * Main function giving a function stack trace with a forced or passed in Error
+     *
+     * @cfg {Error} e The error to create a stacktrace from (optional)
+     * @cfg {Boolean} guess If we should try to resolve the names of anonymous functions
+     * @return {Array} of Strings with functions, lines, files, and arguments where possible
+     */
+    function printStackTrace(options) {
+        options = options || {guess: true};
+        var ex = options.e || null, guess = !!options.guess, mode = options.mode || null;
+        var p = new printStackTrace.implementation(), result = p.run(ex, mode);
+        return (guess) ? p.guessAnonymousFunctions(result) : result;
     }
 
-    // Scroll to the bottom, in case we're in a tall textarea
-    // (Necessary for Firefox and Google Chrome)
-    this.scrollTop = 999999;
+    printStackTrace.implementation = function() {
+    };
 
-  });
+    printStackTrace.implementation.prototype = {
+        /**
+         * @param {Error} [ex] The error to create a stacktrace from (optional)
+         * @param {String} [mode] Forced mode (optional, mostly for unit tests)
+         */
+        run: function(ex, mode) {
+            ex = ex || this.createException();
+            mode = mode || this.mode(ex);
+            if (mode === 'other') {
+                return this.other(arguments.callee);
+            } else {
+                return this[mode](ex);
+            }
+        },
 
-};
+        createException: function() {
+            try {
+                this.undef();
+            } catch (e) {
+                return e;
+            }
+        },
 
-$.cssHooks.backgroundColor = {
-  get: function(elem) {
-    var bg = null;
-    if (elem.currentStyle) {
-      bg = elem.currentStyle.backgroundColor;
-    } else if (window.getComputedStyle) {
-      bg = document.defaultView.getComputedStyle(elem,
-        null).getPropertyValue("background-color");
-    }
-    if (bg.search("rgb") === -1 || bg === 'transparent') {
-      return bg;
-    } else {
-      bg = bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+).*\)$/);
-      var hex = function(x) {
-        return ("0" + parseInt(x, 10).toString(16)).slice(-2);
-      };
-      return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
-    }
-  }
-};
+        /**
+         * Mode could differ for different exception, e.g.
+         * exceptions in Chrome may or may not have arguments or stack.
+         *
+         * @return {String} mode of operation for the exception
+         */
+        mode: function(e) {
+            if (typeof window !== 'undefined' && window.navigator.userAgent.indexOf('PhantomJS') > -1) {
+                return 'phantomjs';
+            }
 
-var currentScript = $('script').last();
-$(document).ready(function() {
-  window.BroadSoftWebRTC = window.BroadSoftWebRTC || {};
-  window.BroadSoftWebRTC.clients = [];
+            if (e['arguments'] && e.stack) {
+                return 'chrome';
+            }
 
-  if (!currentScript.text()) {
-    return;
-  }
-  var configData = JSON.parse(currentScript.text());
-  console.log("script config : ", configData);
-  var clientConfig = Utils.clone(ClientConfig);
-  var options = $.extend({}, clientConfig, configData);
-  console.log("options : ", options);
-  options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
-  var client = require('./factory')(Client)(options);
-  client.appendTo(currentScript.parent());
-  var styleData = currentScript.data();
-  if (styleData) {
-    client.updateCss(styleData);
-  }
-  client.src = currentScript[0].src;
-  currentScript.remove();
-  window.BroadSoftWebRTC.clients.push(client);
-});
+            if (e.stack && e.sourceURL) {
+                return 'safari';
+            }
 
-(function($) {
-  $.isBlank = function(obj) {
-    return (!obj || $.trim(obj) === "");
-  };
-})(jQuery);
+            if (e.stack && e.number) {
+                return 'ie';
+            }
 
-if (typeof String.prototype.endsWith !== 'function') {
-  String.prototype.endsWith = function(suffix) {
-    return this.indexOf(suffix, this.length - suffix.length) !== -1;
-  };
-}
-},{"./factory":505,"bdsft-webrtc-config":3,"exsip":205,"jquery":234,"jquery.cookie":233,"models/settings":246,"models/sound":250,"views/client":479,"webrtc-core/Constants":497,"webrtc-core/Utils":500}],505:[function(require,module,exports){
+            if (e.stack && e.fileName) {
+                return 'firefox';
+            }
+
+            if (e.message && e['opera#sourceloc']) {
+                // e.message.indexOf("Backtrace:") > -1 -> opera9
+                // 'opera#sourceloc' in e -> opera9, opera10a
+                // !e.stacktrace -> opera9
+                if (!e.stacktrace) {
+                    return 'opera9'; // use e.message
+                }
+                if (e.message.indexOf('\n') > -1 && e.message.split('\n').length > e.stacktrace.split('\n').length) {
+                    // e.message may have more stack entries than e.stacktrace
+                    return 'opera9'; // use e.message
+                }
+                return 'opera10a'; // use e.stacktrace
+            }
+
+            if (e.message && e.stack && e.stacktrace) {
+                // e.stacktrace && e.stack -> opera10b
+                if (e.stacktrace.indexOf("called from line") < 0) {
+                    return 'opera10b'; // use e.stacktrace, format differs from 'opera10a'
+                }
+                // e.stacktrace && e.stack -> opera11
+                return 'opera11'; // use e.stacktrace, format differs from 'opera10a', 'opera10b'
+            }
+
+            if (e.stack && !e.fileName) {
+                // Chrome 27 does not have e.arguments as earlier versions,
+                // but still does not have e.fileName as Firefox
+                return 'chrome';
+            }
+
+            return 'other';
+        },
+
+        /**
+         * Given a context, function name, and callback function, overwrite it so that it calls
+         * printStackTrace() first with a callback and then runs the rest of the body.
+         *
+         * @param {Object} context of execution (e.g. window)
+         * @param {String} functionName to instrument
+         * @param {Function} callback function to call with a stack trace on invocation
+         */
+        instrumentFunction: function(context, functionName, callback) {
+            context = context || window;
+            var original = context[functionName];
+            context[functionName] = function instrumented() {
+                callback.call(this, printStackTrace().slice(4));
+                return context[functionName]._instrumented.apply(this, arguments);
+            };
+            context[functionName]._instrumented = original;
+        },
+
+        /**
+         * Given a context and function name of a function that has been
+         * instrumented, revert the function to it's original (non-instrumented)
+         * state.
+         *
+         * @param {Object} context of execution (e.g. window)
+         * @param {String} functionName to de-instrument
+         */
+        deinstrumentFunction: function(context, functionName) {
+            if (context[functionName].constructor === Function &&
+                context[functionName]._instrumented &&
+                context[functionName]._instrumented.constructor === Function) {
+                context[functionName] = context[functionName]._instrumented;
+            }
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on Chrome's stack string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        chrome: function(e) {
+            return (e.stack + '\n')
+                .replace(/^[\s\S]+?\s+at\s+/, ' at ') // remove message
+                .replace(/^\s+(at eval )?at\s+/gm, '') // remove 'at' and indentation
+                .replace(/^([^\(]+?)([\n$])/gm, '{anonymous}() ($1)$2')
+                .replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}() ($1)')
+                .replace(/^(.+) \((.+)\)$/gm, '$1@$2')
+                .split('\n')
+                .slice(0, -1);
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on Safari's stack string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        safari: function(e) {
+            return e.stack.replace(/\[native code\]\n/m, '')
+                .replace(/^(?=\w+Error\:).*$\n/m, '')
+                .replace(/^@/gm, '{anonymous}()@')
+                .split('\n');
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on IE's stack string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        ie: function(e) {
+            return e.stack
+                .replace(/^\s*at\s+(.*)$/gm, '$1')
+                .replace(/^Anonymous function\s+/gm, '{anonymous}() ')
+                .replace(/^(.+)\s+\((.+)\)$/gm, '$1@$2')
+                .split('\n')
+                .slice(1);
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on Firefox's stack string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        firefox: function(e) {
+            return e.stack.replace(/(?:\n@:0)?\s+$/m, '')
+                .replace(/^(?:\((\S*)\))?@/gm, '{anonymous}($1)@')
+                .split('\n');
+        },
+
+        opera11: function(e) {
+            var ANON = '{anonymous}', lineRE = /^.*line (\d+), column (\d+)(?: in (.+))? in (\S+):$/;
+            var lines = e.stacktrace.split('\n'), result = [];
+
+            for (var i = 0, len = lines.length; i < len; i += 2) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    var location = match[4] + ':' + match[1] + ':' + match[2];
+                    var fnName = match[3] || "global code";
+                    fnName = fnName.replace(/<anonymous function: (\S+)>/, "$1").replace(/<anonymous function>/, ANON);
+                    result.push(fnName + '@' + location + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
+                }
+            }
+
+            return result;
+        },
+
+        opera10b: function(e) {
+            // "<anonymous function: run>([arguments not available])@file://localhost/G:/js/stacktrace.js:27\n" +
+            // "printStackTrace([arguments not available])@file://localhost/G:/js/stacktrace.js:18\n" +
+            // "@file://localhost/G:/js/test/functional/testcase1.html:15"
+            var lineRE = /^(.*)@(.+):(\d+)$/;
+            var lines = e.stacktrace.split('\n'), result = [];
+
+            for (var i = 0, len = lines.length; i < len; i++) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    var fnName = match[1] ? (match[1] + '()') : "global code";
+                    result.push(fnName + '@' + match[2] + ':' + match[3]);
+                }
+            }
+
+            return result;
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on Opera 10's stacktrace string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        opera10a: function(e) {
+            // "  Line 27 of linked script file://localhost/G:/js/stacktrace.js\n"
+            // "  Line 11 of inline#1 script in file://localhost/G:/js/test/functional/testcase1.html: In function foo\n"
+            var ANON = '{anonymous}', lineRE = /Line (\d+).*script (?:in )?(\S+)(?:: In function (\S+))?$/i;
+            var lines = e.stacktrace.split('\n'), result = [];
+
+            for (var i = 0, len = lines.length; i < len; i += 2) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    var fnName = match[3] || ANON;
+                    result.push(fnName + '()@' + match[2] + ':' + match[1] + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
+                }
+            }
+
+            return result;
+        },
+
+        // Opera 7.x-9.2x only!
+        opera9: function(e) {
+            // "  Line 43 of linked script file://localhost/G:/js/stacktrace.js\n"
+            // "  Line 7 of inline#1 script in file://localhost/G:/js/test/functional/testcase1.html\n"
+            var ANON = '{anonymous}', lineRE = /Line (\d+).*script (?:in )?(\S+)/i;
+            var lines = e.message.split('\n'), result = [];
+
+            for (var i = 2, len = lines.length; i < len; i += 2) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    result.push(ANON + '()@' + match[2] + ':' + match[1] + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
+                }
+            }
+
+            return result;
+        },
+
+        phantomjs: function(e) {
+            var ANON = '{anonymous}', lineRE = /(\S+) \((\S+)\)/i;
+            var lines = e.stack.split('\n'), result = [];
+
+            for (var i = 1, len = lines.length; i < len; i++) {
+                lines[i] = lines[i].replace(/^\s+at\s+/gm, '');
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    result.push(match[1] + '()@' + match[2]);
+                }
+                else {
+                    result.push(ANON + '()@' + lines[i]);
+                }
+            }
+
+            return result;
+        },
+
+        // Safari 5-, IE 9-, and others
+        other: function(curr) {
+            var ANON = '{anonymous}', fnRE = /function(?:\s+([\w$]+))?\s*\(/, stack = [], fn, args, maxStackSize = 10;
+            var slice = Array.prototype.slice;
+            while (curr && stack.length < maxStackSize) {
+                fn = fnRE.test(curr.toString()) ? RegExp.$1 || ANON : ANON;
+                try {
+                    args = slice.call(curr['arguments'] || []);
+                } catch (e) {
+                    args = ['Cannot access arguments: ' + e];
+                }
+                stack[stack.length] = fn + '(' + this.stringifyArguments(args) + ')';
+                try {
+                    curr = curr.caller;
+                } catch (e) {
+                    stack[stack.length] = 'Cannot access caller: ' + e;
+                    break;
+                }
+            }
+            return stack;
+        },
+
+        /**
+         * Given arguments array as a String, substituting type names for non-string types.
+         *
+         * @param {Arguments,Array} args
+         * @return {String} stringified arguments
+         */
+        stringifyArguments: function(args) {
+            var result = [];
+            var slice = Array.prototype.slice;
+            for (var i = 0; i < args.length; ++i) {
+                var arg = args[i];
+                if (arg === undefined) {
+                    result[i] = 'undefined';
+                } else if (arg === null) {
+                    result[i] = 'null';
+                } else if (arg.constructor) {
+                    // TODO constructor comparison does not work for iframes
+                    if (arg.constructor === Array) {
+                        if (arg.length < 3) {
+                            result[i] = '[' + this.stringifyArguments(arg) + ']';
+                        } else {
+                            result[i] = '[' + this.stringifyArguments(slice.call(arg, 0, 1)) + '...' + this.stringifyArguments(slice.call(arg, -1)) + ']';
+                        }
+                    } else if (arg.constructor === Object) {
+                        result[i] = '#object';
+                    } else if (arg.constructor === Function) {
+                        result[i] = '#function';
+                    } else if (arg.constructor === String) {
+                        result[i] = '"' + arg + '"';
+                    } else if (arg.constructor === Number) {
+                        result[i] = arg;
+                    } else {
+                        result[i] = '?';
+                    }
+                }
+            }
+            return result.join(',');
+        },
+
+        sourceCache: {},
+
+        /**
+         * @return {String} the text from a given URL
+         */
+        ajax: function(url) {
+            var req = this.createXMLHTTPObject();
+            if (req) {
+                try {
+                    req.open('GET', url, false);
+                    //req.overrideMimeType('text/plain');
+                    //req.overrideMimeType('text/javascript');
+                    req.send(null);
+                    //return req.status == 200 ? req.responseText : '';
+                    return req.responseText;
+                } catch (e) {
+                }
+            }
+            return '';
+        },
+
+        /**
+         * Try XHR methods in order and store XHR factory.
+         *
+         * @return {XMLHttpRequest} XHR function or equivalent
+         */
+        createXMLHTTPObject: function() {
+            var xmlhttp, XMLHttpFactories = [
+                function() {
+                    return new XMLHttpRequest();
+                }, function() {
+                    return new ActiveXObject('Msxml2.XMLHTTP');
+                }, function() {
+                    return new ActiveXObject('Msxml3.XMLHTTP');
+                }, function() {
+                    return new ActiveXObject('Microsoft.XMLHTTP');
+                }
+            ];
+            for (var i = 0; i < XMLHttpFactories.length; i++) {
+                try {
+                    xmlhttp = XMLHttpFactories[i]();
+                    // Use memoization to cache the factory
+                    this.createXMLHTTPObject = XMLHttpFactories[i];
+                    return xmlhttp;
+                } catch (e) {
+                }
+            }
+        },
+
+        /**
+         * Given a URL, check if it is in the same domain (so we can get the source
+         * via Ajax).
+         *
+         * @param url {String} source url
+         * @return {Boolean} False if we need a cross-domain request
+         */
+        isSameDomain: function(url) {
+            return typeof location !== "undefined" && url.indexOf(location.hostname) !== -1; // location may not be defined, e.g. when running from nodejs.
+        },
+
+        /**
+         * Get source code from given URL if in the same domain.
+         *
+         * @param url {String} JS source URL
+         * @return {Array} Array of source code lines
+         */
+        getSource: function(url) {
+            // TODO reuse source from script tags?
+            if (!(url in this.sourceCache)) {
+                this.sourceCache[url] = this.ajax(url).split('\n');
+            }
+            return this.sourceCache[url];
+        },
+
+        guessAnonymousFunctions: function(stack) {
+            for (var i = 0; i < stack.length; ++i) {
+                var reStack = /\{anonymous\}\(.*\)@(.*)/,
+                    reRef = /^(.*?)(?::(\d+))(?::(\d+))?(?: -- .+)?$/,
+                    frame = stack[i], ref = reStack.exec(frame);
+
+                if (ref) {
+                    var m = reRef.exec(ref[1]);
+                    if (m) { // If falsey, we did not get any file/line information
+                        var file = m[1], lineno = m[2], charno = m[3] || 0;
+                        if (file && this.isSameDomain(file) && lineno) {
+                            var functionName = this.guessAnonymousFunction(file, lineno, charno);
+                            stack[i] = frame.replace('{anonymous}', functionName);
+                        }
+                    }
+                }
+            }
+            return stack;
+        },
+
+        guessAnonymousFunction: function(url, lineNo, charNo) {
+            var ret;
+            try {
+                ret = this.findFunctionName(this.getSource(url), lineNo);
+            } catch (e) {
+                ret = 'getSource failed with url: ' + url + ', exception: ' + e.toString();
+            }
+            return ret;
+        },
+
+        findFunctionName: function(source, lineNo) {
+            // FIXME findFunctionName fails for compressed source
+            // (more than one function on the same line)
+            // function {name}({args}) m[1]=name m[2]=args
+            var reFunctionDeclaration = /function\s+([^(]*?)\s*\(([^)]*)\)/;
+            // {name} = function ({args}) TODO args capture
+            // /['"]?([0-9A-Za-z_]+)['"]?\s*[:=]\s*function(?:[^(]*)/
+            var reFunctionExpression = /['"]?([$_A-Za-z][$_A-Za-z0-9]*)['"]?\s*[:=]\s*function\b/;
+            // {name} = eval()
+            var reFunctionEvaluation = /['"]?([$_A-Za-z][$_A-Za-z0-9]*)['"]?\s*[:=]\s*(?:eval|new Function)\b/;
+            // Walk backwards in the source lines until we find
+            // the line which matches one of the patterns above
+            var code = "", line, maxLines = Math.min(lineNo, 20), m, commentPos;
+            for (var i = 0; i < maxLines; ++i) {
+                // lineNo is 1-based, source[] is 0-based
+                line = source[lineNo - i - 1];
+                commentPos = line.indexOf('//');
+                if (commentPos >= 0) {
+                    line = line.substr(0, commentPos);
+                }
+                // TODO check other types of comments? Commented code may lead to false positive
+                if (line) {
+                    code = line + code;
+                    m = reFunctionExpression.exec(code);
+                    if (m && m[1]) {
+                        return m[1];
+                    }
+                    m = reFunctionDeclaration.exec(code);
+                    if (m && m[1]) {
+                        //return m[1] + "(" + (m[2] || "") + ")";
+                        return m[1];
+                    }
+                    m = reFunctionEvaluation.exec(code);
+                    if (m && m[1]) {
+                        return m[1];
+                    }
+                }
+            }
+            return '(?)';
+        }
+    };
+
+    return printStackTrace;
+}));
+
+},{}],574:[function(require,module,exports){
 (function (global){
 var $ = require('jquery');
-var templates = require('bdsft-webrtc-templates');
-require('webrtc-core/prop');
-require('webrtc-core/cookieprop');
-require('filesaver.js');
+require('webrtc-core');
 
 module.exports = Factory;
 
@@ -85270,15 +85358,12 @@ require("views/xmpp.js")
 require("models/callcontrol.js");
 require("models/configuration.js");
 require("models/connectionstatus.js");
-require("models/debug.js");
-require("models/eventbus.js");
 require("models/fileshare.js");
 require("models/history.js");
 require("models/incomingcall.js");
 require("models/messages.js");
 require("models/reinvite.js");
 require("models/settings.js");
-require("models/sipstack.js");
 require("models/sms.js");
 require("models/smsprovider.js");
 require("models/sound.js");
@@ -85302,7 +85387,7 @@ require("models/xmpp.js")
 			if (name.match(/view$/)) {
 				var viewName = name.replace('view', '');
 				options = options[viewName] || {};
-				object.view = $(options.view || templates[viewName]());
+				object.view = $(options.view || require('bdsft-webrtc-templates')[viewName]());
 				(object.elements || []).forEach(function(element) {
 					object[element] = object.view.find(options[element] || '.' + element);
 				});
@@ -85311,7 +85396,7 @@ require("models/xmpp.js")
 				Object.keys(object.props || {}).forEach(function(name) {
 					var prop = $.extend({name: name}, object.props[name])
 					var type = prop.type || object.props._type || '';
-					require('webrtc-core/'+type+'prop')(object, prop).define();
+					require('webrtc-core')[type+'prop'](object, prop).define();
 				});
 			}
 			object.listeners && object.listeners();
@@ -85341,22 +85426,24 @@ function getId (options, name) {
 };
 
 function createDelegate (options, name, argName) {
-	var path;
-	if (argName.match(/view$/i)) {
-		path = 'views/' + argName.replace(/view$/i, '')+'.js';
+	var argConstructor;
+	var core = require('webrtc-core');
+	if(core[argName]) {
+		argConstructor = core[argName]
+	} else if (argName.match(/view$/i)) {
+		argConstructor = require('views/' + argName.replace(/view$/i, '')+'.js');
 	} else {
-		path = 'models/' + argName+'.js';
+		argConstructor = require('models/' + argName+'.js');
 	}
 
 	if (argName === 'debug') {
-		return require(path)($.extend({}, options, {name: name}));
+		return argConstructor($.extend({}, options, {name: name}));
 	}
 	
-	var argConstructor = require(path);
 	var obj = argConstructor(options);
 	if(typeof obj === 'function') {
 		// console.log('factory : args : delegateFunction :'+argName);
-		return delegateFunction(Factory(require(path)), options);
+		return delegateFunction(Factory(argConstructor), options);
 	} else {
 		var propertyNames = Object.getOwnPropertyNames(obj);
 		var methods = propertyNames.filter(function(propName){
@@ -85370,7 +85457,7 @@ function createDelegate (options, name, argName) {
 			props = props.concat(['view']);
 		}
 		// console.log('factory : args : delegate :'+argName, methods, props);
-		var arg = delegate(Factory(require(path)), options, methods, props);
+		var arg = delegate(Factory(argConstructor), options, methods, props);
 		arg._name = argName;
 		return arg;
 	}
@@ -85450,4 +85537,129 @@ function create(constructor, argArray) {
 	return new factoryFunction();
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"bdsft-webrtc-templates":6,"filesaver.js":228,"jquery":234,"models/authentication.js":235,"models/callcontrol.js":236,"models/configuration.js":237,"models/connectionstatus.js":238,"models/debug.js":239,"models/eventbus.js":240,"models/fileshare.js":241,"models/history.js":242,"models/incomingcall.js":243,"models/messages.js":244,"models/reinvite.js":245,"models/settings.js":246,"models/sipstack.js":247,"models/sms.js":248,"models/smsprovider.js":249,"models/sound.js":250,"models/stats.js":251,"models/timer.js":252,"models/transfer.js":253,"models/video.js":254,"models/xmpp.js":255,"views/authentication.js":477,"views/callcontrol.js":478,"views/client.js":479,"views/connectionstatus.js":480,"views/dialpad.js":481,"views/fileshare.js":482,"views/history.js":483,"views/incomingcall.js":484,"views/messages.js":485,"views/popup.js":486,"views/reinvite.js":487,"views/settings.js":488,"views/sms.js":489,"views/stats.js":490,"views/timer.js":491,"views/transfer.js":492,"views/video.js":493,"views/videobar.js":494,"views/whiteboard.js":495,"views/xmpp.js":496,"webrtc-core/cookieprop":502,"webrtc-core/prop":503}]},{},[504]);
+},{"bdsft-webrtc-templates":6,"jquery":214,"models/authentication.js":215,"models/callcontrol.js":216,"models/configuration.js":217,"models/connectionstatus.js":218,"models/fileshare.js":219,"models/history.js":220,"models/incomingcall.js":221,"models/messages.js":222,"models/reinvite.js":223,"models/settings.js":224,"models/sms.js":225,"models/smsprovider.js":226,"models/sound.js":227,"models/stats.js":228,"models/timer.js":229,"models/transfer.js":230,"models/video.js":231,"models/xmpp.js":232,"views/authentication.js":453,"views/callcontrol.js":454,"views/client.js":455,"views/connectionstatus.js":456,"views/dialpad.js":457,"views/fileshare.js":458,"views/history.js":459,"views/incomingcall.js":460,"views/messages.js":461,"views/popup.js":462,"views/reinvite.js":463,"views/settings.js":464,"views/sms.js":465,"views/stats.js":466,"views/timer.js":467,"views/transfer.js":468,"views/video.js":469,"views/videobar.js":470,"views/whiteboard.js":471,"views/xmpp.js":472,"webrtc-core":474}],575:[function(require,module,exports){
+var ExSIP = require('exsip');
+var jQuery = jquery = $ = require('jquery');
+require('jquery.cookie')
+var Constants = require('webrtc-core').constants;
+var Utils = require('webrtc-core').utils;
+var Client = require('views/client');
+var Sound = require('models/sound');
+var WebRTC = {
+  Utils: Utils,
+  C: Constants,
+  Client: Client,
+  Sound: Sound
+};
+
+module.exports = WebRTC;
+
+Object.defineProperties(WebRTC, {
+  version: {
+    get: function() {
+      return '<%= pkg.version %>';
+    }
+  },
+  name: {
+    get: function() {
+      return '<%= pkg.title %>';
+    }
+  }
+});
+
+if(!jQuery.fn) {
+  jQuery.fn = {};
+}
+jQuery.fn.putCursorAtEnd = function() {
+
+  return this.each(function() {
+
+    $(this).focus();
+
+    // If this function exists...
+    if (this.setSelectionRange) {
+      // ... then use it (Doesn't work in IE)
+
+      // Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
+      var len = $(this).val().length * 2;
+
+      this.setSelectionRange(len, len);
+
+    } else {
+      // ... otherwise replace the contents with itself
+      // (Doesn't work in Google Chrome)
+
+      $(this).val($(this).val());
+
+    }
+
+    // Scroll to the bottom, in case we're in a tall textarea
+    // (Necessary for Firefox and Google Chrome)
+    this.scrollTop = 999999;
+
+  });
+
+};
+
+if(!jQuery.cssHooks) {
+  jQuery.cssHooks = {};
+}
+jQuery.cssHooks.backgroundColor = {
+  get: function(elem) {
+    var bg = null;
+    if (elem.currentStyle) {
+      bg = elem.currentStyle.backgroundColor;
+    } else if (window.getComputedStyle) {
+      bg = document.defaultView.getComputedStyle(elem,
+        null).getPropertyValue("background-color");
+    }
+    if (bg.search("rgb") === -1 || bg === 'transparent') {
+      return bg;
+    } else {
+      bg = bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+).*\)$/);
+      var hex = function(x) {
+        return ("0" + parseInt(x, 10).toString(16)).slice(-2);
+      };
+      return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
+    }
+  }
+};
+
+var currentScript = $('script').last();
+$(document).ready(function() {
+  window.BroadSoftWebRTC = window.BroadSoftWebRTC || {};
+  window.BroadSoftWebRTC.clients = [];
+
+  if (!currentScript.text()) {
+    return;
+  }
+  var ClientConfig = require('bdsft-webrtc-config');
+  var configData = JSON.parse(currentScript.text());
+  console.log("script config : ", configData);
+  var clientConfig = Utils.clone(ClientConfig);
+  var options = $.extend({}, clientConfig, configData);
+  console.log("options : ", options);
+  options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
+  var client = require('./factory')(Client)(options);
+  client.appendTo(currentScript.parent());
+  var styleData = currentScript.data();
+  if (styleData) {
+    client.updateCss(styleData);
+  }
+  client.src = currentScript[0].src;
+  currentScript.remove();
+  window.BroadSoftWebRTC.clients.push(client);
+});
+
+(function($) {
+  $.isBlank = function(obj) {
+    return (!obj || $.trim(obj) === "");
+  };
+})(jQuery);
+
+if (typeof String.prototype.endsWith !== 'function') {
+  String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+  };
+}
+},{"./factory":574,"bdsft-webrtc-config":3,"exsip":185,"jquery":214,"jquery.cookie":213,"models/sound":227,"views/client":455,"webrtc-core":474}]},{},[575]);

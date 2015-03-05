@@ -5,7 +5,6 @@ describe('settings', function() {
     setUp();
     testUA.mockWebRTC();
     testUA.mockSound();
-    testUA.mockLocation();
     testUA.deleteAllCookies();
     config = {
       enableCallStats: false
@@ -68,8 +67,9 @@ describe('settings', function() {
     config.displayResolution = WebRTC.C.R_960x720;
     config.encodingResolution = WebRTC.C.R_320x240;
     client = create(config)
-    expect(settings.getResolutionDisplay()).toEqual(WebRTC.C.R_960x720);
-    expect(settings.getResolutionEncoding()).toEqual(WebRTC.C.R_320x240);
+    expect(configuration.displayResolution).toEqual(WebRTC.C.R_960x720);
+    expect(settings.resolutionDisplay).toEqual(WebRTC.C.R_960x720);
+    expect(settings.resolutionEncoding).toEqual(WebRTC.C.R_320x240);
     config.displayResolution = null;
     config.encodingResolution = null;
   });
@@ -85,11 +85,11 @@ describe('settings', function() {
     config.displayResolution = '';
     config.encodingResolution = '';
     client = create(config)
+    $.cookie("settingsResolutionDisplay", "");
+    $.cookie("settingsResolutionEncoding", "");
     expect(settingsview.resolutionType.val()).toEqual(WebRTC.C.STANDARD);
     expect(settingsview.resolutionDisplayStandard.val()).toEqual(WebRTC.C.R_960x720);
     expect(settingsview.resolutionEncodingStandard.val()).toEqual(WebRTC.C.R_320x240);
-    $.cookie("settingsResolutionDisplay", "");
-    $.cookie("settingsResolutionEncoding", "");
   });
   it('persist with password set', function() {
     client = create(config)
@@ -97,17 +97,16 @@ describe('settings', function() {
     settingsview.save.trigger("click");
     expect($.cookie("settingsPassword")).toEqual('121212');
     expect(WebRTC.Utils.getSearchVariable("password")).toEqual(false);
-    expect(configuration.getPassword()).toEqual('121212');
+    expect(settings.password).toEqual('121212');
     global.bdsft_client_instances = {};
     client = create(config)
-    expect(configuration.getPassword()).toEqual('121212');
     expect(settings.password).toEqual('121212');
     $.cookie("settingsPassword", "");
   });
   it('setResolution with standard resolution', function() {
     client = create(config)
-    settings.setResolutionDisplay(WebRTC.C.R_320x240);
-    settings.setResolutionEncoding(WebRTC.C.R_320x240);
+    settings.resolutionDisplay = WebRTC.C.R_320x240;
+    settings.resolutionEncoding = WebRTC.C.R_320x240;
     expect(settingsview.resolutionType.val()).toEqual(WebRTC.C.STANDARD);
     expect(settingsview.resolutionDisplayWidescreen.hasClass('hidden')).toEqual(true);
     expect(settingsview.resolutionEncodingWidescreen.hasClass('hidden')).toEqual(true);
@@ -116,8 +115,8 @@ describe('settings', function() {
   });
   it('setResolution with widescreen resolution', function() {
     client = create(config)
-    settings.setResolutionDisplay(WebRTC.C.R_320x180);
-    settings.setResolutionEncoding(WebRTC.C.R_320x180);
+    settings.resolutionDisplay = WebRTC.C.R_320x180;
+    settings.resolutionEncoding = WebRTC.C.R_320x180;
     expect(settingsview.resolutionType.val()).toEqual(WebRTC.C.WIDESCREEN);
     expect(settingsview.resolutionDisplayWidescreen.hasClass('hidden')).toEqual(false);
     expect(settingsview.resolutionEncodingWidescreen.hasClass('hidden')).toEqual(false);

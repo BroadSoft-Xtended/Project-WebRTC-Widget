@@ -1,7 +1,6 @@
 module.exports = IncomingCallView
 
-var Utils = require('webrtc-core/Utils');
-var ExSIP = require('exsip');
+var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
 function IncomingCallView(eventbus, incomingcall) {

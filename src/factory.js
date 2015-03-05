@@ -1,15 +1,15 @@
 var $ = require('jquery');
-var templates = require('bdsft-webrtc-templates');
-require('webrtc-core/prop');
-require('webrtc-core/cookieprop');
-require('filesaver.js');
+require('webrtc-core');
 
 module.exports = Factory;
 
 function Factory(constructor){
 	return function(options) {
-	  require('views/**/*.js', { glob: true })
-	  require('models/**/*.js', { glob: true })
+		var isNode = typeof global !== "undefined" && {}.toString.call(global) == '[object global]';
+		if(!isNode) {
+		  require('views/**/*.js', { glob: true });
+		  require('models/**/*.js', { glob: true });
+		}
 		global.bdsft_client_instances = global.bdsft_client_instances || {};
 		var name = functionName(constructor);
 		var id = getId(options, name);
@@ -25,7 +25,7 @@ function Factory(constructor){
 			if (name.match(/view$/)) {
 				var viewName = name.replace('view', '');
 				options = options[viewName] || {};
-				object.view = $(options.view || templates[viewName]());
+				object.view = $(options.view || require('bdsft-webrtc-templates')[viewName]());
 				(object.elements || []).forEach(function(element) {
 					object[element] = object.view.find(options[element] || '.' + element);
 				});
@@ -34,7 +34,7 @@ function Factory(constructor){
 				Object.keys(object.props || {}).forEach(function(name) {
 					var prop = $.extend({name: name}, object.props[name])
 					var type = prop.type || object.props._type || '';
-					require('webrtc-core/'+type+'prop')(object, prop).define();
+					require('webrtc-core')[type+'prop'](object, prop).define();
 				});
 			}
 			object.listeners && object.listeners();
@@ -64,22 +64,24 @@ function getId (options, name) {
 };
 
 function createDelegate (options, name, argName) {
-	var path;
-	if (argName.match(/view$/i)) {
-		path = 'views/' + argName.replace(/view$/i, '')+'.js';
+	var argConstructor;
+	var core = require('webrtc-core');
+	if(core[argName]) {
+		argConstructor = core[argName]
+	} else if (argName.match(/view$/i)) {
+		argConstructor = require('views/' + argName.replace(/view$/i, '')+'.js');
 	} else {
-		path = 'models/' + argName+'.js';
+		argConstructor = require('models/' + argName+'.js');
 	}
 
 	if (argName === 'debug') {
-		return require(path)($.extend({}, options, {name: name}));
+		return argConstructor($.extend({}, options, {name: name}));
 	}
 	
-	var argConstructor = require(path);
 	var obj = argConstructor(options);
 	if(typeof obj === 'function') {
 		// console.log('factory : args : delegateFunction :'+argName);
-		return delegateFunction(Factory(require(path)), options);
+		return delegateFunction(Factory(argConstructor), options);
 	} else {
 		var propertyNames = Object.getOwnPropertyNames(obj);
 		var methods = propertyNames.filter(function(propName){
@@ -93,7 +95,7 @@ function createDelegate (options, name, argName) {
 			props = props.concat(['view']);
 		}
 		// console.log('factory : args : delegate :'+argName, methods, props);
-		var arg = delegate(Factory(require(path)), options, methods, props);
+		var arg = delegate(Factory(argConstructor), options, methods, props);
 		arg._name = argName;
 		return arg;
 	}

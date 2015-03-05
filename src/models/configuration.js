@@ -25,15 +25,14 @@ var Flags = {
 
 Configuration.Flags = Flags;
 
-var Utils = require('webrtc-core/Utils');
-var WebRTC_C = require('webrtc-core/Constants');
-var ExSIP = require('exsip');
+var Utils = require('webrtc-core').utils;
+var WebRTC_C = require('webrtc-core').constants;
 var jQuery = $ = require('jquery');
 // TODO : hack to test in node js directly
 if(typeof document === 'undefined') {
   document = {};
 }
-function Configuration(options, eventbus, debug, settings) {
+function Configuration(options, eventbus, debug) {
   var self = {};
   options = options || {};
 
@@ -42,6 +41,9 @@ function Configuration(options, eventbus, debug, settings) {
   var bodyBackgroundColor = $('body').css('backgroundColor');
   
   self.props = {
+    userid:  {
+      value: function(){return options.userid || $.cookie('settingUserid');}
+    },
     destination: {
       value: function(){return options.destination || Utils.getSearchVariable("destination");}
     },
@@ -70,8 +72,9 @@ function Configuration(options, eventbus, debug, settings) {
       value: function(){return Utils.getSearchVariable("size") || $.cookie('settingsize') || 1;}
     },
     color: {
-      value: function(){return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor');},
-      default: '#ffffff'
+      value: function(){
+        return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor') || '#ffffff';
+      }
     },
     enableMessages: {
       value: function(){return !(!!Utils.getSearchVariable("disableMessages"));}
@@ -82,16 +85,47 @@ function Configuration(options, eventbus, debug, settings) {
   };
 
   Object.keys(options).forEach(function(key) {
-    self.props[key] = {
-      value: function(){
-        return options[key];
+    if(!(key in self.props)) {
+      if(key === 'displayResolution') {
+        self.props[key] = {
+          value: function(){
+            return options.displayResolution || $.cookie('settingsResolutionDisplay') || WebRTC_C.DEFAULT_RESOLUTION_DISPLAY;
+          }
+        }
       }
-    };
+      else if(key === 'encodingResolution') {
+        self.props[key] = {
+          value: function(){
+            return options.encodingResolution || $.cookie('settingsResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
+          }
+        }
+      } 
+      else {
+        self.props[key] = {
+          value: function(){
+            return options[key];
+          }
+        };
+      }
+
+      if(key.match(/bandwidth/)) {
+        self.props[key].onSet = function(value){
+          // console.log('----------- bandwidthChanged : ', value)
+          eventbus.bandwidthChanged(self);
+        }
+      }
+      else if(key.match(/resolution/i)) {
+        self.props[key].onSet = function(value){
+          // console.log('----------- resolutionChanged : ', value)
+          eventbus.resolutionChanged(self);
+        }
+      }
+    } 
   });
 
   self.init = function(options) { 
-    debug('configuration options : ' + ExSIP.Utils.toString(options));
-    debug('configuration : ' + ExSIP.Utils.toString(self));
+    // debug('configuration options : ' + ExSIP.Utils.toString(options));
+    // debug('configuration : ' + ExSIP.Utils.toString(self));
     if (self.features) {
       self.setClientConfigFlags(parseInt(self.features, 10));
     }
@@ -153,9 +187,6 @@ function Configuration(options, eventbus, debug, settings) {
   self.getBackgroundColor = function() {
     return self.color || self.bodyBackgroundColor;
   };
-  self.getPassword = function() {
-    return settings.password;
-  };
   self.getDTMFOptions = function() {
     return {
       duration: WebRTC_C.DEFAULT_DURATION,
@@ -205,6 +236,13 @@ function Configuration(options, eventbus, debug, settings) {
     }
   };
 
+  self.resolutionEncodingWidth = function() {
+    return Utils.resolutionWidth(self.encodingResolution);
+  };
+  self.resolutionEncodingHeight = function() {
+    return Utils.resolutionHeight(self.encodingResolution);
+  };
+
   self.getResolutionConstraints = function() {
     if (self.hd === true) {
       return {
@@ -214,8 +252,8 @@ function Configuration(options, eventbus, debug, settings) {
         }
       };
     } else {
-      var width = settings.getResolutionEncodingWidth();
-      var height = settings.getResolutionEncodingHeight();
+      var width = self.resolutionEncodingWidth();
+      var height = self.resolutionEncodingHeight();
       if (width && height) {
         if (height <= 480) {
           return {
@@ -240,7 +278,7 @@ function Configuration(options, eventbus, debug, settings) {
 
   self.getExSIPConfig = function(data) {
     data = data || {};
-    var userid = data.userId || settings.userid || self.networkUserId || Utils.randomUserid();
+    var userid = data.userId || self.userid || self.networkUserId || Utils.randomUserid();
 
     var sip_uri = encodeURI(userid);
     if ((sip_uri.indexOf("@") === -1)) {
@@ -264,7 +302,7 @@ function Configuration(options, eventbus, debug, settings) {
     }
 
     // do registration if setting User ID or configuration register is set
-    if (settings.userid || self.register) {
+    if (self.userid || self.register) {
       config.register = true;
       config.password = data.password || $.cookie('settingPassword');
     } else {
@@ -273,10 +311,23 @@ function Configuration(options, eventbus, debug, settings) {
     return config;
   };
 
+  self.getBandwidth = function() {
+    var height = self.resolutionEncodingHeight();
+    if (height <= 240) {
+      return self.bandwidthLow;
+    } else if (height <= 480) {
+      return self.bandwidthMed;
+    } else if (height <= 720) {
+      return self.bandwidthHigh;
+    } else {
+      console.error('getBandwidth : no encoding height matches : ', height);
+    }
+  };
+
   self.getRtcMediaHandlerOptions = function() {
     var options = {
       reuseLocalMedia: self.enableConnectLocalMedia,
-      videoBandwidth: settings.getBandwidth(),
+      videoBandwidth: self.getBandwidth(),
       disableICE: self.disableICE,
       RTCConstraints: {
         'optional': [],
@@ -291,17 +342,11 @@ function Configuration(options, eventbus, debug, settings) {
   };
 
   self.isWidescreen = function() {
-    return self.isHD() || settings.resolutionType === WebRTC_C.WIDESCREEN;
-  };
-
-  self.setResolutionDisplay = function(resolutionDisplay) {
-    self.hd = false;
-    settings.setResolutionDisplay(resolutionDisplay);
-    eventbus.viewChanged(self);
+    return self.isHD() || Utils.containsKey(WebRTC_C.WIDESCREEN_RESOLUTIONS, self.displayResolution);
   };
 
   self.getResolutionDisplay = function() {
-    return self.isHD() ? WebRTC_C.R_1280x720 : settings.getResolutionDisplay();
+    return self.isHD() ? WebRTC_C.R_1280x720 : self.displayResolution;
   }  
 
   return self;

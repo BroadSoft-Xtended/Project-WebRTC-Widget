@@ -1,7 +1,5 @@
 module.exports = SMSProvider;
 
-var ExSIP = require('exsip');
-
 function SMSProvider(eventbus, debug) {
   var self = {};
 
@@ -13,7 +11,7 @@ function SMSProvider(eventbus, debug) {
     if (self.sessionid) {
       url += ";jsessionid=" + self.sessionid;
     }
-    debug("Request to " + url + " : " + ExSIP.Utils.toString(jsonData));
+    debug("Request to " + url + " : " + JSON.stringify(jsonData));
     $.ajax({
         crossDomain: true,
         contentType: type === "GET" ? "text/plain" : "text/plain",
@@ -24,12 +22,12 @@ function SMSProvider(eventbus, debug) {
       })
       .done(function(msg) {
         if (msg.status === "empty" || msg.status === "success" || msg.status.code === "0000001") {
-          debug("Response successful : " + ExSIP.Utils.toString(msg));
+          debug("Response successful : " + JSON.stringify(msg));
           if (successCallback) {
             successCallback(msg);
           }
         } else {
-          debug("Response failed : " + ExSIP.Utils.toString(msg));
+          debug("Response failed : " + JSON.stringify(msg));
           if (failureCallback) {
             failureCallback(msg.status.message);
           }
@@ -45,7 +43,7 @@ function SMSProvider(eventbus, debug) {
 
   self.getUpdate = function(onNotification, onFailure) {
     var onSuccess = function(msg) {
-      debug("received notification : " + ExSIP.Utils.toString(msg));
+      debug("received notification : " + JSON.stringify(msg));
       onNotification(msg.notifications);
     };
     var data = {
@@ -81,7 +79,7 @@ function SMSProvider(eventbus, debug) {
   };
   self.readAll = function(onFailure) {
     var onSuccess = function(msg) {
-      debug("Read all mgs : " + ExSIP.Utils.toString(msg.messages));
+      debug("Read all mgs : " + JSON.stringify(msg.messages));
       eventbus.emit('smsReadAll', {
         messages: msg.messages
       });

@@ -1,6 +1,6 @@
 module.exports = CallControlView
 
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
 function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, dialpadView) {

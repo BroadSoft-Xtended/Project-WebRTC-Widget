@@ -1,5 +1,5 @@
 var ExSIP = require('ExSIP');
-var WebRTC = require('../../src/WebRTC');
+var WebRTC = require('../../src/webrtc');
 
 module.exports = {
   isVisible: function(element, visible) {

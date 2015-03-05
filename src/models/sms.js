@@ -1,7 +1,7 @@
 module.exports = SMS;
 
-var DateFormat = require('webrtc-core/DateFormat');
-var Utils = require('webrtc-core/Utils');
+var DateFormat = require('webrtc-core').dateformat;
+var Utils = require('webrtc-core').utils;
 
 function InboxItem(sms, message) {
   var self = {};

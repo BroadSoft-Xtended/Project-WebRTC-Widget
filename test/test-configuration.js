@@ -138,9 +138,9 @@ it('getExSIPOptions', function() {
 });
 it('getExSIPOptions with resolution', function() {
   client = create(config);
-  expect(configuration.audioOnly).toEqual( false);
+  expect(configuration.audioOnly).toEqual( undefined);
   expect(configuration.hd).toEqual( undefined);
-  settings.setResolutionEncoding('320x240');
+  settings.resolutionEncoding = '320x240';
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { maxWidth: 320, maxHeight: 240 }}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
@@ -159,9 +159,9 @@ it('getExSIPOptions with view = audioOnly', function() {
 });
 it('getExSIPOptions with resolution 960x720', function() {
   client = create(config);
-  expect(configuration.audioOnly).toEqual( false);
+  expect(configuration.audioOnly).toEqual( undefined);
   expect(configuration.hd).toEqual( undefined);
-  settings.setResolutionEncoding('960x720');
+  settings.resolutionEncoding = '960x720';
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 960, minHeight: 720 }}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
@@ -171,9 +171,9 @@ it('getExSIPOptions with resolution 960x720', function() {
 it('getExSIPOptions with hd=true', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "hd" ? "true" : false;}
   client = create(config);
-  expect(configuration.audioOnly).toEqual( false);
+  expect(configuration.audioOnly).toEqual( undefined);
   expect(configuration.hd).toEqual( true);
-  settings.setResolutionEncoding('960x720');
+  settings.resolutionEncoding = '960x720';
   var options = {
     mediaConstraints: { audio: true, video: { mandatory: { minWidth: 1280, minHeight: 720 }}},
     createOfferConstraints: {mandatory:{OfferToReceiveAudio:true,OfferToReceiveVideo:true}}
@@ -199,7 +199,7 @@ it('features url parameter', function() {
 it('setResolutionDisplay', function() {
   client = create(config);
   expect(configuration.getResolutionDisplay()).toEqual( WebRTC.C.DEFAULT_RESOLUTION_DISPLAY);
-  configuration.setResolutionDisplay(WebRTC.C.R_1280x720);
+  settings.resolutionDisplay = WebRTC.C.R_1280x720;
   expect(configuration.getResolutionDisplay()).toEqual( WebRTC.C.R_1280x720);
   expect(client.client.attr('class').indexOf("r"+WebRTC.C.R_1280x720) !== -1).toEqual(true, "Should contain new resolution display as class name");
 });
@@ -226,6 +226,7 @@ it('with config.view param and url params', function() {
 it('without color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
   client = create(config);
+  console.log('------------ configuration : ', configuration.color);
   expect(configuration.getBackgroundColor()).toEqual( "#ffffff");
   expect($('body').css('backgroundColor')).toEqual( '#ffffff');
 });

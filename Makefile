@@ -22,7 +22,7 @@ dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
 	uglifyjs $< > $@
 
 dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js js/media.js js/style.js
-	browserify $(TRANSFORMS) src/WebRTC.js > $@
+	browserify $(TRANSFORMS) src/webrtc.js > $@
 
 ## Create symlinks ##################################################################
 node_modules/bdsft-webrtc-style: js/style.js

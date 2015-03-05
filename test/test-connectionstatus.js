@@ -5,7 +5,6 @@ describe('connectionstatus', function() {
     setUp();
     testUA.mockWebRTC();
     testUA.mockSound();
-    testUA.mockLocation();
     config = {};
   });
 

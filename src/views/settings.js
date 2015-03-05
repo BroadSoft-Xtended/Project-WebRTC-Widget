@@ -1,7 +1,7 @@
 module.exports = SettingsView;
 
-var WebRTC_C = require('webrtc-core/Constants');
-var Utils = require('webrtc-core/Utils');
+var WebRTC_C = require('webrtc-core').constants;
+var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
 function SettingsView(settings, configuration, eventbus, debug, sound) {
@@ -38,10 +38,6 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
     Utils.addSelectOptions(WebRTC_C.WIDESCREEN_RESOLUTIONS, self.resolutionDisplayWidescreen);
     Utils.addSelectOptions(WebRTC_C.STANDARD_RESOLUTIONS, self.resolutionEncodingStandard);
     Utils.addSelectOptions(WebRTC_C.WIDESCREEN_RESOLUTIONS, self.resolutionEncodingWidescreen);
-
-    settings.setResolutionDisplay(WebRTC_C.DEFAULT_RESOLUTION_DISPLAY);
-    settings.setResolutionEncoding(WebRTC_C.DEFAULT_RESOLUTION_ENCODING);
-    
 
     updateRowVisibility();
   };
@@ -84,13 +80,13 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
       sound.playClick();
       settings.signIn();
     });
-    Utils.toArray([self.bandwidthLow, self.bandwidthMed, self.bandwidthHigh]).on('blur', function() {
-      eventbus.bandwidthChanged(settings);
-    });
-    Utils.toArray([self.resolutionType, self.resolutionDisplayWidescreen, self.resolutionDisplayStandard, 
-      self.resolutionEncodingWidescreen, self.resolutionEncodingStandard]).on('change', function() {
-      eventbus.resolutionChanged(settings);
-    });
+    // Utils.toArray([self.bandwidthLow, self.bandwidthMed, self.bandwidthHigh]).on('blur', function() {
+    //   eventbus.bandwidthChanged(settings);
+    // });
+    // Utils.toArray([self.resolutionType, self.resolutionDisplayWidescreen, self.resolutionDisplayStandard, 
+    //   self.resolutionEncodingWidescreen, self.resolutionEncodingStandard]).on('change', function() {
+    //   eventbus.resolutionChanged(settings);
+    // });
     self.tabs.each(function() {
       var active, activeTabSel, links = $(this).find('a');
       active = $(links.filter('[href="' + location.hash + '"]')[0] || links[0]);

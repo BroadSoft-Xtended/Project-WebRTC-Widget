@@ -188,9 +188,9 @@ Object.defineProperty(localStorage, 'length', {
 setUp = function(){
   global.bdsft_client_instances = {};
   testUA = require('./testUA');
-  Utils = require('../../src/Utils');
-  Constants = require('../../src/Constants');
-  WebRTC = require('../../src/WebRTC');
+  Utils = require('webrtc-core').utils;
+  Constants = require('webrtc-core').constants;
+  WebRTC = require('../../src/webrtc');
   Client = require('../../src/views/client');
   Stats = require('../../src/views/stats');
   ClientConfig = require('../../js/client-config.js.default');

@@ -1,16 +1,15 @@
 var ExSIP = require('exsip');
 var jQuery = jquery = $ = require('jquery');
 require('jquery.cookie')
+var Constants = require('webrtc-core').constants;
+var Utils = require('webrtc-core').utils;
 var Client = require('views/client');
-var Constants = require('webrtc-core/Constants');
-var Utils = require('webrtc-core/Utils');
-var ClientConfig = require('bdsft-webrtc-config');
+var Sound = require('models/sound');
 var WebRTC = {
-  Client: Client,
   Utils: Utils,
   C: Constants,
-  Sound: require('models/sound'),
-  Settings: require('models/settings')
+  Client: Client,
+  Sound: Sound
 };
 
 module.exports = WebRTC;
@@ -28,6 +27,9 @@ Object.defineProperties(WebRTC, {
   }
 });
 
+if(!jQuery.fn) {
+  jQuery.fn = {};
+}
 jQuery.fn.putCursorAtEnd = function() {
 
   return this.each(function() {
@@ -59,7 +61,10 @@ jQuery.fn.putCursorAtEnd = function() {
 
 };
 
-$.cssHooks.backgroundColor = {
+if(!jQuery.cssHooks) {
+  jQuery.cssHooks = {};
+}
+jQuery.cssHooks.backgroundColor = {
   get: function(elem) {
     var bg = null;
     if (elem.currentStyle) {
@@ -88,6 +93,7 @@ $(document).ready(function() {
   if (!currentScript.text()) {
     return;
   }
+  var ClientConfig = require('bdsft-webrtc-config');
   var configData = JSON.parse(currentScript.text());
   console.log("script config : ", configData);
   var clientConfig = Utils.clone(ClientConfig);

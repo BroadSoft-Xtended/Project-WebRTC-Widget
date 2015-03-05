@@ -1,7 +1,7 @@
 module.exports = StatsView;
 
 var PopupView = require('./popup');
-var Utils = require('webrtc-core/Utils');
+var Utils = require('webrtc-core').utils;
 
 function StatsView(eventbus) {
   var self = {};

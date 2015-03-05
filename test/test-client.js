@@ -51,6 +51,7 @@ describe('client', function() {
     $.cookie("settingsResolutionDisplay", WebRTC.C.R_960x720);
     $.cookie("settingsResolutionEncoding", WebRTC.C.R_320x240);
     client = create(config);
+    expect(configuration.displayResolution).toEqual(WebRTC.C.R_960x720);
     expect(client.client.attr('class').split(" ")[1]).toEqual("r" + WebRTC.C.R_960x720);
   });
   it('destination configuration and enableConnectLocalMedia = false', function() {
@@ -117,7 +118,6 @@ describe('client', function() {
     client = create(config);
     testUA.connectAndStartCall();
     videobar.muteAudioIcon.trigger("click");
-    console.log('!!!!!!!!!!! : '+client.client.attr('class'))
     testUA.isVisible(videobar.muteAudioIcon, false);
     testUA.isVisible(videobar.unmuteAudioIcon, true);
     videobar.unmuteAudioIcon.trigger("click");

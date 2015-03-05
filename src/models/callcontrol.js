@@ -2,7 +2,7 @@ module.exports = CallControl;
 
 var $ = require('jquery');
 var fs = require('fs');
-var C = require('webrtc-core/Constants');
+var C = require('webrtc-core').constants;
 
 function CallControl(eventbus, configuration, sipstack, debug, callcontrolView, sound) {
   var self = {};

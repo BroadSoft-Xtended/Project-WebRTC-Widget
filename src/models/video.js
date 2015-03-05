@@ -1,6 +1,6 @@
 module.exports = Video;
 
-function Video(eventbus, debug, settings, videoView) {
+function Video(eventbus, debug, configuration, videoView) {
   var self = {}; 
 
   self.view = videoView;
@@ -8,8 +8,8 @@ function Video(eventbus, debug, settings, videoView) {
   self.props = {'localEl': true, 'remoteEl': true, 'localWidth': true, 'localHeight': true};
 
   self.validateUserMediaResolution = function() {
-    var encodingWidth = settings.getResolutionEncodingWidth();
-    var encodingHeight = settings.getResolutionEncodingHeight();
+    var encodingWidth = configuration.resolutionEncodingWidth();
+    var encodingHeight = configuration.resolutionEncodingHeight();
     var videoWidth = self.localWidth;
     var videoHeight = self.localHeight;
     debug("validating video resolution " + videoWidth + "," + videoHeight + " to match selected encoding " + encodingWidth + "," + encodingHeight);
