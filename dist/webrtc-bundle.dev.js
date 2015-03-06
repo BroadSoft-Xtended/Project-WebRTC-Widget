@@ -56023,7 +56023,7 @@ module.exports = Authentication;
 var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
 
-function Authentication(eventbus, settings, configuration, debug, authenticationView) {
+function Authentication(eventbus, debug, settings, configuration, authenticationView) {
   var self = {};
 
   self.view = authenticationView;
@@ -56072,7 +56072,7 @@ function Authentication(eventbus, settings, configuration, debug, authentication
 
   return self;
 }
-},{"jquery":214,"webrtc-core":474}],216:[function(require,module,exports){
+},{"jquery":214,"webrtc-core":473}],216:[function(require,module,exports){
 module.exports = CallControl;
 
 var $ = require('jquery');
@@ -56193,317 +56193,7 @@ function CallControl(eventbus, configuration, sipstack, debug, callcontrolView, 
 
   return self;
 }
-},{"fs":7,"jquery":214,"webrtc-core":474}],217:[function(require,module,exports){
-module.exports = Configuration;
-
-var Flags = {
-  enableHD: 1,
-  enableCallControl: 2,
-  enableCallTimer: 4,
-  enableCallHistory: 8,
-  enableFullScreen: 16,
-  enableSelfView: 32,
-  enableCallStats: 64,
-  enableDialpad: 128,
-  enableMute: 256,
-  enableMessages: 512,
-  enableRegistrationIcon: 1024,
-  enableConnectionIcon: 2048,
-  enableWindowDrag: 4096,
-  enableSettings: 8192,
-  enableAutoAnswer: 16384,
-  enableAutoAcceptReInvite: 32768,
-  enableConnectLocalMedia: 65536,
-  enableTransfer: 131072,
-  enableHold: 262144,
-  enableIms: 524288
-};
-
-Configuration.Flags = Flags;
-
-var Utils = require('webrtc-core').utils;
-var WebRTC_C = require('webrtc-core').constants;
-var jQuery = $ = require('jquery');
-// TODO : hack to test in node js directly
-if(typeof document === 'undefined') {
-  document = {};
-}
-function Configuration(options, eventbus, debug, settings) {
-  var self = {};
-  options = options || {};
-
-  var screenshare = false;
-  var offerToReceiveVideo = true;
-  var bodyBackgroundColor = $('body').css('backgroundColor');
-  
-  self.props = {
-    destination: {
-      value: function(){return options.destination || Utils.getSearchVariable("destination");}
-    },
-    networkUserId: {
-      value: function(){return options.networkUserId || Utils.getSearchVariable("networkUserId");}
-    },
-    hd: {
-      value: function(){return Utils.getSearchVariable("hd") === "true" || $.cookie('settingHD');}
-    },
-    audioOnly: {
-      value: function(){return Utils.getSearchVariable("audioOnly") === "true";}
-    },
-    sipDisplayName: {
-      value: function(){
-        var name = options.displayName || Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
-        if (name) {
-          name = name.replace(/%20/g, " ");
-        }
-        return name;
-      }
-    },
-    maxCallLength: {
-      value: function(){return Utils.getSearchVariable("maxCallLength");}
-    },
-    size: {
-      value: function(){return Utils.getSearchVariable("size") || $.cookie('settingsize') || 1;}
-    },
-    color: {
-      value: function(){return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor');},
-      default: '#ffffff'
-    },
-    enableMessages: {
-      value: function(){return !(!!Utils.getSearchVariable("disableMessages"));}
-    },
-    features: {
-      value: function(){return Utils.getSearchVariable("features"); }
-    }
-  };
-
-  Object.keys(options).forEach(function(key) {
-    self.props[key] = {
-      value: function(){
-        return options[key];
-      }
-    };
-  });
-
-  self.init = function(options) { 
-    // debug('configuration options : ' + ExSIP.Utils.toString(options));
-    // debug('configuration : ' + ExSIP.Utils.toString(self));
-    if (self.features) {
-      self.setClientConfigFlags(parseInt(self.features, 10));
-    }
-  };
-
-  self.listeners = function(audioOnly) { 
-    eventbus.on('screenshare', function(e) {
-      self.screenshare = e.enabled;
-    });
-  };
-
-  self.setAudioOnlyOfferAndRec = function(audioOnly) { 
-    self.audioOnly = audioOnly;
-    offerToReceiveVideo = !audioOnly;
-    sipstack.updateUserMedia();
-  };
-
-  self.setAudioOnly = function(audioOnly) { 
-    self.audioOnly = audioOnly;
-    offerToReceiveVideo = true;
-    sipstack.updateUserMedia();
-  };
-
-  self.getClientConfigFlags = function() {
-    var flags = 0;
-    for (var flag in Flags) {
-      var value = Flags[flag];
-      if (self[flag]) {
-        flags |= value;
-      }
-    }
-    return flags;
-  };
-  self.setClientConfigFlags = function(flags) {
-    for (var flag in Flags) {
-      var value = Flags[flag];
-      if (flags & value) {
-        self[flag] = true;
-      } else {
-        self[flag] = false;
-      }
-    }
-  };
-  self.isAudioOnlyView = function() {
-    var views = self.getViews();
-    return views.indexOf('audioOnly') !== -1;
-  };
-  self.getViews = function() {
-    var view = Utils.getSearchVariable("view");
-    var views = [];
-    if (self.view) {
-      $.merge(views, self.view.split(' '));
-    }
-    if (view) {
-      $.merge(views, view.split(' '));
-    }
-    return $.unique(views);
-  };
-  self.getBackgroundColor = function() {
-    return self.color || self.bodyBackgroundColor;
-  };
-  self.getPassword = function() {
-    return settings.password;
-  };
-  self.getDTMFOptions = function() {
-    return {
-      duration: WebRTC_C.DEFAULT_DURATION,
-      interToneGap: WebRTC_C.DEFAULT_INTER_TONE_GAP
-    };
-  };
-  self.getExSIPOptions = function() {
-    // Options Passed to ExSIP
-    var options = {
-      mediaConstraints: {
-        audio: true,
-        video: self.getVideoConstraints()
-      },
-      createOfferConstraints: {
-        mandatory: {
-          OfferToReceiveAudio: true,
-          OfferToReceiveVideo: !self.isAudioOnlyView() && offerToReceiveVideo
-        }
-      }
-    };
-    return options;
-  };
-
-  self.getMediaConstraints = function() {
-    if (self.screenshare) {
-      return {
-        video: {
-          mandatory: {
-            chromeMediaSource: 'screen'
-          }
-        }
-      };
-    } else {
-      return {
-        audio: true,
-        video: self.getVideoConstraints()
-      };
-    }
-  };
-
-  self.getVideoConstraints = function() {
-    if (self.isAudioOnlyView() || self.audioOnly) {
-      return false;
-    } else {
-      var constraints = self.getResolutionConstraints();
-      return constraints ? constraints : true;
-    }
-  };
-
-  self.getResolutionConstraints = function() {
-    if (self.hd === true) {
-      return {
-        mandatory: {
-          minWidth: 1280,
-          minHeight: 720
-        }
-      };
-    } else {
-      var width = settings.getResolutionEncodingWidth();
-      var height = settings.getResolutionEncodingHeight();
-      if (width && height) {
-        if (height <= 480) {
-          return {
-            mandatory: {
-              maxWidth: width,
-              maxHeight: height
-            }
-          };
-        } else {
-          return {
-            mandatory: {
-              minWidth: width,
-              minHeight: height
-            }
-          };
-        }
-      } else {
-        return false;
-      }
-    }
-  };
-
-  self.getExSIPConfig = function(data) {
-    data = data || {};
-    var userid = data.userId || settings.userid || self.networkUserId || Utils.randomUserid();
-
-    var sip_uri = encodeURI(userid);
-    if ((sip_uri.indexOf("@") === -1)) {
-      sip_uri = (sip_uri + "@" + self.domainFrom);
-    }
-
-    var config = {
-      'uri': sip_uri,
-      'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
-      'ws_servers': self.websocketsServers,
-      'stun_servers': 'stun:' + self.stunServer + ':' + self.stunPort,
-      'trace_sip': self.debug,
-      'enable_ims': self.enableIms,
-      'p_asserted_identity': self.pAssertedIdentity,
-      'enable_datachannel': self.enableWhiteboard || self.enableFileShare
-    };
-
-    // Add Display Name if set
-    if (self.sipDisplayName) {
-      config.display_name = self.sipDisplayName;
-    }
-
-    // do registration if setting User ID or configuration register is set
-    if (settings.userid || self.register) {
-      config.register = true;
-      config.password = data.password || $.cookie('settingPassword');
-    } else {
-      config.register = false;
-    }
-    return config;
-  };
-
-  self.getRtcMediaHandlerOptions = function() {
-    var options = {
-      reuseLocalMedia: self.enableConnectLocalMedia,
-      videoBandwidth: settings.getBandwidth(),
-      disableICE: self.disableICE,
-      RTCConstraints: {
-        'optional': [],
-        'mandatory': {}
-      }
-    };
-    return options;
-  };
-
-  self.isHD = function() {
-    return self.enableHD === true && self.hd === true;
-  };
-
-  self.isWidescreen = function() {
-    return self.isHD() || settings.resolutionType === WebRTC_C.WIDESCREEN;
-  };
-
-  self.setResolutionDisplay = function(resolutionDisplay) {
-    self.hd = false;
-    settings.setResolutionDisplay(resolutionDisplay);
-    eventbus.viewChanged(self);
-  };
-
-  self.getResolutionDisplay = function() {
-    return self.isHD() ? WebRTC_C.R_1280x720 : settings.getResolutionDisplay();
-  }  
-
-  return self;
-}
-
-
-},{"jquery":214,"webrtc-core":474}],218:[function(require,module,exports){
+},{"fs":7,"jquery":214,"webrtc-core":473}],217:[function(require,module,exports){
 module.exports = ConnectionStatus
 
 var Utils = require('webrtc-core').utils;
@@ -56540,7 +56230,7 @@ function ConnectionStatus(options, eventbus, configuration, connectionstatusView
 
   return self;
 }
-},{"webrtc-core":474}],219:[function(require,module,exports){
+},{"webrtc-core":473}],218:[function(require,module,exports){
 module.exports = FileShare
 
 var Utils = require('webrtc-core').utils;
@@ -56636,7 +56326,7 @@ function FileShare(sipstack, eventbus, debug, fileshareView) {
 
   return self;
 }
-},{"filesaver.js":208,"webrtc-core":474}],220:[function(require,module,exports){
+},{"filesaver.js":208,"webrtc-core":473}],219:[function(require,module,exports){
 module.exports = History
 
 var Utils = require('webrtc-core').utils;
@@ -56868,7 +56558,7 @@ function History(stats, configuration, eventbus, historyView) {
   return self;
 
 }
-},{"webrtc-core":474}],221:[function(require,module,exports){
+},{"webrtc-core":473}],220:[function(require,module,exports){
 module.exports = IncomingCall
 
 var Utils = require('webrtc-core').utils;
@@ -56926,7 +56616,7 @@ function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
 
   return self;
 }
-},{"webrtc-core":474}],222:[function(require,module,exports){
+},{"webrtc-core":473}],221:[function(require,module,exports){
 module.exports = Messages
 
 function Messages(eventbus, configuration, messagesView) {
@@ -57006,7 +56696,7 @@ function Messages(eventbus, configuration, messagesView) {
 
   return self;
 }
-},{}],223:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 module.exports = Reinvite
 
 function Reinvite(eventbus, reinviteView) {
@@ -57041,16 +56731,49 @@ function Reinvite(eventbus, reinviteView) {
 
   return self;
 }
-},{}],224:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 module.exports = Settings;
 
 var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 
-function Settings(configuration, settingsView, eventbus, debug) {
+function Settings(eventbus, debug, configuration, settingsView) {
   var self = {};
   self.view = settingsView;
-  
+
+  var getResolution = function(resolutionStandard, resolutionWidescreen) {
+    // console.log('self.resolutionType : '+self.resolutionType);
+    if (self.resolutionType === WebRTC_C.STANDARD) {
+      return self[resolutionStandard];
+    } else if (self.resolutionType === WebRTC_C.WIDESCREEN) {
+      return self[resolutionWidescreen];
+    } else {
+      return false;
+    }
+  };
+
+  var setResolutionType = function(resolution) {
+    if (Utils.containsKey(WebRTC_C.STANDARD_RESOLUTIONS, resolution)) {
+      self.resolutionType = WebRTC_C.STANDARD;
+    } else if (Utils.containsKey(WebRTC_C.WIDESCREEN_RESOLUTIONS, resolution)) {
+      self.resolutionType = WebRTC_C.WIDESCREEN;
+    } else {
+      debug('no resolution type for ' + resolution);
+    }
+  };
+
+  var setResolution = function(resolution, resolutionStandard, resolutionWidescreen) {
+    if (Utils.containsKey(WebRTC_C.STANDARD_RESOLUTIONS, resolution)) {
+      self.resolutionType = WebRTC_C.STANDARD;
+      self[resolutionStandard] = resolution;
+    } else if (Utils.containsKey(WebRTC_C.WIDESCREEN_RESOLUTIONS, resolution)) {
+      self.resolutionType = WebRTC_C.WIDESCREEN;
+      self[resolutionWidescreen] = resolution;
+    } else {
+      debug('no resolution type for ' + resolution);
+    }
+  };
+
   var updatePageColor = function() {
     var color = configuration.getBackgroundColor();
     debug('updating page color : ' + color);
@@ -57064,6 +56787,160 @@ function Settings(configuration, settingsView, eventbus, debug) {
       self.reload();
     } else {
       _changed = true;
+    }
+  };
+
+  self.props = {
+    _type: 'cookie',
+    userid: {
+      onSet: function(value) {
+        configuration.userid = value;
+      }
+    },
+    password: true,
+    authenticationUserid: true,
+    resolutionType: true,
+    localVideoTop: true,
+    localVideoLeft: true,
+    callHistoryTop: true,
+    callHistoryLeft: true,
+    callStatsTop: true,
+    callStatsLeft: true,
+    displayName: {
+      value: function() {
+        return configuration.sipDisplayName || $.cookie('settingsDisplayName')
+      }
+    },
+    selfViewDisabled: {
+      value: function() {
+        return $.cookie('settingsSelfViewDisable') === "true"
+      }
+    },
+    hd: {
+      value: function() {
+        return $.cookie('settingsHd') === "true"
+      }
+    },
+    bandwidthLow: {
+      value: function() {
+        return configuration.bandwidthLow || $.cookie('settingsBandwidthLow')
+      },
+      onSet: function(value) {
+        configuration.bandwidthLow = value;
+      }
+    },
+    bandwidthMed: {
+      value: function() {
+        return configuration.bandwidthMed || $.cookie('settingsBandwidthMed')
+      },
+      onSet: function(value) {
+        configuration.bandwidthMed = value;
+      }
+    },
+    bandwidthHigh: {
+      value: function() {
+        return configuration.bandwidthHigh || $.cookie('settingsBandwidthHigh')
+      },
+      onSet: function(value) {
+        configuration.bandwidthHigh = value;
+      }
+    },
+    color: {
+      value: function() {
+        return configuration.getBackgroundColor()
+      }
+    },
+    resolutionDisplayStandard: {
+      onSet: function(value) {
+        // console.log('resolutionDisplayStandard : onSet : '+value);
+        if(self.resolutionType === WebRTC_C.STANDARD) {
+          configuration.displayResolution = value;          
+        }
+      },
+      value: function() {
+        return configuration.displayResolution;
+      }
+    },
+    resolutionDisplayWidescreen: {
+      onSet: function(value) {
+        // console.log('resolutionDisplayWidescreen : onSet : '+value);
+        if(self.resolutionType === WebRTC_C.WIDESCREEN) {
+          configuration.displayResolution = value;          
+        }
+      },
+      value: function() {
+        return configuration.displayResolution;
+      }
+    },
+    resolutionEncodingStandard: {
+      onSet: function(value) {
+        // console.log('resolutionEncodingStandard : onSet : '+value);
+        if(self.resolutionType === WebRTC_C.STANDARD) {
+          configuration.encodingResolution = value;          
+        }
+      },
+      value: function() {
+        return configuration.encodingResolution;
+      }
+    },
+    resolutionEncodingWidescreen: {
+      onSet: function(value) {
+        // console.log('resolutionEncodingWidescreen : onSet : '+value);
+        if(self.resolutionType === WebRTC_C.WIDESCREEN) {
+          configuration.encodingResolution = value;          
+        }
+      },
+      value: function() {
+        return configuration.encodingResolution;
+      }
+    },
+    // TODO - look into better handle resolution properties 
+    resolutionDisplay: {
+      get: function() {
+        return getResolution("resolutionDisplayStandard", "resolutionDisplayWidescreen");
+      },
+      set: function(resolution) {
+        // console.log('resolutionDisplay : set : '+resolution);
+        configuration.displayResolution = resolution;
+        setResolution(resolution, "resolutionDisplayStandard", "resolutionDisplayWidescreen");
+        $.cookie('settingsResolutionDisplay', resolution);
+      },
+      value: function() {
+        return configuration.displayResolution;
+      }
+    },
+    resolutionEncoding: {
+      get: function() {
+        return getResolution("resolutionEncodingStandard", "resolutionEncodingWidescreen");
+      },
+      set: function(resolution) {
+        // console.log('resolutionEncoding : set : '+resolution);
+        configuration.encodingResolution = resolution;
+        setResolution(resolution, "resolutionEncodingStandard", "resolutionEncodingWidescreen")
+        $.cookie('settingsResolutionEncoding', resolution);
+      },
+      value: function() {
+        return configuration.encodingResolution;
+      }
+    },
+    size: {
+      value: function() {
+        return configuration.size || $.cookie('settingsSize')
+      }
+    },
+    autoAnswer: {
+      value: function() {
+        var value = configuration.enableAutoAnswer !== undefined ? configuration.enableAutoAnswer : $.cookie('settingsAutoAnswer') === "true";
+        return value;
+      }
+    },
+    windowPosition: {
+      get: function() {
+        return ".localVideo" + "-" + self.localVideoTop + "-" + self.localVideoLeft + "|" +
+          ".callHistory" + "-" + self.callHistoryTop + "-" + self.callHistoryLeft + "|" +
+          ".callStats" + "-" + self.callStatsTop + "-" + self.callStatsLeft;
+      },
+      set: function(val) {}
     }
   };
 
@@ -57083,69 +56960,8 @@ function Settings(configuration, settingsView, eventbus, debug) {
     });
   };
 
-  self.getBandwidth = function() {
-    var height = self.getResolutionEncodingHeight();
-    if (height <= 240) {
-      return self.bandwidthLow;
-    } else if (height <= 480) {
-      return self.bandwidthMed;
-    } else if (height <= 720) {
-      return self.bandwidthHigh;
-    }
-  };
   self.reload = function() {
     location.reload(0);
-  };
-  self.getResolutionDisplay = function() {
-    return self.getResolution("resolutionDisplayStandard", "resolutionDisplayWidescreen");
-  };
-  self.getResolutionEncoding = function() {
-    return self.getResolution("resolutionEncodingStandard", "resolutionEncodingWidescreen");
-  };
-  self.getResolutionEncodingWidth = function() {
-    var resolution = self.getResolutionEncoding();
-    if (!$.isBlank(resolution)) {
-      var resolutions = resolution.split('x');
-      return parseInt(resolutions[0], 10);
-    }
-  };
-  self.getResolutionEncodingHeight = function() {
-    var resolution = self.getResolutionEncoding();
-    if (!$.isBlank(resolution)) {
-      var resolutions = resolution.split('x');
-      return parseInt(resolutions[1], 10);
-    }
-  };
-  self.getResolution = function(resolutionStandard, resolutionWidescreen) {
-    // console.log('self.resolutionType : '+self.resolutionType);
-    if (self.resolutionType === WebRTC_C.STANDARD) {
-      return self[resolutionStandard];
-    } else if (self.resolutionType === WebRTC_C.WIDESCREEN) {
-      return self[resolutionWidescreen];
-    } else {
-      return false;
-    }
-  };
-
-  self.setResolutionDisplay = function(resolution) {
-    self.setResolution(resolution, "resolutionDisplayStandard", "resolutionDisplayWidescreen");
-  };
-
-  self.setResolutionEncoding = function(resolution) {
-    self.setResolution(resolution, "resolutionEncodingStandard", "resolutionEncodingWidescreen");
-  };
-
-  self.setResolution = function(resolution, resolutionStandard, resolutionWidescreen) {
-    if (Utils.containsKey(WebRTC_C.STANDARD_RESOLUTIONS, resolution)) {
-      self.resolutionType = WebRTC_C.STANDARD;
-      self[resolutionStandard] = resolution;
-    } else if (Utils.containsKey(WebRTC_C.WIDESCREEN_RESOLUTIONS, resolution)) {
-      self.resolutionType = WebRTC_C.WIDESCREEN;
-      self[resolutionWidescreen] = resolution;
-    } else {
-      debug('no resolution type for ' + resolution);
-    }
-    eventbus.resolutionChanged(self);
   };
   self.save = function() {
     self.persist();
@@ -57162,7 +56978,6 @@ function Settings(configuration, settingsView, eventbus, debug) {
   self.resetLayout = function() {
     self.resolutionEncoding = WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
     self.resolutionDisplay = WebRTC_C.DEFAULT_RESOLUTION_DISPLAY;
-    eventbus.resolutionChanged(self);
   };
   self.clearConfigurationCookies = function() {
     $.removeCookie('settingsDisplayName');
@@ -57172,7 +56987,7 @@ function Settings(configuration, settingsView, eventbus, debug) {
   };
   self.clearConfiguration = function() {
     self.displayName = null;
-    self.userid = null ;
+    self.userid = null;
     self.authenticationUserid = null;
     self.password = null;
   };
@@ -57187,90 +57002,9 @@ function Settings(configuration, settingsView, eventbus, debug) {
     }
   };
 
-
-  self.props = {
-    _type: 'cookie',
-    userid: true,
-    password: true,
-    authenticationUserid: true,
-    resolutionType: true,
-    localVideoTop: true,
-    localVideoLeft: true,
-    callHistoryTop: true,
-    callHistoryLeft: true,
-    callStatsTop: true,
-    callStatsLeft: true,
-    displayName: {
-      value: function(){return configuration.sipDisplayName || $.cookie('settingsDisplayName')}
-    },
-    selfViewDisabled: {
-      value: function(){return $.cookie('settingsSelfViewDisable') === "true"}
-    },
-    hd: {
-      value: function(){return $.cookie('settingsHd') === "true"}
-    },
-    bandwidthLow: {
-      value: function(){return configuration.bandwidthLow || $.cookie('settingsBandwidthLow')}
-    },
-    bandwidthMed: {
-      value: function(){return configuration.bandwidthMed || $.cookie('settingsBandwidthMed')}
-    },
-    bandwidthHigh: {
-      value: function(){return configuration.bandwidthHigh || $.cookie('settingsBandwidthHigh')}
-    },
-    color: {
-      value: function(){return configuration.getBackgroundColor()}
-    },
-    resolutionDisplayStandard: true,
-    resolutionDisplayWidescreen: true,
-    resolutionEncodingStandard: true,
-    resolutionEncodingWidescreen: true,
-    // TODO - look into better handle resolution properties 
-    resolutionDisplay: {
-      get: function(){
-        return self.getResolution("resolutionDisplayStandard", "resolutionDisplayWidescreen");
-      },
-      set: function(resolution){
-        self.setResolution(resolution, "resolutionDisplayStandard", "resolutionDisplayWidescreen");
-        $.cookie('settingsResolutionDisplay', resolution);
-      },
-      value: function(){
-        return configuration.displayResolution || $.cookie('settingsResolutionDisplay') || WebRTC_C.DEFAULT_RESOLUTION_DISPLAY
-      }
-    },
-    resolutionEncoding: {
-      get: function(){
-        return self.getResolution("resolutionEncodingStandard", "resolutionEncodingWidescreen");
-      },
-      set: function(resolution){
-        self.setResolution(resolution, "resolutionEncodingStandard", "resolutionEncodingWidescreen")
-        $.cookie('settingsResolutionEncoding', resolution);
-      },
-      value: function(){ return configuration.encodingResolution || $.cookie('settingsResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;}
-    },
-    size: {
-      value: function(){return configuration.size || $.cookie('settingsSize')}
-    },
-    autoAnswer: {
-      value: function(){
-        var value = configuration.enableAutoAnswer !== undefined ? configuration.enableAutoAnswer : $.cookie('settingsAutoAnswer') === "true";
-        return value;
-      }
-    },
-    windowPosition: {
-      get: function() {
-        return ".localVideo" + "-" + self.localVideoTop + "-" + self.localVideoLeft + "|" +
-          ".callHistory" + "-" + self.callHistoryTop + "-" + self.callHistoryLeft + "|" +
-          ".callStats" + "-" + self.callStatsTop + "-" + self.callStatsLeft;
-      },
-      set: function(val) {}
-    }
-  };
-
-
   return self;
 }
-},{"webrtc-core":474}],225:[function(require,module,exports){
+},{"webrtc-core":473}],224:[function(require,module,exports){
 module.exports = SMS;
 
 var DateFormat = require('webrtc-core').dateformat;
@@ -57490,7 +57224,7 @@ function SMS(eventbus, debug, smsprovider, sound, smsView) {
 
   return self;
 }
-},{"webrtc-core":474}],226:[function(require,module,exports){
+},{"webrtc-core":473}],225:[function(require,module,exports){
 module.exports = SMSProvider;
 
 function SMSProvider(eventbus, debug) {
@@ -57598,7 +57332,7 @@ function SMSProvider(eventbus, debug) {
 
   return self;
 }
-},{}],227:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 module.exports = Sound;
 
 var $ = require('jquery');
@@ -57724,7 +57458,7 @@ function Sound(eventbus, configuration, sipstack) {
   return self;
 }
 
-},{"bdsft-webrtc-media":4,"fs":7,"jquery":214}],228:[function(require,module,exports){
+},{"bdsft-webrtc-media":4,"fs":7,"jquery":214}],227:[function(require,module,exports){
 module.exports = Stats;
 
 var Utils = require('webrtc-core').utils;
@@ -57885,7 +57619,7 @@ function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
 
   return self;
 }
-},{"../../js/stats":2,"webrtc-core":474}],229:[function(require,module,exports){
+},{"../../js/stats":2,"webrtc-core":473}],228:[function(require,module,exports){
 module.exports = Timer;
 
 var Utils = require('webrtc-core').utils;
@@ -57956,7 +57690,7 @@ function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView
 
   return self;
 }
-},{"webrtc-core":474}],230:[function(require,module,exports){
+},{"webrtc-core":473}],229:[function(require,module,exports){
 module.exports = Transfer;
 
 var Utils = require('webrtc-core').utils;
@@ -57989,10 +57723,10 @@ function Transfer(sipstack, eventbus, configuration, callcontrol, transferView) 
 
   return self;
 }
-},{"webrtc-core":474}],231:[function(require,module,exports){
+},{"webrtc-core":473}],230:[function(require,module,exports){
 module.exports = Video;
 
-function Video(eventbus, debug, settings, videoView) {
+function Video(eventbus, debug, configuration, videoView) {
   var self = {}; 
 
   self.view = videoView;
@@ -58000,8 +57734,8 @@ function Video(eventbus, debug, settings, videoView) {
   self.props = {'localEl': true, 'remoteEl': true, 'localWidth': true, 'localHeight': true};
 
   self.validateUserMediaResolution = function() {
-    var encodingWidth = settings.getResolutionEncodingWidth();
-    var encodingHeight = settings.getResolutionEncodingHeight();
+    var encodingWidth = configuration.resolutionEncodingWidth();
+    var encodingHeight = configuration.resolutionEncodingHeight();
     var videoWidth = self.localWidth;
     var videoHeight = self.localHeight;
     debug("validating video resolution " + videoWidth + "," + videoHeight + " to match selected encoding " + encodingWidth + "," + encodingHeight);
@@ -58057,7 +57791,7 @@ function Video(eventbus, debug, settings, videoView) {
 
   return self;
 }
-},{}],232:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 module.exports = XMPP;
 
 var XMPP = require('stanza.io');
@@ -58108,7 +57842,7 @@ function XMPP(debug, eventbus) {
 
   return self;
 }
-},{"stanza.io":233}],233:[function(require,module,exports){
+},{"stanza.io":232}],232:[function(require,module,exports){
 'use strict';
 
 exports.VERSION = '7.0.6';
@@ -58124,7 +57858,7 @@ exports.createClient = function (opts) {
     return client;
 };
 
-},{"./lib/client":234,"./lib/plugins":257,"xmpp-jid":451}],234:[function(require,module,exports){
+},{"./lib/client":233,"./lib/plugins":256,"xmpp-jid":450}],233:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -58593,7 +58327,7 @@ Client.prototype.sendStreamError = function (data) {
 
 module.exports = Client;
 
-},{"./plugins/bind":237,"./plugins/bosh":241,"./plugins/features":252,"./plugins/oldwebsocket":268,"./plugins/sasl":279,"./plugins/session":280,"./plugins/smacks":282,"./plugins/websocket":286,"./sm":287,"./stanza/error":301,"./stanza/iq":310,"./stanza/message":316,"./stanza/presence":322,"./stanza/streamError":340,"alt-sasl-digest-md5":349,"bluebird":364,"hostmeta":366,"jxt":408,"jxt-xmpp-types":407,"node-uuid":421,"sasl-anonymous":423,"sasl-external":425,"sasl-plain":427,"sasl-scram-sha-1":428,"saslmechanisms":448,"underscore":449,"util":168,"wildemitter":450,"xmpp-jid":451}],235:[function(require,module,exports){
+},{"./plugins/bind":236,"./plugins/bosh":240,"./plugins/features":251,"./plugins/oldwebsocket":267,"./plugins/sasl":278,"./plugins/session":279,"./plugins/smacks":281,"./plugins/websocket":285,"./sm":286,"./stanza/error":300,"./stanza/iq":309,"./stanza/message":315,"./stanza/presence":321,"./stanza/streamError":339,"alt-sasl-digest-md5":348,"bluebird":363,"hostmeta":365,"jxt":407,"jxt-xmpp-types":406,"node-uuid":420,"sasl-anonymous":422,"sasl-external":424,"sasl-plain":426,"sasl-scram-sha-1":427,"saslmechanisms":447,"underscore":448,"util":168,"wildemitter":449,"xmpp-jid":450}],234:[function(require,module,exports){
 'use strict';
 
 
@@ -58616,7 +58350,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],236:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 'use strict';
 
 
@@ -58671,7 +58405,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/avatar":288}],237:[function(require,module,exports){
+},{"../stanza/avatar":287}],236:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -58713,7 +58447,7 @@ module.exports = function (client, stanzas, config) {
     });
 };
 
-},{"../stanza/bind":289,"xmpp-jid":451}],238:[function(require,module,exports){
+},{"../stanza/bind":288,"xmpp-jid":450}],237:[function(require,module,exports){
 'use strict';
 
 
@@ -58762,7 +58496,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/blocking":290}],239:[function(require,module,exports){
+},{"../stanza/blocking":289}],238:[function(require,module,exports){
 'use strict';
 
 
@@ -58782,7 +58516,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/bob":291}],240:[function(require,module,exports){
+},{"../stanza/bob":290}],239:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -58831,7 +58565,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/bookmarks":292,"underscore":449,"xmpp-jid":451}],241:[function(require,module,exports){
+},{"../stanza/bookmarks":291,"underscore":448,"xmpp-jid":450}],240:[function(require,module,exports){
 'use strict';
 
 var BOSHConnection = require('../transports/bosh');
@@ -58843,7 +58577,7 @@ module.exports = function (client, stanzas) {
     client.transports.bosh = BOSHConnection;
 };
 
-},{"../stanza/bosh":293,"../transports/bosh":346}],242:[function(require,module,exports){
+},{"../stanza/bosh":292,"../transports/bosh":345}],241:[function(require,module,exports){
 'use strict';
 
 
@@ -58914,7 +58648,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/carbons":295}],243:[function(require,module,exports){
+},{"../stanza/carbons":294}],242:[function(require,module,exports){
 'use strict';
 
 
@@ -58937,7 +58671,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],244:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 'use strict';
 
 
@@ -58959,7 +58693,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/command":296}],245:[function(require,module,exports){
+},{"../stanza/command":295}],244:[function(require,module,exports){
 'use strict';
 
 
@@ -58974,7 +58708,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],246:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 'use strict';
 
 
@@ -59003,7 +58737,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/csi":297}],247:[function(require,module,exports){
+},{"../stanza/csi":296}],246:[function(require,module,exports){
 'use strict';
 
 
@@ -59022,7 +58756,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/dataforms":298}],248:[function(require,module,exports){
+},{"../stanza/dataforms":297}],247:[function(require,module,exports){
 'use strict';
 
 
@@ -59031,7 +58765,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:delay');
 };
 
-},{"../stanza/delayed":299}],249:[function(require,module,exports){
+},{"../stanza/delayed":298}],248:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -59312,7 +59046,7 @@ module.exports = function (client, stanzas) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../stanza/caps":294,"../stanza/disco":300,"../stanza/rsm":332,"buffer":9,"iana-hashes":369,"underscore":449,"xmpp-jid":451}],250:[function(require,module,exports){
+},{"../stanza/caps":293,"../stanza/disco":299,"../stanza/rsm":331,"buffer":9,"iana-hashes":368,"underscore":448,"xmpp-jid":450}],249:[function(require,module,exports){
 'use strict';
 
 
@@ -59320,7 +59054,7 @@ module.exports = function (client) {
     client.disco.addFeature('jid\\20escaping');
 };
 
-},{}],251:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 'use strict';
 
 
@@ -59352,7 +59086,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/extdisco":302}],252:[function(require,module,exports){
+},{"../stanza/extdisco":301}],251:[function(require,module,exports){
 'use strict';
 
 var async = require('async');
@@ -59416,7 +59150,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/streamFeatures":341,"async":363}],253:[function(require,module,exports){
+},{"../stanza/streamFeatures":340,"async":362}],252:[function(require,module,exports){
 'use strict';
 
 
@@ -59426,7 +59160,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:forward:0');
 };
 
-},{"../stanza/forwarded":304}],254:[function(require,module,exports){
+},{"../stanza/forwarded":303}],253:[function(require,module,exports){
 'use strict';
 
 
@@ -59458,7 +59192,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/geoloc":306}],255:[function(require,module,exports){
+},{"../stanza/geoloc":305}],254:[function(require,module,exports){
 'use strict';
 
 var hashes = require('iana-hashes');
@@ -59475,7 +59209,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/hash":307,"iana-hashes":369}],256:[function(require,module,exports){
+},{"../stanza/hash":306,"iana-hashes":368}],255:[function(require,module,exports){
 'use strict';
 
 
@@ -59483,7 +59217,7 @@ module.exports = function (client) {
     client.disco.addFeature('urn:xmpp:idle:1');
 };
 
-},{}],257:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 'use strict';
 
 module.exports = function (client) {
@@ -59534,7 +59268,7 @@ module.exports = function (client) {
     client.use(require('./version'));
 };
 
-},{"./attention":235,"./avatar":236,"./blocking":238,"./bob":239,"./bookmarks":240,"./carbons":242,"./chatstates":243,"./command":244,"./correction":245,"./csi":246,"./dataforms":247,"./delayed":248,"./disco":249,"./escaping":250,"./extdisco":251,"./forwarding":253,"./geoloc":254,"./hashes":255,"./idle":256,"./invisible":258,"./jidprep":259,"./jingle":260,"./json":261,"./keepalive":262,"./logging":263,"./mam":264,"./mood":265,"./muc":266,"./nick":267,"./oob":269,"./ping":270,"./private":271,"./psa":272,"./pubsub":273,"./reach":274,"./receipts":275,"./register":276,"./roster":277,"./rtt":278,"./shim":281,"./time":283,"./vcard":284,"./version":285}],258:[function(require,module,exports){
+},{"./attention":234,"./avatar":235,"./blocking":237,"./bob":238,"./bookmarks":239,"./carbons":241,"./chatstates":242,"./command":243,"./correction":244,"./csi":245,"./dataforms":246,"./delayed":247,"./disco":248,"./escaping":249,"./extdisco":250,"./forwarding":252,"./geoloc":253,"./hashes":254,"./idle":255,"./invisible":257,"./jidprep":258,"./jingle":259,"./json":260,"./keepalive":261,"./logging":262,"./mam":263,"./mood":264,"./muc":265,"./nick":266,"./oob":268,"./ping":269,"./private":270,"./psa":271,"./pubsub":272,"./reach":273,"./receipts":274,"./register":275,"./roster":276,"./rtt":277,"./shim":280,"./time":282,"./vcard":283,"./version":284}],257:[function(require,module,exports){
 'use strict';
 
 
@@ -59557,7 +59291,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/visibility":345}],259:[function(require,module,exports){
+},{"../stanza/visibility":344}],258:[function(require,module,exports){
 'use strict';
 
 
@@ -59573,7 +59307,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/jidprep":311}],260:[function(require,module,exports){
+},{"../stanza/jidprep":310}],259:[function(require,module,exports){
 'use strict';
 
 var Jingle = require('jingle');
@@ -59676,7 +59410,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/file":303,"../stanza/iceUdp":309,"../stanza/jingle":312,"../stanza/rtp":333,"jingle":385}],261:[function(require,module,exports){
+},{"../stanza/file":302,"../stanza/iceUdp":308,"../stanza/jingle":311,"../stanza/rtp":332,"jingle":384}],260:[function(require,module,exports){
 'use strict';
 
 
@@ -59685,7 +59419,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:json:0');
 };
 
-},{"../stanza/json":313}],262:[function(require,module,exports){
+},{"../stanza/json":312}],261:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -59744,7 +59478,7 @@ module.exports = function (client) {
     });
 };
 
-},{"bluebird":364}],263:[function(require,module,exports){
+},{"bluebird":363}],262:[function(require,module,exports){
 'use strict';
 
 
@@ -59762,7 +59496,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/logging":314}],264:[function(require,module,exports){
+},{"../stanza/logging":313}],263:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -59909,7 +59643,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/mam":315,"bluebird":364,"xmpp-jid":451}],265:[function(require,module,exports){
+},{"../stanza/mam":314,"bluebird":363,"xmpp-jid":450}],264:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/mood';
@@ -59946,7 +59680,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/mood":317}],266:[function(require,module,exports){
+},{"../stanza/mood":316}],265:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -60196,7 +59930,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/hats":308,"../stanza/muc":318,"underscore":449,"xmpp-jid":451}],267:[function(require,module,exports){
+},{"../stanza/hats":307,"../stanza/muc":317,"underscore":448,"xmpp-jid":450}],266:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/nick';
@@ -60229,7 +59963,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/nick":319}],268:[function(require,module,exports){
+},{"../stanza/nick":318}],267:[function(require,module,exports){
 'use strict';
 
 var OldWSConnection = require('../transports/old-websocket');
@@ -60241,7 +59975,7 @@ module.exports = function (client, stanzas) {
     client.transports['old-websocket'] = OldWSConnection;
 };
 
-},{"../stanza/stream":339,"../transports/old-websocket":347}],269:[function(require,module,exports){
+},{"../stanza/stream":338,"../transports/old-websocket":346}],268:[function(require,module,exports){
 'use strict';
 
 
@@ -60250,7 +59984,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('jabber:x:oob');
 };
 
-},{"../stanza/oob":320}],270:[function(require,module,exports){
+},{"../stanza/oob":319}],269:[function(require,module,exports){
 'use strict';
 
 
@@ -60272,7 +60006,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/ping":321}],271:[function(require,module,exports){
+},{"../stanza/ping":320}],270:[function(require,module,exports){
 'use strict';
 
 
@@ -60294,7 +60028,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/private":323}],272:[function(require,module,exports){
+},{"../stanza/private":322}],271:[function(require,module,exports){
 'use strict';
 
 
@@ -60303,7 +60037,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:psa');
 };
 
-},{"../stanza/psa":324}],273:[function(require,module,exports){
+},{"../stanza/psa":323}],272:[function(require,module,exports){
 'use strict';
 
 
@@ -60557,7 +60291,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/pubsub":325,"../stanza/pubsubError":326,"../stanza/pubsubEvents":327,"../stanza/pubsubOwner":328}],274:[function(require,module,exports){
+},{"../stanza/pubsub":324,"../stanza/pubsubError":325,"../stanza/pubsubEvents":326,"../stanza/pubsubOwner":327}],273:[function(require,module,exports){
 'use strict';
 
 
@@ -60599,7 +60333,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/reach":329}],275:[function(require,module,exports){
+},{"../stanza/reach":328}],274:[function(require,module,exports){
 'use strict';
 
 module.exports = function (client) {
@@ -60625,7 +60359,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],276:[function(require,module,exports){
+},{}],275:[function(require,module,exports){
 'use strict';
 
 
@@ -60660,7 +60394,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/register":330}],277:[function(require,module,exports){
+},{"../stanza/register":329}],276:[function(require,module,exports){
 'use strict';
 
 
@@ -60740,7 +60474,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/roster":331}],278:[function(require,module,exports){
+},{"../stanza/roster":330}],277:[function(require,module,exports){
 'use strict';
 
 
@@ -60757,7 +60491,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/rtt":334}],279:[function(require,module,exports){
+},{"../stanza/rtt":333}],278:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -60836,7 +60570,7 @@ module.exports = function (client, stanzas) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../stanza/sasl":335,"buffer":9}],280:[function(require,module,exports){
+},{"../stanza/sasl":334,"buffer":9}],279:[function(require,module,exports){
 'use strict';
 
 
@@ -60874,7 +60608,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/session":336}],281:[function(require,module,exports){
+},{"../stanza/session":335}],280:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/shim';
@@ -60887,7 +60621,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature(NS + '#SubID', NS);
 };
 
-},{"../stanza/shim":337}],282:[function(require,module,exports){
+},{"../stanza/shim":336}],281:[function(require,module,exports){
 'use strict';
 
 
@@ -60946,7 +60680,7 @@ module.exports = function (client, stanzas, config) {
     client.registerFeature('streamManagement', 500, smacks);
 };
 
-},{"../stanza/sm":338}],283:[function(require,module,exports){
+},{"../stanza/sm":337}],282:[function(require,module,exports){
 'use strict';
 
 
@@ -60974,7 +60708,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/time":342}],284:[function(require,module,exports){
+},{"../stanza/time":341}],283:[function(require,module,exports){
 'use strict';
 
 
@@ -60999,7 +60733,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/vcard":343}],285:[function(require,module,exports){
+},{"../stanza/vcard":342}],284:[function(require,module,exports){
 'use strict';
 
 
@@ -61025,7 +60759,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/version":344}],286:[function(require,module,exports){
+},{"../stanza/version":343}],285:[function(require,module,exports){
 'use strict';
 
 var WSConnection = require('../transports/websocket');
@@ -61037,7 +60771,7 @@ module.exports = function (client, stanzas) {
     client.transports.websocket = WSConnection;
 };
 
-},{"../stanza/framing":305,"../transports/websocket":348}],287:[function(require,module,exports){
+},{"../stanza/framing":304,"../transports/websocket":347}],286:[function(require,module,exports){
 'use strict';
 
 var MAX_SEQ = Math.pow(2, 32);
@@ -61182,7 +60916,7 @@ Object.defineProperties(StreamManagement.prototype, {
 
 module.exports = StreamManagement;
 
-},{}],288:[function(require,module,exports){
+},{}],287:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -61233,7 +60967,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"underscore":449}],289:[function(require,module,exports){
+},{"underscore":448}],288:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-bind';
@@ -61260,7 +60994,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],290:[function(require,module,exports){
+},{}],289:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -61330,7 +61064,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":451}],291:[function(require,module,exports){
+},{"xmpp-jid":450}],290:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:bob';
@@ -61365,7 +61099,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],292:[function(require,module,exports){
+},{}],291:[function(require,module,exports){
 'use strict';
 
 
@@ -61398,7 +61132,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],293:[function(require,module,exports){
+},{}],292:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/httpbind';
@@ -61469,7 +61203,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],294:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 'use strict';
 
 
@@ -61497,7 +61231,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],295:[function(require,module,exports){
+},{}],294:[function(require,module,exports){
 'use strict';
 
 
@@ -61553,7 +61287,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],296:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/commands';
@@ -61635,7 +61369,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],297:[function(require,module,exports){
+},{}],296:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:csi';
@@ -61670,7 +61404,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],298:[function(require,module,exports){
+},{}],297:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -61955,7 +61689,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":451}],299:[function(require,module,exports){
+},{"xmpp-jid":450}],298:[function(require,module,exports){
 'use strict';
 
 
@@ -61982,7 +61716,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],300:[function(require,module,exports){
+},{}],299:[function(require,module,exports){
 'use strict';
 
 var NSInfo = 'http://jabber.org/protocol/disco#info';
@@ -62054,7 +61788,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],301:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 'use strict';
 
 var ERR_NS = 'urn:ietf:params:xml:ns:xmpp-stanzas';
@@ -62148,7 +61882,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],302:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:extdisco:1';
@@ -62200,7 +61934,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],303:[function(require,module,exports){
+},{}],302:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:apps:file-transfer:3';
@@ -62267,7 +62001,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],304:[function(require,module,exports){
+},{}],303:[function(require,module,exports){
 'use strict';
 
 module.exports = function (stanza) {
@@ -62297,7 +62031,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],305:[function(require,module,exports){
+},{}],304:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-framing';
@@ -62331,7 +62065,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],306:[function(require,module,exports){
+},{}],305:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/geoloc';
@@ -62377,7 +62111,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],307:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 'use strict';
 
 
@@ -62393,7 +62127,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],308:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:hats:0';
@@ -62419,7 +62153,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],309:[function(require,module,exports){
+},{}],308:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:transports:ice-udp:1';
@@ -62509,7 +62243,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],310:[function(require,module,exports){
+},{}],309:[function(require,module,exports){
 'use strict';
 
 
@@ -62556,7 +62290,7 @@ module.exports = function (stanza) {
     };
 };
 
-},{}],311:[function(require,module,exports){
+},{}],310:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -62583,7 +62317,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":451}],312:[function(require,module,exports){
+},{"xmpp-jid":450}],311:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:1';
@@ -62702,7 +62436,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],313:[function(require,module,exports){
+},{}],312:[function(require,module,exports){
 'use strict';
 
 
@@ -62734,7 +62468,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],314:[function(require,module,exports){
+},{}],313:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:eventlog';
@@ -62784,7 +62518,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],315:[function(require,module,exports){
+},{}],314:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -62900,7 +62634,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":451}],316:[function(require,module,exports){
+},{"xmpp-jid":450}],315:[function(require,module,exports){
 'use strict';
 
 
@@ -62946,7 +62680,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],317:[function(require,module,exports){
+},{}],316:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/mood';
@@ -63057,7 +62791,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],318:[function(require,module,exports){
+},{}],317:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/muc';
@@ -63332,7 +63066,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],319:[function(require,module,exports){
+},{}],318:[function(require,module,exports){
 'use strict';
 
 
@@ -63353,7 +63087,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],320:[function(require,module,exports){
+},{}],319:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:x:oob';
@@ -63375,7 +63109,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],321:[function(require,module,exports){
+},{}],320:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:ping';
@@ -63393,7 +63127,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],322:[function(require,module,exports){
+},{}],321:[function(require,module,exports){
 'use strict';
 
 
@@ -63467,7 +63201,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],323:[function(require,module,exports){
+},{}],322:[function(require,module,exports){
 'use strict';
 
 
@@ -63484,7 +63218,7 @@ module.exports = function (stanza) {
 };
 
 
-},{}],324:[function(require,module,exports){
+},{}],323:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:psa';
@@ -63513,7 +63247,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],325:[function(require,module,exports){
+},{}],324:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub';
@@ -63702,7 +63436,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],326:[function(require,module,exports){
+},{}],325:[function(require,module,exports){
 'use strict';
 
 var ERRNS = 'http://jabber.org/protocol/pubsub#errors';
@@ -63738,7 +63472,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],327:[function(require,module,exports){
+},{}],326:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub#event';
@@ -63871,7 +63605,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],328:[function(require,module,exports){
+},{}],327:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub#owner';
@@ -63980,7 +63714,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],329:[function(require,module,exports){
+},{}],328:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -64045,7 +63779,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"underscore":449}],330:[function(require,module,exports){
+},{"underscore":448}],329:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:register';
@@ -64096,7 +63830,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],331:[function(require,module,exports){
+},{}],330:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:roster';
@@ -64149,7 +63883,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],332:[function(require,module,exports){
+},{}],331:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/rsm';
@@ -64186,7 +63920,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],333:[function(require,module,exports){
+},{}],332:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:apps:rtp:1';
@@ -64481,7 +64215,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],334:[function(require,module,exports){
+},{}],333:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:rtt:0';
@@ -64586,7 +64320,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],335:[function(require,module,exports){
+},{}],334:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
@@ -64709,7 +64443,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],336:[function(require,module,exports){
+},{}],335:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-session';
@@ -64736,7 +64470,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],337:[function(require,module,exports){
+},{}],336:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/shim';
@@ -64782,7 +64516,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],338:[function(require,module,exports){
+},{}],337:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:sm:3';
@@ -64877,7 +64611,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],339:[function(require,module,exports){
+},{}],338:[function(require,module,exports){
 'use strict';
 
 
@@ -64898,7 +64632,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],340:[function(require,module,exports){
+},{}],339:[function(require,module,exports){
 'use strict';
 
 var ERR_NS = 'urn:ietf:params:xml:ns:xmpp-streams';
@@ -64976,7 +64710,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],341:[function(require,module,exports){
+},{}],340:[function(require,module,exports){
 'use strict';
 
 
@@ -65005,7 +64739,7 @@ module.exports = function (stanza) {
     stanza.extend(StreamFeatures, SubscriptionPreApprovalFeature);
 };
 
-},{}],342:[function(require,module,exports){
+},{}],341:[function(require,module,exports){
 'use strict';
 
 
@@ -65026,7 +64760,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],343:[function(require,module,exports){
+},{}],342:[function(require,module,exports){
 'use strict';
 
 var NS = 'vcard-temp';
@@ -65141,7 +64875,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],344:[function(require,module,exports){
+},{}],343:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:version';
@@ -65166,7 +64900,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],345:[function(require,module,exports){
+},{}],344:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:invisible:0';
@@ -65179,7 +64913,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],346:[function(require,module,exports){
+},{}],345:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -65419,7 +65153,7 @@ BOSHConnection.prototype.request = function (bosh) {
 module.exports = BOSHConnection;
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":152,"bluebird":364,"buffer":9,"request":365,"underscore":449,"util":168,"wildemitter":450}],347:[function(require,module,exports){
+},{"_process":152,"bluebird":363,"buffer":9,"request":364,"underscore":448,"util":168,"wildemitter":449}],346:[function(require,module,exports){
 'use strict';
 
 var WSConnection = require('./websocket');
@@ -65530,7 +65264,7 @@ OldWSConnection.prototype.closeHeader = function () {
 
 module.exports = OldWSConnection;
 
-},{"./websocket":348,"underscore":449,"util":168}],348:[function(require,module,exports){
+},{"./websocket":347,"underscore":448,"util":168}],347:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -65687,7 +65421,7 @@ WSConnection.prototype.send = function (data) {
 module.exports = WSConnection;
 
 }).call(this,require("buffer").Buffer)
-},{"async":363,"buffer":9,"faye-websocket":8,"util":168,"wildemitter":450}],349:[function(require,module,exports){
+},{"async":362,"buffer":9,"faye-websocket":8,"util":168,"wildemitter":449}],348:[function(require,module,exports){
 var randomBytes = require('randombytes');
 var createHash = require('create-hash');
 
@@ -65828,33 +65562,33 @@ Mechanism.prototype.challenge = function(chal) {
 
 module.exports = Mechanism;
 
-},{"create-hash":350,"randombytes":362}],350:[function(require,module,exports){
+},{"create-hash":349,"randombytes":361}],349:[function(require,module,exports){
 module.exports=require(101)
-},{"./md5":352,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":353,"ripemd160":354,"sha.js":356,"stream":166}],351:[function(require,module,exports){
+},{"./md5":351,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":352,"ripemd160":353,"sha.js":355,"stream":166}],350:[function(require,module,exports){
 module.exports=require(102)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],352:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],351:[function(require,module,exports){
 module.exports=require(103)
-},{"./helpers":351,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],353:[function(require,module,exports){
+},{"./helpers":350,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],352:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],354:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],353:[function(require,module,exports){
 module.exports=require(104)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],355:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],354:[function(require,module,exports){
 module.exports=require(105)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],356:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],355:[function(require,module,exports){
 module.exports=require(106)
-},{"./sha1":357,"./sha224":358,"./sha256":359,"./sha384":360,"./sha512":361,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],357:[function(require,module,exports){
+},{"./sha1":356,"./sha224":357,"./sha256":358,"./sha384":359,"./sha512":360,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],356:[function(require,module,exports){
 module.exports=require(107)
-},{"./hash":355,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":353}],358:[function(require,module,exports){
+},{"./hash":354,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":352}],357:[function(require,module,exports){
 module.exports=require(108)
-},{"./hash":355,"./sha256":359,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":353}],359:[function(require,module,exports){
+},{"./hash":354,"./sha256":358,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":352}],358:[function(require,module,exports){
 module.exports=require(109)
-},{"./hash":355,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":353}],360:[function(require,module,exports){
+},{"./hash":354,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":352}],359:[function(require,module,exports){
 module.exports=require(110)
-},{"./hash":355,"./sha512":361,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":353}],361:[function(require,module,exports){
+},{"./hash":354,"./sha512":360,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":352}],360:[function(require,module,exports){
 module.exports=require(111)
-},{"./hash":355,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":353}],362:[function(require,module,exports){
+},{"./hash":354,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":352}],361:[function(require,module,exports){
 module.exports=require(147)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js":147,"_process":152,"buffer":9}],363:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js":147,"_process":152,"buffer":9}],362:[function(require,module,exports){
 (function (process){
 /*!
  * async
@@ -66981,7 +66715,7 @@ module.exports=require(147)
 }());
 
 }).call(this,require('_process'))
-},{"_process":152}],364:[function(require,module,exports){
+},{"_process":152}],363:[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -71648,7 +71382,7 @@ module.exports = ret;
 },{"./es5.js":14}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":152}],365:[function(require,module,exports){
+},{"_process":152}],364:[function(require,module,exports){
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -72144,7 +71878,7 @@ function b64_enc (data) {
 }));
 //UMD FOOTER END
 
-},{}],366:[function(require,module,exports){
+},{}],365:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -72193,7 +71927,7 @@ module.exports = function (opts, cb) {
     }).nodeify(cb);
 };
 
-},{"./lib/xrd":367,"bluebird":364,"jxt":408,"request":368}],367:[function(require,module,exports){
+},{"./lib/xrd":366,"bluebird":363,"jxt":407,"request":367}],366:[function(require,module,exports){
 'use strict';
 
 var jxt = require('jxt');
@@ -72248,7 +71982,7 @@ module.exports = function (registry) {
     return XRD;
 };
 
-},{"jxt":408}],368:[function(require,module,exports){
+},{"jxt":407}],367:[function(require,module,exports){
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -72661,7 +72395,7 @@ function b64_enc (data) {
     return enc;
 }
 
-},{}],369:[function(require,module,exports){
+},{}],368:[function(require,module,exports){
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
 var getHashes = require('./lib/get-hashes');
@@ -72706,7 +72440,7 @@ exports.createHmac = function (algorithm, key) {
     return createHmac(algorithm, key);
 };
 
-},{"./lib/get-hashes":370,"create-hash":371,"create-hmac":383}],370:[function(require,module,exports){
+},{"./lib/get-hashes":369,"create-hash":370,"create-hmac":382}],369:[function(require,module,exports){
 var crypto = require('crypto');
 
 
@@ -72714,35 +72448,35 @@ module.exports = function () {
     return crypto.getHashes();
 };
 
-},{"crypto":13}],371:[function(require,module,exports){
+},{"crypto":13}],370:[function(require,module,exports){
 module.exports=require(101)
-},{"./md5":373,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":374,"ripemd160":375,"sha.js":377,"stream":166}],372:[function(require,module,exports){
+},{"./md5":372,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":373,"ripemd160":374,"sha.js":376,"stream":166}],371:[function(require,module,exports){
 module.exports=require(102)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],373:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],372:[function(require,module,exports){
 module.exports=require(103)
-},{"./helpers":372,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],374:[function(require,module,exports){
+},{"./helpers":371,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],373:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],375:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],374:[function(require,module,exports){
 module.exports=require(104)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],376:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],375:[function(require,module,exports){
 module.exports=require(105)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],377:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],376:[function(require,module,exports){
 module.exports=require(106)
-},{"./sha1":378,"./sha224":379,"./sha256":380,"./sha384":381,"./sha512":382,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],378:[function(require,module,exports){
+},{"./sha1":377,"./sha224":378,"./sha256":379,"./sha384":380,"./sha512":381,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],377:[function(require,module,exports){
 module.exports=require(107)
-},{"./hash":376,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":374}],379:[function(require,module,exports){
+},{"./hash":375,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":373}],378:[function(require,module,exports){
 module.exports=require(108)
-},{"./hash":376,"./sha256":380,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":374}],380:[function(require,module,exports){
+},{"./hash":375,"./sha256":379,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":373}],379:[function(require,module,exports){
 module.exports=require(109)
-},{"./hash":376,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":374}],381:[function(require,module,exports){
+},{"./hash":375,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":373}],380:[function(require,module,exports){
 module.exports=require(110)
-},{"./hash":376,"./sha512":382,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":374}],382:[function(require,module,exports){
+},{"./hash":375,"./sha512":381,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":373}],381:[function(require,module,exports){
 module.exports=require(111)
-},{"./hash":376,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":374}],383:[function(require,module,exports){
+},{"./hash":375,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":373}],382:[function(require,module,exports){
 module.exports=require(112)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hmac/browser.js":112,"buffer":9,"create-hash/browser":371,"inherits":384,"stream":166}],384:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hmac/browser.js":112,"buffer":9,"create-hash/browser":370,"inherits":383,"stream":166}],383:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],385:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],384:[function(require,module,exports){
 var util = require('util');
 var intersect = require('intersect');
 var WildEmitter = require('wildemitter');
@@ -73150,7 +72884,7 @@ SessionManager.prototype.process = function (req) {
 
 module.exports = SessionManager;
 
-},{"intersect":387,"jingle-filetransfer-session":388,"jingle-media-session":397,"jingle-session":405,"util":168,"webrtcsupport":406,"wildemitter":450}],386:[function(require,module,exports){
+},{"intersect":386,"jingle-filetransfer-session":387,"jingle-media-session":396,"jingle-session":404,"util":168,"webrtcsupport":405,"wildemitter":449}],385:[function(require,module,exports){
 var arr = [];
 var each = arr.forEach;
 var slice = arr.slice;
@@ -73167,7 +72901,7 @@ module.exports = function(obj) {
     return obj;
 };
 
-},{}],387:[function(require,module,exports){
+},{}],386:[function(require,module,exports){
 module.exports = intersect;
 
 function intersect (a, b) {
@@ -73199,7 +72933,7 @@ function indexOf(arr, el) {
   return -1;
 }
 
-},{}],388:[function(require,module,exports){
+},{}],387:[function(require,module,exports){
 var util = require('util');
 var extend = require('extend-object');
 var BaseSession = require('jingle-session');
@@ -73469,7 +73203,7 @@ FileTransferSession.prototype = extend(FileTransferSession.prototype, {
 
 module.exports = FileTransferSession;
 
-},{"extend-object":386,"filetransfer":389,"jingle-session":405,"rtcpeerconnection":396,"util":168}],389:[function(require,module,exports){
+},{"extend-object":385,"filetransfer":388,"jingle-session":404,"rtcpeerconnection":395,"util":168}],388:[function(require,module,exports){
 var async = require('async');
 //var webrtcsupport = require('webrtcsupport');
 var WildEmitter = require('wildemitter');
@@ -73597,7 +73331,7 @@ module.exports.support = window && window.File && window.FileReader && window.Bl
 module.exports.Sender = Sender;
 module.exports.Receiver = Receiver;
 
-},{"async":363,"iana-hashes":369,"util":168,"wildemitter":450}],390:[function(require,module,exports){
+},{"async":362,"iana-hashes":368,"util":168,"wildemitter":449}],389:[function(require,module,exports){
 var toSDP = require('./lib/tosdp');
 var toJSON = require('./lib/tojson');
 
@@ -73719,7 +73453,7 @@ exports.toCandidateJSON = toJSON.toCandidateJSON;
 exports.toMediaJSON = toJSON.toMediaJSON;
 exports.toSessionJSON = toJSON.toSessionJSON;
 
-},{"./lib/tojson":393,"./lib/tosdp":394}],391:[function(require,module,exports){
+},{"./lib/tojson":392,"./lib/tosdp":393}],390:[function(require,module,exports){
 exports.lines = function (sdp) {
     return sdp.split('\r\n').filter(function (line) {
         return line.length > 0;
@@ -73980,7 +73714,7 @@ exports.bandwidth = function (line) {
     return parsed;
 };
 
-},{}],392:[function(require,module,exports){
+},{}],391:[function(require,module,exports){
 module.exports = {
     initiator: {
         incoming: {
@@ -74028,7 +73762,7 @@ module.exports = {
     }
 };
 
-},{}],393:[function(require,module,exports){
+},{}],392:[function(require,module,exports){
 var SENDERS = require('./senders');
 var parsers = require('./parsers');
 var idCounter = Math.random();
@@ -74234,7 +73968,7 @@ exports.toCandidateJSON = function (line) {
     return candidate;
 };
 
-},{"./parsers":391,"./senders":392}],394:[function(require,module,exports){
+},{"./parsers":390,"./senders":391}],393:[function(require,module,exports){
 var SENDERS = require('./senders');
 
 
@@ -74450,7 +74184,7 @@ exports.toCandidateSDP = function (candidate) {
     return 'a=candidate:' + sdp.join(' ');
 };
 
-},{"./senders":392}],395:[function(require,module,exports){
+},{"./senders":391}],394:[function(require,module,exports){
 // based on https://github.com/ESTOS/strophe.jingle/
 // adds wildemitter support
 var util = require('util');
@@ -74687,7 +74421,7 @@ TraceablePeerConnection.prototype.getStats = function (callback, errback) {
 
 module.exports = TraceablePeerConnection;
 
-},{"util":168,"webrtcsupport":406,"wildemitter":450}],396:[function(require,module,exports){
+},{"util":168,"webrtcsupport":405,"wildemitter":449}],395:[function(require,module,exports){
 var _ = require('underscore');
 var util = require('util');
 var webrtc = require('webrtcsupport');
@@ -75402,7 +75136,7 @@ PeerConnection.prototype.getStats = function (cb) {
 
 module.exports = PeerConnection;
 
-},{"sdp-jingle-json":390,"traceablepeerconnection":395,"underscore":449,"util":168,"webrtcsupport":406,"wildemitter":450}],397:[function(require,module,exports){
+},{"sdp-jingle-json":389,"traceablepeerconnection":394,"underscore":448,"util":168,"webrtcsupport":405,"wildemitter":449}],396:[function(require,module,exports){
 var util = require('util');
 var extend = require('extend-object');
 var BaseSession = require('jingle-session');
@@ -75994,21 +75728,21 @@ MediaSession.prototype = extend(MediaSession.prototype, {
 
 module.exports = MediaSession;
 
-},{"extend-object":386,"jingle-session":405,"rtcpeerconnection":404,"util":168}],398:[function(require,module,exports){
+},{"extend-object":385,"jingle-session":404,"rtcpeerconnection":403,"util":168}],397:[function(require,module,exports){
+module.exports=require(389)
+},{"./lib/tojson":400,"./lib/tosdp":401,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/index.js":389}],398:[function(require,module,exports){
 module.exports=require(390)
-},{"./lib/tojson":401,"./lib/tosdp":402,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/index.js":390}],399:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/parsers.js":390}],399:[function(require,module,exports){
 module.exports=require(391)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/parsers.js":391}],400:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/senders.js":391}],400:[function(require,module,exports){
 module.exports=require(392)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/senders.js":392}],401:[function(require,module,exports){
+},{"./parsers":398,"./senders":399,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tojson.js":392}],401:[function(require,module,exports){
 module.exports=require(393)
-},{"./parsers":399,"./senders":400,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tojson.js":393}],402:[function(require,module,exports){
+},{"./senders":399,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tosdp.js":393}],402:[function(require,module,exports){
 module.exports=require(394)
-},{"./senders":400,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tosdp.js":394}],403:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/traceablepeerconnection/index.js":394,"util":168,"webrtcsupport":405,"wildemitter":449}],403:[function(require,module,exports){
 module.exports=require(395)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/traceablepeerconnection/index.js":395,"util":168,"webrtcsupport":406,"wildemitter":450}],404:[function(require,module,exports){
-module.exports=require(396)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/rtcpeerconnection.js":396,"sdp-jingle-json":398,"traceablepeerconnection":403,"underscore":449,"util":168,"webrtcsupport":406,"wildemitter":450}],405:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/rtcpeerconnection.js":395,"sdp-jingle-json":397,"traceablepeerconnection":402,"underscore":448,"util":168,"webrtcsupport":405,"wildemitter":449}],404:[function(require,module,exports){
 var util = require('util');
 var async = require('async');
 var extend = require('extend-object');
@@ -76353,7 +76087,7 @@ JingleSession.prototype = extend(JingleSession.prototype, {
 
 module.exports = JingleSession;
 
-},{"async":363,"extend-object":386,"util":168,"wildemitter":450}],406:[function(require,module,exports){
+},{"async":362,"extend-object":385,"util":168,"wildemitter":449}],405:[function(require,module,exports){
 // created by @HenrikJoreteg
 var prefix;
 
@@ -76400,7 +76134,7 @@ module.exports = {
     getUserMedia: getUserMedia
 };
 
-},{}],407:[function(require,module,exports){
+},{}],406:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -76555,7 +76289,7 @@ module.exports = function (JXT) {
     );
 };
 
-},{"xmpp-jid":451}],408:[function(require,module,exports){
+},{"xmpp-jid":450}],407:[function(require,module,exports){
 'use strict';
 
 var ltx = require('ltx');
@@ -76741,7 +76475,7 @@ JXT.getGlobalJXT = function () {
 
 module.exports = JXT;
 
-},{"./lib/helpers":409,"./lib/stanza":410,"./lib/types":411,"extend-object":414,"ltx":417,"node-uuid":421}],409:[function(require,module,exports){
+},{"./lib/helpers":408,"./lib/stanza":409,"./lib/types":410,"extend-object":413,"ltx":416,"node-uuid":420}],408:[function(require,module,exports){
 'use strict';
 
 var ltx = require('ltx');
@@ -77022,7 +76756,7 @@ exports.setBoolSub = function (xml, NS, element, value) {
     }
 };
 
-},{"ltx":417}],410:[function(require,module,exports){
+},{"ltx":416}],409:[function(require,module,exports){
 'use strict';
 
 var helpers = require('./helpers');
@@ -77135,7 +76869,7 @@ module.exports = function (JXT, opts) {
     return Stanza;
 };
 
-},{"./helpers":409,"extend-object":414}],411:[function(require,module,exports){
+},{"./helpers":408,"extend-object":413}],410:[function(require,module,exports){
 'use strict';
 
 var fromB64 = require('atob');
@@ -77528,7 +77262,7 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
     };
 };
 
-},{"./helpers":409,"atob":412,"btoa":413,"extend-object":414}],412:[function(require,module,exports){
+},{"./helpers":408,"atob":411,"btoa":412,"extend-object":413}],411:[function(require,module,exports){
 (function (Buffer){
 (function () {
   "use strict";
@@ -77541,7 +77275,7 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
 }());
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],413:[function(require,module,exports){
+},{"buffer":9}],412:[function(require,module,exports){
 (function (Buffer){
 (function () {
   "use strict";
@@ -77563,9 +77297,9 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
 }());
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],414:[function(require,module,exports){
-module.exports=require(386)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/extend-object/extend-object.js":386}],415:[function(require,module,exports){
+},{"buffer":9}],413:[function(require,module,exports){
+module.exports=require(385)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/jingle/node_modules/extend-object/extend-object.js":385}],414:[function(require,module,exports){
 'use strict';
 
 var util = require('util')
@@ -77677,7 +77411,7 @@ DOMElement.prototype.removeChild = function (el) {
 
 module.exports = DOMElement
 
-},{"./element":416,"util":168}],416:[function(require,module,exports){
+},{"./element":415,"util":168}],415:[function(require,module,exports){
 'use strict';
 
 /**
@@ -78055,7 +77789,7 @@ function escapeXmlText(s) {
 exports.Element = Element
 exports.escapeXml = escapeXml
 
-},{}],417:[function(require,module,exports){
+},{}],416:[function(require,module,exports){
 'use strict';
 
 /* Cause browserify to bundle SAX parsers: */
@@ -78065,7 +77799,7 @@ parse.availableSaxParsers.push(parse.bestSaxParser = require('./sax/sax_ltx'))
 
 /* SHIM */
 module.exports = require('./index')
-},{"./index":418,"./parse":419,"./sax/sax_ltx":420}],418:[function(require,module,exports){
+},{"./index":417,"./parse":418,"./sax/sax_ltx":419}],417:[function(require,module,exports){
 'use strict';
 
 var parse = require('./parse')
@@ -78092,7 +77826,7 @@ exports.Parser = parse.Parser
 exports.availableSaxParsers = parse.availableSaxParsers
 exports.bestSaxParser = parse.bestSaxParser
 
-},{"./dom-element":415,"./element":416,"./parse":419}],419:[function(require,module,exports){
+},{"./dom-element":414,"./element":415,"./parse":418}],418:[function(require,module,exports){
 'use strict';
 
 var events = require('events')
@@ -78211,7 +77945,7 @@ exports.parse = function(data, saxParser) {
     }
 }
 
-},{"./dom-element":415,"events":148,"util":168}],420:[function(require,module,exports){
+},{"./dom-element":414,"events":148,"util":168}],419:[function(require,module,exports){
 'use strict';
 
 var util = require('util')
@@ -78383,7 +78117,7 @@ function unescapeXml(s) {
         replace(/\&(nbsp|#160);/g, '\n')
 }
 
-},{"events":148,"util":168}],421:[function(require,module,exports){
+},{"events":148,"util":168}],420:[function(require,module,exports){
 //     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -78630,7 +78364,7 @@ function unescapeXml(s) {
   }
 }).call(this);
 
-},{}],422:[function(require,module,exports){
+},{}],421:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -78686,7 +78420,7 @@ function unescapeXml(s) {
   
 }));
 
-},{}],423:[function(require,module,exports){
+},{}],422:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -78706,7 +78440,7 @@ function unescapeXml(s) {
   
 }));
 
-},{"./lib/mechanism":422}],424:[function(require,module,exports){
+},{"./lib/mechanism":421}],423:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -78762,9 +78496,9 @@ function unescapeXml(s) {
   
 }));
 
-},{}],425:[function(require,module,exports){
-arguments[4][423][0].apply(exports,arguments)
-},{"./lib/mechanism":424,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":423}],426:[function(require,module,exports){
+},{}],424:[function(require,module,exports){
+arguments[4][422][0].apply(exports,arguments)
+},{"./lib/mechanism":423,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":422}],425:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -78831,9 +78565,9 @@ arguments[4][423][0].apply(exports,arguments)
   
 }));
 
-},{}],427:[function(require,module,exports){
-arguments[4][423][0].apply(exports,arguments)
-},{"./lib/mechanism":426,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":423}],428:[function(require,module,exports){
+},{}],426:[function(require,module,exports){
+arguments[4][422][0].apply(exports,arguments)
+},{"./lib/mechanism":425,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":422}],427:[function(require,module,exports){
 (function (Buffer){
 var bitops = require('./lib/bitops');
 var utils = require('./lib/utils');
@@ -78943,7 +78677,7 @@ RESP.final = function () {
 module.exports = Mechanism;
 
 }).call(this,require("buffer").Buffer)
-},{"./lib/bitops":429,"./lib/utils":430,"buffer":9}],429:[function(require,module,exports){
+},{"./lib/bitops":428,"./lib/utils":429,"buffer":9}],428:[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
@@ -78973,7 +78707,7 @@ exports.Hi = function (text, salt, iterations) {
 
 
 }).call(this,require("buffer").Buffer)
-},{"bitwise-xor":431,"buffer":9,"create-hash":432,"create-hmac":444}],430:[function(require,module,exports){
+},{"bitwise-xor":430,"buffer":9,"create-hash":431,"create-hmac":443}],429:[function(require,module,exports){
 var randomBytes = require('randombytes');
 
 
@@ -79009,7 +78743,7 @@ exports.genNonce = function (len) {
     return randomBytes((len || 32) / 2).toString('hex');
 };
 
-},{"randombytes":446}],431:[function(require,module,exports){
+},{"randombytes":445}],430:[function(require,module,exports){
 (function (Buffer){
 module.exports = xor
 
@@ -79030,37 +78764,37 @@ function xor(a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],432:[function(require,module,exports){
+},{"buffer":9}],431:[function(require,module,exports){
 module.exports=require(101)
-},{"./md5":434,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":435,"ripemd160":436,"sha.js":438,"stream":166}],433:[function(require,module,exports){
+},{"./md5":433,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/browser.js":101,"buffer":9,"inherits":434,"ripemd160":435,"sha.js":437,"stream":166}],432:[function(require,module,exports){
 module.exports=require(102)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],434:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/helpers.js":102,"buffer":9}],433:[function(require,module,exports){
 module.exports=require(103)
-},{"./helpers":433,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],435:[function(require,module,exports){
+},{"./helpers":432,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/md5.js":103}],434:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],436:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],435:[function(require,module,exports){
 module.exports=require(104)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],437:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":104,"buffer":9}],436:[function(require,module,exports){
 module.exports=require(105)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],438:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/hash.js":105,"buffer":9}],437:[function(require,module,exports){
 module.exports=require(106)
-},{"./sha1":439,"./sha224":440,"./sha256":441,"./sha384":442,"./sha512":443,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],439:[function(require,module,exports){
+},{"./sha1":438,"./sha224":439,"./sha256":440,"./sha384":441,"./sha512":442,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/index.js":106}],438:[function(require,module,exports){
 module.exports=require(107)
-},{"./hash":437,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":435}],440:[function(require,module,exports){
+},{"./hash":436,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha1.js":107,"buffer":9,"inherits":434}],439:[function(require,module,exports){
 module.exports=require(108)
-},{"./hash":437,"./sha256":441,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":435}],441:[function(require,module,exports){
+},{"./hash":436,"./sha256":440,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha224.js":108,"buffer":9,"inherits":434}],440:[function(require,module,exports){
 module.exports=require(109)
-},{"./hash":437,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":435}],442:[function(require,module,exports){
+},{"./hash":436,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha256.js":109,"buffer":9,"inherits":434}],441:[function(require,module,exports){
 module.exports=require(110)
-},{"./hash":437,"./sha512":443,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":435}],443:[function(require,module,exports){
+},{"./hash":436,"./sha512":442,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha384.js":110,"buffer":9,"inherits":434}],442:[function(require,module,exports){
 module.exports=require(111)
-},{"./hash":437,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":435}],444:[function(require,module,exports){
+},{"./hash":436,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hash/node_modules/sha.js/sha512.js":111,"buffer":9,"inherits":434}],443:[function(require,module,exports){
 module.exports=require(112)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hmac/browser.js":112,"buffer":9,"create-hash/browser":432,"inherits":445,"stream":166}],445:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/create-hmac/browser.js":112,"buffer":9,"create-hash/browser":431,"inherits":444,"stream":166}],444:[function(require,module,exports){
 module.exports=require(149)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],446:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/inherits/inherits_browser.js":149}],445:[function(require,module,exports){
 module.exports=require(147)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js":147,"_process":152,"buffer":9}],447:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/browserify/node_modules/crypto-browserify/node_modules/randombytes/browser.js":147,"_process":152,"buffer":9}],446:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -79133,7 +78867,7 @@ module.exports=require(147)
   
 }));
 
-},{}],448:[function(require,module,exports){
+},{}],447:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -79153,7 +78887,7 @@ module.exports=require(147)
   
 }));
 
-},{"./lib/factory":447}],449:[function(require,module,exports){
+},{"./lib/factory":446}],448:[function(require,module,exports){
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -80498,7 +80232,7 @@ module.exports=require(147)
   }
 }).call(this);
 
-},{}],450:[function(require,module,exports){
+},{}],449:[function(require,module,exports){
 /*
 WildEmitter.js is a slim little event emitter by @henrikjoreteg largely based 
 on @visionmedia's Emitter from UI Kit.
@@ -80639,7 +80373,7 @@ WildEmitter.prototype.getWildcardCallbacks = function (eventName) {
     return result;
 };
 
-},{}],451:[function(require,module,exports){
+},{}],450:[function(require,module,exports){
 'use strict';
 
 var StringPrep = require('./lib/stringprep');
@@ -80834,7 +80568,7 @@ exports.JID.prototype.toJSON = function () {
     return this.full;
 };
 
-},{"./lib/stringprep":452}],452:[function(require,module,exports){
+},{"./lib/stringprep":451}],451:[function(require,module,exports){
 'use strict';
 
 var punycode = require('punycode');
@@ -80856,7 +80590,7 @@ exports.resourceprep = function (str) {
     return str;
 };
 
-},{"punycode":153}],453:[function(require,module,exports){
+},{"punycode":153}],452:[function(require,module,exports){
 module.exports = AuthenticationView;
 
 var $ = require('jquery');
@@ -80869,6 +80603,9 @@ function AuthenticationView(eventbus, authentication) {
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
+
+  self.init = function() {
+  };
 
   self.listeners = function() {
     eventbus.on('authenticationFailed', function(e) {
@@ -80891,7 +80628,7 @@ function AuthenticationView(eventbus, authentication) {
 
   return self;
 }
-},{"./popup":462,"jquery":214,"webrtc-core":474}],454:[function(require,module,exports){
+},{"./popup":461,"jquery":214,"webrtc-core":473}],453:[function(require,module,exports){
 module.exports = CallControlView
 
 var Utils = require('webrtc-core').utils;
@@ -80969,7 +80706,7 @@ function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, di
 
   return self;
 }
-},{"./popup":462,"webrtc-core":474}],455:[function(require,module,exports){
+},{"./popup":461,"webrtc-core":473}],454:[function(require,module,exports){
 module.exports = ClientView;
 
 var fs = require('fs');
@@ -81158,7 +80895,7 @@ function ClientView(options, eventbus, debug, configuration, video, videobarView
 }
 
 exports.constructor = ClientView;
-},{"bdsft-webrtc-config":3,"bdsft-webrtc-style":5,"ejs":171,"fs":7,"jquery":214,"webrtc-core":474}],456:[function(require,module,exports){
+},{"bdsft-webrtc-config":3,"bdsft-webrtc-style":5,"ejs":171,"fs":7,"jquery":214,"webrtc-core":473}],455:[function(require,module,exports){
 module.exports = ConnectionStatusView
 
 function ConnectionStatusView() {
@@ -81214,7 +80951,7 @@ function ConnectionStatusView() {
 
   return self;
 }
-},{}],457:[function(require,module,exports){
+},{}],456:[function(require,module,exports){
 module.exports = DialpadView
 
 function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
@@ -81232,7 +80969,7 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView, 
 
   return self;
 }
-},{}],458:[function(require,module,exports){
+},{}],457:[function(require,module,exports){
 module.exports = FileShareView
 
 function FileShareView(eventbus) {
@@ -81264,7 +81001,7 @@ function FileShareView(eventbus) {
 
   return self;
 }
-},{}],459:[function(require,module,exports){
+},{}],458:[function(require,module,exports){
 module.exports = HistoryView
 
 var Utils = require('webrtc-core').utils;
@@ -81398,7 +81135,7 @@ function HistoryView(sound, history, eventbus, callcontrol) {
   return self;
 
 }
-},{"./popup":462,"webrtc-core":474}],460:[function(require,module,exports){
+},{"./popup":461,"webrtc-core":473}],459:[function(require,module,exports){
 module.exports = IncomingCallView
 
 var Utils = require('webrtc-core').utils;
@@ -81432,7 +81169,7 @@ function IncomingCallView(eventbus, incomingcall) {
 
   return self;
 }
-},{"./popup":462,"webrtc-core":474}],461:[function(require,module,exports){
+},{"./popup":461,"webrtc-core":473}],460:[function(require,module,exports){
 module.exports = MessagesView
 
 function MessagesView() {
@@ -81446,14 +81183,14 @@ function MessagesView() {
   };
 
   self.text = function(value) {
-    var messageEl = self[_level];
+    var messageEl = self[_level || 'normal'];
     messageEl.stop(true, true).fadeOut();
     messageEl.text(value).fadeIn(10).fadeOut(10000);
   };
 
   return self;
 }
-},{}],462:[function(require,module,exports){
+},{}],461:[function(require,module,exports){
 module.exports = PopupView;
 
 var $ = require('jquery');
@@ -81493,7 +81230,7 @@ function PopupView(eventbus) {
 
   return self;
 }
-},{"jquery":214}],463:[function(require,module,exports){
+},{"jquery":214}],462:[function(require,module,exports){
 module.exports = ReinviteView
 
 var PopupView = require('./popup');
@@ -81517,7 +81254,7 @@ function ReinviteView(eventbus, reinvite) {
 
   return self;
 }
-},{"./popup":462,"webrtc-core":474}],464:[function(require,module,exports){
+},{"./popup":461,"webrtc-core":473}],463:[function(require,module,exports){
 module.exports = SettingsView;
 
 var WebRTC_C = require('webrtc-core').constants;
@@ -81559,10 +81296,6 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
     Utils.addSelectOptions(WebRTC_C.STANDARD_RESOLUTIONS, self.resolutionEncodingStandard);
     Utils.addSelectOptions(WebRTC_C.WIDESCREEN_RESOLUTIONS, self.resolutionEncodingWidescreen);
 
-    settings.setResolutionDisplay(WebRTC_C.DEFAULT_RESOLUTION_DISPLAY);
-    settings.setResolutionEncoding(WebRTC_C.DEFAULT_RESOLUTION_ENCODING);
-    
-
     updateRowVisibility();
   };
 
@@ -81584,9 +81317,7 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
     self.clear.on('click', function(e) {
       e.preventDefault();
       settings.resetLayout();
-      eventbus.emit('message', {
-        text: 'Settings reset'
-      });
+      eventbus.message('Settings reset');
     });
     self.signOut.on('click', function(e) {
       e.preventDefault();
@@ -81604,13 +81335,13 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
       sound.playClick();
       settings.signIn();
     });
-    Utils.toArray([self.bandwidthLow, self.bandwidthMed, self.bandwidthHigh]).on('blur', function() {
-      eventbus.bandwidthChanged(settings);
-    });
-    Utils.toArray([self.resolutionType, self.resolutionDisplayWidescreen, self.resolutionDisplayStandard, 
-      self.resolutionEncodingWidescreen, self.resolutionEncodingStandard]).on('change', function() {
-      eventbus.resolutionChanged(settings);
-    });
+    // Utils.toArray([self.bandwidthLow, self.bandwidthMed, self.bandwidthHigh]).on('blur', function() {
+    //   eventbus.bandwidthChanged(settings);
+    // });
+    // Utils.toArray([self.resolutionType, self.resolutionDisplayWidescreen, self.resolutionDisplayStandard, 
+    //   self.resolutionEncodingWidescreen, self.resolutionEncodingStandard]).on('change', function() {
+    //   eventbus.resolutionChanged(settings);
+    // });
     self.tabs.each(function() {
       var active, activeTabSel, links = $(this).find('a');
       active = $(links.filter('[href="' + location.hash + '"]')[0] || links[0]);
@@ -81649,7 +81380,7 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
 
   return self;
 }
-},{"./popup":462,"webrtc-core":474}],465:[function(require,module,exports){
+},{"./popup":461,"webrtc-core":473}],464:[function(require,module,exports){
 module.exports = SMSView;
 
 var Utils = require('webrtc-core').utils;
@@ -81805,7 +81536,7 @@ function SMSView(eventbus, debug, sound, sms) {
 
   return self;
 }
-},{"./popup":462,"webrtc-core":474}],466:[function(require,module,exports){
+},{"./popup":461,"webrtc-core":473}],465:[function(require,module,exports){
 module.exports = StatsView;
 
 var PopupView = require('./popup');
@@ -81861,7 +81592,7 @@ function StatsView(eventbus) {
 
   return self;
 }
-},{"./popup":462,"webrtc-core":474}],467:[function(require,module,exports){
+},{"./popup":461,"webrtc-core":473}],466:[function(require,module,exports){
 module.exports = TimerView;
 
 function TimerView() {
@@ -81871,7 +81602,7 @@ function TimerView() {
 
   return self;
 }
-},{}],468:[function(require,module,exports){
+},{}],467:[function(require,module,exports){
 module.exports = TransferView;
 
 var PopupView = require('./popup');
@@ -81905,7 +81636,7 @@ function TransferView(sound, eventbus, transfer) {
 
   return self;
 }
-},{"./popup":462,"webrtc-core":474}],469:[function(require,module,exports){
+},{"./popup":461,"webrtc-core":473}],468:[function(require,module,exports){
 module.exports = VideoView;
 require('jquery-ui/draggable');
 
@@ -81957,7 +81688,7 @@ function VideoView(settings, configuration, historyView, video) {
 
   return self;
 }
-},{"jquery-ui/draggable":210}],470:[function(require,module,exports){
+},{"jquery-ui/draggable":210}],469:[function(require,module,exports){
 module.exports = VideoBarView;
 
 var Icon = require('webrtc-core').icon;
@@ -82176,7 +81907,7 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
 
   return self;
 }
-},{"webrtc-core":474}],471:[function(require,module,exports){
+},{"webrtc-core":473}],470:[function(require,module,exports){
 module.exports = WhiteboardView;
 
 var PopupView = require('./popup');
@@ -82345,7 +82076,7 @@ function WhiteboardView(eventbus, sipstack) {
 
   return self;
 }
-},{"../../js/sketch":1,"./popup":462,"webrtc-core":474}],472:[function(require,module,exports){
+},{"../../js/sketch":1,"./popup":461,"webrtc-core":473}],471:[function(require,module,exports){
 module.exports = XMPPView;
 
 // var View = require('ampersand-view');
@@ -82456,7 +82187,7 @@ function XMPPView(debug, eventbus, configuration, sound, xmpp) {
 
   return self;
 }
-},{"./popup":462,"jquery":214,"webrtc-core":474}],473:[function(require,module,exports){
+},{"./popup":461,"jquery":214,"webrtc-core":473}],472:[function(require,module,exports){
 /*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
@@ -82699,7 +82430,7 @@ if (typeof module !== 'undefined') {
   };
 }
 
-},{}],474:[function(require,module,exports){
+},{}],473:[function(require,module,exports){
 var exsip = require('ExSIP');
 var adapter = require('./adapter');
 var constants = require('./constants');
@@ -82711,11 +82442,368 @@ var utils = require('./utils');
 var eventbus = require('./eventbus');
 var debug = require('./debug');
 var sipstack = require('./sipstack');
+var configuration = require('./configuration');
 
 
 module.exports = {exsip: exsip, adapter: adapter, constants: constants, cookieprop: cookieprop, dateformat:  dateformat,
-icon: icon, prop: prop, utils: utils, eventbus: eventbus, debug: debug, sipstack: sipstack};
-},{"./adapter":473,"./constants":475,"./cookieprop":476,"./dateformat":477,"./debug":478,"./eventbus":479,"./icon":480,"./prop":481,"./sipstack":482,"./utils":483,"ExSIP":495}],475:[function(require,module,exports){
+icon: icon, prop: prop, utils: utils, eventbus: eventbus, debug: debug, sipstack: sipstack, configuration: configuration};
+},{"./adapter":472,"./configuration":474,"./constants":475,"./cookieprop":476,"./dateformat":477,"./debug":478,"./eventbus":479,"./icon":480,"./prop":481,"./sipstack":482,"./utils":483,"ExSIP":495}],474:[function(require,module,exports){
+module.exports = Configuration;
+
+var Flags = {
+  enableHD: 1,
+  enableCallControl: 2,
+  enableCallTimer: 4,
+  enableCallHistory: 8,
+  enableFullScreen: 16,
+  enableSelfView: 32,
+  enableCallStats: 64,
+  enableDialpad: 128,
+  enableMute: 256,
+  enableMessages: 512,
+  enableRegistrationIcon: 1024,
+  enableConnectionIcon: 2048,
+  enableWindowDrag: 4096,
+  enableSettings: 8192,
+  enableAutoAnswer: 16384,
+  enableAutoAcceptReInvite: 32768,
+  enableConnectLocalMedia: 65536,
+  enableTransfer: 131072,
+  enableHold: 262144,
+  enableIms: 524288
+};
+
+Configuration.Flags = Flags;
+
+var Utils = require('./utils');
+var WebRTC_C = require('./constants');
+var jQuery = $ = require('jquery');
+// TODO : hack to test in node js directly
+if(typeof document === 'undefined') {
+  document = {};
+}
+function Configuration(options, eventbus, debug) {
+  var self = {};
+  options = options || {};
+
+  var screenshare = false;
+  var offerToReceiveVideo = true;
+  var bodyBackgroundColor = $('body').css('backgroundColor');
+  
+  self.props = {
+    userid:  {
+      value: function(){return options.userid || $.cookie('settingUserid');}
+    },
+    destination: {
+      value: function(){return options.destination || Utils.getSearchVariable("destination");}
+    },
+    networkUserId: {
+      value: function(){return options.networkUserId || Utils.getSearchVariable("networkUserId");}
+    },
+    hd: {
+      value: function(){return Utils.getSearchVariable("hd") === "true" || $.cookie('settingHD');}
+    },
+    audioOnly: {
+      value: function(){return Utils.getSearchVariable("audioOnly") === "true";}
+    },
+    sipDisplayName: {
+      value: function(){
+        var name = options.displayName || Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
+        if (name) {
+          name = name.replace(/%20/g, " ");
+        }
+        return name;
+      }
+    },
+    maxCallLength: {
+      value: function(){return Utils.getSearchVariable("maxCallLength");}
+    },
+    size: {
+      value: function(){return Utils.getSearchVariable("size") || $.cookie('settingsize') || 1;}
+    },
+    color: {
+      value: function(){
+        return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor') || '#ffffff';
+      }
+    },
+    enableMessages: {
+      value: function(){return !(!!Utils.getSearchVariable("disableMessages"));}
+    },
+    features: {
+      value: function(){return Utils.getSearchVariable("features"); }
+    }
+  };
+
+  Object.keys(options).forEach(function(key) {
+    if(!(key in self.props)) {
+      if(key === 'displayResolution') {
+        self.props[key] = {
+          value: function(){
+            return options.displayResolution || $.cookie('settingsResolutionDisplay') || WebRTC_C.DEFAULT_RESOLUTION_DISPLAY;
+          }
+        }
+      }
+      else if(key === 'encodingResolution') {
+        self.props[key] = {
+          value: function(){
+            return options.encodingResolution || $.cookie('settingsResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
+          }
+        }
+      } 
+      else {
+        self.props[key] = {
+          value: function(){
+            return options[key];
+          }
+        };
+      }
+
+      if(key.match(/bandwidth/)) {
+        self.props[key].onSet = function(value){
+          // console.log('----------- bandwidthChanged : ', value)
+          eventbus.bandwidthChanged(self);
+        }
+      }
+      else if(key.match(/resolution/i)) {
+        self.props[key].onSet = function(value){
+          // console.log('----------- resolutionChanged : ', value)
+          eventbus.resolutionChanged(self);
+        }
+      }
+    } 
+  });
+
+  self.init = function(options) { 
+    // debug('configuration options : ' + ExSIP.Utils.toString(options));
+    // debug('configuration : ' + ExSIP.Utils.toString(self));
+    if (self.features) {
+      self.setClientConfigFlags(parseInt(self.features, 10));
+    }
+  };
+
+  self.listeners = function(audioOnly) { 
+    eventbus.on('screenshare', function(e) {
+      self.screenshare = e.enabled;
+    });
+  };
+
+  self.setAudioOnlyOfferAndRec = function(audioOnly) { 
+    self.audioOnly = audioOnly;
+    offerToReceiveVideo = !audioOnly;
+    sipstack.updateUserMedia();
+  };
+
+  self.setAudioOnly = function(audioOnly) { 
+    self.audioOnly = audioOnly;
+    offerToReceiveVideo = true;
+    sipstack.updateUserMedia();
+  };
+
+  self.getClientConfigFlags = function() {
+    var flags = 0;
+    for (var flag in Flags) {
+      var value = Flags[flag];
+      if (self[flag]) {
+        flags |= value;
+      }
+    }
+    return flags;
+  };
+  self.setClientConfigFlags = function(flags) {
+    for (var flag in Flags) {
+      var value = Flags[flag];
+      if (flags & value) {
+        self[flag] = true;
+      } else {
+        self[flag] = false;
+      }
+    }
+  };
+  self.isAudioOnlyView = function() {
+    var views = self.getViews();
+    return views.indexOf('audioOnly') !== -1;
+  };
+  self.getViews = function() {
+    var view = Utils.getSearchVariable("view");
+    var views = [];
+    if (self.view) {
+      $.merge(views, self.view.split(' '));
+    }
+    if (view) {
+      $.merge(views, view.split(' '));
+    }
+    return $.unique(views);
+  };
+  self.getBackgroundColor = function() {
+    return self.color || self.bodyBackgroundColor;
+  };
+  self.getDTMFOptions = function() {
+    return {
+      duration: WebRTC_C.DEFAULT_DURATION,
+      interToneGap: WebRTC_C.DEFAULT_INTER_TONE_GAP
+    };
+  };
+  self.getExSIPOptions = function() {
+    // Options Passed to ExSIP
+    var options = {
+      mediaConstraints: {
+        audio: true,
+        video: self.getVideoConstraints()
+      },
+      createOfferConstraints: {
+        mandatory: {
+          OfferToReceiveAudio: true,
+          OfferToReceiveVideo: !self.isAudioOnlyView() && offerToReceiveVideo
+        }
+      }
+    };
+    return options;
+  };
+
+  self.getMediaConstraints = function() {
+    if (self.screenshare) {
+      return {
+        video: {
+          mandatory: {
+            chromeMediaSource: 'screen'
+          }
+        }
+      };
+    } else {
+      return {
+        audio: true,
+        video: self.getVideoConstraints()
+      };
+    }
+  };
+
+  self.getVideoConstraints = function() {
+    if (self.isAudioOnlyView() || self.audioOnly) {
+      return false;
+    } else {
+      var constraints = self.getResolutionConstraints();
+      return constraints ? constraints : true;
+    }
+  };
+
+  self.resolutionEncodingWidth = function() {
+    return Utils.resolutionWidth(self.encodingResolution);
+  };
+  self.resolutionEncodingHeight = function() {
+    return Utils.resolutionHeight(self.encodingResolution);
+  };
+
+  self.getResolutionConstraints = function() {
+    if (self.hd === true) {
+      return {
+        mandatory: {
+          minWidth: 1280,
+          minHeight: 720
+        }
+      };
+    } else {
+      var width = self.resolutionEncodingWidth();
+      var height = self.resolutionEncodingHeight();
+      if (width && height) {
+        if (height <= 480) {
+          return {
+            mandatory: {
+              maxWidth: width,
+              maxHeight: height
+            }
+          };
+        } else {
+          return {
+            mandatory: {
+              minWidth: width,
+              minHeight: height
+            }
+          };
+        }
+      } else {
+        return false;
+      }
+    }
+  };
+
+  self.getExSIPConfig = function(data) {
+    data = data || {};
+    var userid = data.userId || self.userid || self.networkUserId || Utils.randomUserid();
+
+    var sip_uri = encodeURI(userid);
+    if ((sip_uri.indexOf("@") === -1)) {
+      sip_uri = (sip_uri + "@" + self.domainFrom);
+    }
+
+    var config = {
+      'uri': sip_uri,
+      'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
+      'ws_servers': self.websocketsServers,
+      'stun_servers': 'stun:' + self.stunServer + ':' + self.stunPort,
+      'trace_sip': self.debug,
+      'enable_ims': self.enableIms,
+      'p_asserted_identity': self.pAssertedIdentity,
+      'enable_datachannel': self.enableWhiteboard || self.enableFileShare
+    };
+
+    // Add Display Name if set
+    if (self.sipDisplayName) {
+      config.display_name = self.sipDisplayName;
+    }
+
+    // do registration if setting User ID or configuration register is set
+    if (self.userid || self.register) {
+      config.register = true;
+      config.password = data.password || $.cookie('settingPassword');
+    } else {
+      config.register = false;
+    }
+    return config;
+  };
+
+  self.getBandwidth = function() {
+    var height = self.resolutionEncodingHeight();
+    if (height <= 240) {
+      return self.bandwidthLow;
+    } else if (height <= 480) {
+      return self.bandwidthMed;
+    } else if (height <= 720) {
+      return self.bandwidthHigh;
+    } else {
+      console.error('getBandwidth : no encoding height matches : ', height);
+    }
+  };
+
+  self.getRtcMediaHandlerOptions = function() {
+    var options = {
+      reuseLocalMedia: self.enableConnectLocalMedia,
+      videoBandwidth: self.getBandwidth(),
+      disableICE: self.disableICE,
+      RTCConstraints: {
+        'optional': [],
+        'mandatory': {}
+      }
+    };
+    return options;
+  };
+
+  self.isHD = function() {
+    return self.enableHD === true && self.hd === true;
+  };
+
+  self.isWidescreen = function() {
+    return self.isHD() || Utils.containsKey(WebRTC_C.WIDESCREEN_RESOLUTIONS, self.displayResolution);
+  };
+
+  self.getResolutionDisplay = function() {
+    return self.isHD() ? WebRTC_C.R_1280x720 : self.displayResolution;
+  }  
+
+  return self;
+}
+
+
+},{"./constants":475,"./utils":483,"jquery":573}],475:[function(require,module,exports){
 var C = {
     // RTCSession states
   STATE_CONNECTED: "connected",
@@ -82780,6 +82868,7 @@ var Prop = require('./prop');
 var C = require('./constants');
 var Utils = require('./utils');
 var $ = require('jquery');
+require('jquery.cookie')
 
 function CookieProp(obj, prop, cookie, expires) {
 
@@ -82789,13 +82878,14 @@ function CookieProp(obj, prop, cookie, expires) {
 
 	var superSet = self.__proto__.__set;
 
+	var superInit = self.__proto__.__init;
+
 	cookie = cookie || Utils.camelize(obj._name + ' ' + self._name);
 	expires = expires || C.EXPIRES;
 
 	self.__proto__.__init = function() {
-		if(prop.value) {
-			obj[self._name] = prop.value();
-		}	else {
+		superInit();
+		if(!prop.value && $.cookie(cookie)) {
  			obj[self._name] = $.cookie(cookie);
 		}
  	};
@@ -82816,7 +82906,7 @@ function CookieProp(obj, prop, cookie, expires) {
 
 	return self;
 }
-},{"./constants":475,"./prop":481,"./utils":483,"jquery":572}],477:[function(require,module,exports){
+},{"./constants":475,"./prop":481,"./utils":483,"jquery":573,"jquery.cookie":572}],477:[function(require,module,exports){
 module.exports = DateFormat;
 var C = {
   dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
@@ -82930,13 +83020,15 @@ var updateEnabled = function() {
 // 	debug.disable();
 // };
 // exports.log = debug.log;
-},{"debug":518,"stacktrace-js":573}],479:[function(require,module,exports){
+},{"debug":518,"stacktrace-js":574}],479:[function(require,module,exports){
 module.exports = EventBus;
 
 var ee = require('event-emitter');
 
 function EventBus() {
 	var self = {};
+
+	var lastEvents = {};
 
 	var emitter = ee({});
 	self.test = '121';
@@ -82959,13 +83051,17 @@ function EventBus() {
 			emitter.once(type, listener);
 		}		
 	};
+	var doEmit = function(type, obj){
+		lastEvents[type] = obj;
+		emitter.emit(type, obj);
+	};
 	self.emit = function(type, obj){
 		if(Array.isArray(type)) {
 			type.forEach(function(t) {
-				emitter.emit(t, obj);
+				doEmit(t, obj);
 			});
 		} else {
-			emitter.emit(type, obj);
+			doEmit(type, obj);
 		}
 	};
 	self.attachView = function(view) {
@@ -83012,18 +83108,24 @@ function EventBus() {
 		});
 	};
 	self.resolutionChanged = function(resolution) {
-		self.emit('resolutionChanged', {
+		var resolutionObj = {
 			type: resolution.resolutionType || resolution.type,
-			encoding: resolution.resolutionEncoding || resolution.encoding,
-			display: resolution.resolutionDisplay || resolution.display
-		});
+			encoding: resolution.resolutionEncoding || resolution.encodingResolution || resolution.encoding,
+			display: resolution.resolutionDisplay || resolution.displayResolution || resolution.display
+		};
+		if(lastEvents['resolutionChanged'] && lastEvents['resolutionChanged'] !== resolutionObj) {
+		}
+		self.emit('resolutionChanged', resolutionObj);
 	};
 	self.bandwidthChanged = function(bandwidth) {
-		self.emit('bandwidthChanged', {
+		var bandwidthObj = {
 			type: bandwidth.bandwidthLow || bandwidth.low,
 			encoding: bandwidth.bandwidthMed || bandwidth.med,
 			display: bandwidth.bandwidthHigh || bandwidth.high
-		});
+		};
+		if(lastEvents['bandwidthChanged'] && lastEvents['bandwidthChanged'] !== bandwidthObj) {
+		}
+		self.emit('bandwidthChanged', bandwidthObj);
 	};
 	self.authenticationFailed = function(authentication) {
 		self.emit('authenticationFailed', {
@@ -83121,6 +83223,9 @@ function Prop(obj, prop) {
 	};
 
 	self.__get = function(){
+		if(prop.onGet) {
+			prop.onGet();
+		}
 		if(isCheckbox() && data.prop) {
 			return data.prop && data.prop('checked');
 		} 
@@ -83135,14 +83240,28 @@ function Prop(obj, prop) {
 		}
 	};
 	self.__init = function(){
-		if(prop.value) {
+		if(prop.value && prop.value()) {
 			obj[self._name] = prop.value();
-		}	
+		}
+		if(isCheckbox()) {
+			data.on('click', function(){
+				obj[self._name] = data.prop('checked');
+			});
+		}
+		else if(isSelect()) {
+			data.on('change', function(){
+				console.log('!!!!!!!!!!! on change handler : '+data.val());
+				obj[self._name] = data.val();
+			});
+		}
+		else if(isTextbox()) {
+			data.on('blur', function(){
+				console.log('!!!!!!!!!!! on blur handler : '+data.val());
+				obj[self._name] = data.val();
+			});
+		} 
 	};
 	self.__set = function(value){
-		if(prop.default && !value) {
-			value = prop.default;
-		}
 		if(isCheckbox()) {
 			data.prop('checked', value);
 		} 
@@ -83154,6 +83273,9 @@ function Prop(obj, prop) {
 		} 
 		else {
 			data(value);
+		}
+		if(prop.onSet) {
+			prop.onSet(value);
 		}
 	};
 
@@ -83177,7 +83299,7 @@ var ExSIP = require('exsip');
 var C = require('./constants');
 var Utils = require('./utils');
 
-function SIPStack(eventbus, configuration, settings, debug) {
+function SIPStack(eventbus, debug, configuration) {
   var self = {};
 
   self.ua = null;
@@ -83340,7 +83462,7 @@ function SIPStack(eventbus, configuration, settings, debug) {
     if (typeof(self.ua) === 'undefined') {
       return;
     }
-
+    // console.log('-------------- updateRtcMediaHandlerOptions : ', configuration.getRtcMediaHandlerOptions());
     self.ua.setRtcMediaHandlerOptions(configuration.getRtcMediaHandlerOptions());
   };
   self.getCallState = function() {
@@ -83404,7 +83526,7 @@ function SIPStack(eventbus, configuration, settings, debug) {
 
   self.incomingCall = function(evt) {
     var session = evt.data.session;
-    if (!self.activeSession && settings.autoAnswer) {
+    if (!self.activeSession && configuration.enableAutoAnswer) {
       session.answer(configuration.getExSIPOptions());
     } else {
       eventbus.emit('incomingCall', evt);
@@ -83518,6 +83640,18 @@ var adapter = require('./adapter');
 var __slice = [].slice;
 
 var Utils = {
+  resolutionWidth: function(resolution) {
+    if (resolution) {
+      var resolutions = resolution.split('x');
+      return parseInt(resolutions[0], 10);
+    }
+  },
+  resolutionHeight: function(resolution) {
+    if (resolution) {
+      var resolutions = resolution.split('x');
+      return parseInt(resolutions[1], 10);
+    }
+  },
   capitalizeFirstLetter: function(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   },
@@ -83773,7 +83907,7 @@ var Utils = {
 };
 
 module.exports = Utils;
-},{"./adapter":473}],484:[function(require,module,exports){
+},{"./adapter":472}],484:[function(require,module,exports){
 module.exports=require(174)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/grammar.js":174}],485:[function(require,module,exports){
 module.exports=require(175)
@@ -83784,79 +83918,19 @@ module.exports=require(177)
 },{"./grammar":484,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/writer.js":177}],488:[function(require,module,exports){
 module.exports=require(178)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/ws/lib/browser.js":178}],489:[function(require,module,exports){
-module.exports={
-  "name": "exsip",
-  "title": "ExSIP",
-  "description": "BroadSoft Javascript SIP library",
-  "version": "2.0.0",
-  "homepage": "http://www.broadsoft.com",
-  "author": {
-    "name": "BroadSoft, Inc."
-  },
-  "contributors": [
-    {}
-  ],
-  "main": "src/ExSIP.js",
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
-  "keywords": [
-    "sip",
-    "websocket",
-    "webrtc",
-    "library"
-  ],
-  "dependencies": {
-    "sdp-transform": "0.6.1",
-    "ws": "0.4.32"
-  },
-  "devDependencies": {
-    "nodeunit": "0.9.0",
-    "grunt": "0.4.5",
-    "grunt-contrib-jshint": "0.10.0",
-    "grunt-contrib-concat": "0.5.0",
-    "grunt-contrib-uglify": "0.6.0",
-    "grunt-contrib-watch": "0.6.1",
-    "grunt-contrib-symlink": "0.3.0",
-    "grunt-browserify": "3.0.1",
-    "grunt-jsdoc": "0.5.7",
-    "grunt-notify": ">=0.2.6",
-    "grunt-bumpx": "0.1.5",
-    "pegjs": "0.7.0",
-    "grunt-mocha-test": "0.12.7",
-    "expect": "1.6.0",
-    "mocha": "2.1.0"
-  },
-  "engines": {
-    "node": ">=0.8"
-  },
-  "license": "MIT",
-  "scripts": {
-    "test": "grunt travis --verbose"
-  },
-  "readme": "## What you need to build ExSIP\n\nYou just need to have [Node.js](http://nodejs.org/) and [Git](http://git-scm.com/).\n\n\n### Node.js\n\n* [Install Node.js via package manager](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)\n  e.g. on fedora\n   yum install npm\n\n* [Install Node.js from sources](http://nodejs.org)\n\n### Git\n\n* [Install Git](http://git-scm.com/book/en/Getting-Started-Installing-Git)\n\n\n<<<<<<< HEAD:README\n### PhantomJS\n\n(optional, just for running unit tests)\n\n* [Install PhantomJS](http://phantomjs.org/download.html)\n* In modern Debian/Ubuntu systems PhantomJS can be installed via `apt-get install phantomjs`\n\n\n## How to build ExSIP\n=======\n## How to build JsSIP\n\nClone a copy of the main JsSIP git repository by running:\n```\n$ git clone https://github.com/versatica/JsSIP.git\n```\n>>>>>>> jssip050:BUILDING.md\n\nInstall grunt-cli globally:\n```\n$ npm install -g grunt-cli\n```\n\nEnter the directory and install the Node.js dependencies:\n```\n$ cd ExSIP && npm install\n```\n\nMake sure you have `grunt` installed by testing:\n```\n$ grunt -version\n```\n\n<<<<<<< HEAD:README\nFinally, run `grunt` command with no arguments to get a complete version of ExSIP:\n=======\nFinally, run `grunt dist` (or just `grunt`) to get an uncompressed version of JsSIP located at `builds/jssip-X.Y.Z.js` and a symlink `builds/jssip-last.js` pointing to it:\n>>>>>>> jssip050:BUILDING.md\n```\n$ grunt dist\n```\n\n<<<<<<< HEAD:README\nThe built version of ExSIP will be available in the `dist/` subdirectory in both flavors: normal (uncompressed)  and minified, both linted with [JSLint](http://jslint.com/). There will be also a file named `dist/exsip-devel.js` which is an exact copy of the uncompressed file.\n\n\n## Development version\n\nRun `grunt devel` for just generating the `dist/exsip-devel.js` file. An uncompressed ExSIP source file named `exsip-devel.js` will be created in `dist` directory.\n=======\nIn order to get a minified/production version of JsSIP run `grunt min` (note that you must have executed `grunt dist` before):\n```\n$ grunt min\n```\n>>>>>>> jssip050:BUILDING.md\n\n\n## Test units\n\n<<<<<<< HEAD:README\nExSIP includes test units based on [QUnit](http://qunitjs.com/). Test units use the `dist/exsip-devel.js` file. Run the tests as follows:\n```\n$ grunt test\n\nRunning \"qunit-serverless:all\" (qunit-serverless) task\n...\n654 tests complete (1.6 seconds)\n```\n=======\nJsSIP includes test units based on [QUnit](http://qunitjs.com/). Test units use the `builds/jssip-last.js` file. Run the tests as follows:\n```\n$ grunt test\n```\n\n\n## Development\n\n### Changes in JsSIP Grammar\n\nIf you modify `src/Grammar/src/Grammar.pegjs` then you need to recompile JsSIP Grammar file:\n```\n$ grunt grammar\n```\nAnd then build JsSIP again as explained above.\n\n### Changes in JsSIP SDP\n\nIf you modify `src/SDP/main.js` then you need to recompile JsSIP SDP file:\n```\n$ grunt sdp\n```\nAnd then build JsSIP again as explained above.\n>>>>>>> jssip050:BUILDING.md\n",
-  "readmeFilename": "README",
-  "_id": "exsip@2.0.0",
-  "dist": {
-    "shasum": "93a641b88db574f07069fa5464f2e5ea25fa0e2a"
-  },
-  "_resolved": "git+ssh://git@github.com:broadsoftxtended/ExSIP.git#841d132f973b5834c1b6646902818244bf65dce0",
-  "_from": "ExSIP@git+ssh://git@github.com:broadsoftxtended/ExSIP.git#cjs"
-}
-
-},{}],490:[function(require,module,exports){
-arguments[4][180][0].apply(exports,arguments)
+module.exports=require(179)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/package.json":179}],490:[function(require,module,exports){
+module.exports=require(180)
 },{"../package.json":489,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Constants.js":180}],491:[function(require,module,exports){
-arguments[4][181][0].apply(exports,arguments)
+module.exports=require(181)
 },{"./Constants":490,"./Dialog/RequestSender":492,"./SIPMessage":509,"./Transactions":511,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog.js":181}],492:[function(require,module,exports){
-arguments[4][182][0].apply(exports,arguments)
+module.exports=require(182)
 },{"../Constants":490,"../RTCSession":503,"../RequestSender":508,"../Transactions":511,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog/RequestSender.js":182}],493:[function(require,module,exports){
 module.exports=require(183)
 },{"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/DigestAuthentication.js":183}],494:[function(require,module,exports){
 module.exports=require(184)
 },{"./LoggerFactory":499,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/EventEmitter.js":184}],495:[function(require,module,exports){
-arguments[4][185][0].apply(exports,arguments)
+module.exports=require(185)
 },{"../package.json":489,"./Constants":490,"./Exceptions":496,"./Grammar":497,"./NameAddrHeader":501,"./RTCSession":503,"./UA":513,"./URI":514,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/ExSIP.js":185}],496:[function(require,module,exports){
 module.exports=require(186)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Exceptions.js":186}],497:[function(require,module,exports){
@@ -83866,41 +83940,41 @@ module.exports=require(188)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Logger.js":188}],499:[function(require,module,exports){
 module.exports=require(189)
 },{"./Logger":498,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/LoggerFactory.js":189}],500:[function(require,module,exports){
-arguments[4][190][0].apply(exports,arguments)
+module.exports=require(190)
 },{"./Constants":490,"./EventEmitter":494,"./Exceptions":496,"./RequestSender":508,"./SIPMessage":509,"./Transactions":511,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Message.js":190}],501:[function(require,module,exports){
 module.exports=require(191)
 },{"./Grammar":497,"./URI":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/NameAddrHeader.js":191}],502:[function(require,module,exports){
 module.exports=require(192)
 },{"./Grammar":497,"./SIPMessage":509,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Parser.js":192,"sdp-transform":485}],503:[function(require,module,exports){
-arguments[4][193][0].apply(exports,arguments)
+module.exports=require(193)
 },{"./Constants":490,"./Dialog":491,"./EventEmitter":494,"./Exceptions":496,"./Parser":502,"./RTCSession/DTMF":504,"./RTCSession/RTCMediaHandler":506,"./RequestSender":508,"./SIPMessage":509,"./Timers":510,"./UA":513,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession.js":193}],504:[function(require,module,exports){
 module.exports=require(194)
 },{"../EventEmitter":494,"../Exceptions":496,"../RTCSession":503,"../Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DTMF.js":194}],505:[function(require,module,exports){
 module.exports=require(195)
 },{"../EventEmitter":494,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DataChannel.js":195}],506:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
+module.exports=require(196)
 },{"../Constants":490,"../Utils":515,"../WebRTC":516,"./DataChannel":505,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/RTCMediaHandler.js":196}],507:[function(require,module,exports){
-arguments[4][197][0].apply(exports,arguments)
+module.exports=require(197)
 },{"./Constants":490,"./RequestSender":508,"./SIPMessage":509,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Registrator.js":197}],508:[function(require,module,exports){
-arguments[4][198][0].apply(exports,arguments)
+module.exports=require(198)
 },{"./Constants":490,"./DigestAuthentication":493,"./Transactions":511,"./UA":513,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RequestSender.js":198}],509:[function(require,module,exports){
-arguments[4][199][0].apply(exports,arguments)
+module.exports=require(199)
 },{"./Constants":490,"./Grammar":497,"./NameAddrHeader":501,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/SIPMessage.js":199}],510:[function(require,module,exports){
 module.exports=require(200)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Timers.js":200}],511:[function(require,module,exports){
-arguments[4][201][0].apply(exports,arguments)
+module.exports=require(201)
 },{"./Constants":490,"./EventEmitter":494,"./Timers":510,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transactions.js":201}],512:[function(require,module,exports){
-arguments[4][202][0].apply(exports,arguments)
+module.exports=require(202)
 },{"./Constants":490,"./Parser":502,"./SIPMessage":509,"./UA":513,"./sanityCheck":517,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transport.js":202,"ws":488}],513:[function(require,module,exports){
-arguments[4][203][0].apply(exports,arguments)
+module.exports=require(203)
 },{"./Constants":490,"./EventEmitter":494,"./Exceptions":496,"./Grammar":497,"./LoggerFactory":499,"./Message":500,"./RTCSession":503,"./Registrator":507,"./Transactions":511,"./Transport":512,"./URI":514,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/UA.js":203}],514:[function(require,module,exports){
-arguments[4][204][0].apply(exports,arguments)
+module.exports=require(204)
 },{"./Constants":490,"./Grammar":497,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/URI.js":204}],515:[function(require,module,exports){
-arguments[4][205][0].apply(exports,arguments)
+module.exports=require(205)
 },{"./Constants":490,"./Grammar":497,"./URI":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Utils.js":205}],516:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
+module.exports=require(206)
 },{"./Constants":490,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/WebRTC.js":206}],517:[function(require,module,exports){
-arguments[4][207][0].apply(exports,arguments)
+module.exports=require(207)
 },{"./Constants":490,"./SIPMessage":509,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/sanityCheck.js":207}],518:[function(require,module,exports){
 
 /**
@@ -84753,19 +84827,19 @@ module.exports=require(177)
 },{"./grammar":538,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/writer.js":177}],542:[function(require,module,exports){
 module.exports=require(178)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/ws/lib/browser.js":178}],543:[function(require,module,exports){
-module.exports=require(489)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/webrtc-core/node_modules/ExSIP/package.json":489}],544:[function(require,module,exports){
-arguments[4][180][0].apply(exports,arguments)
+module.exports=require(179)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/package.json":179}],544:[function(require,module,exports){
+module.exports=require(180)
 },{"../package.json":543,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Constants.js":180}],545:[function(require,module,exports){
-arguments[4][181][0].apply(exports,arguments)
+module.exports=require(181)
 },{"./Constants":544,"./Dialog/RequestSender":546,"./SIPMessage":563,"./Transactions":565,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog.js":181}],546:[function(require,module,exports){
-arguments[4][182][0].apply(exports,arguments)
+module.exports=require(182)
 },{"../Constants":544,"../RTCSession":557,"../RequestSender":562,"../Transactions":565,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog/RequestSender.js":182}],547:[function(require,module,exports){
 module.exports=require(183)
 },{"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/DigestAuthentication.js":183}],548:[function(require,module,exports){
 module.exports=require(184)
 },{"./LoggerFactory":553,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/EventEmitter.js":184}],549:[function(require,module,exports){
-arguments[4][185][0].apply(exports,arguments)
+module.exports=require(185)
 },{"../package.json":543,"./Constants":544,"./Exceptions":550,"./Grammar":551,"./NameAddrHeader":555,"./RTCSession":557,"./UA":567,"./URI":568,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/ExSIP.js":185}],550:[function(require,module,exports){
 module.exports=require(186)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Exceptions.js":186}],551:[function(require,module,exports){
@@ -84775,44 +84849,46 @@ module.exports=require(188)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Logger.js":188}],553:[function(require,module,exports){
 module.exports=require(189)
 },{"./Logger":552,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/LoggerFactory.js":189}],554:[function(require,module,exports){
-arguments[4][190][0].apply(exports,arguments)
+module.exports=require(190)
 },{"./Constants":544,"./EventEmitter":548,"./Exceptions":550,"./RequestSender":562,"./SIPMessage":563,"./Transactions":565,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Message.js":190}],555:[function(require,module,exports){
 module.exports=require(191)
 },{"./Grammar":551,"./URI":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/NameAddrHeader.js":191}],556:[function(require,module,exports){
 module.exports=require(192)
 },{"./Grammar":551,"./SIPMessage":563,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Parser.js":192,"sdp-transform":539}],557:[function(require,module,exports){
-arguments[4][193][0].apply(exports,arguments)
+module.exports=require(193)
 },{"./Constants":544,"./Dialog":545,"./EventEmitter":548,"./Exceptions":550,"./Parser":556,"./RTCSession/DTMF":558,"./RTCSession/RTCMediaHandler":560,"./RequestSender":562,"./SIPMessage":563,"./Timers":564,"./UA":567,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession.js":193}],558:[function(require,module,exports){
 module.exports=require(194)
 },{"../EventEmitter":548,"../Exceptions":550,"../RTCSession":557,"../Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DTMF.js":194}],559:[function(require,module,exports){
 module.exports=require(195)
 },{"../EventEmitter":548,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DataChannel.js":195}],560:[function(require,module,exports){
-arguments[4][196][0].apply(exports,arguments)
+module.exports=require(196)
 },{"../Constants":544,"../Utils":569,"../WebRTC":570,"./DataChannel":559,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/RTCMediaHandler.js":196}],561:[function(require,module,exports){
-arguments[4][197][0].apply(exports,arguments)
+module.exports=require(197)
 },{"./Constants":544,"./RequestSender":562,"./SIPMessage":563,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Registrator.js":197}],562:[function(require,module,exports){
-arguments[4][198][0].apply(exports,arguments)
+module.exports=require(198)
 },{"./Constants":544,"./DigestAuthentication":547,"./Transactions":565,"./UA":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RequestSender.js":198}],563:[function(require,module,exports){
-arguments[4][199][0].apply(exports,arguments)
+module.exports=require(199)
 },{"./Constants":544,"./Grammar":551,"./NameAddrHeader":555,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/SIPMessage.js":199}],564:[function(require,module,exports){
 module.exports=require(200)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Timers.js":200}],565:[function(require,module,exports){
-arguments[4][201][0].apply(exports,arguments)
+module.exports=require(201)
 },{"./Constants":544,"./EventEmitter":548,"./Timers":564,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transactions.js":201}],566:[function(require,module,exports){
-arguments[4][202][0].apply(exports,arguments)
+module.exports=require(202)
 },{"./Constants":544,"./Parser":556,"./SIPMessage":563,"./UA":567,"./sanityCheck":571,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transport.js":202,"ws":542}],567:[function(require,module,exports){
-arguments[4][203][0].apply(exports,arguments)
+module.exports=require(203)
 },{"./Constants":544,"./EventEmitter":548,"./Exceptions":550,"./Grammar":551,"./LoggerFactory":553,"./Message":554,"./RTCSession":557,"./Registrator":561,"./Transactions":565,"./Transport":566,"./URI":568,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/UA.js":203}],568:[function(require,module,exports){
-arguments[4][204][0].apply(exports,arguments)
+module.exports=require(204)
 },{"./Constants":544,"./Grammar":551,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/URI.js":204}],569:[function(require,module,exports){
-arguments[4][205][0].apply(exports,arguments)
+module.exports=require(205)
 },{"./Constants":544,"./Grammar":551,"./URI":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Utils.js":205}],570:[function(require,module,exports){
-arguments[4][206][0].apply(exports,arguments)
+module.exports=require(206)
 },{"./Constants":544,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/WebRTC.js":206}],571:[function(require,module,exports){
-arguments[4][207][0].apply(exports,arguments)
+module.exports=require(207)
 },{"./Constants":544,"./SIPMessage":563,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/sanityCheck.js":207}],572:[function(require,module,exports){
+module.exports=require(213)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/jquery.cookie/jquery.cookie.js":213,"jquery":573}],573:[function(require,module,exports){
 module.exports=require(214)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/jquery/dist/jquery.js":214}],573:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/jquery/dist/jquery.js":214}],574:[function(require,module,exports){
 // Domain Public by Eric Wendelin http://www.eriwen.com/ (2008)
 //                  Luke Smith http://lucassmith.name/ (2008)
 //                  Loic Dachary <loic@dachary.org> (2008)
@@ -85325,7 +85401,7 @@ module.exports=require(214)
     return printStackTrace;
 }));
 
-},{}],574:[function(require,module,exports){
+},{}],575:[function(require,module,exports){
 (function (global){
 var $ = require('jquery');
 require('webrtc-core');
@@ -85334,7 +85410,9 @@ module.exports = Factory;
 
 function Factory(constructor){
 	return function(options) {
-	  require("views/authentication.js");
+		var isNode = typeof global !== "undefined" && {}.toString.call(global) == '[object global]';
+		if(!isNode) {
+		  require("views/authentication.js");
 require("views/callcontrol.js");
 require("views/client.js");
 require("views/connectionstatus.js");
@@ -85353,10 +85431,9 @@ require("views/transfer.js");
 require("views/video.js");
 require("views/videobar.js");
 require("views/whiteboard.js");
-require("views/xmpp.js")
-	  require("models/authentication.js");
+require("views/xmpp.js");
+		  require("models/authentication.js");
 require("models/callcontrol.js");
-require("models/configuration.js");
 require("models/connectionstatus.js");
 require("models/fileshare.js");
 require("models/history.js");
@@ -85371,7 +85448,8 @@ require("models/stats.js");
 require("models/timer.js");
 require("models/transfer.js");
 require("models/video.js");
-require("models/xmpp.js")
+require("models/xmpp.js");
+		}
 		global.bdsft_client_instances = global.bdsft_client_instances || {};
 		var name = functionName(constructor);
 		var id = getId(options, name);
@@ -85537,7 +85615,7 @@ function create(constructor, argArray) {
 	return new factoryFunction();
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"bdsft-webrtc-templates":6,"jquery":214,"models/authentication.js":215,"models/callcontrol.js":216,"models/configuration.js":217,"models/connectionstatus.js":218,"models/fileshare.js":219,"models/history.js":220,"models/incomingcall.js":221,"models/messages.js":222,"models/reinvite.js":223,"models/settings.js":224,"models/sms.js":225,"models/smsprovider.js":226,"models/sound.js":227,"models/stats.js":228,"models/timer.js":229,"models/transfer.js":230,"models/video.js":231,"models/xmpp.js":232,"views/authentication.js":453,"views/callcontrol.js":454,"views/client.js":455,"views/connectionstatus.js":456,"views/dialpad.js":457,"views/fileshare.js":458,"views/history.js":459,"views/incomingcall.js":460,"views/messages.js":461,"views/popup.js":462,"views/reinvite.js":463,"views/settings.js":464,"views/sms.js":465,"views/stats.js":466,"views/timer.js":467,"views/transfer.js":468,"views/video.js":469,"views/videobar.js":470,"views/whiteboard.js":471,"views/xmpp.js":472,"webrtc-core":474}],575:[function(require,module,exports){
+},{"bdsft-webrtc-templates":6,"jquery":214,"models/authentication.js":215,"models/callcontrol.js":216,"models/connectionstatus.js":217,"models/fileshare.js":218,"models/history.js":219,"models/incomingcall.js":220,"models/messages.js":221,"models/reinvite.js":222,"models/settings.js":223,"models/sms.js":224,"models/smsprovider.js":225,"models/sound.js":226,"models/stats.js":227,"models/timer.js":228,"models/transfer.js":229,"models/video.js":230,"models/xmpp.js":231,"views/authentication.js":452,"views/callcontrol.js":453,"views/client.js":454,"views/connectionstatus.js":455,"views/dialpad.js":456,"views/fileshare.js":457,"views/history.js":458,"views/incomingcall.js":459,"views/messages.js":460,"views/popup.js":461,"views/reinvite.js":462,"views/settings.js":463,"views/sms.js":464,"views/stats.js":465,"views/timer.js":466,"views/transfer.js":467,"views/video.js":468,"views/videobar.js":469,"views/whiteboard.js":470,"views/xmpp.js":471,"webrtc-core":473}],576:[function(require,module,exports){
 var ExSIP = require('exsip');
 var jQuery = jquery = $ = require('jquery');
 require('jquery.cookie')
@@ -85662,4 +85740,4 @@ if (typeof String.prototype.endsWith !== 'function') {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
-},{"./factory":574,"bdsft-webrtc-config":3,"exsip":185,"jquery":214,"jquery.cookie":213,"models/sound":227,"views/client":455,"webrtc-core":474}]},{},[575]);
+},{"./factory":575,"bdsft-webrtc-config":3,"exsip":185,"jquery":214,"jquery.cookie":213,"models/sound":226,"views/client":454,"webrtc-core":473}]},{},[576]);

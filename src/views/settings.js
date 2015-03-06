@@ -60,9 +60,7 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
     self.clear.on('click', function(e) {
       e.preventDefault();
       settings.resetLayout();
-      eventbus.emit('message', {
-        text: 'Settings reset'
-      });
+      eventbus.message('Settings reset');
     });
     self.signOut.on('click', function(e) {
       e.preventDefault();

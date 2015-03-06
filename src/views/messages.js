@@ -11,7 +11,7 @@ function MessagesView() {
   };
 
   self.text = function(value) {
-    var messageEl = self[_level];
+    var messageEl = self[_level || 'normal'];
     messageEl.stop(true, true).fadeOut();
     messageEl.text(value).fadeIn(10).fadeOut(10000);
   };

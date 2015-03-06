@@ -3,7 +3,7 @@ module.exports = Authentication;
 var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
 
-function Authentication(eventbus, settings, configuration, debug, authenticationView) {
+function Authentication(eventbus, debug, settings, configuration, authenticationView) {
   var self = {};
 
   self.view = authenticationView;

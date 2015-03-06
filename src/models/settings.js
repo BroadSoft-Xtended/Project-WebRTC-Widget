@@ -3,7 +3,7 @@ module.exports = Settings;
 var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 
-function Settings(configuration, settingsView, eventbus, debug) {
+function Settings(eventbus, debug, configuration, settingsView) {
   var self = {};
   self.view = settingsView;
 

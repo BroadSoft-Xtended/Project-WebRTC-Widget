@@ -11,6 +11,9 @@ function AuthenticationView(eventbus, authentication) {
 
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
 
+  self.init = function() {
+  };
+
   self.listeners = function() {
     eventbus.on('authenticationFailed', function(e) {
       self.setVisible(true);
