@@ -1,4 +1,4 @@
-module.exports = XMPP;
+module.exports = require('webrtc-core').bdsft.Model(XMPP);
 
 var XMPP = require('stanza.io');
 

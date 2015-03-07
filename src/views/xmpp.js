@@ -1,4 +1,4 @@
-module.exports = XMPPView;
+module.exports = require('webrtc-core').bdsft.View(XMPPView);
 
 // var View = require('ampersand-view');
 // var GroupedCollectionView = require('ampersand-grouped-collection-view');
@@ -10,6 +10,7 @@ var $ = require('jquery');
 function XMPPView(debug, eventbus, configuration, sound, xmpp) {
   var self = {};
 
+  self.model = xmpp;
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['content', 'name', 'password', 'login', 'messages'];

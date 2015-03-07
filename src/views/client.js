@@ -1,4 +1,4 @@
-module.exports = ClientView;
+module.exports = require('webrtc-core').bdsft.View(ClientView);
 
 var fs = require('fs');
 var styles = require('bdsft-webrtc-style');
@@ -8,8 +8,8 @@ var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 var ClientConfig = require('bdsft-webrtc-config');
 
-function ClientView(options, eventbus, debug, configuration, video, videobarView, sound, callcontrol, sipstack, transfer, authentication, 
-  xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, stats) {
+function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrolView, sipstack, transferView, authenticationView, 
+  xmppView, incomingcallView, reinviteView, messagesView, settingsView, smsView, connectionstatusView, whiteboardView, fileshareView, statsView) {
   var self = {};
 
   self.elements = ['client', 'main', 'errorPopup'];
@@ -45,10 +45,10 @@ function ClientView(options, eventbus, debug, configuration, video, videobarView
 
     self.updateCss();
 
-    video.view.view.appendTo(self.main);
+    videoView.view.appendTo(self.main);
     videobarView.view.appendTo(self.main);
-    messages.view.view.appendTo(self.main);
-    connectionstatus.view.view.appendTo(self.main);
+    messagesView.view.appendTo(self.main);
+    connectionstatusView.view.appendTo(self.main);
     fileshareView.view.appendTo(self.client);
 
     self.updateClientClass();
@@ -75,7 +75,7 @@ function ClientView(options, eventbus, debug, configuration, video, videobarView
     $(document).unbind('keydown').bind('keydown', function(event) {
       var isModifier = event.altKey;
       if (isModifier) {
-        if (transfer.view.target.is(event.target)) {
+        if (transferView.target.is(event.target)) {
           return;
         }
         eventbus.modifier(event.which);

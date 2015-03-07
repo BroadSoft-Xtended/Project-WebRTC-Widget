@@ -1,4 +1,4 @@
-module.exports = AuthenticationView;
+module.exports = require('webrtc-core').bdsft.View(AuthenticationView);
 
 var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
@@ -7,6 +7,8 @@ var PopupView = require('./popup');
 function AuthenticationView(eventbus, authentication) {
   var self = {};
 
+  self.model = authentication;
+  
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];

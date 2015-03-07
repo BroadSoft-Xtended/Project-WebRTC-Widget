@@ -1,9 +1,9 @@
-module.exports = VideoBarView;
+module.exports = require('webrtc-core').bdsft.View(VideoBarView);
 
 var Icon = require('webrtc-core').icon;
 var events;
 
-function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dialpadView, timer, video, callcontrolView, configuration) {
+function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, video, callcontrolView, configuration) {
   var self = {};
 
   self.fullScreen = false;
@@ -58,7 +58,7 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
 
     // self.guiStart();
 
-    timer.stop();
+    timerView.model.stop();
     self.checkEndCallURL();
   };
 
@@ -67,7 +67,7 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
     toggleSelfView(self.selfViewVisible);
     toggleSound(self.soundEnabled);
 
-    timer.view.view.appendTo(self.cellTimer);
+    timerView.view.appendTo(self.cellTimer);
 
   };
 
@@ -151,7 +151,7 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
       });
       return null;
     };
-    eventbus.on("disconnected", function(e) {
+    eventbus.on(["disconnected", "endCall"], function(e) {
       self.endCall();
     });
     eventbus.on(["ended", "failed"], function(e) {

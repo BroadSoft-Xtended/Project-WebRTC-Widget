@@ -1,12 +1,10 @@
-module.exports = FileShare
+module.exports = require('webrtc-core').bdsft.Model(FileShare)
 
 var Utils = require('webrtc-core').utils;
 var fileSaver = require('filesaver.js');
 
-function FileShare(sipstack, eventbus, debug, fileshareView) {
+function FileShare(sipstack, eventbus, debug) {
   var self = {};
-
-  self.view = fileshareView;
 
   var C = self.C = {
     ACTION_REQUEST: 'request',

@@ -56018,15 +56018,13 @@ return jQuery;
 }));
 
 },{}],215:[function(require,module,exports){
-module.exports = Authentication;
+module.exports = require('webrtc-core').bdsft.Model(Authentication);
 
 var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
 
-function Authentication(eventbus, debug, settings, configuration, authenticationView) {
+function Authentication(eventbus, debug, settings, configuration) {
   var self = {};
-
-  self.view = authenticationView;
 
   self.props = {
     'userid': true,
@@ -56073,16 +56071,14 @@ function Authentication(eventbus, debug, settings, configuration, authentication
   return self;
 }
 },{"jquery":214,"webrtc-core":473}],216:[function(require,module,exports){
-module.exports = CallControl;
+module.exports = require('webrtc-core').bdsft.Model(CallControl);
 
 var $ = require('jquery');
 var fs = require('fs');
 var C = require('webrtc-core').constants;
 
-function CallControl(eventbus, configuration, sipstack, debug, callcontrolView, sound) {
+function CallControl(eventbus, debug, configuration, sipstack, sound) {
   var self = {};
-
-  self.view = callcontrolView;
 
   self.props = {'destination': true};
 
@@ -56194,14 +56190,12 @@ function CallControl(eventbus, configuration, sipstack, debug, callcontrolView, 
   return self;
 }
 },{"fs":7,"jquery":214,"webrtc-core":473}],217:[function(require,module,exports){
-module.exports = ConnectionStatus
+module.exports = require('webrtc-core').bdsft.Model(ConnectionStatus)
 
 var Utils = require('webrtc-core').utils;
 
-function ConnectionStatus(options, eventbus, configuration, connectionstatusView) {
+function ConnectionStatus(options, eventbus, configuration) {
   var self = {};
-
-  self.view = connectionstatusView;
 
   self.props = {'connected': true, 'registered': true};
 
@@ -56231,15 +56225,13 @@ function ConnectionStatus(options, eventbus, configuration, connectionstatusView
   return self;
 }
 },{"webrtc-core":473}],218:[function(require,module,exports){
-module.exports = FileShare
+module.exports = require('webrtc-core').bdsft.Model(FileShare)
 
 var Utils = require('webrtc-core').utils;
 var fileSaver = require('filesaver.js');
 
-function FileShare(sipstack, eventbus, debug, fileshareView) {
+function FileShare(sipstack, eventbus, debug) {
   var self = {};
-
-  self.view = fileshareView;
 
   var C = self.C = {
     ACTION_REQUEST: 'request',
@@ -56327,7 +56319,7 @@ function FileShare(sipstack, eventbus, debug, fileshareView) {
   return self;
 }
 },{"filesaver.js":208,"webrtc-core":473}],219:[function(require,module,exports){
-module.exports = History
+module.exports = require('webrtc-core').bdsft.Model(History)
 
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
@@ -56393,10 +56385,8 @@ function Call(value) {
   return self;
 }
 
-function History(stats, configuration, eventbus, historyView) {
+function History(stats, configuration, eventbus) {
   var self = {};
-
-  self.view = historyView;
 
   var _pageNumber = 0;
   Object.defineProperty(self, 'pageNumber', 
@@ -56559,14 +56549,12 @@ function History(stats, configuration, eventbus, historyView) {
 
 }
 },{"webrtc-core":473}],220:[function(require,module,exports){
-module.exports = IncomingCall
+module.exports = require('webrtc-core').bdsft.Model(IncomingCall)
 
 var Utils = require('webrtc-core').utils;
 
-function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
+function IncomingCall(options, eventbus, sound, sipstack) {
   var self = {};
-
-  self.view = incomingcallView;
 
   self.props = {'incomingCallName': true, 'incomingCallUser': true};
 
@@ -56617,12 +56605,10 @@ function IncomingCall(options, eventbus, sound, sipstack, incomingcallView) {
   return self;
 }
 },{"webrtc-core":473}],221:[function(require,module,exports){
-module.exports = Messages
+module.exports = require('webrtc-core').bdsft.Model(Messages)
 
-function Messages(eventbus, configuration, messagesView) {
+function Messages(eventbus, configuration) {
   var self = {};
-
-  self.view = messagesView;
 
   self.props = {'text': true, 'level': true};
 
@@ -56696,13 +56682,11 @@ function Messages(eventbus, configuration, messagesView) {
 
   return self;
 }
-},{}],222:[function(require,module,exports){
-module.exports = Reinvite
+},{"webrtc-core":473}],222:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.Model(Reinvite)
 
-function Reinvite(eventbus, reinviteView) {
+function Reinvite(eventbus) {
   var self = {};
-
-  self.view = reinviteView;
 
   self.props = {'incomingCallName': true, 'incomingCallUser': true, 'title': true};
 
@@ -56731,15 +56715,14 @@ function Reinvite(eventbus, reinviteView) {
 
   return self;
 }
-},{}],223:[function(require,module,exports){
-module.exports = Settings;
+},{"webrtc-core":473}],223:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.Model(Settings);
 
 var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 
-function Settings(eventbus, debug, configuration, settingsView) {
+function Settings(eventbus, debug, configuration) {
   var self = {};
-  self.view = settingsView;
 
   var getResolution = function(resolutionStandard, resolutionWidescreen) {
     // console.log('self.resolutionType : '+self.resolutionType);
@@ -57005,7 +56988,7 @@ function Settings(eventbus, debug, configuration, settingsView) {
   return self;
 }
 },{"webrtc-core":473}],224:[function(require,module,exports){
-module.exports = SMS;
+module.exports = require('webrtc-core').bdsft.Model(SMS);
 
 var DateFormat = require('webrtc-core').dateformat;
 var Utils = require('webrtc-core').utils;
@@ -57055,10 +57038,8 @@ function InboxItem(sms, message) {
   return self;
 };
 
-function SMS(eventbus, debug, smsprovider, sound, smsView) {
+function SMS(eventbus, debug, smsprovider, sound) {
   var self = {};
-
-  self.view = smsView;
 
   self.props = {'name': true, 'password': true, 'sendTo': true, 'sendBody': true, 'statusText': true, 'type': true, 'inboxItems': true};
 
@@ -57225,7 +57206,7 @@ function SMS(eventbus, debug, smsprovider, sound, smsView) {
   return self;
 }
 },{"webrtc-core":473}],225:[function(require,module,exports){
-module.exports = SMSProvider;
+module.exports = require('webrtc-core').bdsft.Model(SMSProvider);
 
 function SMSProvider(eventbus, debug) {
   var self = {};
@@ -57332,8 +57313,8 @@ function SMSProvider(eventbus, debug) {
 
   return self;
 }
-},{}],226:[function(require,module,exports){
-module.exports = Sound;
+},{"webrtc-core":473}],226:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.Model(Sound);
 
 var $ = require('jquery');
 var fs = require('fs');
@@ -57458,15 +57439,13 @@ function Sound(eventbus, configuration, sipstack) {
   return self;
 }
 
-},{"bdsft-webrtc-media":4,"fs":7,"jquery":214}],227:[function(require,module,exports){
-module.exports = Stats;
+},{"bdsft-webrtc-media":4,"fs":7,"jquery":214,"webrtc-core":473}],227:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.Model(Stats);
 
 var Utils = require('webrtc-core').utils;
 
-function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
+function Stats(options, eventbus, configuration, sipstack, debug) {
   var self = {};
-
-  self.view = statsView;
 
   self.statsMod = require('../../js/stats')(self);
 
@@ -57620,15 +57599,13 @@ function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
   return self;
 }
 },{"../../js/stats":2,"webrtc-core":473}],228:[function(require,module,exports){
-module.exports = Timer;
+module.exports = require('webrtc-core').bdsft.Model(Timer);
 
 var Utils = require('webrtc-core').utils;
 
-function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView) {
+function Timer(eventbus, debug, configuration, sipstack) {
   var self = {};
 
-  self.view = timerView;
-  
   self.callTimer = null;
   self.startTime = null;
 
@@ -57680,8 +57657,7 @@ function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView
     return function() {
       var secs = self.getSeconds();
       if (configuration.maxCallLength && secs >= configuration.maxCallLength) {
-        sipstack.terminateSessions();
-        videobarView.endCall();
+        eventbus.endCall();
         return;
       }
       self.updateText();
@@ -57691,14 +57667,12 @@ function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView
   return self;
 }
 },{"webrtc-core":473}],229:[function(require,module,exports){
-module.exports = Transfer;
+module.exports = require('webrtc-core').bdsft.Model(Transfer);
 
 var Utils = require('webrtc-core').utils;
 
-function Transfer(sipstack, eventbus, configuration, callcontrol, transferView) {
+function Transfer(sipstack, eventbus, configuration, callcontrol) {
   var self = {};
-
-  self.view = transferView;
 
   self.props = {
     'target': true,
@@ -57724,12 +57698,10 @@ function Transfer(sipstack, eventbus, configuration, callcontrol, transferView) 
   return self;
 }
 },{"webrtc-core":473}],230:[function(require,module,exports){
-module.exports = Video;
+module.exports = require('webrtc-core').bdsft.Model(Video);
 
-function Video(eventbus, debug, configuration, videoView) {
+function Video(eventbus, debug, configuration) {
   var self = {}; 
-
-  self.view = videoView;
 
   self.props = {'localEl': true, 'remoteEl': true, 'localWidth': true, 'localHeight': true};
 
@@ -57791,8 +57763,8 @@ function Video(eventbus, debug, configuration, videoView) {
 
   return self;
 }
-},{}],231:[function(require,module,exports){
-module.exports = XMPP;
+},{"webrtc-core":473}],231:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.Model(XMPP);
 
 var XMPP = require('stanza.io');
 
@@ -57842,7 +57814,7 @@ function XMPP(debug, eventbus) {
 
   return self;
 }
-},{"stanza.io":232}],232:[function(require,module,exports){
+},{"stanza.io":232,"webrtc-core":473}],232:[function(require,module,exports){
 'use strict';
 
 exports.VERSION = '7.0.6';
@@ -80591,7 +80563,7 @@ exports.resourceprep = function (str) {
 };
 
 },{"punycode":153}],452:[function(require,module,exports){
-module.exports = AuthenticationView;
+module.exports = require('webrtc-core').bdsft.View(AuthenticationView);
 
 var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
@@ -80600,6 +80572,8 @@ var PopupView = require('./popup');
 function AuthenticationView(eventbus, authentication) {
   var self = {};
 
+  self.model = authentication;
+  
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert'];
@@ -80629,7 +80603,7 @@ function AuthenticationView(eventbus, authentication) {
   return self;
 }
 },{"./popup":461,"jquery":214,"webrtc-core":473}],453:[function(require,module,exports){
-module.exports = CallControlView
+module.exports = require('webrtc-core').bdsft.View(CallControlView)
 
 var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
@@ -80637,6 +80611,8 @@ var PopupView = require('./popup');
 function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, dialpadView) {
   var self = {};
 
+  self.model = callcontrol;
+  
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['historyButton', 'destination', 'call', 'dialpadHolder'];
@@ -80707,7 +80683,7 @@ function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, di
   return self;
 }
 },{"./popup":461,"webrtc-core":473}],454:[function(require,module,exports){
-module.exports = ClientView;
+module.exports = require('webrtc-core').bdsft.View(ClientView);
 
 var fs = require('fs');
 var styles = require('bdsft-webrtc-style');
@@ -80717,8 +80693,8 @@ var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 var ClientConfig = require('bdsft-webrtc-config');
 
-function ClientView(options, eventbus, debug, configuration, video, videobarView, sound, callcontrol, sipstack, transfer, authentication, 
-  xmppView, incomingcall, reinvite, messages, settings, smsView, connectionstatus, whiteboardView, fileshareView, stats) {
+function ClientView(options, eventbus, debug, configuration, videoView, videobarView, sound, callcontrolView, sipstack, transferView, authenticationView, 
+  xmppView, incomingcallView, reinviteView, messagesView, settingsView, smsView, connectionstatusView, whiteboardView, fileshareView, statsView) {
   var self = {};
 
   self.elements = ['client', 'main', 'errorPopup'];
@@ -80754,10 +80730,10 @@ function ClientView(options, eventbus, debug, configuration, video, videobarView
 
     self.updateCss();
 
-    video.view.view.appendTo(self.main);
+    videoView.view.appendTo(self.main);
     videobarView.view.appendTo(self.main);
-    messages.view.view.appendTo(self.main);
-    connectionstatus.view.view.appendTo(self.main);
+    messagesView.view.appendTo(self.main);
+    connectionstatusView.view.appendTo(self.main);
     fileshareView.view.appendTo(self.client);
 
     self.updateClientClass();
@@ -80784,7 +80760,7 @@ function ClientView(options, eventbus, debug, configuration, video, videobarView
     $(document).unbind('keydown').bind('keydown', function(event) {
       var isModifier = event.altKey;
       if (isModifier) {
-        if (transfer.view.target.is(event.target)) {
+        if (transferView.target.is(event.target)) {
           return;
         }
         eventbus.modifier(event.which);
@@ -80896,11 +80872,13 @@ function ClientView(options, eventbus, debug, configuration, video, videobarView
 
 exports.constructor = ClientView;
 },{"bdsft-webrtc-config":3,"bdsft-webrtc-style":5,"ejs":171,"fs":7,"jquery":214,"webrtc-core":473}],455:[function(require,module,exports){
-module.exports = ConnectionStatusView
+module.exports = require('webrtc-core').bdsft.View(ConnectionStatusView)
 
-function ConnectionStatusView() {
+function ConnectionStatusView(connectionstatus) {
   var self = {};
 
+  self.model = connectionstatus;
+  
   self.elements = ['connectedIcon', 'registeredIcon'];
 
   var isEnabled = function(icon){
@@ -80951,10 +80929,10 @@ function ConnectionStatusView() {
 
   return self;
 }
-},{}],456:[function(require,module,exports){
-module.exports = DialpadView
+},{"webrtc-core":473}],456:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(DialpadView)
 
-function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
+function DialpadView(eventbus, sound) {
   var self = {};
 
   self.elements = ['keys'];
@@ -80969,12 +80947,14 @@ function DialpadView(options, eventbus, callcontrol, historyView, videobarView, 
 
   return self;
 }
-},{}],457:[function(require,module,exports){
-module.exports = FileShareView
+},{"webrtc-core":473}],457:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(FileShareView)
 
-function FileShareView(eventbus) {
+function FileShareView(eventbus, fileshare) {
   var self = {};
 
+  self.model = fileshare;
+  
   var requestSend = function(e) {
     var data = e.target.result;
     var file = self.file.val();
@@ -81001,15 +80981,17 @@ function FileShareView(eventbus) {
 
   return self;
 }
-},{}],458:[function(require,module,exports){
-module.exports = HistoryView
+},{"webrtc-core":473}],458:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(HistoryView)
 
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
 var PopupView = require('./popup');
 
-function HistoryView(sound, history, eventbus, callcontrol) {
+function HistoryView(eventbus, sound, callcontrol, history) {
   var self = {};
+
+  self.model = history;
 
   Utils.extend(self, PopupView(eventbus));
 
@@ -81136,7 +81118,7 @@ function HistoryView(sound, history, eventbus, callcontrol) {
 
 }
 },{"./popup":461,"webrtc-core":473}],459:[function(require,module,exports){
-module.exports = IncomingCallView
+module.exports = require('webrtc-core').bdsft.View(IncomingCallView)
 
 var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
@@ -81144,6 +81126,8 @@ var PopupView = require('./popup');
 function IncomingCallView(eventbus, incomingcall) {
   var self = {};
 
+  self.model = incomingcall;
+  
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptIncomingCall', 'rejectIncomingCall', 'holdAndAnswerButton', 'dropAndAnswerButton'];
@@ -81170,11 +81154,13 @@ function IncomingCallView(eventbus, incomingcall) {
   return self;
 }
 },{"./popup":461,"webrtc-core":473}],460:[function(require,module,exports){
-module.exports = MessagesView
+module.exports = require('webrtc-core').bdsft.View(MessagesView)
 
-function MessagesView() {
+function MessagesView(messages) {
   var self = {};
 
+  self.model = messages;
+  
   self.elements = ['alert', 'success', 'warning', 'normal'];
 
   var _level;
@@ -81190,7 +81176,7 @@ function MessagesView() {
 
   return self;
 }
-},{}],461:[function(require,module,exports){
+},{"webrtc-core":473}],461:[function(require,module,exports){
 module.exports = PopupView;
 
 var $ = require('jquery');
@@ -81231,7 +81217,7 @@ function PopupView(eventbus) {
   return self;
 }
 },{"jquery":214}],462:[function(require,module,exports){
-module.exports = ReinviteView
+module.exports = require('webrtc-core').bdsft.View(ReinviteView)
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
@@ -81239,6 +81225,8 @@ var Utils = require('webrtc-core').utils;
 function ReinviteView(eventbus, reinvite) {
   var self = {};
 
+  self.model = reinvite;
+  
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptReInviteCall', 'rejectReInviteCall', 'title'];
@@ -81255,14 +81243,16 @@ function ReinviteView(eventbus, reinvite) {
   return self;
 }
 },{"./popup":461,"webrtc-core":473}],463:[function(require,module,exports){
-module.exports = SettingsView;
+module.exports = require('webrtc-core').bdsft.View(SettingsView);
 
 var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
 
-function SettingsView(settings, configuration, eventbus, debug, sound) {
+function SettingsView(eventbus, debug, configuration, sound, settings) {
   var self = {};
+
+  self.model = settings;
 
   Utils.extend(self, PopupView(eventbus));
 
@@ -81381,7 +81371,7 @@ function SettingsView(settings, configuration, eventbus, debug, sound) {
   return self;
 }
 },{"./popup":461,"webrtc-core":473}],464:[function(require,module,exports){
-module.exports = SMSView;
+module.exports = require('webrtc-core').bdsft.View(SMSView);
 
 var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
@@ -81389,6 +81379,8 @@ var PopupView = require('./popup');
 function SMSView(eventbus, debug, sound, sms) {
   var self = {};
 
+  self.model = sms;
+  
   Utils.extend(self, PopupView(eventbus));
 
   function InboxItemView(inboxItem) {
@@ -81537,14 +81529,16 @@ function SMSView(eventbus, debug, sound, sms) {
   return self;
 }
 },{"./popup":461,"webrtc-core":473}],465:[function(require,module,exports){
-module.exports = StatsView;
+module.exports = require('webrtc-core').bdsft.View(StatsView);
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
 
-function StatsView(eventbus) {
+function StatsView(eventbus, stats) {
   var self = {};
 
+  self.model = stats;
+  
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['statsVar', 'statsContainer', 'videoKiloBitsSentPerSecond', 'audioKiloBitsSentPerSecond', 
@@ -81593,17 +81587,19 @@ function StatsView(eventbus) {
   return self;
 }
 },{"./popup":461,"webrtc-core":473}],466:[function(require,module,exports){
-module.exports = TimerView;
+module.exports = require('webrtc-core').bdsft.View(TimerView);
 
-function TimerView() {
+function TimerView(timer) {
   var self = {};
 
+  self.model = timer;
+  
   self.elements = ['text'];
 
   return self;
 }
-},{}],467:[function(require,module,exports){
-module.exports = TransferView;
+},{"webrtc-core":473}],467:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(TransferView);
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
@@ -81611,6 +81607,8 @@ var Utils = require('webrtc-core').utils;
 function TransferView(sound, eventbus, transfer) {
   var self = {};
 
+  self.model = transfer;
+  
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['accept', 'reject', 'target', 'typeAttended'];
@@ -81637,12 +81635,14 @@ function TransferView(sound, eventbus, transfer) {
   return self;
 }
 },{"./popup":461,"webrtc-core":473}],468:[function(require,module,exports){
-module.exports = VideoView;
+module.exports = require('webrtc-core').bdsft.View(VideoView);
 require('jquery-ui/draggable');
 
 function VideoView(settings, configuration, historyView, video) {
   var self = {}; 
 
+  self.model = video;
+  
   self.elements = ['local', 'remote', 'localVideo'];
 
   self.init = function() {
@@ -81688,13 +81688,13 @@ function VideoView(settings, configuration, historyView, video) {
 
   return self;
 }
-},{"jquery-ui/draggable":210}],469:[function(require,module,exports){
-module.exports = VideoBarView;
+},{"jquery-ui/draggable":210,"webrtc-core":473}],469:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(VideoBarView);
 
 var Icon = require('webrtc-core').icon;
 var events;
 
-function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dialpadView, timer, video, callcontrolView, configuration) {
+function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, video, callcontrolView, configuration) {
   var self = {};
 
   self.fullScreen = false;
@@ -81749,7 +81749,7 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
 
     // self.guiStart();
 
-    timer.stop();
+    timerView.model.stop();
     self.checkEndCallURL();
   };
 
@@ -81758,7 +81758,7 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
     toggleSelfView(self.selfViewVisible);
     toggleSound(self.soundEnabled);
 
-    timer.view.view.appendTo(self.cellTimer);
+    timerView.view.appendTo(self.cellTimer);
 
   };
 
@@ -81842,7 +81842,7 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
       });
       return null;
     };
-    eventbus.on("disconnected", function(e) {
+    eventbus.on(["disconnected", "endCall"], function(e) {
       self.endCall();
     });
     eventbus.on(["ended", "failed"], function(e) {
@@ -81908,7 +81908,7 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
   return self;
 }
 },{"webrtc-core":473}],470:[function(require,module,exports){
-module.exports = WhiteboardView;
+module.exports = require('webrtc-core').bdsft.View(WhiteboardView);
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
@@ -82077,7 +82077,7 @@ function WhiteboardView(eventbus, sipstack) {
   return self;
 }
 },{"../../js/sketch":1,"./popup":461,"webrtc-core":473}],471:[function(require,module,exports){
-module.exports = XMPPView;
+module.exports = require('webrtc-core').bdsft.View(XMPPView);
 
 // var View = require('ampersand-view');
 // var GroupedCollectionView = require('ampersand-grouped-collection-view');
@@ -82089,6 +82089,7 @@ var $ = require('jquery');
 function XMPPView(debug, eventbus, configuration, sound, xmpp) {
   var self = {};
 
+  self.model = xmpp;
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['content', 'name', 'password', 'login', 'messages'];
@@ -82443,12 +82444,112 @@ var eventbus = require('./eventbus');
 var debug = require('./debug');
 var sipstack = require('./sipstack');
 var configuration = require('./configuration');
+var bdsft = require('./bdsft');
+var element = require('./element');
 
 
 module.exports = {exsip: exsip, adapter: adapter, constants: constants, cookieprop: cookieprop, dateformat:  dateformat,
-icon: icon, prop: prop, utils: utils, eventbus: eventbus, debug: debug, sipstack: sipstack, configuration: configuration};
-},{"./adapter":472,"./configuration":474,"./constants":475,"./cookieprop":476,"./dateformat":477,"./debug":478,"./eventbus":479,"./icon":480,"./prop":481,"./sipstack":482,"./utils":483,"ExSIP":495}],474:[function(require,module,exports){
-module.exports = Configuration;
+icon: icon, prop: prop, utils: utils, eventbus: eventbus, debug: debug, sipstack: sipstack, configuration: configuration, bdsft: bdsft, 
+element: element};
+},{"./adapter":472,"./bdsft":474,"./configuration":475,"./constants":476,"./cookieprop":477,"./dateformat":479,"./debug":480,"./element":481,"./eventbus":482,"./icon":483,"./prop":484,"./sipstack":485,"./utils":486,"ExSIP":498}],474:[function(require,module,exports){
+var utils = require('./utils')
+module.exports = {
+	View: View,
+	Model: Model
+}
+var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+var ARGUMENT_NAMES = /([^\s,]+)/g;
+var $ = require('jquery');
+var DataBinder = require('./databinder');
+
+var databinders = {};
+
+function View(constructor, options) {
+	var self = {};
+
+	self.argNames = argNamesFun(constructor);
+	self.name = functionName(constructor);
+	self.viewName = self.name.replace('view', '');
+
+	self.create = function(constructorArgs) {
+		constructorArgs = constructorArgs || [];
+		options = options || {};
+		var object = createFun(constructor, constructorArgs);
+		object._name = self.name;
+		object.view = $(options.view || object.template || require('bdsft-webrtc-templates')[self.viewName]());
+		(object.elements || []).forEach(function(element) {
+			require('webrtc-core').element(object, element, databinder(self.viewName));
+		});
+		object.listeners && object.listeners();
+		constructorArgs.forEach(function(arg) {
+			arg._init && arg._init();
+		});
+		object.init && object.init(options);
+		return object;
+	};
+
+	return self;
+}
+
+function Model(constructor, options) {
+	var self = {};
+
+	self.create = function(constructorArgs) {
+		constructorArgs = constructorArgs || [];
+		options = options || {};
+		var object = createFun(constructor, constructorArgs);
+		object._name = self.name;
+		(object.props && Object.keys(object.props) || []).forEach(function(name) {
+			var prop = utils.extend({name: name}, object.props[name])
+			var type = prop.type || object.props._type || '';
+			require('webrtc-core')[type+'prop'](object, prop, databinder(self.name));
+		});
+		object.listeners && object.listeners();
+		constructorArgs.forEach(function(arg) {
+			arg._init && arg._init();
+		});
+		object.init && object.init(options);
+		return object;
+	};
+
+	self.argNames = argNamesFun(constructor);
+	self.name = functionName(constructor);
+
+	return self;
+};
+
+function databinder(name) {
+	var databinder = databinders[name];
+	if(!databinder) {
+		databinder = new DataBinder(name);
+		databinders[name] = databinder;
+	}
+	return databinder;
+}
+
+function functionName(fun) {
+		var ret = fun.toString();
+		ret = ret.substr('function '.length);
+		ret = ret.substr(0, ret.indexOf('('));
+		return ret.toLowerCase();
+}
+
+function argNamesFun(fun) {
+		var fnStr = fun.toString().replace(STRIP_COMMENTS, '')
+		var result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES)
+		if (result === null) {
+			result = [];
+		}
+		return result;
+}
+
+function createFun(constructor, argArray) {
+	var args = [null].concat(argArray);
+	var factoryFunction = constructor.bind.apply(constructor, args);
+	return new factoryFunction();
+}
+},{"./databinder":478,"./utils":486,"bdsft-webrtc-templates":6,"jquery":577,"webrtc-core":473}],475:[function(require,module,exports){
+module.exports = require('./bdsft').Model(Configuration);
 
 var Flags = {
   enableHD: 1,
@@ -82482,17 +82583,18 @@ var jQuery = $ = require('jquery');
 if(typeof document === 'undefined') {
   document = {};
 }
+var cookie = require('cookie-cutter')(document);
+
 function Configuration(options, eventbus, debug) {
   var self = {};
   options = options || {};
 
   var screenshare = false;
   var offerToReceiveVideo = true;
-  var bodyBackgroundColor = $('body').css('backgroundColor');
   
   self.props = {
     userid:  {
-      value: function(){return options.userid || $.cookie('settingUserid');}
+      value: function(){return options.userid || cookie.get('settingUserid');}
     },
     destination: {
       value: function(){return options.destination || Utils.getSearchVariable("destination");}
@@ -82501,14 +82603,14 @@ function Configuration(options, eventbus, debug) {
       value: function(){return options.networkUserId || Utils.getSearchVariable("networkUserId");}
     },
     hd: {
-      value: function(){return Utils.getSearchVariable("hd") === "true" || $.cookie('settingHD');}
+      value: function(){return Utils.getSearchVariable("hd") === "true" || cookie.get('settingHD');}
     },
     audioOnly: {
       value: function(){return Utils.getSearchVariable("audioOnly") === "true";}
     },
     sipDisplayName: {
       value: function(){
-        var name = options.displayName || Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
+        var name = options.displayName || Utils.getSearchVariable("name") || cookie.get('settingDisplayName');
         if (name) {
           name = name.replace(/%20/g, " ");
         }
@@ -82519,11 +82621,11 @@ function Configuration(options, eventbus, debug) {
       value: function(){return Utils.getSearchVariable("maxCallLength");}
     },
     size: {
-      value: function(){return Utils.getSearchVariable("size") || $.cookie('settingsize') || 1;}
+      value: function(){return Utils.getSearchVariable("size") || cookie.get('settingsize') || 1;}
     },
     color: {
       value: function(){
-        return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor') || '#ffffff';
+        return Utils.colorNameToHex(Utils.getSearchVariable("color")) || cookie.get('settingColor') || '#ffffff';
       }
     },
     enableMessages: {
@@ -82539,14 +82641,14 @@ function Configuration(options, eventbus, debug) {
       if(key === 'displayResolution') {
         self.props[key] = {
           value: function(){
-            return options.displayResolution || $.cookie('settingsResolutionDisplay') || WebRTC_C.DEFAULT_RESOLUTION_DISPLAY;
+            return options.displayResolution || cookie.get('settingsResolutionDisplay') || WebRTC_C.DEFAULT_RESOLUTION_DISPLAY;
           }
         }
       }
       else if(key === 'encodingResolution') {
         self.props[key] = {
           value: function(){
-            return options.encodingResolution || $.cookie('settingsResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
+            return options.encodingResolution || cookie.get('settingsResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
           }
         }
       } 
@@ -82635,7 +82737,7 @@ function Configuration(options, eventbus, debug) {
     return $.unique(views);
   };
   self.getBackgroundColor = function() {
-    return self.color || self.bodyBackgroundColor;
+    return self.color || $('body').css('backgroundColor');
   };
   self.getDTMFOptions = function() {
     return {
@@ -82737,7 +82839,7 @@ function Configuration(options, eventbus, debug) {
 
     var config = {
       'uri': sip_uri,
-      'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
+      'authorization_user': data.authenticationUserId || cookie.get('settingAuthenticationUserId') || userid,
       'ws_servers': self.websocketsServers,
       'stun_servers': 'stun:' + self.stunServer + ':' + self.stunPort,
       'trace_sip': self.debug,
@@ -82754,7 +82856,7 @@ function Configuration(options, eventbus, debug) {
     // do registration if setting User ID or configuration register is set
     if (self.userid || self.register) {
       config.register = true;
-      config.password = data.password || $.cookie('settingPassword');
+      config.password = data.password || cookie.get('settingPassword');
     } else {
       config.register = false;
     }
@@ -82803,7 +82905,7 @@ function Configuration(options, eventbus, debug) {
 }
 
 
-},{"./constants":475,"./utils":483,"jquery":573}],475:[function(require,module,exports){
+},{"./bdsft":474,"./constants":476,"./utils":486,"cookie-cutter":521,"jquery":577}],476:[function(require,module,exports){
 var C = {
     // RTCSession states
   STATE_CONNECTED: "connected",
@@ -82861,7 +82963,7 @@ C.WIDESCREEN_RESOLUTIONS = {
 };
 
 module.exports = C;
-},{}],476:[function(require,module,exports){
+},{}],477:[function(require,module,exports){
 module.exports = CookieProp;
 
 var Prop = require('./prop');
@@ -82870,11 +82972,11 @@ var Utils = require('./utils');
 var $ = require('jquery');
 require('jquery.cookie')
 
-function CookieProp(obj, prop, cookie, expires) {
+function CookieProp(obj, prop, databinder, cookie, expires) {
 
 	var self = {};
 
-	self.__proto__ = Prop(obj, prop);
+	self.__proto__ = Prop(obj, prop, databinder);
 
 	var superSet = self.__proto__.__set;
 
@@ -82906,7 +83008,42 @@ function CookieProp(obj, prop, cookie, expires) {
 
 	return self;
 }
-},{"./constants":475,"./prop":481,"./utils":483,"jquery":573,"jquery.cookie":572}],477:[function(require,module,exports){
+},{"./constants":476,"./prop":484,"./utils":486,"jquery":577,"jquery.cookie":576}],478:[function(require,module,exports){
+module.exports = DataBinder;
+
+var ee = require('event-emitter');
+
+function DataBinder( objectid ) {
+  var emitter = ee({});
+
+  var self = {};
+
+  self.onModelChange = function(cb){
+    emitter.on(objectid, function(data){
+      if(!data.fromView) {
+        cb(data.name, data.value);
+      }
+    });
+  };
+  self.onViewChange = function(cb){
+    emitter.on(objectid, function(data){
+      if(data.fromView) {
+        cb(data.name, data.value);
+      }
+    });
+  };
+
+  self.viewChanged = function(name, value){
+    emitter.emit(objectid, {name: name, value: value, fromView: true});
+  };
+  self.modelChanged = function(name, value){
+    emitter.emit(objectid, {name: name, value: value, fromView: false});
+  };
+
+  return self;
+}
+
+},{"event-emitter":526}],479:[function(require,module,exports){
 module.exports = DateFormat;
 var C = {
   dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
@@ -82967,8 +83104,8 @@ DateFormat.prototype = {
     return dateTxt;
   }
 };
-},{}],478:[function(require,module,exports){
-module.exports = Debug
+},{}],480:[function(require,module,exports){
+module.exports = require('./bdsft').Model(Debug)
 
 var stacktrace = require('stacktrace-js');
 var debug = require('debug');
@@ -83020,8 +83157,66 @@ var updateEnabled = function() {
 // 	debug.disable();
 // };
 // exports.log = debug.log;
-},{"debug":518,"stacktrace-js":574}],479:[function(require,module,exports){
-module.exports = EventBus;
+},{"./bdsft":474,"debug":522,"stacktrace-js":578}],481:[function(require,module,exports){
+module.exports = Element;
+
+function Element(object, name, databinder) {
+	var self = {};
+
+	var element = object.view.find('.' + name);
+	if(!element) {
+		console.error('no element found for ' + name);
+		return;
+	}
+
+	object[name] = element;
+
+	element.on('change', function(){
+		databinder.viewChanged(name, get());
+	});
+
+	var isCheckbox = function() {
+		return element.attr('type') === 'checkbox';
+	};
+
+	var isTextbox = function() {
+		return (element.attr('type') === 'text' || element.attr('type') === 'password');
+	};
+
+	var isSelect = function() {
+		return element[0].nodeName.match(/select/i);
+	};
+
+	var get = function(){
+		if(isCheckbox()){
+			return element.prop('checked')
+		} else if(isTextbox() || isSelect()) {
+			return element.val();
+		} else {
+			// console.error('element is no input : ', element);
+		}
+	};
+
+	var set = function(value){
+		if(isCheckbox()){
+			element.prop('checked', value);
+		} else if(isTextbox() || isSelect()) {
+			element.val(value);
+		} else {
+			console.error('element is no input : ', element);
+		}
+	};
+
+	databinder.onModelChange(function(_name, value){
+		if(_name === name) {
+			set(value);
+		}
+	});
+
+	return self;
+}
+},{}],482:[function(require,module,exports){
+module.exports = require('./bdsft').Model(EventBus);
 
 var ee = require('event-emitter');
 
@@ -83063,6 +83258,9 @@ function EventBus() {
 		} else {
 			doEmit(type, obj);
 		}
+	};
+	self.endCall = function() {
+		self.emit('endCall', {});
 	};
 	self.attachView = function(view) {
 		self.emit('attachView', {
@@ -83160,7 +83358,7 @@ function EventBus() {
 	return self;
 }
 
-},{"event-emitter":522}],480:[function(require,module,exports){
+},{"./bdsft":474,"event-emitter":526}],483:[function(require,module,exports){
   module.exports = Icon;
 
   function Icon(element, sound) {
@@ -83194,106 +83392,50 @@ function EventBus() {
       });
     }
   };
-},{}],481:[function(require,module,exports){
+},{}],484:[function(require,module,exports){
 module.exports = Prop;
 
-function Prop(obj, prop) {
+function Prop(obj, prop, databinder) {
 	var self = {};
 
-	self._name = prop.name || prop;
+	var _name = prop.name || prop;
 	var internal;
-	var data = obj.view && obj.view[self._name] || function(value){
-		if(arguments.length === 1) {
-			internal = value;
-		} else {
-			return internal;
-		}
-	};
 
-	var isCheckbox = function() {
-		return data.attr && data.attr('type') === 'checkbox';
+	var __get = function(){
+		return internal;
 	};
-
-	var isTextbox = function() {
-		return data.attr && (data.attr('type') === 'text' || data.attr('type') === 'password');
-	};
-
-	var isSelect = function() {
-		return data[0] && data[0].nodeName && data[0].nodeName.match(/select/i);
-	};
-
-	self.__get = function(){
-		if(prop.onGet) {
-			prop.onGet();
-		}
-		if(isCheckbox() && data.prop) {
-			return data.prop && data.prop('checked');
-		} 
-		else if((isTextbox() || isSelect()) && data.val) {
-			return data.val();
-		} 
-		else if(data.text) {
-			return data.text();
-		} 
-		else {
-			return data();
-		}
-	};
-	self.__init = function(){
+	var __init = function(){
 		if(prop.value && prop.value()) {
-			obj[self._name] = prop.value();
+			obj[_name] = prop.value();
 		}
-		if(isCheckbox()) {
-			data.on('click', function(){
-				obj[self._name] = data.prop('checked');
-			});
-		}
-		else if(isSelect()) {
-			data.on('change', function(){
-				console.log('!!!!!!!!!!! on change handler : '+data.val());
-				obj[self._name] = data.val();
-			});
-		}
-		else if(isTextbox()) {
-			data.on('blur', function(){
-				console.log('!!!!!!!!!!! on blur handler : '+data.val());
-				obj[self._name] = data.val();
-			});
-		} 
 	};
-	self.__set = function(value){
-		if(isCheckbox()) {
-			data.prop('checked', value);
-		} 
-		else if((isTextbox() || isSelect()) && data.val) {
-			data.val(value);
-		} 
-		else if(data.text) {
-			data.text(value);
-		} 
-		else {
-			data(value);
-		}
+	var __set = function(value){
+		internal = value;
+		databinder.modelChanged(_name, value);
 		if(prop.onSet) {
 			prop.onSet(value);
 		}
 	};
 
-	self.define = function(){
-		Object.defineProperty(obj, self._name, {
-			writeable: false,
-			configurable: true,
-			get: prop.get || self.__get,
-			set: prop.set || self.__set
-		});	
+	databinder.onViewChange(function(name, value){
+		if(name === _name) {
+			internal = value;
+		}
+	});
 
-		self.__init();
-	};
+	Object.defineProperty(obj, _name, {
+		writeable: false,
+		configurable: true,
+		get: prop.get || __get,
+		set: prop.set || __set
+	});	
+
+	__init();
 
 	return self;
 }
-},{}],482:[function(require,module,exports){
-module.exports = SIPStack;
+},{}],485:[function(require,module,exports){
+module.exports = require('./bdsft').Model(SIPStack);
 
 var ExSIP = require('exsip');
 var C = require('./constants');
@@ -83312,6 +83454,9 @@ function SIPStack(eventbus, debug, configuration) {
   };
 
   self.listeners = function() {
+    eventbus.on("endCall", function(e) {
+      self.terminateSessions();
+    });
     eventbus.on("signOut", function(e) {
       self.unregister();
     });
@@ -83634,7 +83779,7 @@ function SIPStack(eventbus, debug, configuration) {
 
   return self;
 }
-},{"./constants":475,"./utils":483,"event-emitter/has-listeners":521,"exsip":549}],483:[function(require,module,exports){
+},{"./bdsft":474,"./constants":476,"./utils":486,"event-emitter/has-listeners":525,"exsip":553}],486:[function(require,module,exports){
 var adapter = require('./adapter');
 
 var __slice = [].slice;
@@ -83907,75 +84052,109 @@ var Utils = {
 };
 
 module.exports = Utils;
-},{"./adapter":472}],484:[function(require,module,exports){
+},{"./adapter":472}],487:[function(require,module,exports){
 module.exports=require(174)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/grammar.js":174}],485:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/grammar.js":174}],488:[function(require,module,exports){
 module.exports=require(175)
-},{"./parser":486,"./writer":487,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/index.js":175}],486:[function(require,module,exports){
+},{"./parser":489,"./writer":490,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/index.js":175}],489:[function(require,module,exports){
 module.exports=require(176)
-},{"./grammar":484,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/parser.js":176}],487:[function(require,module,exports){
+},{"./grammar":487,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/parser.js":176}],490:[function(require,module,exports){
 module.exports=require(177)
-},{"./grammar":484,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/writer.js":177}],488:[function(require,module,exports){
+},{"./grammar":487,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/writer.js":177}],491:[function(require,module,exports){
 module.exports=require(178)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/ws/lib/browser.js":178}],489:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/ws/lib/browser.js":178}],492:[function(require,module,exports){
 module.exports=require(179)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/package.json":179}],490:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/package.json":179}],493:[function(require,module,exports){
 module.exports=require(180)
-},{"../package.json":489,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Constants.js":180}],491:[function(require,module,exports){
+},{"../package.json":492,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Constants.js":180}],494:[function(require,module,exports){
 module.exports=require(181)
-},{"./Constants":490,"./Dialog/RequestSender":492,"./SIPMessage":509,"./Transactions":511,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog.js":181}],492:[function(require,module,exports){
+},{"./Constants":493,"./Dialog/RequestSender":495,"./SIPMessage":512,"./Transactions":514,"./Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog.js":181}],495:[function(require,module,exports){
 module.exports=require(182)
-},{"../Constants":490,"../RTCSession":503,"../RequestSender":508,"../Transactions":511,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog/RequestSender.js":182}],493:[function(require,module,exports){
+},{"../Constants":493,"../RTCSession":506,"../RequestSender":511,"../Transactions":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog/RequestSender.js":182}],496:[function(require,module,exports){
 module.exports=require(183)
-},{"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/DigestAuthentication.js":183}],494:[function(require,module,exports){
+},{"./Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/DigestAuthentication.js":183}],497:[function(require,module,exports){
 module.exports=require(184)
-},{"./LoggerFactory":499,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/EventEmitter.js":184}],495:[function(require,module,exports){
+},{"./LoggerFactory":502,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/EventEmitter.js":184}],498:[function(require,module,exports){
 module.exports=require(185)
-},{"../package.json":489,"./Constants":490,"./Exceptions":496,"./Grammar":497,"./NameAddrHeader":501,"./RTCSession":503,"./UA":513,"./URI":514,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/ExSIP.js":185}],496:[function(require,module,exports){
+},{"../package.json":492,"./Constants":493,"./Exceptions":499,"./Grammar":500,"./NameAddrHeader":504,"./RTCSession":506,"./UA":516,"./URI":517,"./Utils":518,"./WebRTC":519,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/ExSIP.js":185}],499:[function(require,module,exports){
 module.exports=require(186)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Exceptions.js":186}],497:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Exceptions.js":186}],500:[function(require,module,exports){
 module.exports=require(187)
-},{"./NameAddrHeader":501,"./URI":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Grammar.js":187}],498:[function(require,module,exports){
+},{"./NameAddrHeader":504,"./URI":517,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Grammar.js":187}],501:[function(require,module,exports){
 module.exports=require(188)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Logger.js":188}],499:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Logger.js":188}],502:[function(require,module,exports){
 module.exports=require(189)
-},{"./Logger":498,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/LoggerFactory.js":189}],500:[function(require,module,exports){
+},{"./Logger":501,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/LoggerFactory.js":189}],503:[function(require,module,exports){
 module.exports=require(190)
-},{"./Constants":490,"./EventEmitter":494,"./Exceptions":496,"./RequestSender":508,"./SIPMessage":509,"./Transactions":511,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Message.js":190}],501:[function(require,module,exports){
+},{"./Constants":493,"./EventEmitter":497,"./Exceptions":499,"./RequestSender":511,"./SIPMessage":512,"./Transactions":514,"./Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Message.js":190}],504:[function(require,module,exports){
 module.exports=require(191)
-},{"./Grammar":497,"./URI":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/NameAddrHeader.js":191}],502:[function(require,module,exports){
+},{"./Grammar":500,"./URI":517,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/NameAddrHeader.js":191}],505:[function(require,module,exports){
 module.exports=require(192)
-},{"./Grammar":497,"./SIPMessage":509,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Parser.js":192,"sdp-transform":485}],503:[function(require,module,exports){
+},{"./Grammar":500,"./SIPMessage":512,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Parser.js":192,"sdp-transform":488}],506:[function(require,module,exports){
 module.exports=require(193)
-},{"./Constants":490,"./Dialog":491,"./EventEmitter":494,"./Exceptions":496,"./Parser":502,"./RTCSession/DTMF":504,"./RTCSession/RTCMediaHandler":506,"./RequestSender":508,"./SIPMessage":509,"./Timers":510,"./UA":513,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession.js":193}],504:[function(require,module,exports){
+},{"./Constants":493,"./Dialog":494,"./EventEmitter":497,"./Exceptions":499,"./Parser":505,"./RTCSession/DTMF":507,"./RTCSession/RTCMediaHandler":509,"./RequestSender":511,"./SIPMessage":512,"./Timers":513,"./UA":516,"./Utils":518,"./WebRTC":519,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession.js":193}],507:[function(require,module,exports){
 module.exports=require(194)
-},{"../EventEmitter":494,"../Exceptions":496,"../RTCSession":503,"../Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DTMF.js":194}],505:[function(require,module,exports){
+},{"../EventEmitter":497,"../Exceptions":499,"../RTCSession":506,"../Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DTMF.js":194}],508:[function(require,module,exports){
 module.exports=require(195)
-},{"../EventEmitter":494,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DataChannel.js":195}],506:[function(require,module,exports){
+},{"../EventEmitter":497,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DataChannel.js":195}],509:[function(require,module,exports){
 module.exports=require(196)
-},{"../Constants":490,"../Utils":515,"../WebRTC":516,"./DataChannel":505,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/RTCMediaHandler.js":196}],507:[function(require,module,exports){
+},{"../Constants":493,"../Utils":518,"../WebRTC":519,"./DataChannel":508,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/RTCMediaHandler.js":196}],510:[function(require,module,exports){
 module.exports=require(197)
-},{"./Constants":490,"./RequestSender":508,"./SIPMessage":509,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Registrator.js":197}],508:[function(require,module,exports){
+},{"./Constants":493,"./RequestSender":511,"./SIPMessage":512,"./Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Registrator.js":197}],511:[function(require,module,exports){
 module.exports=require(198)
-},{"./Constants":490,"./DigestAuthentication":493,"./Transactions":511,"./UA":513,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RequestSender.js":198}],509:[function(require,module,exports){
+},{"./Constants":493,"./DigestAuthentication":496,"./Transactions":514,"./UA":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RequestSender.js":198}],512:[function(require,module,exports){
 module.exports=require(199)
-},{"./Constants":490,"./Grammar":497,"./NameAddrHeader":501,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/SIPMessage.js":199}],510:[function(require,module,exports){
+},{"./Constants":493,"./Grammar":500,"./NameAddrHeader":504,"./Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/SIPMessage.js":199}],513:[function(require,module,exports){
 module.exports=require(200)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Timers.js":200}],511:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Timers.js":200}],514:[function(require,module,exports){
 module.exports=require(201)
-},{"./Constants":490,"./EventEmitter":494,"./Timers":510,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transactions.js":201}],512:[function(require,module,exports){
+},{"./Constants":493,"./EventEmitter":497,"./Timers":513,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transactions.js":201}],515:[function(require,module,exports){
 module.exports=require(202)
-},{"./Constants":490,"./Parser":502,"./SIPMessage":509,"./UA":513,"./sanityCheck":517,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transport.js":202,"ws":488}],513:[function(require,module,exports){
+},{"./Constants":493,"./Parser":505,"./SIPMessage":512,"./UA":516,"./sanityCheck":520,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transport.js":202,"ws":491}],516:[function(require,module,exports){
 module.exports=require(203)
-},{"./Constants":490,"./EventEmitter":494,"./Exceptions":496,"./Grammar":497,"./LoggerFactory":499,"./Message":500,"./RTCSession":503,"./Registrator":507,"./Transactions":511,"./Transport":512,"./URI":514,"./Utils":515,"./WebRTC":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/UA.js":203}],514:[function(require,module,exports){
+},{"./Constants":493,"./EventEmitter":497,"./Exceptions":499,"./Grammar":500,"./LoggerFactory":502,"./Message":503,"./RTCSession":506,"./Registrator":510,"./Transactions":514,"./Transport":515,"./URI":517,"./Utils":518,"./WebRTC":519,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/UA.js":203}],517:[function(require,module,exports){
 module.exports=require(204)
-},{"./Constants":490,"./Grammar":497,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/URI.js":204}],515:[function(require,module,exports){
+},{"./Constants":493,"./Grammar":500,"./Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/URI.js":204}],518:[function(require,module,exports){
 module.exports=require(205)
-},{"./Constants":490,"./Grammar":497,"./URI":514,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Utils.js":205}],516:[function(require,module,exports){
+},{"./Constants":493,"./Grammar":500,"./URI":517,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Utils.js":205}],519:[function(require,module,exports){
 module.exports=require(206)
-},{"./Constants":490,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/WebRTC.js":206}],517:[function(require,module,exports){
+},{"./Constants":493,"./Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/WebRTC.js":206}],520:[function(require,module,exports){
 module.exports=require(207)
-},{"./Constants":490,"./SIPMessage":509,"./Utils":515,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/sanityCheck.js":207}],518:[function(require,module,exports){
+},{"./Constants":493,"./SIPMessage":512,"./Utils":518,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/sanityCheck.js":207}],521:[function(require,module,exports){
+var exports = module.exports = function (doc) {
+    if (!doc) doc = {};
+    if (typeof doc === 'string') doc = { cookie: doc };
+    if (doc.cookie === undefined) doc.cookie = '';
+    
+    var self = {};
+    self.get = function (key) {
+        var splat = doc.cookie.split(/;\s*/);
+        for (var i = 0; i < splat.length; i++) {
+            var ps = splat[i].split('=');
+            var k = unescape(ps[0]);
+            if (k === key) return unescape(ps[1]);
+        }
+        return undefined;
+    };
+    
+    self.set = function (key, value, opts) {
+        if (!opts) opts = {};
+        var s = escape(key) + '=' + escape(value);
+        if (opts.expires) s += '; expires=' + opts.expires;
+        if (opts.path) s += '; path=' + escape(opts.path);
+        doc.cookie = s;
+        return s;
+    };
+    return self;
+};
+
+if (typeof document !== 'undefined') {
+    var cookie = exports(document);
+    exports.get = cookie.get;
+    exports.set = cookie.set;
+}
+
+},{}],522:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -84135,7 +84314,7 @@ function load() {
 
 exports.enable(load());
 
-},{"./debug":519}],519:[function(require,module,exports){
+},{"./debug":523}],523:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -84334,7 +84513,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":520}],520:[function(require,module,exports){
+},{"ms":524}],524:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -84447,7 +84626,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],521:[function(require,module,exports){
+},{}],525:[function(require,module,exports){
 'use strict';
 
 var isEmpty = require('es5-ext/object/is-empty')
@@ -84465,7 +84644,7 @@ module.exports = function (obj/*, type*/) {
 	return obj.hasOwnProperty('__ee__') && !isEmpty(obj.__ee__);
 };
 
-},{"es5-ext/object/is-empty":528,"es5-ext/object/valid-value":534}],522:[function(require,module,exports){
+},{"es5-ext/object/is-empty":532,"es5-ext/object/valid-value":538}],526:[function(require,module,exports){
 'use strict';
 
 var d        = require('d')
@@ -84599,7 +84778,7 @@ module.exports = exports = function (o) {
 };
 exports.methods = methods;
 
-},{"d":523,"es5-ext/object/valid-callable":533}],523:[function(require,module,exports){
+},{"d":527,"es5-ext/object/valid-callable":537}],527:[function(require,module,exports){
 'use strict';
 
 var assign        = require('es5-ext/object/assign')
@@ -84664,14 +84843,14 @@ d.gs = function (dscr, get, set/*, options*/) {
 	return !options ? desc : assign(normalizeOpts(options), desc);
 };
 
-},{"es5-ext/object/assign":524,"es5-ext/object/is-callable":527,"es5-ext/object/normalize-options":532,"es5-ext/string/#/contains":535}],524:[function(require,module,exports){
+},{"es5-ext/object/assign":528,"es5-ext/object/is-callable":531,"es5-ext/object/normalize-options":536,"es5-ext/string/#/contains":539}],528:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')()
 	? Object.assign
 	: require('./shim');
 
-},{"./is-implemented":525,"./shim":526}],525:[function(require,module,exports){
+},{"./is-implemented":529,"./shim":530}],529:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -84682,7 +84861,7 @@ module.exports = function () {
 	return (obj.foo + obj.bar + obj.trzy) === 'razdwatrzy';
 };
 
-},{}],526:[function(require,module,exports){
+},{}],530:[function(require,module,exports){
 'use strict';
 
 var keys  = require('../keys')
@@ -84706,14 +84885,14 @@ module.exports = function (dest, src/*, …srcn*/) {
 	return dest;
 };
 
-},{"../keys":529,"../valid-value":534}],527:[function(require,module,exports){
+},{"../keys":533,"../valid-value":538}],531:[function(require,module,exports){
 // Deprecated
 
 'use strict';
 
 module.exports = function (obj) { return typeof obj === 'function'; };
 
-},{}],528:[function(require,module,exports){
+},{}],532:[function(require,module,exports){
 'use strict';
 
 var value = require('./valid-value')
@@ -84729,14 +84908,14 @@ module.exports = function (obj) {
 	return true;
 };
 
-},{"./valid-value":534}],529:[function(require,module,exports){
+},{"./valid-value":538}],533:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')()
 	? Object.keys
 	: require('./shim');
 
-},{"./is-implemented":530,"./shim":531}],530:[function(require,module,exports){
+},{"./is-implemented":534,"./shim":535}],534:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -84746,7 +84925,7 @@ module.exports = function () {
 	} catch (e) { return false; }
 };
 
-},{}],531:[function(require,module,exports){
+},{}],535:[function(require,module,exports){
 'use strict';
 
 var keys = Object.keys;
@@ -84755,7 +84934,7 @@ module.exports = function (object) {
 	return keys(object == null ? object : Object(object));
 };
 
-},{}],532:[function(require,module,exports){
+},{}],536:[function(require,module,exports){
 'use strict';
 
 var forEach = Array.prototype.forEach, create = Object.create;
@@ -84774,7 +84953,7 @@ module.exports = function (options/*, …options*/) {
 	return result;
 };
 
-},{}],533:[function(require,module,exports){
+},{}],537:[function(require,module,exports){
 'use strict';
 
 module.exports = function (fn) {
@@ -84782,7 +84961,7 @@ module.exports = function (fn) {
 	return fn;
 };
 
-},{}],534:[function(require,module,exports){
+},{}],538:[function(require,module,exports){
 'use strict';
 
 module.exports = function (value) {
@@ -84790,14 +84969,14 @@ module.exports = function (value) {
 	return value;
 };
 
-},{}],535:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./is-implemented')()
 	? String.prototype.contains
 	: require('./shim');
 
-},{"./is-implemented":536,"./shim":537}],536:[function(require,module,exports){
+},{"./is-implemented":540,"./shim":541}],540:[function(require,module,exports){
 'use strict';
 
 var str = 'razdwatrzy';
@@ -84807,7 +84986,7 @@ module.exports = function () {
 	return ((str.contains('dwa') === true) && (str.contains('foo') === false));
 };
 
-},{}],537:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 'use strict';
 
 var indexOf = String.prototype.indexOf;
@@ -84816,79 +84995,79 @@ module.exports = function (searchString/*, position*/) {
 	return indexOf.call(this, searchString, arguments[1]) > -1;
 };
 
-},{}],538:[function(require,module,exports){
+},{}],542:[function(require,module,exports){
 module.exports=require(174)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/grammar.js":174}],539:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/grammar.js":174}],543:[function(require,module,exports){
 module.exports=require(175)
-},{"./parser":540,"./writer":541,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/index.js":175}],540:[function(require,module,exports){
+},{"./parser":544,"./writer":545,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/index.js":175}],544:[function(require,module,exports){
 module.exports=require(176)
-},{"./grammar":538,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/parser.js":176}],541:[function(require,module,exports){
+},{"./grammar":542,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/parser.js":176}],545:[function(require,module,exports){
 module.exports=require(177)
-},{"./grammar":538,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/writer.js":177}],542:[function(require,module,exports){
+},{"./grammar":542,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/sdp-transform/lib/writer.js":177}],546:[function(require,module,exports){
 module.exports=require(178)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/ws/lib/browser.js":178}],543:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/node_modules/ws/lib/browser.js":178}],547:[function(require,module,exports){
 module.exports=require(179)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/package.json":179}],544:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/package.json":179}],548:[function(require,module,exports){
 module.exports=require(180)
-},{"../package.json":543,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Constants.js":180}],545:[function(require,module,exports){
+},{"../package.json":547,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Constants.js":180}],549:[function(require,module,exports){
 module.exports=require(181)
-},{"./Constants":544,"./Dialog/RequestSender":546,"./SIPMessage":563,"./Transactions":565,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog.js":181}],546:[function(require,module,exports){
+},{"./Constants":548,"./Dialog/RequestSender":550,"./SIPMessage":567,"./Transactions":569,"./Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog.js":181}],550:[function(require,module,exports){
 module.exports=require(182)
-},{"../Constants":544,"../RTCSession":557,"../RequestSender":562,"../Transactions":565,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog/RequestSender.js":182}],547:[function(require,module,exports){
+},{"../Constants":548,"../RTCSession":561,"../RequestSender":566,"../Transactions":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Dialog/RequestSender.js":182}],551:[function(require,module,exports){
 module.exports=require(183)
-},{"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/DigestAuthentication.js":183}],548:[function(require,module,exports){
+},{"./Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/DigestAuthentication.js":183}],552:[function(require,module,exports){
 module.exports=require(184)
-},{"./LoggerFactory":553,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/EventEmitter.js":184}],549:[function(require,module,exports){
+},{"./LoggerFactory":557,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/EventEmitter.js":184}],553:[function(require,module,exports){
 module.exports=require(185)
-},{"../package.json":543,"./Constants":544,"./Exceptions":550,"./Grammar":551,"./NameAddrHeader":555,"./RTCSession":557,"./UA":567,"./URI":568,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/ExSIP.js":185}],550:[function(require,module,exports){
+},{"../package.json":547,"./Constants":548,"./Exceptions":554,"./Grammar":555,"./NameAddrHeader":559,"./RTCSession":561,"./UA":571,"./URI":572,"./Utils":573,"./WebRTC":574,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/ExSIP.js":185}],554:[function(require,module,exports){
 module.exports=require(186)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Exceptions.js":186}],551:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Exceptions.js":186}],555:[function(require,module,exports){
 module.exports=require(187)
-},{"./NameAddrHeader":555,"./URI":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Grammar.js":187}],552:[function(require,module,exports){
+},{"./NameAddrHeader":559,"./URI":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Grammar.js":187}],556:[function(require,module,exports){
 module.exports=require(188)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Logger.js":188}],553:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Logger.js":188}],557:[function(require,module,exports){
 module.exports=require(189)
-},{"./Logger":552,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/LoggerFactory.js":189}],554:[function(require,module,exports){
+},{"./Logger":556,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/LoggerFactory.js":189}],558:[function(require,module,exports){
 module.exports=require(190)
-},{"./Constants":544,"./EventEmitter":548,"./Exceptions":550,"./RequestSender":562,"./SIPMessage":563,"./Transactions":565,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Message.js":190}],555:[function(require,module,exports){
+},{"./Constants":548,"./EventEmitter":552,"./Exceptions":554,"./RequestSender":566,"./SIPMessage":567,"./Transactions":569,"./Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Message.js":190}],559:[function(require,module,exports){
 module.exports=require(191)
-},{"./Grammar":551,"./URI":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/NameAddrHeader.js":191}],556:[function(require,module,exports){
+},{"./Grammar":555,"./URI":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/NameAddrHeader.js":191}],560:[function(require,module,exports){
 module.exports=require(192)
-},{"./Grammar":551,"./SIPMessage":563,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Parser.js":192,"sdp-transform":539}],557:[function(require,module,exports){
+},{"./Grammar":555,"./SIPMessage":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Parser.js":192,"sdp-transform":543}],561:[function(require,module,exports){
 module.exports=require(193)
-},{"./Constants":544,"./Dialog":545,"./EventEmitter":548,"./Exceptions":550,"./Parser":556,"./RTCSession/DTMF":558,"./RTCSession/RTCMediaHandler":560,"./RequestSender":562,"./SIPMessage":563,"./Timers":564,"./UA":567,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession.js":193}],558:[function(require,module,exports){
+},{"./Constants":548,"./Dialog":549,"./EventEmitter":552,"./Exceptions":554,"./Parser":560,"./RTCSession/DTMF":562,"./RTCSession/RTCMediaHandler":564,"./RequestSender":566,"./SIPMessage":567,"./Timers":568,"./UA":571,"./Utils":573,"./WebRTC":574,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession.js":193}],562:[function(require,module,exports){
 module.exports=require(194)
-},{"../EventEmitter":548,"../Exceptions":550,"../RTCSession":557,"../Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DTMF.js":194}],559:[function(require,module,exports){
+},{"../EventEmitter":552,"../Exceptions":554,"../RTCSession":561,"../Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DTMF.js":194}],563:[function(require,module,exports){
 module.exports=require(195)
-},{"../EventEmitter":548,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DataChannel.js":195}],560:[function(require,module,exports){
+},{"../EventEmitter":552,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/DataChannel.js":195}],564:[function(require,module,exports){
 module.exports=require(196)
-},{"../Constants":544,"../Utils":569,"../WebRTC":570,"./DataChannel":559,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/RTCMediaHandler.js":196}],561:[function(require,module,exports){
+},{"../Constants":548,"../Utils":573,"../WebRTC":574,"./DataChannel":563,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RTCSession/RTCMediaHandler.js":196}],565:[function(require,module,exports){
 module.exports=require(197)
-},{"./Constants":544,"./RequestSender":562,"./SIPMessage":563,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Registrator.js":197}],562:[function(require,module,exports){
+},{"./Constants":548,"./RequestSender":566,"./SIPMessage":567,"./Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Registrator.js":197}],566:[function(require,module,exports){
 module.exports=require(198)
-},{"./Constants":544,"./DigestAuthentication":547,"./Transactions":565,"./UA":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RequestSender.js":198}],563:[function(require,module,exports){
+},{"./Constants":548,"./DigestAuthentication":551,"./Transactions":569,"./UA":571,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/RequestSender.js":198}],567:[function(require,module,exports){
 module.exports=require(199)
-},{"./Constants":544,"./Grammar":551,"./NameAddrHeader":555,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/SIPMessage.js":199}],564:[function(require,module,exports){
+},{"./Constants":548,"./Grammar":555,"./NameAddrHeader":559,"./Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/SIPMessage.js":199}],568:[function(require,module,exports){
 module.exports=require(200)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Timers.js":200}],565:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Timers.js":200}],569:[function(require,module,exports){
 module.exports=require(201)
-},{"./Constants":544,"./EventEmitter":548,"./Timers":564,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transactions.js":201}],566:[function(require,module,exports){
+},{"./Constants":548,"./EventEmitter":552,"./Timers":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transactions.js":201}],570:[function(require,module,exports){
 module.exports=require(202)
-},{"./Constants":544,"./Parser":556,"./SIPMessage":563,"./UA":567,"./sanityCheck":571,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transport.js":202,"ws":542}],567:[function(require,module,exports){
+},{"./Constants":548,"./Parser":560,"./SIPMessage":567,"./UA":571,"./sanityCheck":575,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Transport.js":202,"ws":546}],571:[function(require,module,exports){
 module.exports=require(203)
-},{"./Constants":544,"./EventEmitter":548,"./Exceptions":550,"./Grammar":551,"./LoggerFactory":553,"./Message":554,"./RTCSession":557,"./Registrator":561,"./Transactions":565,"./Transport":566,"./URI":568,"./Utils":569,"./WebRTC":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/UA.js":203}],568:[function(require,module,exports){
+},{"./Constants":548,"./EventEmitter":552,"./Exceptions":554,"./Grammar":555,"./LoggerFactory":557,"./Message":558,"./RTCSession":561,"./Registrator":565,"./Transactions":569,"./Transport":570,"./URI":572,"./Utils":573,"./WebRTC":574,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/UA.js":203}],572:[function(require,module,exports){
 module.exports=require(204)
-},{"./Constants":544,"./Grammar":551,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/URI.js":204}],569:[function(require,module,exports){
+},{"./Constants":548,"./Grammar":555,"./Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/URI.js":204}],573:[function(require,module,exports){
 module.exports=require(205)
-},{"./Constants":544,"./Grammar":551,"./URI":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Utils.js":205}],570:[function(require,module,exports){
+},{"./Constants":548,"./Grammar":555,"./URI":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/Utils.js":205}],574:[function(require,module,exports){
 module.exports=require(206)
-},{"./Constants":544,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/WebRTC.js":206}],571:[function(require,module,exports){
+},{"./Constants":548,"./Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/WebRTC.js":206}],575:[function(require,module,exports){
 module.exports=require(207)
-},{"./Constants":544,"./SIPMessage":563,"./Utils":569,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/sanityCheck.js":207}],572:[function(require,module,exports){
+},{"./Constants":548,"./SIPMessage":567,"./Utils":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/exsip/src/sanityCheck.js":207}],576:[function(require,module,exports){
 module.exports=require(213)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/jquery.cookie/jquery.cookie.js":213,"jquery":573}],573:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/jquery.cookie/jquery.cookie.js":213,"jquery":577}],577:[function(require,module,exports){
 module.exports=require(214)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/jquery/dist/jquery.js":214}],574:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/webrtc/node_modules/jquery/dist/jquery.js":214}],578:[function(require,module,exports){
 // Domain Public by Eric Wendelin http://www.eriwen.com/ (2008)
 //                  Luke Smith http://lucassmith.name/ (2008)
 //                  Loic Dachary <loic@dachary.org> (2008)
@@ -85401,18 +85580,18 @@ module.exports=require(214)
     return printStackTrace;
 }));
 
-},{}],575:[function(require,module,exports){
+},{}],579:[function(require,module,exports){
 (function (global){
 var $ = require('jquery');
-require('webrtc-core');
+var core = require('webrtc-core');
 
 module.exports = Factory;
 
-function Factory(constructor){
+function Factory(constructor) {
 	return function(options) {
 		var isNode = typeof global !== "undefined" && {}.toString.call(global) == '[object global]';
-		if(!isNode) {
-		  require("views/authentication.js");
+		if (!isNode) {
+			require("views/authentication.js");
 require("views/callcontrol.js");
 require("views/client.js");
 require("views/connectionstatus.js");
@@ -85432,7 +85611,7 @@ require("views/video.js");
 require("views/videobar.js");
 require("views/whiteboard.js");
 require("views/xmpp.js");
-		  require("models/authentication.js");
+			require("models/authentication.js");
 require("models/callcontrol.js");
 require("models/connectionstatus.js");
 require("models/fileshare.js");
@@ -85451,37 +85630,43 @@ require("models/video.js");
 require("models/xmpp.js");
 		}
 		global.bdsft_client_instances = global.bdsft_client_instances || {};
-		var name = functionName(constructor);
+		var name = constructor.name || functionName(constructor);
 		var id = getId(options, name);
-		// console.log('factory : ' + id);
 		if (!global.bdsft_client_instances[id]) {
-			options = $.extend({}, options);
-			// console.log('factory : args for '+ id + ' : ', argNames(constructor));
+			console.log('factory : ' + id);
+			options = core.utils.extend({}, options);
 			var constructorArgs = args(options, constructor);
-			// console.log('factory : create ' + id + ' with ', argNames(constructor));
-			var object = create(constructor, constructorArgs);
-			object._name = name;
-			global.bdsft_client_instances[id] = object;
-			if (name.match(/view$/)) {
-				var viewName = name.replace('view', '');
-				options = options[viewName] || {};
-				object.view = $(options.view || require('bdsft-webrtc-templates')[viewName]());
-				(object.elements || []).forEach(function(element) {
-					object[element] = object.view.find(options[element] || '.' + element);
-				});
+			if (constructor.create) {
+				console.log('factory : create ' + id + ' with ', constructor.argNames);
+				var object = constructor.create(constructorArgs);
+				global.bdsft_client_instances[id] = object;
 			} else {
-				// console.log('factory : extend props : '+name);
-				Object.keys(object.props || {}).forEach(function(name) {
-					var prop = $.extend({name: name}, object.props[name])
-					var type = prop.type || object.props._type || '';
-					require('webrtc-core')[type+'prop'](object, prop).define();
+				var object = create(constructor, constructorArgs);
+				object._name = name;
+				global.bdsft_client_instances[id] = object;
+				if (name.match(/view$/)) {
+					var viewName = name.replace('view', '');
+					options = options[viewName] || {};
+					object.view = $(options.view || require('bdsft-webrtc-templates')[viewName]());
+					(object.elements || []).forEach(function(element) {
+						object[element] = object.view.find(options[element] || '.' + element);
+					});
+				} else {
+					// console.log('factory : extend props : '+name);
+					Object.keys(object.props || {}).forEach(function(name) {
+						var prop = core.utils.extend({
+							name: name
+						}, object.props[name])
+						var type = prop.type || object.props._type || '';
+						core[type + 'prop'](object, prop).define();
+					});
+				}
+				object.listeners && object.listeners();
+				constructorArgs.forEach(function(arg) {
+					arg._init && arg._init();
 				});
+				object.init && object.init(options);
 			}
-			object.listeners && object.listeners();
-			constructorArgs.forEach(function(arg){
-				arg._init && arg._init();
-			});
-			object.init && object.init(options);
 
 		}
 		return global.bdsft_client_instances[id];
@@ -85492,7 +85677,7 @@ var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var ARGUMENT_NAMES = /([^\s,]+)/g;
 
 
-function getId (options, name) {
+function getId(options, name) {
 	var id = options;
 	if (typeof options === "object") {
 		id = options.id;
@@ -85503,89 +85688,92 @@ function getId (options, name) {
 	return id;
 };
 
-function createDelegate (options, name, argName) {
+function createDelegate(options, name, argName) {
 	var argConstructor;
-	var core = require('webrtc-core');
-	if(core[argName]) {
+	if (core[argName]) {
 		argConstructor = core[argName]
 	} else if (argName.match(/view$/i)) {
-		argConstructor = require('views/' + argName.replace(/view$/i, '')+'.js');
+		argConstructor = require('views/' + argName.replace(/view$/i, '') + '.js');
 	} else {
-		argConstructor = require('models/' + argName+'.js');
+		argConstructor = require('models/' + argName + '.js');
 	}
 
 	if (argName === 'debug') {
-		return argConstructor($.extend({}, options, {name: name}));
+		return argConstructor.create([core.utils.extend({}, options, {
+			name: name
+		})]);
 	}
-	
-	var obj = argConstructor(options);
-	if(typeof obj === 'function') {
-		// console.log('factory : args : delegateFunction :'+argName);
-		return delegateFunction(Factory(argConstructor), options);
-	} else {
-		var propertyNames = Object.getOwnPropertyNames(obj);
-		var methods = propertyNames.filter(function(propName){
-			return typeof obj[propName] === 'function';
-		});
-		var props = propertyNames.filter(function(propName){
-			return typeof obj[propName] !== 'function';
-		});
-		props = props.concat(obj.elements || Object.keys(obj.props || {}));
-		if(argName.match(/view$/i)) {
-			props = props.concat(['view']);
-		}
-		// console.log('factory : args : delegate :'+argName, methods, props);
-		var arg = delegate(Factory(argConstructor), options, methods, props);
-		arg._name = argName;
-		return arg;
-	}
+	console.log('arg : '+argName);
+	var arg = Factory(argConstructor)(options);
+	return arg;
+	// var obj = argConstructor(options);
+	// if (typeof obj === 'function') {
+	// 	// console.log('factory : args : delegateFunction :'+argName);
+	// 	return delegateFunction(Factory(argConstructor), options);
+	// } else {
+	// 	var propertyNames = Object.getOwnPropertyNames(obj);
+	// 	var methods = propertyNames.filter(function(propName) {
+	// 		return typeof obj[propName] === 'function';
+	// 	});
+	// 	var props = propertyNames.filter(function(propName) {
+	// 		return typeof obj[propName] !== 'function';
+	// 	});
+	// 	props = props.concat(obj.elements || Object.keys(obj.props || {}));
+	// 	if (argName.match(/view$/i)) {
+	// 		props = props.concat(['view']);
+	// 	}
+	// 	// console.log('factory : args : delegate :'+argName, methods, props);
+	// 	var arg = delegate(Factory(argConstructor), options, methods, props);
+	// 	arg._name = argName;
+	// 	return arg;
+	// }
 };
 
-function delegateFunction (toProvider, options) {
+function delegateFunction(toProvider, options) {
 	var _toProvider;
-  return function () {
-  	_toProvider = _toProvider || toProvider(options);
-    return _toProvider.apply(this, arguments);
-  };
+	return function() {
+		_toProvider = _toProvider || toProvider(options);
+		return _toProvider.apply(this, arguments);
+	};
 };
 
 // TODO - make props implicit from property names (as currently generated on create)
-function delegate (toProvider, options, methods, props, receiver) {
+function delegate(toProvider, options, methods, props, receiver) {
 	receiver = receiver || {};
 	methods = methods || Object.getOwnPropertyNames(toProvider);
 	var _toProvider;
-  methods.forEach(function (method) {
-		receiver[method] = function () {
+	methods.forEach(function(method) {
+		receiver[method] = function() {
 			_toProvider = _toProvider || toProvider(options);
-		  return _toProvider[method].apply(receiver, arguments);
+			return _toProvider[method].apply(receiver, arguments);
 		};
-  });
-  props.forEach(function (prop) {
-  	Object.defineProperty(receiver, prop, {
+	});
+	props.forEach(function(prop) {
+		Object.defineProperty(receiver, prop, {
 			writeable: false,
 			get: function() {
-	    	_toProvider = _toProvider || toProvider(options);
-	    	return _toProvider[prop];
+				_toProvider = _toProvider || toProvider(options);
+				return _toProvider[prop];
 			},
 			set: function(value) {
-	    	_toProvider = _toProvider || toProvider(options);
-	    	_toProvider[prop] = value;
+				_toProvider = _toProvider || toProvider(options);
+				_toProvider[prop] = value;
 			}
 		});
-  });
-  receiver._init = function(){
+	});
+	receiver._init = function() {
 		_toProvider = _toProvider || toProvider(options);
 	}
-  return receiver;
+	return receiver;
 };
 
 function args(options, constructor) {
-	var names = argNames(constructor) || [];
+	var names = constructor.argNames  || argNames(constructor) || [];
 	return names.map(function(argName) {
 		if (argName === 'options') {
 			return options;
 		}
-		var name = functionName(constructor);
+		var name = constructor.name || functionName(constructor);
 		var arg = createDelegate(options, name, argName);
 		// var argId = getId(options, functionName(argConstructor));
 		// console.log('factory : args : global.bdsft_client_instances '+argId);
@@ -85615,7 +85803,7 @@ function create(constructor, argArray) {
 	return new factoryFunction();
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"bdsft-webrtc-templates":6,"jquery":214,"models/authentication.js":215,"models/callcontrol.js":216,"models/connectionstatus.js":217,"models/fileshare.js":218,"models/history.js":219,"models/incomingcall.js":220,"models/messages.js":221,"models/reinvite.js":222,"models/settings.js":223,"models/sms.js":224,"models/smsprovider.js":225,"models/sound.js":226,"models/stats.js":227,"models/timer.js":228,"models/transfer.js":229,"models/video.js":230,"models/xmpp.js":231,"views/authentication.js":452,"views/callcontrol.js":453,"views/client.js":454,"views/connectionstatus.js":455,"views/dialpad.js":456,"views/fileshare.js":457,"views/history.js":458,"views/incomingcall.js":459,"views/messages.js":460,"views/popup.js":461,"views/reinvite.js":462,"views/settings.js":463,"views/sms.js":464,"views/stats.js":465,"views/timer.js":466,"views/transfer.js":467,"views/video.js":468,"views/videobar.js":469,"views/whiteboard.js":470,"views/xmpp.js":471,"webrtc-core":473}],576:[function(require,module,exports){
+},{"bdsft-webrtc-templates":6,"jquery":214,"models/authentication.js":215,"models/callcontrol.js":216,"models/connectionstatus.js":217,"models/fileshare.js":218,"models/history.js":219,"models/incomingcall.js":220,"models/messages.js":221,"models/reinvite.js":222,"models/settings.js":223,"models/sms.js":224,"models/smsprovider.js":225,"models/sound.js":226,"models/stats.js":227,"models/timer.js":228,"models/transfer.js":229,"models/video.js":230,"models/xmpp.js":231,"views/authentication.js":452,"views/callcontrol.js":453,"views/client.js":454,"views/connectionstatus.js":455,"views/dialpad.js":456,"views/fileshare.js":457,"views/history.js":458,"views/incomingcall.js":459,"views/messages.js":460,"views/popup.js":461,"views/reinvite.js":462,"views/settings.js":463,"views/sms.js":464,"views/stats.js":465,"views/timer.js":466,"views/transfer.js":467,"views/video.js":468,"views/videobar.js":469,"views/whiteboard.js":470,"views/xmpp.js":471,"webrtc-core":473}],580:[function(require,module,exports){
 var ExSIP = require('exsip');
 var jQuery = jquery = $ = require('jquery');
 require('jquery.cookie')
@@ -85740,4 +85928,4 @@ if (typeof String.prototype.endsWith !== 'function') {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
-},{"./factory":575,"bdsft-webrtc-config":3,"exsip":185,"jquery":214,"jquery.cookie":213,"models/sound":226,"views/client":454,"webrtc-core":473}]},{},[576]);
+},{"./factory":579,"bdsft-webrtc-config":3,"exsip":185,"jquery":214,"jquery.cookie":213,"models/sound":226,"views/client":454,"webrtc-core":473}]},{},[580]);

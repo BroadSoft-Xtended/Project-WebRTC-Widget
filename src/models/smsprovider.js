@@ -1,4 +1,4 @@
-module.exports = SMSProvider;
+module.exports = require('webrtc-core').bdsft.Model(SMSProvider);
 
 function SMSProvider(eventbus, debug) {
   var self = {};

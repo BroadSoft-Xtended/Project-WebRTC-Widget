@@ -1,4 +1,4 @@
-module.exports = Sound;
+module.exports = require('webrtc-core').bdsft.Model(Sound);
 
 var $ = require('jquery');
 var fs = require('fs');

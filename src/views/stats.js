@@ -1,11 +1,13 @@
-module.exports = StatsView;
+module.exports = require('webrtc-core').bdsft.View(StatsView);
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
 
-function StatsView(eventbus) {
+function StatsView(eventbus, stats) {
   var self = {};
 
+  self.model = stats;
+  
   Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['statsVar', 'statsContainer', 'videoKiloBitsSentPerSecond', 'audioKiloBitsSentPerSecond', 

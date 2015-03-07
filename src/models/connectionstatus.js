@@ -1,11 +1,9 @@
-module.exports = ConnectionStatus
+module.exports = require('webrtc-core').bdsft.Model(ConnectionStatus)
 
 var Utils = require('webrtc-core').utils;
 
-function ConnectionStatus(options, eventbus, configuration, connectionstatusView) {
+function ConnectionStatus(options, eventbus, configuration) {
   var self = {};
-
-  self.view = connectionstatusView;
 
   self.props = {'connected': true, 'registered': true};
 

@@ -1,9 +1,7 @@
-module.exports = Messages
+module.exports = require('webrtc-core').bdsft.Model(Messages)
 
-function Messages(eventbus, configuration, messagesView) {
+function Messages(eventbus, configuration) {
   var self = {};
-
-  self.view = messagesView;
 
   self.props = {'text': true, 'level': true};
 

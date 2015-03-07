@@ -1,11 +1,9 @@
-module.exports = Transfer;
+module.exports = require('webrtc-core').bdsft.Model(Transfer);
 
 var Utils = require('webrtc-core').utils;
 
-function Transfer(sipstack, eventbus, configuration, callcontrol, transferView) {
+function Transfer(sipstack, eventbus, configuration, callcontrol) {
   var self = {};
-
-  self.view = transferView;
 
   self.props = {
     'target': true,

@@ -1,9 +1,7 @@
-module.exports = Reinvite
+module.exports = require('webrtc-core').bdsft.Model(Reinvite)
 
-function Reinvite(eventbus, reinviteView) {
+function Reinvite(eventbus) {
   var self = {};
-
-  self.view = reinviteView;
 
   self.props = {'incomingCallName': true, 'incomingCallUser': true, 'title': true};
 

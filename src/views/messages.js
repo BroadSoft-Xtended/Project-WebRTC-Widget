@@ -1,8 +1,10 @@
-module.exports = MessagesView
+module.exports = require('webrtc-core').bdsft.View(MessagesView)
 
-function MessagesView() {
+function MessagesView(messages) {
   var self = {};
 
+  self.model = messages;
+  
   self.elements = ['alert', 'success', 'warning', 'normal'];
 
   var _level;

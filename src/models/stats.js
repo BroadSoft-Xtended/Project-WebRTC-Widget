@@ -1,11 +1,9 @@
-module.exports = Stats;
+module.exports = require('webrtc-core').bdsft.Model(Stats);
 
 var Utils = require('webrtc-core').utils;
 
-function Stats(options, eventbus, configuration, sipstack, debug, statsView) {
+function Stats(options, eventbus, configuration, sipstack, debug) {
   var self = {};
-
-  self.view = statsView;
 
   self.statsMod = require('../../js/stats')(self);
 

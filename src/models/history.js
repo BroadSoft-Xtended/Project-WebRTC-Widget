@@ -1,4 +1,4 @@
-module.exports = History
+module.exports = require('webrtc-core').bdsft.Model(History)
 
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
@@ -64,10 +64,8 @@ function Call(value) {
   return self;
 }
 
-function History(stats, configuration, eventbus, historyView) {
+function History(stats, configuration, eventbus) {
   var self = {};
-
-  self.view = historyView;
 
   var _pageNumber = 0;
   Object.defineProperty(self, 'pageNumber', 

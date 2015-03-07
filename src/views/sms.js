@@ -1,4 +1,4 @@
-module.exports = SMSView;
+module.exports = require('webrtc-core').bdsft.View(SMSView);
 
 var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
@@ -6,6 +6,8 @@ var PopupView = require('./popup');
 function SMSView(eventbus, debug, sound, sms) {
   var self = {};
 
+  self.model = sms;
+  
   Utils.extend(self, PopupView(eventbus));
 
   function InboxItemView(inboxItem) {

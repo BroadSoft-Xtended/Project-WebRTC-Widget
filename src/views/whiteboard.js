@@ -1,4 +1,4 @@
-module.exports = WhiteboardView;
+module.exports = require('webrtc-core').bdsft.View(WhiteboardView);
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;

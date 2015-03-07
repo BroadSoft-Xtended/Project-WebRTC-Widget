@@ -1,8 +1,10 @@
-module.exports = FileShareView
+module.exports = require('webrtc-core').bdsft.View(FileShareView)
 
-function FileShareView(eventbus) {
+function FileShareView(eventbus, fileshare) {
   var self = {};
 
+  self.model = fileshare;
+  
   var requestSend = function(e) {
     var data = e.target.result;
     var file = self.file.val();

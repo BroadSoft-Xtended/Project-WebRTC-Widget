@@ -1,6 +1,6 @@
-module.exports = DialpadView
+module.exports = require('webrtc-core').bdsft.View(DialpadView)
 
-function DialpadView(options, eventbus, callcontrol, historyView, videobarView, sipstack, sound) {
+function DialpadView(eventbus, sound) {
   var self = {};
 
   self.elements = ['keys'];

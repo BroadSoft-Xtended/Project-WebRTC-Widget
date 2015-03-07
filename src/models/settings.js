@@ -1,11 +1,10 @@
-module.exports = Settings;
+module.exports = require('webrtc-core').bdsft.Model(Settings);
 
 var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 
-function Settings(eventbus, debug, configuration, settingsView) {
+function Settings(eventbus, debug, configuration) {
   var self = {};
-  self.view = settingsView;
 
   var getResolution = function(resolutionStandard, resolutionWidescreen) {
     // console.log('self.resolutionType : '+self.resolutionType);

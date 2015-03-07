@@ -1,11 +1,13 @@
-module.exports = HistoryView
+module.exports = require('webrtc-core').bdsft.View(HistoryView)
 
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
 var PopupView = require('./popup');
 
-function HistoryView(sound, history, eventbus, callcontrol) {
+function HistoryView(eventbus, sound, callcontrol, history) {
   var self = {};
+
+  self.model = history;
 
   Utils.extend(self, PopupView(eventbus));
 

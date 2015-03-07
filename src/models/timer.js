@@ -1,12 +1,10 @@
-module.exports = Timer;
+module.exports = require('webrtc-core').bdsft.Model(Timer);
 
 var Utils = require('webrtc-core').utils;
 
-function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView) {
+function Timer(eventbus, debug, configuration, sipstack) {
   var self = {};
 
-  self.view = timerView;
-  
   self.callTimer = null;
   self.startTime = null;
 
@@ -58,8 +56,7 @@ function Timer(debug, eventbus, configuration, sipstack, videobarView, timerView
     return function() {
       var secs = self.getSeconds();
       if (configuration.maxCallLength && secs >= configuration.maxCallLength) {
-        sipstack.terminateSessions();
-        videobarView.endCall();
+        eventbus.endCall();
         return;
       }
       self.updateText();

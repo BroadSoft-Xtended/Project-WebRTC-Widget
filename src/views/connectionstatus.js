@@ -1,8 +1,10 @@
-module.exports = ConnectionStatusView
+module.exports = require('webrtc-core').bdsft.View(ConnectionStatusView)
 
-function ConnectionStatusView() {
+function ConnectionStatusView(connectionstatus) {
   var self = {};
 
+  self.model = connectionstatus;
+  
   self.elements = ['connectedIcon', 'registeredIcon'];
 
   var isEnabled = function(icon){

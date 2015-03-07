@@ -1,4 +1,4 @@
-module.exports = SMS;
+module.exports = require('webrtc-core').bdsft.Model(SMS);
 
 var DateFormat = require('webrtc-core').dateformat;
 var Utils = require('webrtc-core').utils;
@@ -48,10 +48,8 @@ function InboxItem(sms, message) {
   return self;
 };
 
-function SMS(eventbus, debug, smsprovider, sound, smsView) {
+function SMS(eventbus, debug, smsprovider, sound) {
   var self = {};
-
-  self.view = smsView;
 
   self.props = {'name': true, 'password': true, 'sendTo': true, 'sendBody': true, 'statusText': true, 'type': true, 'inboxItems': true};
 

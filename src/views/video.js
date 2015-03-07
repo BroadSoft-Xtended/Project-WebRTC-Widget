@@ -1,9 +1,11 @@
-module.exports = VideoView;
+module.exports = require('webrtc-core').bdsft.View(VideoView);
 require('jquery-ui/draggable');
 
 function VideoView(settings, configuration, historyView, video) {
   var self = {}; 
 
+  self.model = video;
+  
   self.elements = ['local', 'remote', 'localVideo'];
 
   self.init = function() {

@@ -1,12 +1,10 @@
-module.exports = Authentication;
+module.exports = require('webrtc-core').bdsft.Model(Authentication);
 
 var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
 
-function Authentication(eventbus, debug, settings, configuration, authenticationView) {
+function Authentication(eventbus, debug, settings, configuration) {
   var self = {};
-
-  self.view = authenticationView;
 
   self.props = {
     'userid': true,

@@ -1,9 +1,7 @@
-module.exports = Video;
+module.exports = require('webrtc-core').bdsft.Model(Video);
 
-function Video(eventbus, debug, configuration, videoView) {
+function Video(eventbus, debug, configuration) {
   var self = {}; 
-
-  self.view = videoView;
 
   self.props = {'localEl': true, 'remoteEl': true, 'localWidth': true, 'localHeight': true};
 

@@ -1,13 +1,11 @@
-module.exports = CallControl;
+module.exports = require('webrtc-core').bdsft.Model(CallControl);
 
 var $ = require('jquery');
 var fs = require('fs');
 var C = require('webrtc-core').constants;
 
-function CallControl(eventbus, configuration, sipstack, debug, callcontrolView, sound) {
+function CallControl(eventbus, debug, configuration, sipstack, sound) {
   var self = {};
-
-  self.view = callcontrolView;
 
   self.props = {'destination': true};
 
