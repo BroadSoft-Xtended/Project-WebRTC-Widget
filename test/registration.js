@@ -4,15 +4,11 @@ describe('registration', function() {
   beforeEach(function() {
     setUp();
     testUA.mockWebRTC();
-    testUA.mockSound();
     config = {
       domainTo: "domain.to",
       domainFrom: "domain.from",
       enableRegistrationIcon: true
     };
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
-      console.log("enableLocalAudio : " + enable);
-    }
   });
 
   it('with settingUserID', function() {

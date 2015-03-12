@@ -11,7 +11,7 @@ all: symlinks build
 
 build: dist/webrtc-bundle.min.js
 
-symlinks: node_modules/bdsft-webrtc-style node_modules/bdsft-webrtc-config node_modules/bdsft-webrtc-media node_modules/bdsft-webrtc-templates
+symlinks: node_modules/bdsft-webrtc-style node_modules/bdsft-webrtc-config node_modules/bdsft-webrtc-media node_modules/bdsft-webrtc-templates node_modules/views node_modules/models
 
 
 
@@ -26,16 +26,22 @@ dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js js/media.js js/style.js
 
 ## Create symlinks ##################################################################
 node_modules/bdsft-webrtc-style: js/style.js
-	ln -s ../js/style.js node_modules/bdsft-webrtc-style
+	ln -sf ../js/style.js node_modules/bdsft-webrtc-style
 
 node_modules/bdsft-webrtc-config: js/client-config.js.default
-	ln -s ../js/client-config.js.default node_modules/bdsft-webrtc-config
+	ln -sf ../js/client-config.js.default node_modules/bdsft-webrtc-config
 
 node_modules/bdsft-webrtc-media: js/media.js
-	ln -s ../js/media.js node_modules/bdsft-webrtc-media
+	ln -sf ../js/media.js node_modules/bdsft-webrtc-media
 
 node_modules/bdsft-webrtc-templates: js/templates.js
-	ln -s ../js/templates.js node_modules/bdsft-webrtc-templates
+	ln -sf ../js/templates.js node_modules/bdsft-webrtc-templates
+
+node_modules/views: $(JS_FILES)
+	ln -sf ../src/views node_modules/views
+
+node_modules/models: $(JS_FILES)
+	ln -sf ../src/models node_modules/models
 
 ## Compile styles ##################################################################
 

@@ -9,7 +9,7 @@ describe('timer', function() {
 
 it('format', function() {
   client = create(config)
-  expect(timerview.text.text()).toEqual( '00:00:00');
+  expect(timerview.text.text()).toEqual( '');
   var timerFunction = timer.runningTimer();
   timerFunction();
   expect(timerview.text.text()).toEqual( '00:00:00');

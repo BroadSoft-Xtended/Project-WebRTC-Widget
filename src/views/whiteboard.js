@@ -2,11 +2,10 @@ module.exports = require('webrtc-core').bdsft.View(WhiteboardView);
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 
 function WhiteboardView(eventbus, sipstack) {
   var self = {};
-
-  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['canvas', 'tools'];
 
@@ -37,6 +36,7 @@ function WhiteboardView(eventbus, sipstack) {
     self.updateToolsSelection();
   };
   self.init = function() {
+    PopupView(self, eventbus);
     if(self.canvas[0] && self.canvas[0].getContext) {
       self.context = self.canvas[0].getContext('2d');    
       self.sketch = require('../../js/sketch')(self.canvas[0]);

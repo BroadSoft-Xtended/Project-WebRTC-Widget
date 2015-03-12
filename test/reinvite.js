@@ -4,13 +4,9 @@ describe('reinvite', function() {
   beforeEach(function() {
     setUp();
     testUA.mockWebRTC();
-    testUA.mockSound();
     config = {};
     config.domainTo = "domain.to";
     config.domainFrom = "domain.from";
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
-      console.log("enableLocalAudio : " + enable);
-    }
   });
 
   it('reInvite popup:', function() {

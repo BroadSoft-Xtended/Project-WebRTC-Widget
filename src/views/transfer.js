@@ -2,15 +2,19 @@ module.exports = require('webrtc-core').bdsft.View(TransferView);
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 
 function TransferView(sound, eventbus, transfer) {
   var self = {};
 
   self.model = transfer;
   
-  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['accept', 'reject', 'target', 'typeAttended'];
+
+  self.init = function() {
+    PopupView(self, eventbus);
+  };
 
   self.listeners = function() {
     eventbus.on('viewChanged', function(e){

@@ -8,12 +8,12 @@ function Reinvite(eventbus) {
   var reinviteSession;
 
   self.accept = function(){
-    self.view.hide();
+    eventbus.toggleView(Constants.VIEW_REINVITE, false);
     reinviteSession.acceptReInvite();
   };
 
   self.reject = function(){
-    self.view.hide();
+    eventbus.toggleView(Constants.VIEW_REINVITE, false);
     reinviteSession.rejectReInvite();
   };
 
@@ -24,7 +24,7 @@ function Reinvite(eventbus) {
       self.incomingCallUser = e.request.from.uri.user;
       self.title = e.audioAdd ? "Adding Audio" : "Adding Video";
       eventbus.message(self.title, "success");    
-      self.view.show();
+      eventbus.toggleView(Constants.VIEW_REINVITE, true);
     });
   };
 

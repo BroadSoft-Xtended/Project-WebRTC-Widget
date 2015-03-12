@@ -41,6 +41,16 @@ module.exports = {
     sipstack.ua.emit('connected', sipstack.ua);
   },
 
+  val: function(element, value) {
+    element.val(value);
+    element.trigger('change');
+  },
+
+  check: function(element, value) {
+    element.prop('checked', value);
+    element.trigger('change');
+  },
+
   disconnect: function(data) {
     sipstack.ua.isConnected = function(){return false;};
     sipstack.ua.emit('disconnected', sipstack.ua, data);
@@ -101,11 +111,11 @@ module.exports = {
 
   createSession: function(){
     var session = new ExSIP.RTCSession(sipstack.ua);
-    session.hold = function(success){console.log("hold"); session.held(); if(success){success();}}
-    session.unhold = function(success){console.log("unhold"); session.resumed(); if(success){success();}}
-    session.terminate = function(options){console.log("terminate"); session.ended('local');}
-    session.answer = function(options){console.log("answer"); answerOptions = options; session.started('local');}
-    session.changeSession = function(options, success){console.log("changeSession"); session.started('local'); success();}
+    session.hold = function(success){session.held(); if(success){success();}}
+    session.unhold = function(success){session.resumed(); if(success){success();}}
+    session.terminate = function(options){session.ended('local');}
+    session.answer = function(options){answerOptions = options; session.started('local');}
+    session.changeSession = function(options, success){session.started('local'); success();}
     return session;
   },
 

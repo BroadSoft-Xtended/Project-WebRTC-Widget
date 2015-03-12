@@ -2,14 +2,13 @@ module.exports = require('webrtc-core').bdsft.View(StatsView);
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 
 function StatsView(eventbus, stats) {
   var self = {};
 
   self.model = stats;
   
-  Utils.extend(self, PopupView(eventbus));
-
   self.elements = ['statsVar', 'statsContainer', 'videoKiloBitsSentPerSecond', 'audioKiloBitsSentPerSecond', 
   'videoKiloBitsReceivedPerSecond', 'audioKiloBitsReceivedPerSecond', 'videoPacketsLost', 'videoPacketsLostPer',
   'audioPacketsLost', 'audioPacketsLostPer', 'videoGoogFrameRateSent', 'videoGoogFrameRateReceived', 'audioAudioInputLevel', 
@@ -39,6 +38,10 @@ function StatsView(eventbus, stats) {
     }
     var classNames = classes.join(" ");
     $(parentSelector).attr('class', classNames);
+  };
+
+  self.init = function() {
+    PopupView(self, eventbus);
   };
 
   self.listeners = function() {

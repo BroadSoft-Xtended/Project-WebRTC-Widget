@@ -2,15 +2,19 @@ module.exports = require('webrtc-core').bdsft.View(ReinviteView)
 
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 
 function ReinviteView(eventbus, reinvite) {
   var self = {};
 
   self.model = reinvite;
   
-  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptReInviteCall', 'rejectReInviteCall', 'title'];
+
+  self.init = function() {
+    PopupView(self, eventbus);
+  };
 
   self.listeners = function() {
     self.acceptReInviteCall.on('click', function(){

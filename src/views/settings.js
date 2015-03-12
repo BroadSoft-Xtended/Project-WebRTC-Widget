@@ -3,27 +3,26 @@ module.exports = require('webrtc-core').bdsft.View(SettingsView);
 var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
+var Constants = require('webrtc-core').constants;
 
-function SettingsView(eventbus, debug, configuration, sound, settings) {
+function SettingsView(options, eventbus, debug, sound, settings) {
   var self = {};
 
   self.model = settings;
 
-  Utils.extend(self, PopupView(eventbus));
-
   var updateRowVisibility = function() {
-    self.autoAnswerRow.toggleClass('hidden', configuration.hasOwnProperty("enableAutoAnswer"));
-    self.selfViewDisableRow.toggleClass('hidden', configuration.hasOwnProperty("enableSelfView"));
-    self.hdRow.toggleClass('hidden', configuration.hasOwnProperty("enableHD"));
-    self.resolutionRow.toggleClass('hidden', configuration.hasOwnProperty("displayResolution") && configuration.hasOwnProperty("encodingResolution"));
-    self.resolutionDisplayRow.toggleClass('hidden', configuration.hasOwnProperty("displayResolution"));
-    self.resolutionEncodingRow.toggleClass('hidden', configuration.hasOwnProperty("encodingResolution"));
-    self.resolutionTypeRow.toggleClass('hidden', configuration.hasOwnProperty("displayResolution") || configuration.hasOwnProperty("encodingResolution"));
-    self.bandwidthLow.toggleClass('hidden', configuration.hasOwnProperty("bandwidthLow"));
-    self.bandwidthMed.toggleClass('hidden', configuration.hasOwnProperty("bandwidthMed"));
-    self.bandwidthHigh.toggleClass('hidden', configuration.hasOwnProperty("bandwidthHigh"));
-    self.bandwidthRow.toggleClass('hidden', configuration.hasOwnProperty("bandwidthLow") && configuration.hasOwnProperty("bandwidthMed") && configuration.hasOwnProperty("bandwidthHigh"));
-    self.displayNameRow.toggleClass('hidden', configuration.hasOwnProperty("displayName"));
+    self.autoAnswerRow.toggleClass('hidden', options.hasOwnProperty("enableAutoAnswer"));
+    self.selfViewDisableRow.toggleClass('hidden', options.hasOwnProperty("enableSelfView"));
+    self.hdRow.toggleClass('hidden', options.hasOwnProperty("enableHD"));
+    self.resolutionRow.toggleClass('hidden', options.hasOwnProperty("displayResolution") && options.hasOwnProperty("encodingResolution"));
+    self.resolutionDisplayRow.toggleClass('hidden', options.hasOwnProperty("displayResolution"));
+    self.resolutionEncodingRow.toggleClass('hidden', options.hasOwnProperty("encodingResolution"));
+    self.resolutionTypeRow.toggleClass('hidden', options.hasOwnProperty("displayResolution") || options.hasOwnProperty("encodingResolution"));
+    self.bandwidthLow.toggleClass('hidden', options.hasOwnProperty("bandwidthLow"));
+    self.bandwidthMed.toggleClass('hidden', options.hasOwnProperty("bandwidthMed"));
+    self.bandwidthHigh.toggleClass('hidden', options.hasOwnProperty("bandwidthHigh"));
+    self.bandwidthRow.toggleClass('hidden', options.hasOwnProperty("bandwidthLow") && options.hasOwnProperty("bandwidthMed") && options.hasOwnProperty("bandwidthHigh"));
+    self.displayNameRow.toggleClass('hidden', options.hasOwnProperty("displayName"));
   };
 
   self.elements = ['userid', 'password', 'save', 'authenticationUserid', 'signIn', 'signOut',
@@ -35,11 +34,7 @@ function SettingsView(eventbus, debug, configuration, sound, settings) {
   ];
 
   self.init = function(options) {
-    Utils.addSelectOptions(WebRTC_C.RESOLUTION_TYPES, self.resolutionType);
-    Utils.addSelectOptions(WebRTC_C.STANDARD_RESOLUTIONS, self.resolutionDisplayStandard);
-    Utils.addSelectOptions(WebRTC_C.WIDESCREEN_RESOLUTIONS, self.resolutionDisplayWidescreen);
-    Utils.addSelectOptions(WebRTC_C.STANDARD_RESOLUTIONS, self.resolutionEncodingStandard);
-    Utils.addSelectOptions(WebRTC_C.WIDESCREEN_RESOLUTIONS, self.resolutionEncodingWidescreen);
+    PopupView(self, eventbus);
 
     updateRowVisibility();
   };
@@ -80,13 +75,6 @@ function SettingsView(eventbus, debug, configuration, sound, settings) {
       sound.playClick();
       settings.signIn();
     });
-    // Utils.toArray([self.bandwidthLow, self.bandwidthMed, self.bandwidthHigh]).on('blur', function() {
-    //   eventbus.bandwidthChanged(settings);
-    // });
-    // Utils.toArray([self.resolutionType, self.resolutionDisplayWidescreen, self.resolutionDisplayStandard, 
-    //   self.resolutionEncodingWidescreen, self.resolutionEncodingStandard]).on('change', function() {
-    //   eventbus.resolutionChanged(settings);
-    // });
     self.tabs.each(function() {
       var active, activeTabSel, links = $(this).find('a');
       active = $(links.filter('[href="' + location.hash + '"]')[0] || links[0]);

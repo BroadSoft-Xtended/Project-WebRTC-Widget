@@ -1,10 +1,10 @@
 .bdsft-client
-	.enableMute.sound-shown.started .muteAudioIcon,
-	.enableMute:not(.sound-shown).started .unmuteAudioIcon
+	.enableMute:not(.sound-hidden).started .muteAudioIcon,
+	.enableMute.sound-hidden.started .unmuteAudioIcon
 		{fadeIn}
 
 	.enableMute:not(.started) .muteAudioIcon, 
 	.enableMute:not(.started) .unmuteAudioIcon,
-	.enableMute:not(.sound-shown).started .muteAudioIcon, 
-	.enableMute.sound-shown.started .unmuteAudioIcon
+	.enableMute.sound-hidden.started .muteAudioIcon, 
+	.enableMute:not(.sound-hidden).started .unmuteAudioIcon
 		{fadeOut}

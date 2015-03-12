@@ -116,12 +116,13 @@
   .view-audioOnly .video
     display none !important
     
-  .enableSelfView.video-shown .selfViewDisable,
-  .enableSelfView:not(.video-shown) .selfViewEnable,
-  .enableSelfView.video-shown .localVideo
+  .enableSelfView:not(.video-hidden) .selfViewDisable,
+  .enableSelfView.video-hidden .selfViewEnable,
+  .enableSelfView:not(.video-hidden) .localVideo
     {fadeIn}
 
-  .enableSelfView:not(.video-shown) .selfViewDisable,
-  .enableSelfView.video-shown .selfViewEnable,
-  .enableSelfView:not(.video-shown) .localVideo
+
+  .enableSelfView.video-hidden .selfViewDisable,
+  .enableSelfView:not(.video-hidden) .selfViewEnable,
+  .enableSelfView.video-hidden .localVideo
     {fadeOut}

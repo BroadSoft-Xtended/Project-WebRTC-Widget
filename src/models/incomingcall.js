@@ -1,6 +1,7 @@
 module.exports = require('webrtc-core').bdsft.Model(IncomingCall)
 
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 
 function IncomingCall(options, eventbus, sound, sipstack) {
   var self = {};
@@ -10,7 +11,7 @@ function IncomingCall(options, eventbus, sound, sipstack) {
   var incomingSession;
 
   var handle = function(){
-    self.view.hide();
+    eventbus.toggleView(Constants.VIEW_INCOMINGCALL, false);
     sound.pause();
   };
 
@@ -37,7 +38,7 @@ function IncomingCall(options, eventbus, sound, sipstack) {
 
   self.listeners = function() {
     eventbus.on("canceled", function(e) {
-      self.view.hide();
+      eventbus.toggleView(Constants.VIEW_INCOMINGCALL, false);
     });
 
     eventbus.on("incomingCall", function(evt) {
@@ -46,7 +47,7 @@ function IncomingCall(options, eventbus, sound, sipstack) {
       eventbus.message("Incoming Call", "success");
       self.incomingCallName = from.display_name || '';
       self.incomingCallUser = from.uri && from.uri.user || '';
-      self.view.show();
+      eventbus.toggleView(Constants.VIEW_INCOMINGCALL);
       sound.playRingtone();
     });
   };

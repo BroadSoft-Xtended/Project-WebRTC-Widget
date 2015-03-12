@@ -4,16 +4,12 @@ describe('sipstack', function() {
   beforeEach(function() {
     setUp();
     testUA.mockWebRTC();
-    testUA.mockSound();
     config = {
       domainTo: "domain.to",
       domainFrom: "domain.from",
       enableTransfer: true,
       enableCallStats: false
     };
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
-      console.log("enableLocalAudio : " + enable);
-    }
   });
 
   it('RTCMediaHandlerOptions and bandwidth med change', function() {
@@ -22,10 +18,9 @@ describe('sipstack', function() {
     sipstack.ua.setRtcMediaHandlerOptions = function(options) {
       rtcMediaHandlerOptions = options;
     }
-    settingsview.resolutionType.val(WebRTC.C.STANDARD);
-    settingsview.resolutionEncodingStandard.val(WebRTC.C.R_640x480);
-    settingsview.bandwidthMed.val("600");
-    settingsview.bandwidthMed.trigger("blur");
+    testUA.val(settingsview.resolutionType, WebRTC.C.STANDARD);
+    testUA.val(settingsview.resolutionEncodingStandard, WebRTC.C.R_640x480);
+    testUA.val(settingsview.bandwidthMed, "600");
     expect(rtcMediaHandlerOptions).toEqual({
       RTCConstraints: {
         'optional': [],
@@ -42,11 +37,9 @@ describe('sipstack', function() {
     sipstack.ua.setRtcMediaHandlerOptions = function(options) {
       rtcMediaHandlerOptions = options;
     }
-    settingsview.bandwidthLow.val("200");
-    settingsview.bandwidthLow.trigger("blur");
-    settingsview.resolutionType.val(WebRTC.C.STANDARD);
-    settingsview.resolutionEncodingStandard.val(WebRTC.C.R_320x240);
-    settingsview.resolutionEncodingStandard.trigger("change");
+    testUA.val(settingsview.bandwidthLow, "200");
+    testUA.val(settingsview.resolutionType, WebRTC.C.STANDARD);
+    testUA.val(settingsview.resolutionEncodingStandard, WebRTC.C.R_320x240);
     expect(rtcMediaHandlerOptions).toEqual({
       RTCConstraints: {
         'optional': [],

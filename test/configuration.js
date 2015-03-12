@@ -4,7 +4,6 @@ describe('configuration', function() {
   beforeEach(function() {
     setUp();
     testUA.mockWebRTC();
-    testUA.mockSound();
     // testUA.mockLocation();
     WebRTC.Utils.getSearchVariable = function(name){ return false;}
     $.cookie("settingResolutionDisplay", "");

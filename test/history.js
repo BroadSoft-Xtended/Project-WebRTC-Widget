@@ -25,7 +25,7 @@ describe('history', function() {
     expect(localStorage[Constants.HISTORY_PAGE_PREFIX+"0"]).toEqual(getCallCookieValue());
     expect(history.pagesAsString(), [getCallCookieValue()]);
   });
-  it('persistCall and toggle', function() {
+  it('persistCall and toggle:', function() {
     client = create(config)
     history.persistCall(rtcSession);
     historyview.toggle();

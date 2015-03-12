@@ -2,15 +2,19 @@ module.exports = require('webrtc-core').bdsft.View(IncomingCallView)
 
 var Utils = require('webrtc-core').utils;
 var PopupView = require('./popup');
+var Constants = require('webrtc-core').constants;
 
 function IncomingCallView(eventbus, incomingcall) {
   var self = {};
 
   self.model = incomingcall;
   
-  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['incomingCallName', 'incomingCallUser', 'acceptIncomingCall', 'rejectIncomingCall', 'holdAndAnswerButton', 'dropAndAnswerButton'];
+
+  self.init = function() {
+    PopupView(self, eventbus);
+  };
 
   self.listeners = function() {
     self.acceptIncomingCall.on('click', function(e) {

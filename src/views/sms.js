@@ -1,6 +1,7 @@
 module.exports = require('webrtc-core').bdsft.View(SMSView);
 
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 var PopupView = require('./popup');
 
 function SMSView(eventbus, debug, sound, sms) {
@@ -8,8 +9,6 @@ function SMSView(eventbus, debug, sound, sms) {
 
   self.model = sms;
   
-  Utils.extend(self, PopupView(eventbus));
-
   function InboxItemView(inboxItem) {
     var _self = {};
 
@@ -73,21 +72,33 @@ function SMSView(eventbus, debug, sound, sms) {
     }).pop();
   };
 
-  self.inboxItems = function(items){
-    if(arguments.length === 1) {
-      inboxItemViews = [];
-      self.inboxContent.html('');
-      for (var i = 0; i < items.length; i++) {
-        var inboxItemView = new InboxItemView(items[i]);
-        inboxItemView.appendTo(self.inboxContent);
-        inboxItemViews.push(inboxItemView);
-      }      
-    } else {
-      return inboxItemViews.map(function(view){ return view.inboxItem;});
-    }
+  self.init = function() {
+    PopupView(self, eventbus);
   };
 
-  self.listeners = function() {
+  var _type;
+  self.listeners = function(databinder) {
+    databinder.onModelPropChange('type', function(value) {
+      _type = value;
+    });
+    databinder.onModelPropChange('statusText', function(value) {
+      self.status.toggleClass('hidden', false);
+      self.status.attr("class", _type);
+      self.statusContent.text(value);
+    });
+    databinder.onModelPropChange('inboxItems', function(items) {
+      if(arguments.length === 1) {
+        inboxItemViews = [];
+        self.inboxContent.html('');
+        for (var i = 0; i < items.length; i++) {
+          var inboxItemView = new InboxItemView(items[i]);
+          inboxItemView.appendTo(self.inboxContent);
+          inboxItemViews.push(inboxItemView);
+        }      
+      } else {
+        return inboxItemViews.map(function(view){ return view.inboxItem;});
+      }
+    });
     eventbus.on('modifier', function(e) {
       if (e.which === 84) {
         self.show();
@@ -143,15 +154,6 @@ function SMSView(eventbus, debug, sound, sms) {
     });
   };
 
-  var _type;
-  self.type = function(value) {
-    _type = value;
-  };
-  self.statusText = function(value) {
-    self.status.toggleClass('hidden', false);
-    self.status.attr("class", _type);
-    self.statusContent.text(value);
-  };
 
   return self;
 }

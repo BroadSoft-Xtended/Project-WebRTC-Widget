@@ -20,6 +20,9 @@ function Timer(eventbus, debug, configuration, sipstack) {
         self.start();
       }
     });
+    eventbus.on(["disconnected", "endCall", "ended", "failed"], function(e) {
+      self.stop();
+    });
   };
 
   self.start = function() {

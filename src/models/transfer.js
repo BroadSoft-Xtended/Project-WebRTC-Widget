@@ -1,6 +1,7 @@
 module.exports = require('webrtc-core').bdsft.Model(Transfer);
 
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 
 function Transfer(sipstack, eventbus, configuration, callcontrol) {
   var self = {};
@@ -21,7 +22,7 @@ function Transfer(sipstack, eventbus, configuration, callcontrol) {
     }
     target = callcontrol.validateDestination(target);
     if (target) {
-      self.view.hide();
+      eventbus.toggleView(Constants.VIEW_TRANSFER, false);
       sipstack.transfer(target, self.typeAttended);
     }
   };

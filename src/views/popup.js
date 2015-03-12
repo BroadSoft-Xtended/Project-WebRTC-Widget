@@ -1,39 +1,40 @@
 module.exports = PopupView;
 
-var $ = require('jquery');
+function PopupView(view, eventbus) {
 
-function PopupView(eventbus) {
-  var self = {};
+  view.attached = false;
 
-  self.attached = false;
+  view.visible = false;
 
-  self.visible = false;
-
-  self.show = function() {
-    this.setVisible(true);
+  view.show = function() {
+    view.setVisible(true);
   };
 
-  self.hide = function() {
-    this.setVisible(false);
+  view.hide = function() {
+    view.setVisible(false);
   };
 
-  self.toggle = function() {
-    this.setVisible(!this.visible);
+  view.toggle = function(visible) {
+    view.setVisible(typeof visible !== undefined && visible || !view.visible);
   };
 
-  self.appendTo = function(parent) {
-    this.view.appendTo(parent);
+  view.appendTo = function(parent) {
+    view.view.appendTo(parent);
   };
 
-  self.setVisible = function(visible) {
-    if (!self.attached) {
-      eventbus.attachView(this);
-      self.attached = true;
+  view.setVisible = function(visible) {
+    if (!view.attached) {
+      eventbus.attachView(view);
+      view.attached = true;
     }
-    this.visible = visible;
+    view.visible = visible;
 
-    eventbus.viewChanged(this);
+    eventbus.viewChanged(view);
   };
 
-  return self;
+  eventbus.onToggleView(view._name, function(visible){
+    view.toggle(visible);
+  });    
+
+  return view;
 }

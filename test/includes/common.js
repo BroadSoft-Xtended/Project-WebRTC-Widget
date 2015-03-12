@@ -186,10 +186,11 @@ Object.defineProperty(localStorage, 'length', {
 });
 
 setUp = function(){
+  core = require('webrtc-core');
   global.bdsft_client_instances = {};
   testUA = require('./testUA');
-  Utils = require('webrtc-core').utils;
-  Constants = require('webrtc-core').constants;
+  Utils = core.utils;
+  Constants = core.constants;
   WebRTC = require('../../src/webrtc');
   Client = require('../../src/views/client');
   Stats = require('../../src/views/stats');
@@ -198,8 +199,10 @@ setUp = function(){
 
 create = function(config){
   var clientConfig = Utils.clone(ClientConfig);
-  var options = $.extend({id: 'test'}, clientConfig, config, {debug: true, disabled: false});
-  var client = require('../../src/factory')(Client)(options);
+  var options = $.extend({id: 'test'}, clientConfig, config, {debug: false, disabled: false, enableWindowDrag: false});
+  options.dependencies = [core];
+  options.instancesObj = 'bdsft_client_instances';
+  var client = require('../../src/factory')(options)(Client);
   client.appendTo($('body'));
   return client;
 }

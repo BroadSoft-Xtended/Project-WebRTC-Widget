@@ -22,6 +22,9 @@ function Video(eventbus, debug, configuration) {
   };
 
   self.listeners = function() {
+    eventbus.on(["disconnected", "endCall", "ended", "failed"], function(e) {
+      self.updateSessionStreams();
+    });
     eventbus.on("userMediaUpdated", function(e) {
       self.updateStreams([e && e.localStream], []);
     });

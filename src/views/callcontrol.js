@@ -1,6 +1,7 @@
 module.exports = require('webrtc-core').bdsft.View(CallControlView)
 
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 var PopupView = require('./popup');
 
 function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, dialpadView) {
@@ -8,12 +9,12 @@ function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, di
 
   self.model = callcontrol;
   
-  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['historyButton', 'destination', 'call', 'dialpadHolder'];
 
   self.init = function() {
     dialpadView.view.appendTo(self.dialpadHolder);
+    PopupView(self, eventbus);
   };
 
   self.listeners = function() {

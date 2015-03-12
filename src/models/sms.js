@@ -184,7 +184,7 @@ function SMS(eventbus, debug, smsprovider, sound) {
     }
 
     var body = self.sendBody;
-    if (body === '') {
+    if (!body) {
       msgs.push('Please enter a text to send');
     }
 

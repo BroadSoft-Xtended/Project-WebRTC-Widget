@@ -17,6 +17,9 @@ function Sound(eventbus, configuration, sipstack) {
   };
 
   self.listeners = function() {
+    eventbus.on(["disconnected", "endCall", "ended", "failed"], function(e) {
+      self.pause();
+    });
     eventbus.on("progress", function(e) {
       self.playDtmfRingback();
     });

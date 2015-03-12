@@ -9,19 +9,7 @@ function HistoryView(eventbus, sound, callcontrol, history) {
 
   self.model = history;
 
-  Utils.extend(self, PopupView(eventbus));
-
   self.rows = [];
-
-  self.isForwardEnabled = function(value){
-    self.historyForward.toggle(value);
-  }
-  self.isBackEnabled = function(value){
-    self.historyBack.toggle(value);
-  }
-  self.calls = function(value){
-    updateContent(value);
-  }
 
   var callDetailsHandler = function(call) {
     return function(e) {
@@ -72,7 +60,20 @@ function HistoryView(eventbus, sound, callcontrol, history) {
     'historyClear', 'callLink', 'historyRowSample', 'historyClose'
   ];
 
-  self.listeners = function() {
+  self.init = function() {
+    PopupView(self, eventbus);
+  };
+
+  self.listeners = function(databinder) {
+    databinder.onModelPropChange('isForwardEnabled', function(value){
+      self.historyForward.toggle(value);
+    });
+    databinder.onModelPropChange('isForwardEnabled', function(value){
+      self.historyBack.toggle(value);
+    });
+    databinder.onModelPropChange('calls', function(calls){
+      updateContent(calls);
+    });
     eventbus.on('modifier', function(e) {
       if (e.which === 72) {
         self.toggle();

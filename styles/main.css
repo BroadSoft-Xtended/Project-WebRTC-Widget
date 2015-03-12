@@ -1389,16 +1389,16 @@
 .bdsft-client .view-audioOnly .video {
   display: none !important;
 }
-.bdsft-client .enableSelfView.video-shown .selfViewDisable,
-.bdsft-client .enableSelfView:not(.video-shown) .selfViewEnable,
-.bdsft-client .enableSelfView.video-shown .localVideo {
+.bdsft-client .enableSelfView:not(.video-hidden) .selfViewDisable,
+.bdsft-client .enableSelfView.video-hidden .selfViewEnable,
+.bdsft-client .enableSelfView:not(.video-hidden) .localVideo {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
-.bdsft-client .enableSelfView:not(.video-shown) .selfViewDisable,
-.bdsft-client .enableSelfView.video-shown .selfViewEnable,
-.bdsft-client .enableSelfView:not(.video-shown) .localVideo {
+.bdsft-client .enableSelfView.video-hidden .selfViewDisable,
+.bdsft-client .enableSelfView:not(.video-hidden) .selfViewEnable,
+.bdsft-client .enableSelfView.video-hidden .localVideo {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -2076,16 +2076,16 @@
 .bdsft-client .client:not(.enableCallControl) .callControl {
   display: none !important;
 }
-.bdsft-client .enableMute.sound-shown.started .muteAudioIcon,
-.bdsft-client .enableMute:not(.sound-shown).started .unmuteAudioIcon {
+.bdsft-client .enableMute:not(.sound-hidden).started .muteAudioIcon,
+.bdsft-client .enableMute.sound-hidden.started .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 1;
   z-index: 20;
 }
 .bdsft-client .enableMute:not(.started) .muteAudioIcon,
 .bdsft-client .enableMute:not(.started) .unmuteAudioIcon,
-.bdsft-client .enableMute:not(.sound-shown).started .muteAudioIcon,
-.bdsft-client .enableMute.sound-shown.started .unmuteAudioIcon {
+.bdsft-client .enableMute.sound-hidden.started .muteAudioIcon,
+.bdsft-client .enableMute:not(.sound-hidden).started .unmuteAudioIcon {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;

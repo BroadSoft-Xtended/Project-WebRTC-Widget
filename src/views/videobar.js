@@ -1,9 +1,10 @@
 module.exports = require('webrtc-core').bdsft.View(VideoBarView);
 
 var Icon = require('webrtc-core').icon;
+var Constants = require('webrtc-core').constants;
 var events;
 
-function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dialpadView, timerView, video, callcontrolView, configuration) {
+function VideoBarView(eventbus, sound, timerView, video) {
   var self = {};
 
   self.fullScreen = false;
@@ -39,29 +40,6 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
     self.enableFullScreen(!self.fullScreen);
   };
 
-  var togglePopup = function(popup) {
-    popup.toggle();
-  };
-
-  self.endCall = function(options) { 
-    options = options || {};
-    var rtcSession = options.rtcSession;
-    if (rtcSession === 'all') {
-      sipstack.terminateSessions();
-    } else if (rtcSession) {
-      sipstack.terminateSession(rtcSession);
-    } else {
-      sipstack.terminateSession();
-    }
-    sound.pause();
-    video.updateSessionStreams();
-
-    // self.guiStart();
-
-    timerView.model.stop();
-    self.checkEndCallURL();
-  };
-
   // Initial startup
   self.init = function() {
     toggleSelfView(self.selfViewVisible);
@@ -71,49 +49,9 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
 
   };
 
-  self.checkEndCallURL = function() {
-    if (configuration.endCallURL && !configuration.disabled) {
-      window.location = configuration.endCallURL;
-    }
-  };
-
   self.enableScreenSharing = function(enabled) {
-    self.isScreenSharing = enabled;
     eventbus.screenshare(enabled);
     eventbus.viewChanged({visible: enabled, name: 'screenshare'});
-    if (enabled) {
-      var onShareScreenSuccess = function(localMedia) {
-        localMedia.onended = function() {
-          self.enableScreenSharing(false);
-        };
-      };
-      var onShareScreenFailure = function(e) {
-        // no way to distinguish between flag not enabled or simply rejected enabling screen sharing
-        if (e) {
-          self.screenSharingUnsupported.show();
-        }
-        self.enableScreenSharing(false);
-      };
-      sipstack.reconnectUserMedia(onShareScreenSuccess, onShareScreenFailure);
-    } else {
-      sipstack.reconnectUserMedia();
-    }
-  };
-
-  self.holdCall = function() {
-    self.hold.disable();
-    var enable = function() {
-      self.hold.enable();
-    };
-    sipstack.hold(enable, enable);
-  };
-
-  self.resumeCall = function() {
-    self.resume.disable();
-    var enable = function() {
-      self.resume.enable();
-    };
-    sipstack.unhold(enable, enable);
   };
 
   self.enableFullScreen = function(enable) {
@@ -145,32 +83,33 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
     self.hold = new Icon(self.hold, sound);
     self.resume = new Icon(self.resume, sound);
 
-    window.onbeforeunload = function(e) {
-      self.endCall({
-        rtcSession: 'all'
-      });
-      return null;
-    };
-    eventbus.on(["disconnected", "endCall"], function(e) {
-      self.endCall();
+    eventbus.on('callHeld', function(e) {
+      self.hold.enable();
     });
-    eventbus.on(["ended", "failed"], function(e) {
-      self.endCall({
-        rtcSession: e.sender
-      });
+    eventbus.on('callResumed', function(e) {
+      self.resume.enable();
     });
-
+    eventbus.on('screenshare', function(e) {
+      self.isScreenSharing = e.enabled;
+    });
+    eventbus.on('screenshareFailure', function(e) {
+      // TODO - screenSharingUnsupported not implemented
+      // no way to distinguish between flag not enabled or simply rejected enabling screen sharing
+      if (e.e) {
+        self.screenSharingUnsupported.show();
+      }
+    });
     self.transfer.bind('click', clickHander(function() {
-      togglePopup(transferView);
+      eventbus.toggleView(Constants.VIEW_TRANSFER);
     }));
     self.settings.bind('click', clickHander(function() {
-      togglePopup(settingsView);
+      eventbus.toggleView(Constants.VIEW_SETTINGS);
     }));
     self.dialpadIconShow.bind('click', clickHander(function() {
-      togglePopup(callcontrolView);
+      eventbus.toggleView(Constants.VIEW_CALLCONTROL);
     }));
     self.dialpadIconHide.bind('click', clickHander(function() {
-      togglePopup(callcontrolView);
+      eventbus.toggleView(Constants.VIEW_CALLCONTROL);
     }));
     self.shareScreen.bind('click', clickHander(function() {
       toggleShareScreen();
@@ -197,13 +136,15 @@ function VideoBarView(eventbus, sound, sipstack, transferView, settingsView, dia
       toggleSound();
     }));
     self.hold.onClick(function(e) {
-      self.holdCall();
+      self.hold.disable();
+      eventbus.holdCall();
     });
     self.resume.onClick(function(e) {
-      self.resumeCall();
+      self.resume.disable();
+      eventbus.resumeCall();
     });
     self.hangup.bind('click', clickHander(function() {
-      self.endCall();
+      eventbus.endCall();
       if (self.fullScreen) {
         self.fullScreenContract.click();
       }

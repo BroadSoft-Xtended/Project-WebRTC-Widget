@@ -1,8 +1,9 @@
 var ExSIP = require('exsip');
 var jQuery = jquery = $ = require('jquery');
 require('jquery.cookie')
-var Constants = require('webrtc-core').constants;
-var Utils = require('webrtc-core').utils;
+var core = require('webrtc-core');
+var Constants = core.constants;
+var Utils = core.utils;
 var Client = require('views/client');
 var Sound = require('models/sound');
 var WebRTC = {
@@ -100,7 +101,9 @@ $(document).ready(function() {
   var options = $.extend({}, clientConfig, configData);
   console.log("options : ", options);
   options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
-  var client = require('./factory')(Client)(options);
+  options.dependencies = [core];
+  options.instancesObj = 'bdsft_client_instances';
+  var client = require('./factory')(options)(Client);
   client.appendTo(currentScript.parent());
   var styleData = currentScript.data();
   if (styleData) {

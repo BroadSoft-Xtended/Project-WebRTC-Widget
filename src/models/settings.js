@@ -64,7 +64,11 @@ function Settings(eventbus, debug, configuration) {
     },
     password: true,
     authenticationUserid: true,
-    resolutionType: true,
+    resolutionType: {
+      onSet: function(value) {
+        configuration.resolutionType = value;
+      },
+    },
     localVideoTop: true,
     localVideoLeft: true,
     callHistoryTop: true,
@@ -145,6 +149,7 @@ function Settings(eventbus, debug, configuration) {
         }
       },
       value: function() {
+        // console.log('resolutionEncodingStandard : ', configuration.encodingResolution);
         return configuration.encodingResolution;
       }
     },

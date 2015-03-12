@@ -4,16 +4,12 @@ describe('transfer', function() {
   beforeEach(function() {
     setUp();
     testUA.mockWebRTC();
-    testUA.mockSound();
     config = {
       domainTo: "domain.to",
       domainFrom: "domain.from",
       enableTransfer: true,
       enableCallStats: false
     };
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
-      console.log("enableLocalAudio : " + enable);
-    }
   });
 
   it('transfer', function() {
@@ -120,7 +116,7 @@ describe('transfer', function() {
     testUA.startCall();
     videobar.transfer.trigger("click");
     testUA.isVisible(transferview.view, true);
-    transferview.target.val("1000@other.domain.to");
+    testUA.val(transferview.target, "1000@other.domain.to");
     transferview.accept.trigger("click");
     testUA.isVisible(transferview.view, false);
     expect(transferTarget).toEqual("sip:1000@other.domain.to");
@@ -139,8 +135,8 @@ describe('transfer', function() {
     };
     testUA.startCall();
     videobar.transfer.trigger("click");
-    transferview.typeAttended.prop('checked', true);
-    transferview.target.val("1000@other.domain.to");
+    testUA.check(transferview.typeAttended, true);
+    testUA.val(transferview.target, "1000@other.domain.to");
     transferview.accept.trigger("click");
     expect(attendedTransferTarget).toEqual("sip:1000@other.domain.to");
   });

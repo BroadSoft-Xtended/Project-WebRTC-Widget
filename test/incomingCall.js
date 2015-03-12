@@ -4,11 +4,7 @@ describe('incoming call', function() {
   beforeEach(function() {
     setUp();
     testUA.mockWebRTC();
-    testUA.mockSound();
     config = {};
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
-      console.log("enableLocalAudio : " + enable);
-    }
   });
 
   it('window.onbeforeunload', function() {

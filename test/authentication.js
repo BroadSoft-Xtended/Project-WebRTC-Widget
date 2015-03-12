@@ -4,16 +4,16 @@ describe('mocha tests', function () {
   before(function () {
     setUp();
     testUA.mockWebRTC();
-    testUA.mockSound();
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
-      console.log("enableLocalAudio : " + enable);
-    }
+    // testUA.mockSound();
+    // WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
+    //   console.log("enableLocalAudio : " + enable);
+    // }
     config = {domainTo: 'domain.to', domainFrom: 'domain.from', 
         enableRegistrationIcon: true, enableSMS: false, enableXMPP: false, register: false};
     client = create(config);   
   });
 
-  it('on 403 : with settingUserId', function () {
+  it('on 403 : with settingUserId:', function () {
     settings.userid = '12345';
     // settings.userid = '12345';
     testUA.connect();
@@ -23,17 +23,17 @@ describe('mocha tests', function () {
     expect(authentication.userid.val()).toEqual( '12345');
     expect(authentication.authUserid.val()).toEqual( '');
     expect(authentication.password.val()).toEqual( '');
-    authentication.password.val("121212");
+    testUA.val(authentication.password, "121212");
     authentication.ok.trigger("click");
     expect(authentication.visible).toEqual( false);
     expect(sipstack.ua.configuration.uri.toString()).toEqual( 'sip:12345@' + config.domainFrom);
     expect(sipstack.ua.configuration.authorization_user).toEqual( '12345');
     expect(settings.userid).toEqual('12345', 'should NOT change settings userId : '+settings.userid);
-    expect(settings.authenticationUserid).toEqual('', 'should NOT set settings authenticationUserId : '+settings.authenticationUserid);
-    expect(settings.password).toEqual('', 'should NOT set settings password : '+settings.password);
+    expect(settings.authenticationUserid).toEqual(undefined, 'should NOT set settings authenticationUserId : '+settings.authenticationUserid);
+    expect(settings.password).toEqual(undefined, 'should NOT set settings password : '+settings.password);
     testUA.registered();
     expect(settings.userid).toEqual('12345', 'should NOT change settings userId : '+settings.userid);
-    expect(settings.authenticationUserid).toEqual('', 'should NOT set settings authenticationUserId as same as userId : '+settings.authenticationUserid);
+    expect(settings.authenticationUserid).toEqual(undefined, 'should NOT set settings authenticationUserId as same as userId : '+settings.authenticationUserid);
     expect(settings.password).toEqual('121212', 'should set settings password : '+settings.password);
     tearDown();
   });
@@ -48,14 +48,14 @@ describe('mocha tests', function () {
     expect(authentication.visible).toEqual( true);
     expect(authentication.authUserid.val()).toEqual( '54321');
     expect(authentication.password.val()).toEqual( '');
-    authentication.password.val("121212");
+    testUA.val(authentication.password, "121212");
     authentication.ok.trigger("click");
     expect(authentication.visible).toEqual( false);
     expect(sipstack.ua.configuration.uri.toString()).toEqual( 'sip:12345@' + config.domainFrom);
     expect(sipstack.ua.configuration.authorization_user).toEqual( '54321');
     expect(settings.userid).toEqual('12345', 'should NOT change settings userId');
     expect(settings.authenticationUserid).toEqual('54321', 'should NOT change settings authenticationUserId');
-    expect(settings.password).toEqual('', 'should NOT set settings password : '+settings.password);
+    expect(settings.password).toEqual(null, 'should NOT set settings password : '+settings.password);
     testUA.registered();
     expect(settings.userid).toEqual('12345', 'should NOT change settings userId');
     expect(settings.authenticationUserid).toEqual('54321', 'should NOT change settings authenticationUserId as same as userId');
@@ -67,8 +67,8 @@ describe('mocha tests', function () {
     settings.userid = '12345';
     testUA.connect();
     testUA.registrationFailed(403);
-    authentication.authUserid.val("54321");
-    authentication.password.val("121212");
+    testUA.val(authentication.authUserid, "54321");
+    testUA.val(authentication.password, "121212");
     authentication.ok.trigger("click");
     expect(sipstack.ua.configuration.authorization_user).toEqual( '54321');
     testUA.registered();
@@ -82,9 +82,9 @@ describe('mocha tests', function () {
     settings.userid = '12345';
     testUA.connect();
     testUA.registrationFailed(403);
-    authentication.userid.val("23456");
-    authentication.authUserid.val("54321");
-    authentication.password.val("121212");
+    testUA.val(authentication.userid, "23456");
+    testUA.val(authentication.authUserid, "54321");
+    testUA.val(authentication.password, "121212");
     authentication.ok.trigger("click");
     expect(sipstack.ua.configuration.uri.toString()).toEqual( 'sip:23456@' + config.domainFrom);
     expect(sipstack.ua.configuration.authorization_user).toEqual( '54321');
@@ -100,8 +100,8 @@ describe('mocha tests', function () {
     settings.authenticationUserid = '54321';
     testUA.connect();
     testUA.registrationFailed(403);
-    authentication.authUserid.val("98765");
-    authentication.password.val("121212");
+    testUA.val(authentication.authUserid, "98765");
+    testUA.val(authentication.password, "121212");
     authentication.ok.trigger("click");
     expect(sipstack.ua.configuration.authorization_user).toEqual( '98765');
     testUA.registered();

@@ -5,13 +5,13 @@ module.exports = require('webrtc-core').bdsft.View(XMPPView);
 // var ChatInputView = require('otalk-chat-input-view');
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 var $ = require('jquery');
 
 function XMPPView(debug, eventbus, configuration, sound, xmpp) {
   var self = {};
 
   self.model = xmpp;
-  Utils.extend(self, PopupView(eventbus));
 
   self.elements = ['content', 'name', 'password', 'login', 'messages'];
 
@@ -39,6 +39,7 @@ function XMPPView(debug, eventbus, configuration, sound, xmpp) {
 
 
   self.init = function() {
+    PopupView(self, eventbus);
     // self.content.append($(chatInputView));
   };
 

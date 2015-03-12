@@ -4,7 +4,6 @@ describe('callcontrol', function() {
   beforeEach(function() {
     setUp();
     testUA.mockWebRTC();
-    testUA.mockSound();
     config = {};
     config.domainTo = "domain.to";
     config.domainFrom = "domain.from";
@@ -13,9 +12,6 @@ describe('callcontrol', function() {
     config.enableCallStats = false;
     config.enableCallControl = true;
     config.enableHD = true;
-    WebRTC.Sound.prototype.enableLocalAudio = function(enable) {
-      console.log("enableLocalAudio : " + enable);
-    }
   });
 
   it('call if enter pressed on destination input', function() {

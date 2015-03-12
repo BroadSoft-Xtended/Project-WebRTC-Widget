@@ -47,16 +47,30 @@
         .row
           span.resolutionTypeRow.cell Mode
           select.resolutionType.cell
+            option(value='standard') standard
+            option(value='widescreen') widescreen
         .row
           span.resolutionDisplayRow.cell Resolution
           span.cell
-            select.resolutionDisplayStandard.resolutionSubType
-            select.resolutionDisplayWidescreen.resolutionSubType
+            select.resolutionDisplayStandard.resolutionSubType(style='display: inline-block;')
+              option(value='960x720') 960 x 720
+              option(value='640x480') 640 x 480
+              option(value='320x240') 320 x 240
+            select.resolutionDisplayWidescreen.resolutionSubType(style='display: none;')
+              option(value='1280x720') 1280 x 720
+              option(value='640x360') 640 x 360
+              option(value='320x180') 320 x 180
         .row
           span.resolutionEncodingRow.cell Encoding
           span.cell
-            select.resolutionEncodingStandard.resolutionSubType
-            select.resolutionEncodingWidescreen.resolutionSubType
+            select.resolutionEncodingStandard.resolutionSubType(style='display: inline-block;')
+              option(value='960x720') 960 x 720
+              option(value='640x480') 640 x 480
+              option(value='320x240') 320 x 240
+            select.resolutionEncodingWidescreen.resolutionSubType(style='display: none;')
+              option(value='1280x720') 1280 x 720
+              option(value='640x360') 640 x 360
+              option(value='320x180') 320 x 180
       .row
         span.cell
           a.btn.save(href='', title='Save Settings') Save Settings
