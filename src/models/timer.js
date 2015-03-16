@@ -32,6 +32,7 @@ function Timer(eventbus, debug, configuration, sipstack) {
     }
 
     var timer = self.runningTimer();
+    timer();
     self.callTimer = setInterval(timer, 1000);
     debug("started timer interval");
   };

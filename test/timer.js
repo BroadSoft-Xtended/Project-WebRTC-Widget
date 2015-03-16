@@ -10,9 +10,8 @@ describe('timer', function() {
 it('format', function() {
   client = create(config)
   expect(timerview.text.text()).toEqual( '');
-  var timerFunction = timer.runningTimer();
-  timerFunction();
-  expect(timerview.text.text()).toEqual( '00:00:00');
+  testUA.startCall();
+  expect(timer.text).toEqual( '00:00:00');
 });
 it('timer on call started with enableCallTimer = true', function() {
   config.enableCallTimer = true;
@@ -22,7 +21,7 @@ it('timer on call started with enableCallTimer = true', function() {
   testUA.isVisible(timerview.view, true);
   testUA.endCall();
   testUA.isVisible(timerview.view, false);
-  expect(timerview.text.text()).toEqual( '00:00:00');
+  expect(timer.text).toEqual( '00:00:00');
 });
 it('timer on call started with enableCallTimer = false', function() {
   config.enableCallTimer = false;

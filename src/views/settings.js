@@ -37,9 +37,10 @@ function SettingsView(options, eventbus, debug, sound, settings) {
     PopupView(self, eventbus);
 
     updateRowVisibility();
+    self.updateResolutionSelectVisibility();
   };
 
-  self.listeners = function() {
+  self.listeners = function(configurationDatabinder) {
     eventbus.on("viewChanged", function(e) {
       if (e.view === 'dialpad' && e.visible) {
         self.hide();

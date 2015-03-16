@@ -56963,7 +56963,7 @@ module.exports = require('webrtc-core').bdsft.Model(Authentication);
 var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
 
-function Authentication(eventbus, debug, settings, configuration) {
+function Authentication(eventbus, debug, configuration) {
   var self = {};
 
   self.props = {
@@ -56975,16 +56975,16 @@ function Authentication(eventbus, debug, settings, configuration) {
   self.listeners = function() {
     eventbus.on('registrationFailed', function(e) {
       var statusCode = e.data.response.status_code;
-      debug('registration failed : ' + statusCode + ', ' + settings.userid + ', ' + settings.password);
-      if ((statusCode === 403 && settings.userid && !settings.password) || configuration.register) {
+      debug('registration failed : ' + statusCode + ', ' + configuration.userid + ', ' + configuration.password);
+      if ((statusCode === 403 && configuration.userid && !configuration.password) || configuration.register) {
         eventbus.emit('authenticationFailed', self);
       }
     });
 
     eventbus.on('viewChanged', function(e) {
       if (e.view === 'authentication' && e.visible) {
-        self.authUserid = settings.authenticationUserid;
-        self.userid = settings.userid;
+        self.authUserid = configuration.authenticationUserid;
+        self.userid = configuration.userid;
       }
     });
   };
@@ -57000,11 +57000,11 @@ function Authentication(eventbus, debug, settings, configuration) {
       password: self.password
     })
     eventbus.once("registered", function() {
-      if (self.authUserid && settings.userid !== self.authUserid) {
-        settings.authenticationUserid = self.authUserid;
+      if (self.authUserid && configuration.userid !== self.authUserid) {
+        configuration.authenticationUserid = self.authUserid;
       }
-      settings.userid = self.userid;
-      settings.password = self.password;
+      configuration.userid = self.userid;
+      configuration.password = self.password;
     });
   };
 
@@ -57722,8 +57722,16 @@ function Settings(eventbus, debug, configuration) {
         configuration.userid = value;
       }
     },
-    password: true,
-    authenticationUserid: true,
+    password: {
+      onSet: function(value) {
+        configuration.password = value;
+      },
+    },
+    authenticationUserid: {
+      onSet: function(value) {
+        configuration.password = value;
+      },
+    },
     resolutionType: {
       onSet: function(value) {
         configuration.resolutionType = value;
@@ -57809,7 +57817,7 @@ function Settings(eventbus, debug, configuration) {
         }
       },
       value: function() {
-        console.log('resolutionEncodingStandard : ', configuration.encodingResolution);
+        // console.log('resolutionEncodingStandard : ', configuration.encodingResolution);
         return configuration.encodingResolution;
       }
     },
@@ -58121,7 +58129,7 @@ function SMS(eventbus, debug, smsprovider, sound) {
     }
 
     var body = self.sendBody;
-    if (body === '') {
+    if (!body) {
       msgs.push('Please enter a text to send');
     }
 
@@ -58623,6 +58631,7 @@ function Timer(eventbus, debug, configuration, sipstack) {
 module.exports = require('webrtc-core').bdsft.Model(Transfer);
 
 var Utils = require('webrtc-core').utils;
+var Constants = require('webrtc-core').constants;
 
 function Transfer(sipstack, eventbus, configuration, callcontrol) {
   var self = {};
@@ -58643,7 +58652,7 @@ function Transfer(sipstack, eventbus, configuration, callcontrol) {
     }
     target = callcontrol.validateDestination(target);
     if (target) {
-      self.view.hide();
+      eventbus.toggleView(Constants.VIEW_TRANSFER, false);
       sipstack.transfer(target, self.typeAttended);
     }
   };
@@ -82998,25 +83007,33 @@ function SMSView(eventbus, debug, sound, sms) {
     }).pop();
   };
 
-  self.inboxItems = function(items){
-    if(arguments.length === 1) {
-      inboxItemViews = [];
-      self.inboxContent.html('');
-      for (var i = 0; i < items.length; i++) {
-        var inboxItemView = new InboxItemView(items[i]);
-        inboxItemView.appendTo(self.inboxContent);
-        inboxItemViews.push(inboxItemView);
-      }      
-    } else {
-      return inboxItemViews.map(function(view){ return view.inboxItem;});
-    }
-  };
-
   self.init = function() {
     PopupView(self, eventbus);
   };
 
-  self.listeners = function() {
+  var _type;
+  self.listeners = function(databinder) {
+    databinder.onModelPropChange('type', function(value) {
+      _type = value;
+    });
+    databinder.onModelPropChange('statusText', function(value) {
+      self.status.toggleClass('hidden', false);
+      self.status.attr("class", _type);
+      self.statusContent.text(value);
+    });
+    databinder.onModelPropChange('inboxItems', function(items) {
+      if(arguments.length === 1) {
+        inboxItemViews = [];
+        self.inboxContent.html('');
+        for (var i = 0; i < items.length; i++) {
+          var inboxItemView = new InboxItemView(items[i]);
+          inboxItemView.appendTo(self.inboxContent);
+          inboxItemViews.push(inboxItemView);
+        }      
+      } else {
+        return inboxItemViews.map(function(view){ return view.inboxItem;});
+      }
+    });
     eventbus.on('modifier', function(e) {
       if (e.which === 84) {
         self.show();
@@ -83072,15 +83089,6 @@ function SMSView(eventbus, debug, sound, sms) {
     });
   };
 
-  var _type;
-  self.type = function(value) {
-    _type = value;
-  };
-  self.statusText = function(value) {
-    self.status.toggleClass('hidden', false);
-    self.status.attr("class", _type);
-    self.statusContent.text(value);
-  };
 
   return self;
 }
@@ -83954,12 +83962,13 @@ var sipstack = require('./sipstack');
 var configuration = require('./configuration');
 var bdsft = require('./bdsft');
 var element = require('./element');
+var factory = require('./factory');
 
 
 module.exports = {exsip: exsip, adapter: adapter, constants: constants, cookieprop: cookieprop, dateformat:  dateformat,
 icon: icon, prop: prop, utils: utils, eventbus: eventbus, debug: debug, sipstack: sipstack, configuration: configuration, bdsft: bdsft, 
-element: element};
-},{"./adapter":527,"./bdsft":529,"./configuration":530,"./constants":531,"./cookieprop":532,"./dateformat":534,"./debug":535,"./element":536,"./eventbus":537,"./icon":538,"./prop":539,"./sipstack":540,"./utils":541,"ExSIP":14}],529:[function(require,module,exports){
+element: element, factory: factory};
+},{"./adapter":527,"./bdsft":529,"./configuration":530,"./constants":531,"./cookieprop":532,"./dateformat":534,"./debug":535,"./element":536,"./eventbus":537,"./factory":538,"./icon":539,"./prop":540,"./sipstack":541,"./utils":542,"ExSIP":14}],529:[function(require,module,exports){
 var utils = require('./utils')
 module.exports = {
 	View: View,
@@ -83994,8 +84003,9 @@ function View(constructor, options) {
 		(object.elements || []).forEach(function(element) {
 			require('webrtc-core').element(object, element, databinder(self.viewName));
 		});
-		object.listeners && object.listeners(databinder(self.viewName));
-		object.init && object.init(options);
+		call(object.listeners, options);
+		call(object.init, options);
+
 		return object;
 	};
 
@@ -84015,8 +84025,8 @@ function Model(constructor, options) {
 			var type = prop.type || object.props._type || '';
 			require('webrtc-core')[type+'prop'](object, prop, databinder(self.name));
 		});
-		object.listeners && object.listeners(databinder(self.name));
-		object.init && object.init(options);
+		call(object.listeners, options);
+		call(object.init, options);
 		return object;
 	};
 
@@ -84051,12 +84061,33 @@ function argNamesFun(fun) {
 		return result;
 }
 
+function call(method, options) {
+	if(!method) {
+		return;
+	}
+	var argNames = argNamesFun(method);
+	var args = [];
+	for(var i=0; i < argNames.length; i++) {
+		if(argNames[i].match(/databinder/i)) {
+			var databinderArg = databinder(argNames[i].replace(/databinder/i, '') || self.viewName);
+			args.push(databinderArg);
+		} 
+		else if(argNames[i] === 'options') {
+			args.push(options);
+		}
+		else {
+			console.warn('no arg found for : '+argNames[i]);
+		}
+	}
+	return createFun(method, args);
+}
+
 function createFun(constructor, argArray) {
 	var args = [null].concat(argArray);
 	var factoryFunction = constructor.bind.apply(constructor, args);
 	return new factoryFunction();
 }
-},{"./databinder":533,"./utils":541,"bdsft-webrtc-templates":40,"jquery":268,"webrtc-core":528}],530:[function(require,module,exports){
+},{"./databinder":533,"./utils":542,"bdsft-webrtc-templates":40,"jquery":268,"webrtc-core":528}],530:[function(require,module,exports){
 module.exports = require('./bdsft').Model(Configuration);
 
 var Flags = {
@@ -84110,6 +84141,12 @@ function Configuration(options, eventbus, debug) {
     userid:  {
       value: function(){return options.userid || $.cookie('settingUserid');}
     },
+    password:  {
+      value: function(){return options.password || $.cookie('settingPassword');}
+    },
+    authenticationUserid:  {
+      value: function(){return options.authenticationUserid || $.cookie('settingAuthenticationUserid');}
+    },
     destination: {
       value: function(){return options.destination || Utils.getSearchVariable("destination");}
     },
@@ -84162,9 +84199,9 @@ function Configuration(options, eventbus, debug) {
       else if(key === 'encodingResolution') {
         self.props[key] = {
           value: function(){
-            console.log('options.encodingResolution : ', options.encodingResolution);
-            console.log('$.cookie(settingsResolutionEncoding) : ', $.cookie('settingsResolutionEncoding'));
-            console.log('$.cookie(settingsResolutionEncoding) : ', WebRTC_C.DEFAULT_RESOLUTION_ENCODING);
+            // console.log('options.encodingResolution : ', options.encodingResolution);
+            // console.log('$.cookie(settingsResolutionEncoding) : ', $.cookie('settingsResolutionEncoding'));
+            // console.log('$.cookie(settingsResolutionEncoding) : ', WebRTC_C.DEFAULT_RESOLUTION_ENCODING);
             return options.encodingResolution || $.cookie('settingsResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
           }
         }
@@ -84431,7 +84468,7 @@ function Configuration(options, eventbus, debug) {
 }
 
 
-},{"./bdsft":529,"./constants":531,"./utils":541,"jquery":268,"jquery.cookie":267}],531:[function(require,module,exports){
+},{"./bdsft":529,"./constants":531,"./utils":542,"jquery":268,"jquery.cookie":267}],531:[function(require,module,exports){
 var C = {
     // RTCSession states
   VIEW_AUTHENTICATION: "authenticationview",
@@ -84542,7 +84579,7 @@ function CookieProp(obj, prop, databinder) {
 
 	return propObj;
 }
-},{"./constants":531,"./prop":539,"./utils":541,"jquery":268,"jquery.cookie":267}],533:[function(require,module,exports){
+},{"./constants":531,"./prop":540,"./utils":542,"jquery":268,"jquery.cookie":267}],533:[function(require,module,exports){
 module.exports = DataBinder;
 
 var ee = require('event-emitter');
@@ -84749,8 +84786,6 @@ function Element(object, name, databinder) {
 		if(isCheckbox()){
 			element.prop('checked', value);
 		} else if(isTextbox() || isSelect()) {
-	       console.log('onModelPropChange : '+name, value);
-
 			element.val(value);
 		} else {
 			element.text(value);
@@ -84930,6 +84965,72 @@ function EventBus() {
 }
 
 },{"./bdsft":529,"event-emitter":212}],538:[function(require,module,exports){
+(function (global){
+var $ = require('jquery');
+var Utils = require('./utils');
+
+module.exports = Factory;
+
+function Factory(options) {
+	options.dependencies = options.dependencies || {};
+
+	function getId(name) {
+		var id;
+		if (typeof options === "object") {
+			id = options.id;
+		}
+		id = id || 'default';
+
+		id = name + '_' + id;
+		return id;
+	};
+
+	function requireArg(argName) {
+		var arg = options.dependencies[argName] || options.dependencies.core[argName];
+		if(!arg) {
+			console.error('could not find dependency for '+argName, options.dependencies);
+		}
+		return arg;
+	}
+
+	function args(constructor) {
+		return (constructor.argNames || []).map(function(argName) {
+			if (argName === 'options') {
+				return options;
+			}
+
+			var argConstructor = requireArg(argName);
+			if (argName === 'debug') {
+				return argConstructor.create([Utils.extend({}, options, {
+					name: constructor.name
+				})]);
+			}
+			// console.log('arg : '+argName);
+			var arg = create(argConstructor);
+			return arg;
+		});
+	};
+
+	function create(constructor) {
+		var prefix = options.instancesObj || 'bdsft';
+		global[prefix] = global[prefix] || {};
+		var name = constructor.name;
+		var id = getId(name);
+		if (!global[prefix][id]) {
+			// console.log('factory : ' + id);
+			var constructorArgs = args(constructor);
+			// console.log('factory : create ' + id + ' with ', constructor.argNames);
+			var object = constructor.create(constructorArgs);
+			global[prefix][id] = object;
+		}
+		return global[prefix][id];
+	}
+
+	return create;
+}
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"./utils":542,"jquery":268}],539:[function(require,module,exports){
   module.exports = Icon;
 
   function Icon(element, sound) {
@@ -84963,7 +85064,7 @@ function EventBus() {
       });
     }
   };
-},{}],539:[function(require,module,exports){
+},{}],540:[function(require,module,exports){
 module.exports = Prop;
 
 function Prop(obj, prop, databinder) {
@@ -85003,7 +85104,7 @@ function Prop(obj, prop, databinder) {
 
 	return self;
 }
-},{}],540:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 module.exports = require('./bdsft').Model(SIPStack);
 
 var ExSIP = require('exsip');
@@ -85406,7 +85507,7 @@ function SIPStack(eventbus, debug, configuration) {
 
   return self;
 }
-},{"./bdsft":529,"./constants":531,"./utils":541,"event-emitter/has-listeners":211,"exsip":239}],541:[function(require,module,exports){
+},{"./bdsft":529,"./constants":531,"./utils":542,"event-emitter/has-listeners":211,"exsip":239}],542:[function(require,module,exports){
 var adapter = require('./adapter');
 
 var __slice = [].slice;
@@ -85679,120 +85780,7 @@ var Utils = {
 };
 
 module.exports = Utils;
-},{"./adapter":527}],542:[function(require,module,exports){
-(function (global){
-var $ = require('jquery');
-var core = require('webrtc-core');
-
-module.exports = Factory;
-
-function Factory(options) {
-	function getId(name) {
-		var id;
-		if (typeof options === "object") {
-			id = options.id;
-		}
-		id = id || 'default';
-
-		id = name + '_' + id;
-		return id;
-	};
-
-	function requireArg(argName) {
-		for(var i=0; i < (options.dependencies || []).length; i++){
-			var dependency = options.dependencies[i];
-			if(dependency[argName]) {
-				return dependency[argName];
-			}
-		}
-
-		if (argName.match(/view$/i)) {
-			return require('views/' + argName.replace(/view$/i, '') + '.js');
-		} else {
-			return require('models/' + argName + '.js');
-		}
-	}
-
-	function args(constructor) {
-		return (constructor.argNames || []).map(function(argName) {
-			if (argName === 'options') {
-				return options;
-			}
-
-			var argConstructor = requireArg(argName);
-
-			if (argName === 'debug') {
-				return argConstructor.create([core.utils.extend({}, options, {
-					name: constructor.name
-				})]);
-			}
-			// console.log('arg : '+argName);
-			var arg = create(argConstructor);
-			return arg;
-		});
-	};
-
-	function create(constructor) {
-		var isNode = typeof global !== "undefined" && {}.toString.call(global) == '[object global]';
-		if (!isNode) {
-			require("views/authentication.js");
-require("views/callcontrol.js");
-require("views/client.js");
-require("views/connectionstatus.js");
-require("views/dialpad.js");
-require("views/fileshare.js");
-require("views/history.js");
-require("views/incomingcall.js");
-require("views/messages.js");
-require("views/popup.js");
-require("views/reinvite.js");
-require("views/settings.js");
-require("views/sms.js");
-require("views/stats.js");
-require("views/timer.js");
-require("views/transfer.js");
-require("views/video.js");
-require("views/videobar.js");
-require("views/whiteboard.js");
-require("views/xmpp.js");
-			require("models/authentication.js");
-require("models/callcontrol.js");
-require("models/connectionstatus.js");
-require("models/fileshare.js");
-require("models/history.js");
-require("models/incomingcall.js");
-require("models/messages.js");
-require("models/reinvite.js");
-require("models/settings.js");
-require("models/sms.js");
-require("models/smsprovider.js");
-require("models/sound.js");
-require("models/stats.js");
-require("models/timer.js");
-require("models/transfer.js");
-require("models/video.js");
-require("models/xmpp.js");
-		}
-		var prefix = options.instancesObj || 'bdsft';
-		global[prefix] = global[prefix] || {};
-		var name = constructor.name;
-		var id = getId(name);
-		if (!global[prefix][id]) {
-			// console.log('factory : ' + id);
-			var constructorArgs = args(constructor);
-			// console.log('factory : create ' + id + ' with ', constructor.argNames);
-			var object = constructor.create(constructorArgs);
-			global[prefix][id] = object;
-		}
-		return global[prefix][id];
-	}
-
-	return create;
-}
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":268,"models/authentication.js":269,"models/callcontrol.js":270,"models/connectionstatus.js":271,"models/fileshare.js":272,"models/history.js":273,"models/incomingcall.js":274,"models/messages.js":275,"models/reinvite.js":276,"models/settings.js":277,"models/sms.js":278,"models/smsprovider.js":279,"models/sound.js":280,"models/stats.js":281,"models/timer.js":282,"models/transfer.js":283,"models/video.js":284,"models/xmpp.js":285,"views/authentication.js":507,"views/callcontrol.js":508,"views/client.js":509,"views/connectionstatus.js":510,"views/dialpad.js":511,"views/fileshare.js":512,"views/history.js":513,"views/incomingcall.js":514,"views/messages.js":515,"views/popup.js":516,"views/reinvite.js":517,"views/settings.js":518,"views/sms.js":519,"views/stats.js":520,"views/timer.js":521,"views/transfer.js":522,"views/video.js":523,"views/videobar.js":524,"views/whiteboard.js":525,"views/xmpp.js":526,"webrtc-core":528}],543:[function(require,module,exports){
-var ExSIP = require('exsip');
+},{"./adapter":527}],543:[function(require,module,exports){
 var jQuery = jquery = $ = require('jquery');
 require('jquery.cookie')
 var core = require('webrtc-core');
@@ -85806,8 +85794,6 @@ var WebRTC = {
   Client: Client,
   Sound: Sound
 };
-
-module.exports = WebRTC;
 
 Object.defineProperties(WebRTC, {
   version: {
@@ -85891,13 +85877,7 @@ $(document).ready(function() {
   var ClientConfig = require('bdsft-webrtc-config');
   var configData = JSON.parse(currentScript.text());
   console.log("script config : ", configData);
-  var clientConfig = Utils.clone(ClientConfig);
-  var options = $.extend({}, clientConfig, configData);
-  console.log("options : ", options);
-  options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
-  options.dependencies = [core];
-  options.instancesObj = 'bdsft_client_instances';
-  var client = require('./factory')(options)(Client);
+  var client = createClient(configData);
   client.appendTo(currentScript.parent());
   var styleData = currentScript.data();
   if (styleData) {
@@ -85907,6 +85887,55 @@ $(document).ready(function() {
   currentScript.remove();
   window.BroadSoftWebRTC.clients.push(client);
 });
+
+var createClient = function(configData) {
+  var clientConfig = Utils.clone(ClientConfig);
+  var options = $.extend({}, clientConfig, configData);
+  options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
+  options.dependencies = {
+    core: core,
+    authenticationView: require("views/authentication.js"),
+    callcontrolView: require("views/callcontrol.js"),
+    clientView: require("views/client.js"),
+    connectionstatusView: require("views/connectionstatus.js"),
+    dialpadView: require("views/dialpad.js"),
+    fileshareView: require("views/fileshare.js"),
+    historyView: require("views/history.js"),
+    incomingcallView: require("views/incomingcall.js"),
+    messagesView: require("views/messages.js"),
+    reinviteView: require("views/reinvite.js"),
+    settingsView: require("views/settings.js"),
+    smsView: require("views/sms.js"),
+    statsView: require("views/stats.js"),
+    timerView: require("views/timer.js"),
+    transferView: require("views/transfer.js"),
+    videoView: require("views/video.js"),
+    videobarView: require("views/videobar.js"),
+    whiteboardView: require("views/whiteboard.js"),
+    xmppView: require("views/xmpp.js"),
+    authentication: require("models/authentication.js"),
+    callcontrol: require("models/callcontrol.js"),
+    connectionstatus: require("models/connectionstatus.js"),
+    fileshare: require("models/fileshare.js"),
+    history: require("models/history.js"),
+    incomingcall: require("models/incomingcall.js"),
+    messages: require("models/messages.js"),
+    reinvite: require("models/reinvite.js"),
+    settings: require("models/settings.js"),
+    sms: require("models/sms.js"),
+    smsprovider: require("models/smsprovider.js"),
+    sound: require("models/sound.js"),
+    stats: require("models/stats.js"),
+    timer: require("models/timer.js"),
+    transfer: require("models/transfer.js"),
+    video: require("models/video.js"),
+    xmpp: require("models/xmpp.js")    
+  };
+  options.instancesObj = 'bdsft_client_instances';
+  return core.factory(options)(Client);
+}
+
+WebRTC.createClient = createClient;
 
 (function($) {
   $.isBlank = function(obj) {
@@ -85919,4 +85948,6 @@ if (typeof String.prototype.endsWith !== 'function') {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
-},{"./factory":542,"bdsft-webrtc-config":37,"exsip":239,"jquery":268,"jquery.cookie":267,"models/sound":280,"views/client":509,"webrtc-core":528}]},{},[543]);
+
+module.exports = WebRTC;
+},{"bdsft-webrtc-config":37,"jquery":268,"jquery.cookie":267,"models/authentication.js":269,"models/callcontrol.js":270,"models/connectionstatus.js":271,"models/fileshare.js":272,"models/history.js":273,"models/incomingcall.js":274,"models/messages.js":275,"models/reinvite.js":276,"models/settings.js":277,"models/sms.js":278,"models/smsprovider.js":279,"models/sound":280,"models/sound.js":280,"models/stats.js":281,"models/timer.js":282,"models/transfer.js":283,"models/video.js":284,"models/xmpp.js":285,"views/authentication.js":507,"views/callcontrol.js":508,"views/client":509,"views/client.js":509,"views/connectionstatus.js":510,"views/dialpad.js":511,"views/fileshare.js":512,"views/history.js":513,"views/incomingcall.js":514,"views/messages.js":515,"views/reinvite.js":517,"views/settings.js":518,"views/sms.js":519,"views/stats.js":520,"views/timer.js":521,"views/transfer.js":522,"views/video.js":523,"views/videobar.js":524,"views/whiteboard.js":525,"views/xmpp.js":526,"webrtc-core":528}]},{},[543]);

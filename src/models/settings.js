@@ -62,8 +62,16 @@ function Settings(eventbus, debug, configuration) {
         configuration.userid = value;
       }
     },
-    password: true,
-    authenticationUserid: true,
+    password: {
+      onSet: function(value) {
+        configuration.password = value;
+      },
+    },
+    authenticationUserid: {
+      onSet: function(value) {
+        configuration.authenticationUserid = value;
+      },
+    },
     resolutionType: {
       onSet: function(value) {
         configuration.resolutionType = value;
@@ -218,7 +226,10 @@ function Settings(eventbus, debug, configuration) {
     updatePageColor();
   };
 
-  self.listeners = function() {
+  self.listeners = function(configurationDatabinder) {
+    configurationDatabinder.onModelChange(function(name, value){
+      self[name] = value;
+    });
     eventbus.on("ended", function() {
       isStarted = false;
       if (_changed) {

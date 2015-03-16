@@ -89,6 +89,11 @@ Object.defineProperties(global, {
   },
   authentication: {
     get: function(){
+      return global.bdsft_client_instances.authentication_test;
+    }
+  },
+  authenticationview: {
+    get: function(){
       return global.bdsft_client_instances.authenticationview_test;
     }
   },
@@ -187,6 +192,7 @@ Object.defineProperty(localStorage, 'length', {
 
 setUp = function(){
   core = require('webrtc-core');
+  core.bdsft.databinders = {};
   global.bdsft_client_instances = {};
   testUA = require('./testUA');
   Utils = core.utils;
@@ -198,11 +204,8 @@ setUp = function(){
 }
 
 create = function(config){
-  var clientConfig = Utils.clone(ClientConfig);
-  var options = $.extend({id: 'test'}, clientConfig, config, {debug: false, disabled: false, enableWindowDrag: false});
-  options.dependencies = [core];
-  options.instancesObj = 'bdsft_client_instances';
-  var client = require('../../src/factory')(options)(Client);
+  var configData = $.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false}, config);
+  var client = WebRTC.createClient(configData);
   client.appendTo($('body'));
   return client;
 }

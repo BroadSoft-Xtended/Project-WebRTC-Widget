@@ -20,6 +20,9 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
   self.appendTo = function(parent) {
     parent.append(self.view);
   };
+  self.remove = function() {
+    self.view.remove();
+  };
 
   self.updateCss = function(styleData) {
     self.styleData = styleData || {};

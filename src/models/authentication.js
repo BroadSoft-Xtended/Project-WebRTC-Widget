@@ -3,7 +3,7 @@ module.exports = require('webrtc-core').bdsft.Model(Authentication);
 var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
 
-function Authentication(eventbus, debug, settings, configuration) {
+function Authentication(eventbus, debug, configuration) {
   var self = {};
 
   self.props = {
@@ -15,16 +15,16 @@ function Authentication(eventbus, debug, settings, configuration) {
   self.listeners = function() {
     eventbus.on('registrationFailed', function(e) {
       var statusCode = e.data.response.status_code;
-      debug('registration failed : ' + statusCode + ', ' + settings.userid + ', ' + settings.password);
-      if ((statusCode === 403 && settings.userid && !settings.password) || configuration.register) {
+      debug('registration failed : ' + statusCode + ', ' + configuration.userid + ', ' + configuration.password);
+      if ((statusCode === 403 && configuration.userid && !configuration.password) || configuration.register) {
         eventbus.emit('authenticationFailed', self);
       }
     });
 
     eventbus.on('viewChanged', function(e) {
       if (e.view === 'authentication' && e.visible) {
-        self.authUserid = settings.authenticationUserid;
-        self.userid = settings.userid;
+        self.authUserid = configuration.authenticationUserid;
+        self.userid = configuration.userid;
       }
     });
   };
@@ -40,11 +40,11 @@ function Authentication(eventbus, debug, settings, configuration) {
       password: self.password
     })
     eventbus.once("registered", function() {
-      if (self.authUserid && settings.userid !== self.authUserid) {
-        settings.authenticationUserid = self.authUserid;
+      if (self.authUserid && configuration.userid !== self.authUserid) {
+        configuration.authenticationUserid = self.authUserid;
       }
-      settings.userid = self.userid;
-      settings.password = self.password;
+      configuration.userid = self.userid;
+      configuration.password = self.password;
     });
   };
 

@@ -1,4 +1,3 @@
-var ExSIP = require('exsip');
 var jQuery = jquery = $ = require('jquery');
 require('jquery.cookie')
 var core = require('webrtc-core');
@@ -12,8 +11,6 @@ var WebRTC = {
   Client: Client,
   Sound: Sound
 };
-
-module.exports = WebRTC;
 
 Object.defineProperties(WebRTC, {
   version: {
@@ -97,13 +94,7 @@ $(document).ready(function() {
   var ClientConfig = require('bdsft-webrtc-config');
   var configData = JSON.parse(currentScript.text());
   console.log("script config : ", configData);
-  var clientConfig = Utils.clone(ClientConfig);
-  var options = $.extend({}, clientConfig, configData);
-  console.log("options : ", options);
-  options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
-  options.dependencies = [core];
-  options.instancesObj = 'bdsft_client_instances';
-  var client = require('./factory')(options)(Client);
+  var client = createClient(configData);
   client.appendTo(currentScript.parent());
   var styleData = currentScript.data();
   if (styleData) {
@@ -113,6 +104,55 @@ $(document).ready(function() {
   currentScript.remove();
   window.BroadSoftWebRTC.clients.push(client);
 });
+
+var createClient = function(configData) {
+  var clientConfig = Utils.clone(ClientConfig);
+  var options = $.extend({}, clientConfig, configData);
+  options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
+  options.dependencies = {
+    core: core,
+    authenticationView: require("views/authentication.js"),
+    callcontrolView: require("views/callcontrol.js"),
+    clientView: require("views/client.js"),
+    connectionstatusView: require("views/connectionstatus.js"),
+    dialpadView: require("views/dialpad.js"),
+    fileshareView: require("views/fileshare.js"),
+    historyView: require("views/history.js"),
+    incomingcallView: require("views/incomingcall.js"),
+    messagesView: require("views/messages.js"),
+    reinviteView: require("views/reinvite.js"),
+    settingsView: require("views/settings.js"),
+    smsView: require("views/sms.js"),
+    statsView: require("views/stats.js"),
+    timerView: require("views/timer.js"),
+    transferView: require("views/transfer.js"),
+    videoView: require("views/video.js"),
+    videobarView: require("views/videobar.js"),
+    whiteboardView: require("views/whiteboard.js"),
+    xmppView: require("views/xmpp.js"),
+    authentication: require("models/authentication.js"),
+    callcontrol: require("models/callcontrol.js"),
+    connectionstatus: require("models/connectionstatus.js"),
+    fileshare: require("models/fileshare.js"),
+    history: require("models/history.js"),
+    incomingcall: require("models/incomingcall.js"),
+    messages: require("models/messages.js"),
+    reinvite: require("models/reinvite.js"),
+    settings: require("models/settings.js"),
+    sms: require("models/sms.js"),
+    smsprovider: require("models/smsprovider.js"),
+    sound: require("models/sound.js"),
+    stats: require("models/stats.js"),
+    timer: require("models/timer.js"),
+    transfer: require("models/transfer.js"),
+    video: require("models/video.js"),
+    xmpp: require("models/xmpp.js")    
+  };
+  options.instancesObj = 'bdsft_client_instances';
+  return core.factory(options)(Client);
+}
+
+WebRTC.createClient = createClient;
 
 (function($) {
   $.isBlank = function(obj) {
@@ -125,3 +165,5 @@ if (typeof String.prototype.endsWith !== 'function') {
     return this.indexOf(suffix, this.length - suffix.length) !== -1;
   };
 }
+
+module.exports = WebRTC;
