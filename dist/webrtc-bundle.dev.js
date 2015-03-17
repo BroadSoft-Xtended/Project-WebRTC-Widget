@@ -46076,7 +46076,7 @@ function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, di
       eventbus.digit(digit, self.destination.is(event.target));
 
       var len = self.destination.val().length * 2;
-      self.destination.setSelectionRange(len, len);
+      self.destination[0].setSelectionRange(len, len);
     });
   };
 

@@ -10,24 +10,7 @@
   <title>BroadSoft WebRTC Client</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <meta name="Author" content="Nathan Stratton"/>
-  <!-- <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800,300' rel='stylesheet' type='text/css' /> -->
-  <!-- <link rel="stylesheet" href="stylesheet.css" type="text/css"/> -->
-  <link rel="stylesheet" type="text/css" media="screen" href="converse.min.css">
-  <!-- <script src="js/3rdparty.js" type="text/javascript"></script> -->
-  <!--<script src="flensed.js" type="text/javascript" ></script>-->
-  <!--<script src="js/jquery.xhr.js" type="text/javascript" ></script>-->
-  <!--<script src="flXHR.js" type="text/javascript"></script>-->
-  <!--<script src="js/jquery.flXHRproxy.js" type="text/javascript"></script>-->
-<!--   <script src="js/exsip.js" type="text/javascript"></script>
-  <script src="js/client-config.js" type="text/javascript"></script>
- -->  
-
-<!--   <script type="text/javascript">
-      $(document).ready(function(){
-        client = new WebRTC.Client();
-      });
-  </script>
- --></head>
+</head>
 
 <body>
 
@@ -35,29 +18,16 @@
     <script src="dist/webrtc-bundle.min.js" type="text/javascript">
     {
       "websocketsServers": [{"ws_uri":"wss://webrtc-gw1.broadsoftlabs.com:8443", "weight":0}],
-      "stunServer": "64.212.220.81",
-      "stunPort": 3478,
-      "domainFrom": "broadsoftlabs.com",
-      "domainTo": "broadsoftlabs.com",
+      "view": "audioVideo",
       "enableSettings": true,
       "debug": true,
       "register": true,
-      "pAssertedIdentity": ""
+      "enableConnectLocalMedia": false,
+      "enableFileShare": false
     }
     </script>
   </div>
     <!-- data-p-asserted-identity="<sip:webguest@broadsoft.com>"  -->
-
-<script type="text/javascript">
-  $(function(){
-    if(parent.$ && parent.$.colorbox) {
-      parent.$.colorbox.resize({
-        innerWidth:$('#client').width(),
-        innerHeight:$('#client').height()
-      });
-    }
-  });
-</script>
 </body>
 
 </html>
