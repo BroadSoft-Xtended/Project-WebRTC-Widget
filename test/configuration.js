@@ -225,21 +225,20 @@ it('with config.view param and url params', function() {
 it('without color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return false;}
   client = create(config);
-  console.log('------------ configuration : ', configuration.color);
   expect(configuration.getBackgroundColor()).toEqual( "#ffffff");
-  expect($('body').css('backgroundColor')).toEqual( '#ffffff');
+  expect($('body').css('backgroundColor')).toEqual( 'rgb(255, 255, 255)');
 });
 it('with color url param', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "red" : false;}
   client = create(config);
   expect(configuration.getBackgroundColor()).toEqual( '#ff0000');
-  expect($('body').css('backgroundColor')).toEqual( '#ff0000');
+  expect($('body').css('backgroundColor')).toEqual( 'rgb(255, 0, 0)');
 });
 it('with color url param as hex', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "d0d0d0" : false;}
   client = create(config);
   expect(configuration.getBackgroundColor()).toEqual( '#d0d0d0');
-  expect($('body').css('backgroundColor')).toEqual( '#d0d0d0');
+  expect($('body').css('backgroundColor')).toEqual( 'rgb(208, 208, 208)');
 });
 it('with color url param as transparent', function() {
   WebRTC.Utils.getSearchVariable = function(name){ return name === "color" ? "transparent" : false;}

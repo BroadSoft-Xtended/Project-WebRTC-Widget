@@ -1,8 +1,6 @@
 module.exports = require('webrtc-core').bdsft.View(VideoView);
 
-var $ = require('jquery');
-
-require('jquery-ui/draggable');
+// require('jquery-ui/draggable');
 
 function VideoView(settings, configuration, historyView, video) {
   var self = {}; 
@@ -14,15 +12,13 @@ function VideoView(settings, configuration, historyView, video) {
   self.init = function() {
     // Allow some windows to be draggable, required jQuery.UI
     if (configuration.enableWindowDrag) {
-      $(function() {
-        self.localVideo.draggable && self.localVideo.draggable({
-          snap: ".remoteVideo,.videoBar",
-          containment: ".main",
-          snapTolerance: 200,
-          stop: function(event, ui) {
-            settings.updateViewPositions();
-          }
-        });
+      self.localVideo.draggable && self.localVideo.draggable({
+        snap: ".remoteVideo,.videoBar",
+        containment: ".main",
+        snapTolerance: 200,
+        stop: function(event, ui) {
+          settings.updateViewPositions();
+        }
       });
     }
   };

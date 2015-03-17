@@ -27,7 +27,8 @@ function StatsView(eventbus, stats) {
       selected = true;
     }
     var className = id.replace(/\d+/g, '');
-    var classes = jQuery.grep($(parentSelector).attr('class').split(" "), function(n) {
+    var classesStr = Utils.getElement(parentSelector).attr('class').split(" ");
+    var classes = classesStr.filter(function(n) {
       return n.indexOf(className) === -1;
     });
     if (selected) {
@@ -37,7 +38,7 @@ function StatsView(eventbus, stats) {
       }
     }
     var classNames = classes.join(" ");
-    $(parentSelector).attr('class', classNames);
+    Utils.getElement(parentSelector).attr('class', classNames);
   };
 
   self.init = function() {
@@ -46,7 +47,7 @@ function StatsView(eventbus, stats) {
 
   self.listeners = function() {
     self.statsVar.click(function() {
-      var index = self.statsVar.index($(this)[0]);
+      var index = self.statsVar.index(Utils.getElement(this)[0]);
       self.setSelected("stats" + index, this.callStats);
     });
     eventbus.on('modifier', function(e){

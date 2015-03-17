@@ -12,7 +12,7 @@ describe('transfer', function() {
     };
   });
 
-  it('transfer', function() {
+  it('transfer:', function() {
     client = create(config)
     testUA.isVisible(videobar.transfer, false);
   });
@@ -96,7 +96,6 @@ describe('transfer', function() {
     var transferTarget = null;
     client = create(config)
     ExSIP.UA.prototype.transfer = function(target, rtcSession) {
-      console.log('transfer');
       transferTarget = target;
     };
     testUA.startCall();
@@ -110,7 +109,6 @@ describe('transfer', function() {
     var transferTarget = null;
     client = create(config)
     ExSIP.UA.prototype.transfer = function(target, rtcSession) {
-      console.log('transfer');
       transferTarget = target;
     };
     testUA.startCall();
@@ -126,11 +124,9 @@ describe('transfer', function() {
     var attendedTransferTarget = null;
     client = create(config)
     ExSIP.UA.prototype.transfer = function(target, rtcSession) {
-      console.log('basic transfer');
       basicTransferTarget = target;
     };
     ExSIP.UA.prototype.attendedTransfer = function(target, rtcSession) {
-      console.log('attended transfer');
       attendedTransferTarget = target;
     };
     testUA.startCall();

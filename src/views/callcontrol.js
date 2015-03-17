@@ -48,7 +48,7 @@ function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, di
       }
     });
     // Prevent the backspace key from navigating back if callcontrol is shown
-    $(document).bind('keydown', function(event) {
+    Utils.getElement(document).bind('keydown', function(event) {
       if (self.visible) {
         var doPrevent = false;
         if (event.keyCode === 8) {
@@ -72,7 +72,9 @@ function CallControlView(eventbus, callcontrol, historyView, sipstack, sound, di
 
       var digit = String.fromCharCode(event.which);
       eventbus.digit(digit, self.destination.is(event.target));
-      self.destination.putCursorAtEnd();
+
+      var len = self.destination.val().length * 2;
+      self.destination.setSelectionRange(len, len);
     });
   };
 

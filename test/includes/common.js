@@ -1,7 +1,6 @@
 var jsdom = require('mocha-jsdom');
 var fs = require('fs');
 expect = require('expect');
-ExSIP = require('exsip');
 
 jsdom({
   src: [
@@ -192,6 +191,7 @@ Object.defineProperty(localStorage, 'length', {
 
 setUp = function(){
   core = require('webrtc-core');
+  ExSIP = core.exsip;
   core.bdsft.databinders = {};
   global.bdsft_client_instances = {};
   testUA = require('./testUA');
@@ -204,9 +204,9 @@ setUp = function(){
 }
 
 create = function(config){
-  var configData = $.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false}, config);
+  var configData = core.utils.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false}, config);
   var client = WebRTC.createClient(configData);
-  client.appendTo($('body'));
+  client.appendTo(core.utils.getElement('body'));
   return client;
 }
 tearDown = function() {

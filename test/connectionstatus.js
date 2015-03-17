@@ -35,7 +35,6 @@ describe('connectionstatus', function() {
     client = create(config)
     testUA.registered();
     testUA.registrationFailed();
-    // console.log('-------- before registered');
     expect(connectionstatus.registered).toEqual(false);
     expect(connectionstatus.connected).toEqual(undefined);
   });

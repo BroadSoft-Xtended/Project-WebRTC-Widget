@@ -39,7 +39,7 @@ function WhiteboardView(eventbus, sipstack) {
     PopupView(self, eventbus);
     if(self.canvas[0] && self.canvas[0].getContext) {
       self.context = self.canvas[0].getContext('2d');    
-      self.sketch = require('../../js/sketch')(self.canvas[0]);
+      // self.sketch = require('../../js/sketch')(self.canvas[0]);
     }
 
     $.each(['#f00', '#ff0', '#0f0', '#0ff', '#00f', '#f0f', '#000', '#fff'], function() {
@@ -49,12 +49,14 @@ function WhiteboardView(eventbus, sipstack) {
       self.tools.append("<a href='.canvas' onclick='javascript:;' data-size='" + this + "' style='background: #ccc'>" + this + "</a> ");
     });
 
-    self.canvas.bind('click mousedown mouseup mousemove mouseleave mouseout touchstart touchmove touchend touchcancel', jQuery.proxy(this, "onEvent"));
+    self.canvas.bind('click mousedown mouseup mousemove mouseleave mouseout touchstart touchmove touchend touchcancel', function(e){
+      self.onEvent(e);
+    });
 
-    $('body').delegate("a[href=\"." + (self.canvas.attr('class')) + "\"]", 'click', function() {
+    Utils.getElement('body').delegate("a[href=\"." + (self.canvas.attr('class')) + "\"]", 'click', function() {
       var $canvas, $this, key, sketch, _i, _len, _ref;
-      $this = $(this);
-      $canvas = $($self.attr('href'));
+      $this = Utils.getElement(this);
+      $canvas = Utils.getElement($self.attr('href'));
       sketch = $canvas.data('sketch');
       _ref = ['color', 'size', 'tool'];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -73,11 +75,11 @@ function WhiteboardView(eventbus, sipstack) {
   };
   self.updateToolsSelection = function() {
     $.each(self.tools.find('a'), function() {
-      var selected = $(this).data('color') === self.color || $(this).data('tool') === self.tool || +$(this).data('size') === self.size;
+      var selected = Utils.getElement(this).data('color') === self.color || Utils.getElement(this).data('tool') === self.tool || +Utils.getElement(this).data('size') === self.size;
       if (selected) {
-        $(this).attr('class', 'selected');
+        Utils.getElement(this).attr('class', 'selected');
       } else {
-        $(this).attr('class', '');
+        Utils.getElement(this).attr('class', '');
       }
     });
   };

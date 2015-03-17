@@ -18,7 +18,7 @@ describe('messages', function() {
   it('on invalid destination and connected', function() {
     var config = {};
     config.enableMessages = true;
-    jQuery.extend(config, config);
+    Utils.extend(config, config);
     config.destination = '12345';
     config.allowOutside = false;
     client = create(config);

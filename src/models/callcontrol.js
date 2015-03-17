@@ -1,6 +1,5 @@
 module.exports = require('webrtc-core').bdsft.Model(CallControl);
 
-var $ = require('jquery');
 var fs = require('fs');
 var C = require('webrtc-core').constants;
 
@@ -22,6 +21,11 @@ function CallControl(eventbus, debug, configuration, sipstack, sound) {
     eventbus.on('calling', function(e) {
       self.destination = e.destination;
     });
+    eventbus.on('viewChanged', function(e) {
+      if(e.view === 'callcontrol') {
+        self.callControlVisible = e.visible;
+      }
+    });
     eventbus.on('digit', function(e) {
       self.processDigitInput(e.digit, e.isFromDestination);
     });
@@ -39,7 +43,7 @@ function CallControl(eventbus, debug, configuration, sipstack, sound) {
   };
 
   self.processDigitInput = function(digit, isFromDestination) {
-    if (!sipstack.isStarted() && self.view.visible) {
+    if (!sipstack.isStarted() && self.callControlVisible) {
       if(isFromDestination) {
         return;
       }

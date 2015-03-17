@@ -29,9 +29,9 @@ function HistoryView(eventbus, sound, callcontrol, history) {
       self.view.css({
         width: "416px"
       });
-      $(".history-row").removeClass("active");
+      Utils.getElement(".history-row").removeClass("active");
       // TODO - missing property to activate
-      $(self).addClass("active");
+      Utils.getElement(self).addClass("active");
     };
   };
 

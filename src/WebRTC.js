@@ -1,5 +1,5 @@
-var jQuery = jquery = $ = require('jquery');
-require('jquery.cookie')
+// var jQuery = jquery = $ = require('jquery');
+// require('jquery.cookie')
 var core = require('webrtc-core');
 var Constants = core.constants;
 var Utils = core.utils;
@@ -25,66 +25,66 @@ Object.defineProperties(WebRTC, {
   }
 });
 
-if(!jQuery.fn) {
-  jQuery.fn = {};
-}
-jQuery.fn.putCursorAtEnd = function() {
+// if(!jQuery.fn) {
+//   jQuery.fn = {};
+// }
+// jQuery.fn.putCursorAtEnd = function() {
 
-  return this.each(function() {
+//   return this.each(function() {
 
-    $(this).focus();
+//     $(this).focus();
 
-    // If this function exists...
-    if (this.setSelectionRange) {
-      // ... then use it (Doesn't work in IE)
+//     // If this function exists...
+//     if (this.setSelectionRange) {
+//       // ... then use it (Doesn't work in IE)
 
-      // Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
-      var len = $(this).val().length * 2;
+//       // Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
+//       var len = $(this).val().length * 2;
 
-      this.setSelectionRange(len, len);
+//       this.setSelectionRange(len, len);
 
-    } else {
-      // ... otherwise replace the contents with itself
-      // (Doesn't work in Google Chrome)
+//     } else {
+//       // ... otherwise replace the contents with itself
+//       // (Doesn't work in Google Chrome)
 
-      $(this).val($(this).val());
+//       $(this).val($(this).val());
 
-    }
+//     }
 
-    // Scroll to the bottom, in case we're in a tall textarea
-    // (Necessary for Firefox and Google Chrome)
-    this.scrollTop = 999999;
+//     // Scroll to the bottom, in case we're in a tall textarea
+//     // (Necessary for Firefox and Google Chrome)
+//     this.scrollTop = 999999;
 
-  });
+//   });
 
-};
+// };
 
-if(!jQuery.cssHooks) {
-  jQuery.cssHooks = {};
-}
-jQuery.cssHooks.backgroundColor = {
-  get: function(elem) {
-    var bg = null;
-    if (elem.currentStyle) {
-      bg = elem.currentStyle.backgroundColor;
-    } else if (window.getComputedStyle) {
-      bg = document.defaultView.getComputedStyle(elem,
-        null).getPropertyValue("background-color");
-    }
-    if (bg.search("rgb") === -1 || bg === 'transparent') {
-      return bg;
-    } else {
-      bg = bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+).*\)$/);
-      var hex = function(x) {
-        return ("0" + parseInt(x, 10).toString(16)).slice(-2);
-      };
-      return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
-    }
-  }
-};
+// if(!jQuery.cssHooks) {
+//   jQuery.cssHooks = {};
+// }
+// jQuery.cssHooks.backgroundColor = {
+//   get: function(elem) {
+//     var bg = null;
+//     if (elem.currentStyle) {
+//       bg = elem.currentStyle.backgroundColor;
+//     } else if (window.getComputedStyle) {
+//       bg = document.defaultView.getComputedStyle(elem,
+//         null).getPropertyValue("background-color");
+//     }
+//     if (bg.search("rgb") === -1 || bg === 'transparent') {
+//       return bg;
+//     } else {
+//       bg = bg.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+).*\)$/);
+//       var hex = function(x) {
+//         return ("0" + parseInt(x, 10).toString(16)).slice(-2);
+//       };
+//       return "#" + hex(bg[1]) + hex(bg[2]) + hex(bg[3]);
+//     }
+//   }
+// };
 
-var currentScript = $('script').last();
-$(document).ready(function() {
+var currentScript = core.utils.getElement('script').last();
+core.utils.getElement(document).ready(function() {
   window.BroadSoftWebRTC = window.BroadSoftWebRTC || {};
   window.BroadSoftWebRTC.clients = [];
 
@@ -107,7 +107,7 @@ $(document).ready(function() {
 
 var createClient = function(configData) {
   var clientConfig = Utils.clone(ClientConfig);
-  var options = $.extend({}, clientConfig, configData);
+  var options = core.utils.extend({}, clientConfig, configData);
   options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
   options.dependencies = {
     core: core,
@@ -154,11 +154,11 @@ var createClient = function(configData) {
 
 WebRTC.createClient = createClient;
 
-(function($) {
-  $.isBlank = function(obj) {
-    return (!obj || $.trim(obj) === "");
-  };
-})(jQuery);
+// (function($) {
+//   $.isBlank = function(obj) {
+//     return (!obj || $.trim(obj) === "");
+//   };
+// })(jQuery);
 
 if (typeof String.prototype.endsWith !== 'function') {
   String.prototype.endsWith = function(suffix) {

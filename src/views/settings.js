@@ -77,21 +77,21 @@ function SettingsView(options, eventbus, debug, sound, settings) {
       settings.signIn();
     });
     self.tabs.each(function() {
-      var active, activeTabSel, links = $(this).find('a');
-      active = $(links.filter('[href="' + location.hash + '"]')[0] || links[0]);
+      var active, activeTabSel, links = Utils.getElement(this).find('a');
+      active = Utils.getElement(links.filter('[href="' + location.hash + '"]')[0] || links[0]);
       active.addClass('active');
       activeTabSel = active[0].hash;
       links.not(active).each(function() {
-        $(this.hash).hide();
+        Utils.getElement(this.hash).hide();
       });
-      $(this).on('click', 'a', function(e) {
+      Utils.getElement(this).on('click', 'a', function(e) {
         e.preventDefault();
         active.removeClass('active');
-        $(activeTabSel).hide();
-        active = $(this);
+        Utils.getElement(activeTabSel).hide();
+        active = Utils.getElement(this);
         activeTabSel = this.hash;
         active.addClass('active');
-        $(activeTabSel).show();
+        Utils.getElement(activeTabSel).show();
       });
     });
   };

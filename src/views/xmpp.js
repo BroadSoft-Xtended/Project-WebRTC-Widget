@@ -6,7 +6,6 @@ module.exports = require('webrtc-core').bdsft.View(XMPPView);
 var PopupView = require('./popup');
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
-var $ = require('jquery');
 
 function XMPPView(debug, eventbus, configuration, sound, xmpp) {
   var self = {};

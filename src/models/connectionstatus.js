@@ -14,7 +14,6 @@ function ConnectionStatus(options, eventbus, configuration) {
       }
     });
     eventbus.on("connected", function(e) {
-      console.log('connected : '+configuration.enableConnectionIcon);
       if (configuration.enableConnectionIcon) {
         self.connected = true;
       }

@@ -1,7 +1,6 @@
 module.exports = require('webrtc-core').bdsft.Model(Sound);
 
-var $ = require('jquery');
-var fs = require('fs');
+var core = require('webrtc-core');
 var medias = require('bdsft-webrtc-media');
 
 function Sound(eventbus, configuration, sipstack) {
@@ -12,8 +11,8 @@ function Sound(eventbus, configuration, sipstack) {
   var muted = false;
   
   self.init = function() {
-    soundOut = $('<audio>', {volume: configuration.volumeClick}).appendTo($('body'));
-    soundOutDTMF = $('<audio>', {volume: configuration.volumeDTMF}).appendTo($('body'));
+    soundOut = core.utils.createElement('<audio>', {volume: configuration.volumeClick});
+    soundOutDTMF = core.utils.createElement('<audio>', {volume: configuration.volumeDTMF});
   };
 
   self.listeners = function() {

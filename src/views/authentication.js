@@ -1,6 +1,5 @@
 module.exports = require('webrtc-core').bdsft.View(AuthenticationView);
 
-var $ = require('jquery');
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
 var PopupView = require('./popup');

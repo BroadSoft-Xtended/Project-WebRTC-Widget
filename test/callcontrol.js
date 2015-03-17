@@ -22,10 +22,9 @@ describe('callcontrol', function() {
       return true;
     };
     callcontrol.callUri = function() {
-      console.log('call');
       called = true;
     };
-    var event = jQuery.Event("keypress");
+    var event = Utils.createEvent("keypress");
     event.keyCode = 13;
     callcontrolview.destination.trigger(event);
     expect(called).toExist();
@@ -36,10 +35,9 @@ describe('callcontrol', function() {
     testUA.connectAndStartCall();
     expect(sipstack.getCallState()).toEqual(Constants.STATE_STARTED);
     sipstack.call = function(destination) {
-      console.log('call');
       called = true;
     };
-    var event = jQuery.Event("keypress");
+    var event = Utils.createEvent("keypress");
     event.keyCode = 13;
     callcontrolview.destination.val("1000@domain.to");
     callcontrolview.destination.trigger(event);

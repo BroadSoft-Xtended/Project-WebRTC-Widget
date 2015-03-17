@@ -1,4 +1,4 @@
-var ExSIP = require('ExSIP');
+var ExSIP = require('webrtc-core').exsip;
 var WebRTC = require('../../src/webrtc');
 
 module.exports = {
@@ -23,9 +23,22 @@ module.exports = {
 
   emitReInvite: function() {
     sipstack.ua.emit("onReInvite", sipstack.ua, {
-      session: {acceptReInvite: function(){reInviteAccepted = true;},
-        rejectReInvite: function(){reInviteRejected = true;}},
-      request: {from: {displayName: "test", uri: {user: "user"}}},
+      session: {
+        acceptReInvite: function() {
+          reInviteAccepted = true;
+        },
+        rejectReInvite: function() {
+          reInviteRejected = true;
+        }
+      },
+      request: {
+        from: {
+          displayName: "test",
+          uri: {
+            user: "user"
+          }
+        }
+      },
       audioAdd: true,
       videoAdd: true
     });
@@ -37,7 +50,9 @@ module.exports = {
   },
 
   connect: function() {
-    sipstack.ua.isConnected = function(){return true;};
+    sipstack.ua.isConnected = function() {
+      return true;
+    };
     sipstack.ua.emit('connected', sipstack.ua);
   },
 
@@ -52,16 +67,26 @@ module.exports = {
   },
 
   disconnect: function(data) {
-    sipstack.ua.isConnected = function(){return false;};
+    sipstack.ua.isConnected = function() {
+      return false;
+    };
     sipstack.ua.emit('disconnected', sipstack.ua, data);
   },
 
   registrationFailed: function(statusCode) {
-    sipstack.ua.emit('registrationFailed', sipstack.ua, {response: {status_code: (statusCode || 401)}});
+    sipstack.ua.emit('registrationFailed', sipstack.ua, {
+      response: {
+        status_code: (statusCode || 401)
+      }
+    });
   },
 
   registered: function() {
-    sipstack.ua.emit('registered', sipstack.ua, {response: {status_code: 200}});
+    sipstack.ua.emit('registered', sipstack.ua, {
+      response: {
+        status_code: 200
+      }
+    });
   },
 
   endCall: function() {
@@ -71,7 +96,9 @@ module.exports = {
 
   startCall: function(session) {
     session = session || this.outgoingSession();
-    sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session});
+    sipstack.ua.emit('newRTCSession', sipstack.ua, {
+      session: session
+    });
     session.started('local');
     return session;
   },
@@ -83,94 +110,161 @@ module.exports = {
 
   newCall: function(session) {
     session = session || this.outgoingSession();
-    sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session});
+    sipstack.ua.emit('newRTCSession', sipstack.ua, {
+      session: session
+    });
   },
 
   failCall: function(session) {
     session = session || this.outgoingSession();
-    sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session});
+    sipstack.ua.emit('newRTCSession', sipstack.ua, {
+      session: session
+    });
     session.failed('local', 'somemessage', 'somecause');
   },
 
-  outgoingSession: function(option){
+  outgoingSession: function(option) {
     option = option || {};
     var session = this.createSession();
     session.id = option.id || "someid";
-    session.remote_identity = {uri: "remoteuri"};
+    session.remote_identity = {
+      uri: "remoteuri"
+    };
     return session;
   },
 
-  incomingSession: function(){
+  incomingSession: function() {
     var session = this.createSession();
     session.id = "incomingid";
     session.direction = "incoming";
     session.status = ExSIP.RTCSession.C.STATUS_WAITING_FOR_ANSWER;
-    session.remote_identity = {uri: "incoming_remote_uri"};
+    session.remote_identity = {
+      uri: "incoming_remote_uri"
+    };
     return session;
   },
 
-  createSession: function(){
+  createSession: function() {
     var session = new ExSIP.RTCSession(sipstack.ua);
-    session.hold = function(success){session.held(); if(success){success();}}
-    session.unhold = function(success){session.resumed(); if(success){success();}}
-    session.terminate = function(options){session.ended('local');}
-    session.answer = function(options){answerOptions = options; session.started('local');}
-    session.changeSession = function(options, success){session.started('local'); success();}
+    session.hold = function(success) {
+      session.held();
+      if (success) {
+        success();
+      }
+    }
+    session.unhold = function(success) {
+      session.resumed();
+      if (success) {
+        success();
+      }
+    }
+    session.terminate = function(options) {
+      session.ended('local');
+    }
+    session.answer = function(options) {
+      answerOptions = options;
+      session.started('local');
+    }
+    session.changeSession = function(options, success) {
+      session.started('local');
+      success();
+    }
     return session;
   },
 
-  incomingCall: function(session){
+  incomingCall: function(session) {
     session = session || this.incomingSession();
-    var request = {to_tag: "1234567", from_tag: "7654321", from: {display_name: "Incoming DisplayName", uri: {user: "Incoming User"}}};
-    sipstack.ua.emit('newRTCSession', sipstack.ua, {session: session, request: request});
+    var request = {
+      to_tag: "1234567",
+      from_tag: "7654321",
+      from: {
+        display_name: "Incoming DisplayName",
+        uri: {
+          user: "Incoming User"
+        }
+      }
+    };
+    sipstack.ua.emit('newRTCSession', sipstack.ua, {
+      session: session,
+      request: request
+    });
   },
 
-  createLocalMedia: function(){
-    return {stop: function(){}, getAudioTracks: function(){return [{}];}};
+  createLocalMedia: function() {
+    return {
+      stop: function() {},
+      getAudioTracks: function() {
+        return [{}];
+      }
+    };
   },
 
-  mockSound: function(){
-    WebRTC.Sound.prototype.playClick = function(){console.log('playClick');}
-    WebRTC.Sound.prototype.play = function(){console.log('play');}
-    WebRTC.Sound.prototype.pause = function(){console.log('pause');}
+  mockSound: function() {
+    WebRTC.Sound.prototype.playClick = function() {
+    }
+    WebRTC.Sound.prototype.play = function() {
+    }
+    WebRTC.Sound.prototype.pause = function() {
+    }
   },
 
-  mockSMSProvider: function(){
-    smsprovider.remove = function(){console.log('remove');}
-    smsprovider.sendSMS = function(){console.log('sendSMS');}
-    smsprovider.login = function(){console.log('login');}
-    smsprovider.readAll = function(){console.log('readAll');}
-    smsprovider.getUpdate = function(){console.log('getUpdate');}
+  mockSMSProvider: function() {
+    smsprovider.remove = function() {
+    }
+    smsprovider.sendSMS = function() {
+    }
+    smsprovider.login = function() {
+    }
+    smsprovider.readAll = function() {
+    }
+    smsprovider.getUpdate = function() {
+    }
   },
 
-  mockLocation: function(){
-    WebRTC.Settings.prototype.reload = function(){console.log('reloaded');}
-    window.location.reload = function(){console.log('reloaded');}
+  mockLocation: function() {
+    WebRTC.Settings.prototype.reload = function() {
+    }
+    window.location.reload = function() {
+    }
   },
 
-  mockWebRTC: function(){
+  mockWebRTC: function() {
     var self = this;
-    ExSIP.WebRTC.RTCPeerConnection = function(){
-      console.log('-- RTCPeerConnection.new()');
+    ExSIP.WebRTC.RTCPeerConnection = function() {
       return {
         localDescription: null,
         remoteDescription: null,
-        createDTMFSender: function(){console.log('createDTMFSender'); return {}},
-        close: function(){console.log("-- RTCPeerConnection.close()")},
-        setRemoteDescription: function(description, success, failure){console.log("-- RTCPeerConnection.setRemoteDescription() : "+ExSIP.Utils.toString(description));this.remoteDescription = description; if(success){success();}},
-        addStream: function(){console.log("-- RTCPeerConnection.addStream()")},
-        createOffer: function(success){console.log("-- RTCPeerConnection.createOffer()"); success(new ExSIP.WebRTC.RTCSessionDescription());},
-        createAnswer: function(success){console.log("-- RTCPeerConnection.createAnswer()"); success(new ExSIP.WebRTC.RTCSessionDescription());},
-        setLocalDescription: function(description){console.log("-- RTCPeerConnection.setLocalDescription() : "+ExSIP.Utils.toString(description));this.localDescription = description;}
+        createDTMFSender: function() {
+          return {}
+        },
+        close: function() {},
+        setRemoteDescription: function(description, success, failure) {
+          this.remoteDescription = description;
+          if (success) {
+            success();
+          }
+        },
+        addStream: function() {},
+        createOffer: function(success) {
+          success(new ExSIP.WebRTC.RTCSessionDescription());
+        },
+        createAnswer: function(success) {
+          success(new ExSIP.WebRTC.RTCSessionDescription());
+        },
+        setLocalDescription: function(description) {
+          this.localDescription = description;
+        }
       }
     };
-    ExSIP.WebRTC.getUserMedia = function(constraints, success, failure){
+    ExSIP.WebRTC.getUserMedia = function(constraints, success, failure) {
       success(self.createLocalMedia());
     };
     ExSIP.WebRTC.isSupported = true;
-    ExSIP.UA.prototype.recoverTransport = function(){console.log("--recoverTransport");}
-    WebRTC.Client.checkEndCallURL = function(){console.log("---checkEndCallURL");}
-    WebRTC.Utils.compatibilityCheck = function(){}
-    WebRTC.Utils.whiteboardCompabilityCheck = function(){}
+    ExSIP.UA.prototype.recoverTransport = function() {
+    }
+    WebRTC.Client.checkEndCallURL = function() {
+    }
+    WebRTC.Utils.compatibilityCheck = function() {}
+    WebRTC.Utils.whiteboardCompabilityCheck = function() {}
   }
 }

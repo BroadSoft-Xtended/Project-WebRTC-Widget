@@ -2,6 +2,7 @@ module.exports = require('webrtc-core').bdsft.View(VideoBarView);
 
 var Icon = require('webrtc-core').icon;
 var Constants = require('webrtc-core').constants;
+var Utils = require('webrtc-core').utils;
 var events;
 
 function VideoBarView(eventbus, sound, timerView, video) {
@@ -150,7 +151,7 @@ function VideoBarView(eventbus, sound, timerView, video) {
       }
     }));
 
-    $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange', function(e) {
+    Utils.getElement(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange', function(e) {
       self.updateFullScreen();
     });
   };

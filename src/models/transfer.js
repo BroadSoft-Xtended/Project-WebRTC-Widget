@@ -13,7 +13,7 @@ function Transfer(sipstack, eventbus, configuration, callcontrol) {
 
   self.transfer = function() {
     var target = self.target;
-    if ($.isBlank(target)) {
+    if (!target) {
       eventbus.emit('message', {
         text: configuration.messageOutsideDomain,
         level: 'alert'

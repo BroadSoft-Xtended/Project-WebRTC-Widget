@@ -1,9 +1,7 @@
 module.exports = require('webrtc-core').bdsft.View(ClientView);
 
-var fs = require('fs');
 var styles = require('bdsft-webrtc-style');
 var ejs = require('ejs');
-var $ = jQuery = require('jquery');
 var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 var ClientConfig = require('bdsft-webrtc-config');
@@ -26,24 +24,24 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 
   self.updateCss = function(styleData) {
     self.styleData = styleData || {};
-    var cssData = $.extend({}, WebRTC_C.STYLES, WebRTC_C.FONTS, self.styleData);
+    var cssData = Utils.extend({}, WebRTC_C.STYLES, WebRTC_C.FONTS, self.styleData);
     var cssStr = ejs.render(styles, cssData);
-    if ($("#webrtc_css").length === 0) {
-      $("<style type='text/css' id='webrtc_css'>" + cssStr + "</style>").appendTo("head");
-    } else {
-      $("#webrtc_css").text(cssStr);
+    var cssEl = Utils.getElement('#webrtc_css');
+    if (!cssEl || cssEl.length === 0) {
+      cssEl = Utils.createElement('<style>', {id: 'webrtc_css', type: 'text/css', text: cssStr}, {parent: 'head'});
     }
+    cssEl.text(cssStr);
   };
 
   self.init = function(options) {
     var unsupported = Utils.compatibilityCheck(configuration);
     if (unsupported) {
-      $('#unsupported').html(unsupported).show();
+      Utils.getElement('#unsupported').html(unsupported).show();
     }
 
     var whiteboardUnsupported = Utils.whiteboardCompabilityCheck();
     if (whiteboardUnsupported) {
-      $('#whiteboard_unsupported').html(whiteboardUnsupported).show();
+      Utils.getElement('#whiteboard_unsupported').html(whiteboardUnsupported).show();
     }
 
     self.updateCss();
@@ -55,8 +53,6 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     fileshareView.view.appendTo(self.client);
 
     self.updateClientClass();
-
-    $.cookie.raw = true;
   };
 
   self.showErrorPopup = function(error) {
@@ -65,8 +61,8 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 
   self.setClientConfig = function(clientConfig) {
     var connectionChanged = configuration.websocketsServers[0].ws_uri !== clientConfig.websocketsServers[0].ws_uri;
-    jQuery.extend(options, clientConfig);
-    jQuery.extend(configuration, options);
+    Utils.extend(options, clientConfig);
+    Utils.extend(configuration, options);
     self.updateClientClass();
     if (connectionChanged) {
       sipstack.init();
@@ -74,8 +70,9 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
   };
 
   self.listeners = function() {
-    $(document).unbind('keypress').bind('keypress', function(e) {});
-    $(document).unbind('keydown').bind('keydown', function(event) {
+    // $(document).unbind('keypress').bind('keypress', function(e) {});
+    // $(document).unbind('keydown').bind('keydown', function(event) {
+    document.addEventListener('keydown', function(event) {
       var isModifier = event.altKey;
       if (isModifier) {
         if (transferView.target.is(event.target)) {
@@ -127,7 +124,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     });
     script += dataStrs.join(' ');
 
-    var config = $.extend({}, options);
+    var config = Utils.extend({}, options);
     Object.keys(config).forEach(function(key) {
       var value = config[key];
       var defaultValue = ClientConfig[key];

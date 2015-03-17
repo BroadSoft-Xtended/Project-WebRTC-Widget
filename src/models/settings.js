@@ -42,7 +42,7 @@ function Settings(eventbus, debug, configuration) {
   var updatePageColor = function() {
     var color = configuration.getBackgroundColor();
     debug('updating page color : ' + color);
-    $('body').css('backgroundColor', color || '');
+    Utils.getElement('body').css('backgroundColor', color || '');
   };
 
   var isStarted = false;

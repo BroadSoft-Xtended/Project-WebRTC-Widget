@@ -27,7 +27,6 @@ describe('incoming call', function() {
     var session = testUA.incomingSession();
     var answerOptions = "";
     session.answer = function(options) {
-      console.log("answer");
       answerOptions = options;
     }
     testUA.incomingCall(session);
@@ -48,7 +47,6 @@ describe('incoming call', function() {
     var session = testUA.incomingSession();
     var answerOptions = "";
     session.answer = function(options) {
-      console.log("answer");
       answerOptions = options;
     }
     testUA.incomingCall(session);
@@ -66,7 +64,6 @@ describe('incoming call', function() {
     var session = testUA.incomingSession();
     var answerOptions = "";
     session.answer = function(options) {
-      console.log("answer");
       answerOptions = options;
     }
     expect(incomingcallview.attached).toEqual(false);
@@ -83,7 +80,6 @@ describe('incoming call', function() {
     var session = testUA.incomingSession();
     var answerOptions = "";
     session.answer = function(options) {
-      console.log("answer");
       answerOptions = options;
     }
     testUA.incomingCall(session);
@@ -105,7 +101,6 @@ describe('incoming call', function() {
     var incomingSession = testUA.incomingSession();
     var answerOptions = "";
     incomingSession.answer = function(options) {
-      console.log("answer");
       answerOptions = options;
       incomingSession.started('local');
     }
@@ -143,7 +138,6 @@ describe('incoming call', function() {
     testUA.startCall(outgoingSession);
     var incomingSession = testUA.incomingSession();
     incomingSession.answer = function(options) {
-      console.log("answer");
       answerOptions = options;
       incomingSession.started('local');
     }
