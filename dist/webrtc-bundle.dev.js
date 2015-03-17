@@ -40013,17 +40013,17 @@ PeerConnection.prototype.offer = function (constraints, cb) {
         function (offer) {
             // does not work for jingle, but jingle.js doesn't need
             // this hack...
+            var expandedOffer = {
+                type: 'offer',
+                sdp: offer.sdp
+            };
             if (self.assumeSetLocalSuccess) {
-                self.emit('offer', offer);
-                cb(null, offer);
+                self.emit('offer', expandedOffer);
+                cb(null, expandedOffer);
             }
             self.pc.setLocalDescription(offer,
                 function () {
                     var jingle;
-                    var expandedOffer = {
-                        type: 'offer',
-                        sdp: offer.sdp
-                    };
                     if (self.config.useJingle) {
                         jingle = SJJ.toSessionJSON(offer.sdp, {
                             role: self._role(),
@@ -40293,17 +40293,17 @@ PeerConnection.prototype._answer = function (constraints, cb) {
                     }
                 }
             }
+            var expandedAnswer = {
+                type: 'answer',
+                sdp: answer.sdp
+            };
             if (self.assumeSetLocalSuccess) {
                 // not safe to do when doing simulcast mangling
-                self.emit('answer', answer);
-                cb(null, answer);
+                self.emit('answer', expandedAnswer);
+                cb(null, expandedAnswer);
             }
             self.pc.setLocalDescription(answer,
                 function () {
-                    var expandedAnswer = {
-                        type: 'answer',
-                        sdp: answer.sdp
-                    };
                     if (self.config.useJingle) {
                         var jingle = SJJ.toSessionJSON(answer.sdp, {
                             role: self._role(),
@@ -40371,7 +40371,11 @@ PeerConnection.prototype._onIce = function (event) {
         var ice = event.candidate;
 
         var expandedCandidate = {
-            candidate: event.candidate
+            candidate: {
+                candidate: ice.candidate,
+                sdpMid: ice.sdpMid,
+                sdpMLineIndex: ice.sdpMLineIndex
+            }
         };
         this._checkLocalCandidate(ice.candidate);
 
@@ -48270,7 +48274,7 @@ function Configuration(options, eventbus, debug) {
     } else if (height <= 720) {
       return self.bandwidthHigh;
     } else {
-      console.error('getBandwidth : no encoding height matches : ', height);
+      debug('getBandwidth : no encoding height matches : ', height);
     }
   };
 
@@ -51025,9 +51029,9 @@ module.exports={
   "readmeFilename": "README",
   "_id": "exsip@2.0.0",
   "dist": {
-    "shasum": "93a641b88db574f07069fa5464f2e5ea25fa0e2a"
+    "shasum": "53c24d4aa6121224c1986104f12b516098424f54"
   },
-  "_resolved": "git://github.com/broadsoftxtended/ExSIP.git#841d132f973b5834c1b6646902818244bf65dce0",
+  "_resolved": "git://github.com/broadsoftxtended/ExSIP.git#82c58cf6111cfaea761b1a3f43e002c4fbb7916b",
   "_from": "git://github.com/broadsoftxtended/ExSIP.git#cjs",
   "_fromGithub": true
 }
@@ -67240,8 +67244,6 @@ RTCSession.prototype.receiveRequest = function(request) {
 RTCSession.prototype.setStatus = function(status) {
   if(this.logger) {
     this.logger.debug('setStatus : '+Object.keys(C)[status]);    
-  } else {
-    console.log('setStatus : '+Object.keys(C)[status]);
   }
   this.status = status;
 };

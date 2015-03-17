@@ -49,7 +49,6 @@ describe('callcontrol', function() {
     testUA.connect();
 
     sipstack.ua.call = function(destination) {
-      console.log('call');
       called = true;
       var session = testUA.outgoingSession();
       sipstack.ua.emit('newRTCSession', sipstack.ua, {
