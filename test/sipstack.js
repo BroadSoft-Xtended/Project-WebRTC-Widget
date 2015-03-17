@@ -18,9 +18,10 @@ describe('sipstack', function() {
     sipstack.ua.setRtcMediaHandlerOptions = function(options) {
       rtcMediaHandlerOptions = options;
     }
-    testUA.val(settingsview.resolutionType, WebRTC.C.STANDARD);
-    testUA.val(settingsview.resolutionEncodingStandard, WebRTC.C.R_640x480);
+    testUA.val(settingsview.resolutionType, WebRTC.C.WIDESCREEN);
+    testUA.val(settingsview.resolutionEncodingWidescreen, WebRTC.C.R_640x360);
     testUA.val(settingsview.bandwidthMed, "600");
+    expect(configuration.encodingResolution).toEqual('640x360');
     expect(rtcMediaHandlerOptions).toEqual({
       RTCConstraints: {
         'optional': [],
@@ -38,8 +39,8 @@ describe('sipstack', function() {
       rtcMediaHandlerOptions = options;
     }
     testUA.val(settingsview.bandwidthLow, "200");
-    testUA.val(settingsview.resolutionType, WebRTC.C.STANDARD);
-    testUA.val(settingsview.resolutionEncodingStandard, WebRTC.C.R_320x240);
+    testUA.val(settingsview.resolutionType, WebRTC.C.WIDESCREEN);
+    testUA.val(settingsview.resolutionEncodingWidescreen, WebRTC.C.R_320x180);
     expect(rtcMediaHandlerOptions).toEqual({
       RTCConstraints: {
         'optional': [],

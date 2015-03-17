@@ -159,6 +159,16 @@ describe('settings', function() {
   });
   it('hide or disable settings when config has corresponding attributes set', function() {
     config.enableAutoAnswer = true;
+    var enableSelfView = ClientConfig.enableSelfView;
+    var networkUserId = ClientConfig.networkUserId;
+    var enableHD = ClientConfig.enableHD;
+    var displayResolution = ClientConfig.displayResolution;
+    var encodingResolution = ClientConfig.encodingResolution;
+    var bandwidthLow = ClientConfig.bandwidthLow;
+    var bandwidthMed = ClientConfig.bandwidthMed;
+    var bandwidthHigh = ClientConfig.bandwidthHigh;
+    var displayName = ClientConfig.displayName;
+
     delete ClientConfig.enableSelfView;
     delete ClientConfig.networkUserId;
     delete ClientConfig.enableHD;
@@ -240,5 +250,14 @@ describe('settings', function() {
     expect(settingsview.resolutionDisplayRow.hasClass('hidden')).toEqual(true);
     expect(settingsview.resolutionEncodingRow.hasClass('hidden')).toEqual(false);
 
+    ClientConfig.enableSelfView = enableSelfView;
+    ClientConfig.networkUserId = networkUserId;
+    ClientConfig.enableHD = enableHD;
+    ClientConfig.displayResolution = displayResolution;
+    ClientConfig.encodingResolution = encodingResolution;
+    ClientConfig.bandwidthLow = bandwidthLow;
+    ClientConfig.bandwidthMed = bandwidthMed;
+    ClientConfig.bandwidthHigh = bandwidthHigh;
+    ClientConfig.displayName = displayName;
   });
 });
