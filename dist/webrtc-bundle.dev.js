@@ -21494,7 +21494,6 @@ function ConnectionStatus(options, eventbus, configuration) {
       }
     });
     eventbus.on("connected", function(e) {
-      console.log('connected : '+configuration.enableConnectionIcon);
       if (configuration.enableConnectionIcon) {
         self.connected = true;
       }
@@ -46110,7 +46109,7 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
     var cssStr = ejs.render(styles, cssData);
     var cssEl = Utils.getElement('#webrtc_css');
     if (!cssEl || cssEl.length === 0) {
-      cssEl = Utils.createElement('<style>', {id: 'webrtc_css', type: 'text/css'}, 'head');
+      cssEl = Utils.createElement('<style>', {id: 'webrtc_css', type: 'text/css', text: cssStr}, {parent: 'head'});
     }
     cssEl.text(cssStr);
   };
@@ -49360,9 +49359,13 @@ var Utils = {
   getElement: function(selector) {
     return $(selector);
   },
-  createElement: function(tagName, attributes, parent) {
+  createEvent: function(eventName) {
+    return $.Event(eventName)
+  },
+  createElement: function(tagName, attributes, options) {
+    options = options || {};
     var el = $(tagName, attributes);
-    el.appendTo(parent || $('body'))
+    el.appendTo(options.parent || $('body'));
     return el;
   },
   resolutionWidth: function(resolution) {
