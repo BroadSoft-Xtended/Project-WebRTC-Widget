@@ -2,7 +2,7 @@ module.exports = require('webrtc-core').bdsft.View(SMSView);
 
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
-var PopupView = require('./popup');
+var PopupView = require('webrtc-core').popup;
 
 function SMSView(eventbus, debug, sound, sms) {
   var self = {};

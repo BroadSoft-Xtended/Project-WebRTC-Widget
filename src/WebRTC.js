@@ -111,7 +111,7 @@ var createClient = function(configData) {
   options.id = options.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
   options.dependencies = {
     core: core,
-    authenticationView: require("views/authentication.js"),
+    authenticationView: require("webrtc-authentication").view,
     callcontrolView: require("views/callcontrol.js"),
     clientView: require("views/client.js"),
     connectionstatusView: require("views/connectionstatus.js"),
@@ -130,7 +130,7 @@ var createClient = function(configData) {
     videobarView: require("views/videobar.js"),
     whiteboardView: require("views/whiteboard.js"),
     xmppView: require("views/xmpp.js"),
-    authentication: require("models/authentication.js"),
+    authentication: require("webrtc-authentication").model,
     callcontrol: require("models/callcontrol.js"),
     connectionstatus: require("models/connectionstatus.js"),
     fileshare: require("models/fileshare.js"),

@@ -1,7 +1,7 @@
 module.exports = require('webrtc-core').bdsft.View(IncomingCallView)
 
 var Utils = require('webrtc-core').utils;
-var PopupView = require('./popup');
+var PopupView = require('webrtc-core').popup;
 var Constants = require('webrtc-core').constants;
 
 function IncomingCallView(eventbus, incomingcall) {

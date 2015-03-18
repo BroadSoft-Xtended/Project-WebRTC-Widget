@@ -3,7 +3,7 @@ module.exports = require('webrtc-core').bdsft.Model(IncomingCall)
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
 
-function IncomingCall(options, eventbus, sound, sipstack) {
+function IncomingCall(eventbus, sound, sipstack) {
   var self = {};
 
   self.props = {'incomingCallName': true, 'incomingCallUser': true};

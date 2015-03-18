@@ -184,5 +184,3 @@ function ClientView(options, eventbus, debug, configuration, videoView, videobar
 
   return self;
 }
-
-exports.constructor = ClientView;

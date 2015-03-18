@@ -6,7 +6,6 @@ JS_FILES := $(shell glob-cli "src/**/*.js")
 JADE_FILES := $(shell glob-cli "templates/**/*.jade")
 STYLUS_FILES := $(shell glob-cli "styles/**/*.styl")
 
-
 all: symlinks build
 
 build: dist/webrtc-bundle.min.js
@@ -37,10 +36,10 @@ node_modules/bdsft-webrtc-media: js/media.js
 node_modules/bdsft-webrtc-templates: js/templates.js
 	ln -sf ../js/templates.js node_modules/bdsft-webrtc-templates
 
-node_modules/views: $(JS_FILES)
+node_modules/views: src/views
 	ln -sf ../src/views node_modules/views
 
-node_modules/models: $(JS_FILES)
+node_modules/models: src/models
 	ln -sf ../src/models node_modules/models
 
 ## Compile styles ##################################################################

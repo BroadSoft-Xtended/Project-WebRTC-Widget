@@ -1,6 +1,6 @@
 module.exports = require('webrtc-core').bdsft.View(TransferView);
 
-var PopupView = require('./popup');
+var PopupView = require('webrtc-core').popup;
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
 

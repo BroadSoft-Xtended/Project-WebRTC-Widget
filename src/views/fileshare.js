@@ -5,6 +5,8 @@ function FileShareView(eventbus, fileshare) {
 
   self.model = fileshare;
   
+  self.elements = ['file', 'status'];
+
   var requestSend = function(e) {
     var data = e.target.result;
     var file = self.file.val();
@@ -16,17 +18,15 @@ function FileShareView(eventbus, fileshare) {
 
     if (file) {
       var reader = new FileReader();
-      reader.onload = $.proxy(requestSend, self);
+      reader.onload = requestSend;
       reader.readAsDataURL(file);
     } else {
       alert("Failed to load file");
     }
   };
 
-  self.elements = ['file', 'status'];
-
   self.listeners = function() {
-    self.file.on('change', $.proxy(handleFileSelect, self));
+    self.file.on('change', handleFileSelect);
   };
 
   return self;

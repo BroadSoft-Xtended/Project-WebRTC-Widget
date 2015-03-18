@@ -3,7 +3,7 @@ module.exports = require('webrtc-core').bdsft.View(XMPPView);
 // var View = require('ampersand-view');
 // var GroupedCollectionView = require('ampersand-grouped-collection-view');
 // var ChatInputView = require('otalk-chat-input-view');
-var PopupView = require('./popup');
+var PopupView = require('webrtc-core').popup;
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
 

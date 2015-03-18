@@ -2,7 +2,7 @@ module.exports = require('webrtc-core').bdsft.View(SettingsView);
 
 var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
-var PopupView = require('./popup');
+var PopupView = require('webrtc-core').popup;
 var Constants = require('webrtc-core').constants;
 
 function SettingsView(options, eventbus, debug, sound, settings) {

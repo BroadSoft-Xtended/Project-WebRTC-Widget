@@ -2,7 +2,7 @@ module.exports = require('webrtc-core').bdsft.Model(Timer);
 
 var Utils = require('webrtc-core').utils;
 
-function Timer(eventbus, debug, configuration, sipstack) {
+function Timer(eventbus, debug, configuration) {
   var self = {};
 
   self.callTimer = null;
