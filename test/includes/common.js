@@ -194,13 +194,13 @@ setUp = function(){
   ExSIP = core.exsip;
   core.bdsft.databinders = {};
   global.bdsft_client_instances = {};
-  testUA = require('./testUA');
+  testUA = require('webrtc-core').testUA;
   Utils = core.utils;
   Constants = core.constants;
   WebRTC = require('../../src/webrtc');
   Client = require('../../src/views/client');
   Stats = require('../../src/views/stats');
-  ClientConfig = require('../../js/client-config.js.default');
+  ClientConfig = core.defaults;
 }
 
 create = function(config){

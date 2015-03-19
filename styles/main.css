@@ -591,16 +591,15 @@
   font-family: FontAwesome !important;
 }
 .bdsft-client button {
-  background: #3da005;
   border: none;
   border-radius: 20px;
   padding: 5px 10px;
   font-size: 14px;
   color: #fff;
-  margin-left: 12px;
+  background-color: #999;
+  text-align: center;
 }
 .bdsft-client input {
-  box-sizing: border-box;
   background: #333;
   border: 1px solid #3c3c3c;
   color: #d3d3d3;
@@ -1133,6 +1132,7 @@
   border-bottom: 1px solid #3c3c3c;
 }
 .bdsft-client .callControl input {
+  box-sizing: border-box;
   width: 171px;
   line-height: 30px;
   padding-left: 8px;
@@ -2225,13 +2225,13 @@
   text-align: center;
   color: #f00;
 }
-.bdsft-client .client:not(.disconnected).auth-shown .authPopup {
+.bdsft-client .client:not(.disconnected).authentication-shown .authPopup {
   transition: all 1s linear;
   opacity: 1;
   z-index: 100;
 }
 .bdsft-client .client.disconnected .authPopup,
-.bdsft-client .client:not(.auth-shown) .authPopup {
+.bdsft-client .client:not(.authentication-shown) .authPopup {
   transition: all 1s linear;
   opacity: 0;
   z-index: -1;
@@ -2285,18 +2285,18 @@
   font-size: 14px;
 }
 
-  .normal {
-    color: <%= infoMessageColor %>;
-  }
-  .success {
-    color: <%= successMessageColor %>;
-  }
-  .warning {
-    color: <%= successMessageColor %>;
-  }
-  .alert {
-    color: <%= alertMessageColor %>;
-  }
+.bdsft-client .messages .normal {
+color: <%= infoMessageColor %>;
+}
+.bdsft-client .messages .success {
+color: <%= successMessageColor %>;
+}
+.bdsft-client .messages .warning {
+color: <%= successMessageColor %>;
+}
+.bdsft-client .messages .alert {
+color: <%= alertMessageColor %>;
+}
 .bdsft-client .client .fileshare-container {
   display: none;
 }

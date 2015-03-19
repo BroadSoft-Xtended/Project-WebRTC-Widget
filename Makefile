@@ -2,7 +2,7 @@ SHELL := /bin/bash
 PATH := node_modules/.bin:$(PATH)
 
 MEDIA_FILES := $(shell glob-cli "media/**/*")
-JS_FILES := $(shell glob-cli "src/**/*.js")
+JS_FILES := $(shell glob-cli "lib/**/*.js")
 JADE_FILES := $(shell glob-cli "templates/**/*.jade")
 STYLUS_FILES := $(shell glob-cli "styles/**/*.styl")
 
@@ -10,7 +10,7 @@ all: symlinks build
 
 build: dist/webrtc-bundle.min.js
 
-symlinks: node_modules/bdsft-webrtc-style node_modules/bdsft-webrtc-config node_modules/bdsft-webrtc-media node_modules/bdsft-webrtc-templates node_modules/views node_modules/models
+symlinks: node_modules/bdsft-webrtc-style node_modules/bdsft-webrtc-media node_modules/bdsft-webrtc-templates node_modules/views node_modules/models
 
 
 
@@ -21,14 +21,11 @@ dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
 	uglifyjs $< > $@
 
 dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js js/media.js js/style.js
-	browserify $(TRANSFORMS) src/webrtc.js > $@
+	browserify $(TRANSFORMS) lib/webrtc.js > $@
 
 ## Create symlinks ##################################################################
 node_modules/bdsft-webrtc-style: js/style.js
 	ln -sf ../js/style.js node_modules/bdsft-webrtc-style
-
-node_modules/bdsft-webrtc-config: js/client-config.js.default
-	ln -sf ../js/client-config.js.default node_modules/bdsft-webrtc-config
 
 node_modules/bdsft-webrtc-media: js/media.js
 	ln -sf ../js/media.js node_modules/bdsft-webrtc-media
@@ -36,11 +33,11 @@ node_modules/bdsft-webrtc-media: js/media.js
 node_modules/bdsft-webrtc-templates: js/templates.js
 	ln -sf ../js/templates.js node_modules/bdsft-webrtc-templates
 
-node_modules/views: src/views
-	ln -sf ../src/views node_modules/views
+node_modules/views: lib/views
+	ln -sf ../lib/views node_modules/views
 
-node_modules/models: src/models
-	ln -sf ../src/models node_modules/models
+node_modules/models: lib/models
+	ln -sf ../lib/models node_modules/models
 
 ## Compile styles ##################################################################
 
