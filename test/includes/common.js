@@ -163,31 +163,6 @@ Object.defineProperties(global, {
   }
 });
 
-localStorage = {};
-var localStorageMethods = 5;
-localStorage.setItem = function (key, val) {
-     this[key] = val + '';
-}
-localStorage.getItem = function (key) {
-    return this[key];
-}
-localStorage.key = function (index) {
-    return Object.keys(this)[index + localStorageMethods];
-}
-localStorage.removeItem = function (key) {
-  delete this[key];
-};
-localStorage.clear = function () {
-  for(var i = this.length; i >= 0; i--) {
-    var key = this.key(i);
-    this.removeItem(key);
-  }
-}
-Object.defineProperty(localStorage, 'length', {
-    get: function () { 
-      return Object.keys(this).length - localStorageMethods; 
-    }
-});
 
 setUp = function(){
   core = require('webrtc-core');
