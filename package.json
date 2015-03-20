@@ -12,7 +12,6 @@
     "library"
   ],
   "dependencies": {
-    "ejs": "1.0.0",
     "jquery-ui": "1.10.5",
     "stanza.io": "7.0.7",
     "filesaver.js": "0.1.1",

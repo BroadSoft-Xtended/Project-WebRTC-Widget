@@ -6,3 +6,4 @@
 /js/exsip-devel.js
 *.vpj
 test/test-reports/
+/styles/*.css
