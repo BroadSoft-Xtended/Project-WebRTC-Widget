@@ -172,9 +172,8 @@ setUp = function(){
   testUA = require('webrtc-core').testUA;
   Utils = core.utils;
   Constants = core.constants;
-  WebRTC = require('../../src/webrtc');
-  Client = require('../../src/views/client');
-  Stats = require('../../src/views/stats');
+  WebRTC = require('../../lib/webrtc');
+  Client = require('../../lib/views/client');
   ClientConfig = core.defaults;
 }
 
@@ -183,10 +182,4 @@ create = function(config){
   var client = WebRTC.createClient(configData);
   client.appendTo(core.utils.getElement('body'));
   return client;
-}
-tearDown = function() {
-  WebRTC.Utils.getSearchVariable = function(name) {
-    return false;
-  }
-  settings.clear();
 }

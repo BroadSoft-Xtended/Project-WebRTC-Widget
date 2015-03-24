@@ -7,7 +7,7 @@ STYLUS_FILES := $(shell glob-cli "styles/**/*.styl")
 
 all: symlinks build
 
-build: ulimit dist/webrtc-bundle.min.js
+build: dist/webrtc-bundle.min.js
 
 symlinks: node_modules/bdsft-webrtc-styles node_modules/bdsft-webrtc-templates node_modules/views node_modules/models
 
@@ -21,9 +21,6 @@ dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
 
 dist/webrtc-bundle.dev.js: $(JS_FILES) node_modules/bdsft-webrtc-templates node_modules/bdsft-webrtc-styles
 	browserify $(TRANSFORMS) lib/webrtc.js > $@
-
-ulimit: 
-	ulimit -n 2560
 
 ## Create symlinks ##################################################################
 node_modules/views: lib/views

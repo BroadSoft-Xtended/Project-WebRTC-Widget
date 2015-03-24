@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "homepage": "http://exsip.net",
   "author": "Dominik Steiner",
+  "main": "index.js",
   "keywords": [
     "sip",
     "websocket",
@@ -14,7 +15,6 @@
   "dependencies": {
     "jquery-ui": "1.10.5",
     "stanza.io": "7.0.7",
-    "filesaver.js": "0.1.1",
     "webrtc-core": "git+ssh://git.broadsoftlabs.net:7922/wrtc/webrtc-core.git",
     "webrtc-authentication": "git+ssh://git.broadsoftlabs.net:7922/wrtc/authentication.git",
     "webrtc-dialpad": "git+ssh://git.broadsoftlabs.net:7922/wrtc/dialpad.git",
