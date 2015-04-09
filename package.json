@@ -59,7 +59,6 @@
   },
   "license": "MIT",
   "scripts": {
-    "postinstall": "make",
     "test": "grunt travis --verbose"
   }
 }
