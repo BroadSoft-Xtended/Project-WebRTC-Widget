@@ -12,4 +12,4 @@ dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
 	./node_modules/uglify-js/bin/uglifyjs $< > $@
 
 dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js js/styles.js
-	browserify $(TRANSFORMS) lib/webrtc.js > $@
+	./node_modules/browserify/bin/cmd.js $(TRANSFORMS) lib/webrtc.js > $@
