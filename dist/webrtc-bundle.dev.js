@@ -5491,14 +5491,7 @@ var Utils = require('webrtc-core').utils;
 function Authentication(eventbus, debug, configuration, sipstack) {
   var self = {};
 
-  self.props = {
-    'userid': true,
-    'alert': true,
-    'authUserid': true,
-    'password': true,
-    'classes': true,
-    'visible': true
-  };
+  self.props = ['userid', 'alert', 'authUserid', 'password', 'classes', 'visible'];
 
   self.bindings = {
     'classes': {
@@ -5939,7 +5932,7 @@ function Model(constructor, options) {
 		options = options || {};
 		var object = createFun(constructor, constructorArgs);
 		object._name = self.name;
-		(object.props && Object.keys(object.props) || []).forEach(function(name) {
+		(Array.isArray(object.props) && object.props || object.props && Object.keys(object.props) || []).forEach(function(name) {
 			var prop = utils.extend({name: name}, object.props[name])
 			var type = prop.type || object.props._type || '';
 			if(type === 'default') {
@@ -43140,15 +43133,7 @@ var C = require('webrtc-core').constants;
 function CallControl(eventbus, debug, configuration, sipstack, sound) {
   var self = {};
 
-  self.props = {'destination': {
-      value: function(){
-        return '';
-      }
-    }, 'classes': true, 'visible': {
-    onSet: function(){
-      // updateClasses();
-    }
-  }};
+  self.props = ['destination', 'classes', 'visible'];
 
   self.bindings = {
     'classes': {
@@ -43184,12 +43169,16 @@ function CallControl(eventbus, debug, configuration, sipstack, sound) {
     });
   };
 
+  var appendDigit = function(digit){
+    self.destination = (self.destination || '') + digit;
+  };
+
   self.pressDTMF = function(digit) {
     if (digit.length !== 1) {
       return;
     }
     if (sipstack.isStarted()) {
-      self.destination = self.destination + digit;
+      appendDigit(digit);
       sound.playClick();
       sipstack.sendDTMF(digit);
     }
@@ -43200,7 +43189,7 @@ function CallControl(eventbus, debug, configuration, sipstack, sound) {
       if(isFromDestination) {
         return;
       }
-      self.destination = self.destination + digit;
+      appendDigit(digit);
     } else if (digit.match(/^[0-9A-D#*,]+$/i)) {
       self.pressDTMF(digit);
     }
@@ -43565,7 +43554,7 @@ var Utils = require('webrtc-core').utils;
 function ConnectionStatus(options, eventbus, configuration) {
   var self = {};
 
-  self.props = {'connected': true, 'registered': true};
+  self.props = ['connected', 'registered'];
 
   self.listeners = function() {
     eventbus.on("disconnected", function(e) {
@@ -44250,6 +44239,15 @@ function FileShare(sipstack, eventbus, debug, configuration) {
     ACTION_RECEIVED: 'received'
   };
 
+  self.props = ['status', 'classes'];
+
+  self.bindings = {
+    'classes': {
+        sipstack: 'callState',
+        configuration: 'enableFileShare'
+    }
+  }
+
   var requests = {};
 
   var process = function(action, fileName, data) {
@@ -44307,15 +44305,6 @@ function FileShare(sipstack, eventbus, debug, configuration) {
   var fileName = function(file) {
     return file.split('\\').pop();
   };
-
-  self.props = {'status': true, 'classes': true};
-
-  self.bindings = {
-    'classes': {
-        sipstack: 'callState',
-        configuration: 'enableFileShare'
-    }
-  }
 
   self.listeners = function() {
     eventbus.on('shareFile', function(e) {
@@ -44936,13 +44925,7 @@ function History(stats, configuration, eventbus, sipstack) {
     self.calls = allCalls.slice(startPos, endPos);
   };
 
-  self.props = {
-    'isForwardEnabled': true,
-    'isBackEnabled': true,
-    'calls': true,
-    'classes': true,
-    'visible': true
-  };
+  self.props = ['isForwardEnabled', 'isBackEnabled', 'calls', 'classes', 'visible'];
 
   self.bindings = {
     'classes': {
@@ -45395,7 +45378,7 @@ var Constants = require('webrtc-core').constants;
 function IncomingCall(eventbus, sound, sipstack) {
   var self = {};
 
-  self.props = {'incomingCallName': true, 'incomingCallUser': true, 'classes': true, 'visible': true};
+  self.props = ['incomingCallName', 'incomingCallUser', 'classes', 'visible'];
 
   self.bindings = {
     'classes': {
@@ -45695,7 +45678,7 @@ module.exports = require('webrtc-core').bdsft.Model(Messages)
 function Messages(eventbus, configuration) {
   var self = {};
 
-  self.props = {'text': true, 'level': true, 'classes': true};
+  self.props = ['text', 'level', 'classes'];
 
   self.bindings = {
     'classes': {
@@ -46003,7 +45986,7 @@ var core = require('webrtc-core');
 function Reinvite(eventbus) {
   var self = {};
 
-  self.props = {'classes': true, 'incomingCallName': true, 'incomingCallUser': true, 'title': true, 'visible': true};
+  self.props = ['classes', 'incomingCallName', 'incomingCallUser', 'title', 'visible'];
 
   self.bindings = {
     'classes': {
@@ -46936,7 +46919,7 @@ function InboxItem(sms, message) {
 function SMS(eventbus, debug, smsprovider, sound, configuration) {
   var self = {};
 
-  self.props = {'visible': true, 'classes': true, 'name': true, 'password': true, 'sendTo': true, 'sendBody': true, 'statusText': true, 'type': true, 'inboxItems': true};
+  self.props = ['visible', 'classes', 'name', 'password', 'sendTo', 'sendBody', 'statusText', 'type', 'inboxItems'];
 
   self.bindings = {
     'classes': {
@@ -49330,24 +49313,23 @@ function Stats(eventbus, debug, configuration, sipstack) {
 
   self.statsMod = require('../../js/stats')(self);
 
-  self.props = {
-    'classes': true,
-    'visible': true,
-    'peerConnectionElement': true,'statsContainerId': true, 'videoKiloBitsSentPerSecond': true, 'audioKiloBitsSentPerSecond': true, 
-  'videoKiloBitsReceivedPerSecond': true, 'audioKiloBitsReceivedPerSecond': true, 'videoPacketsLost': true, 'videoPacketsLostPer': true,
-  'audioPacketsLost': true, 'audioPacketsLostPer': true, 'videoGoogFrameRateSent': true, 'videoGoogFrameRateReceived': true, 'audioAudioInputLevel': true, 
-  'audioAudioOutputLevel': true, 'videoGoogFrameWidthReceived': true, 'videoGoogFrameHeightReceived': true, 'videoGoogFrameWidthSent': true, 'videoGoogFrameHeightSent': true,
-  'audioGoogRtt': true, 'audioGoogJitterReceived': true, 
-  'videoKiloBitsSentPerSecondAvg': true, 'audioKiloBitsSentPerSecondAvg': true, 
-  'videoKiloBitsReceivedPerSecondAvg': true, 'audioKiloBitsReceivedPerSecondAvg': true, 'videoPacketsLostAvg': true, 'videoPacketsLostPerAvg': true,
-  'audioPacketsLostAvg': true, 'audioPacketsLostPerAvg': true, 'videoGoogFrameRateSentAvg': true, 'videoGoogFrameRateReceivedAvg': true, 'audioAudioInputLevelAvg': true, 
-  'audioAudioOutputLevelAvg': true, 'videoGoogFrameWidthReceivedAvg': true, 'videoGoogFrameHeightReceivedAvg': true, 'videoGoogFrameWidthSentAvg': true, 
-  'videoGoogFrameHeightSentAvg': true, 'audioGoogRttAvg': true, 'audioGoogJitterReceivedAvg': true};
+  self.props = [
+    'classes', 'visible', 'peerConnectionElement', 'statsContainerId', 'videoKiloBitsSentPerSecond', 'audioKiloBitsSentPerSecond',
+    'videoKiloBitsReceivedPerSecond', 'audioKiloBitsReceivedPerSecond', 'videoPacketsLost', 'videoPacketsLostPer',
+    'audioPacketsLost', 'audioPacketsLostPer', 'videoGoogFrameRateSent', 'videoGoogFrameRateReceived', 'audioAudioInputLevel',
+    'audioAudioOutputLevel', 'videoGoogFrameWidthReceived', 'videoGoogFrameHeightReceived', 'videoGoogFrameWidthSent', 'videoGoogFrameHeightSent',
+    'audioGoogRtt', 'audioGoogJitterReceived',
+    'videoKiloBitsSentPerSecondAvg', 'audioKiloBitsSentPerSecondAvg',
+    'videoKiloBitsReceivedPerSecondAvg', 'audioKiloBitsReceivedPerSecondAvg', 'videoPacketsLostAvg', 'videoPacketsLostPerAvg',
+    'audioPacketsLostAvg', 'audioPacketsLostPerAvg', 'videoGoogFrameRateSentAvg', 'videoGoogFrameRateReceivedAvg', 'audioAudioInputLevelAvg',
+    'audioAudioOutputLevelAvg', 'videoGoogFrameWidthReceivedAvg', 'videoGoogFrameHeightReceivedAvg', 'videoGoogFrameWidthSentAvg',
+    'videoGoogFrameHeightSentAvg', 'audioGoogRttAvg', 'audioGoogJitterReceivedAvg'
+  ];
 
   self.bindings = {
     'classes': {
-        stats: 'visible',
-        configuration: 'enableCallStats'
+      stats: 'visible',
+      configuration: 'enableCallStats'
     }
   }
 
@@ -49443,10 +49425,10 @@ function Stats(eventbus, debug, configuration, sipstack) {
     return Math.round(getElement(type, name, true) * 100) / 100.0;
   };
 
-  self.onAddStats = function(peerConnectionElement, reportType, reportId, statsData){
+  self.onAddStats = function(peerConnectionElement, reportType, reportId, statsData) {
     Object.keys(self.props).forEach(function(prop) {
       var match = prop.match(/(audio|video)(.*)/);
-      if(!match) {
+      if (!match) {
         return;
       }
       var label = Utils.lowercaseFirstLetter(match[2]);
@@ -49456,30 +49438,30 @@ function Stats(eventbus, debug, configuration, sipstack) {
         if (value != null) {
           self[prop] = value;
           var avg = self.statsMod.getAvgValue(peerConnectionElement, reportType, reportId, label);
-          self[prop+'Avg'] = avg;
+          self[prop + 'Avg'] = avg;
         } else {}
       }
     });
   };
 
-  var start = function(){
+  var start = function() {
     if (!intervalId && configuration.enableCallStats && Utils.isChrome()) {
-      intervalId = setInterval(function(){
+      intervalId = setInterval(function() {
         self.processStats();
       }, 1000);
     }
   };
 
   var stop = function() {
-    if(intervalId) {
+    if (intervalId) {
       clearInterval(intervalId);
       intervalId = null;
     }
   };
 
   self.listeners = function() {
-    eventbus.on('viewChanged', function(e){
-      if(e.view === 'stats') {
+    eventbus.on('viewChanged', function(e) {
+      if (e.view === 'stats') {
         self.visible = e.visible;
       }
     });
@@ -49756,7 +49738,7 @@ function Timer(eventbus, debug, configuration, sipstack) {
   self.callTimer = null;
   self.startTime = null;
 
-  self.props = {'text': true, 'classes': true};
+  self.props = ['text', 'classes'];
 
   self.bindings = {
     'classes': {
@@ -50044,12 +50026,7 @@ var Constants = require('webrtc-core').constants;
 function Transfer(sipstack, eventbus, configuration, callcontrol) {
   var self = {};
 
-  self.props = {
-    'classes': true,
-    'target': true,
-    'typeAttended': true,
-    'visible': true
-  };
+  self.props = ['classes', 'target', 'typeAttended', 'visible'];
 
   self.bindings = {
     'classes': {
@@ -50325,7 +50302,7 @@ module.exports = require('webrtc-core').bdsft.Model(Video);
 function Video(eventbus, debug, configuration, sipstack) {
   var self = {}; 
 
-  self.props = {'localEl': true, 'remoteEl': true, 'localWidth': true, 'localHeight': true, 'classes': true, 'visible': true};
+  self.props = ['localEl', 'remoteEl', 'localWidth', 'localHeight', 'classes', 'visible'];
 
   self.bindings = {
     'classes': {
@@ -50663,8 +50640,7 @@ var Utils = require('webrtc-core').utils;
 function Videobar(eventbus, sipstack, configuration) {
   var self = {};
 
-  self.props = {'classes': true, 
-  'videoVisible': true, 'callcontrolVisible' : true, 'fullscreenVisible' : true, 'soundVisible' : true, 'screenshareVisible' : true};
+  self.props = ['classes', 'videoVisible', 'callcontrolVisible', 'fullscreenVisible', 'soundVisible', 'screenshareVisible'];
 
   self.bindings = {
     'classes': {
