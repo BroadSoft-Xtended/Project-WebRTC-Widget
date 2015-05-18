@@ -171,15 +171,14 @@ setUp = function(){
   global.bdsft_client_instances = {};
   testUA = require('webrtc-core').testUA;
   Utils = core.utils;
-  Constants = core.constants;
-  WebRTC = require('../../lib/webrtc');
-  Client = require('../../lib/views/client');
+  Constants = core.constants;  
   ClientConfig = core.defaults;
 }
 
 create = function(config){
   var configData = core.utils.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false}, config);
-  var client = WebRTC.createClient(configData);
+  var loader = require('../../lib/loader');
+  var client = loader.createClient(configData);
   client.appendTo(core.utils.getElement('body'));
   return client;
 }

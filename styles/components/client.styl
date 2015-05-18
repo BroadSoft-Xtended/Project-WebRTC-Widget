@@ -9,27 +9,10 @@
     position relative
     top 0
     left 0
-    &.r1280x720
+    &._1280x720
       width 1280px
-    &.r960x720
+    &._960x720
       width 960px
-    .table
-      display table
-      width 100%
-    .fixed
-      table-layout fixed
-    .collapse
-      border-collapse collapse
-    .cell
-      display table-cell
-    .heading
-      display table-row
-      font-weight bold
-    .row
-      display table-row
-      margin 0
-    .group
-      display table-row-group
     &::-webkit-scrollbar
       width 8px
     &::-webkit-scrollbar-track
@@ -44,10 +27,10 @@
       transform translate(-50%, -50%)
       backface-visibility hidden
 
-  .client.r640x360, .client.r640x480
+  .client._640x360, .client._640x480
     width 640px
 
-  .client.r320x180, .client.r320x240
+  .client._320x180, .client._320x240
     width 320px
 
   .client .row:before, .client .row:after

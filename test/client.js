@@ -18,16 +18,16 @@ describe('client', function() {
     config.displayResolution = '';
     config.encodingResolution = '';
     location.search = "?hd=false";
-    $.cookie("settingsResolutionDisplay", WebRTC.C.R_960x720);
-    $.cookie("settingsResolutionEncoding", WebRTC.C.R_320x240);
+    $.cookie("settingsResolutionDisplay", Constants.R_960x720);
+    $.cookie("settingsResolutionEncoding", Constants.R_320x240);
     client = create(config);
-    expect(configuration.displayResolution).toEqual(WebRTC.C.R_960x720);
-    expect(client.model.classes.indexOf("r" + WebRTC.C.R_960x720)).toNotEqual(-1);
+    expect(configuration.displayResolution).toEqual(Constants.R_960x720);
+    expect(client.model.classes.indexOf('_'+Constants.R_960x720)).toNotEqual(-1);
   });
   it('resolution class for hd=true', function() {
     location.search = "?hd=true";
     client = create(config);
-    expect(client.model.classes.indexOf("r" + WebRTC.C.R_1280x720)).toNotEqual(-1);
+    expect(client.model.classes.indexOf('_'+Constants.R_1280x720)).toNotEqual(-1);
   });
   it('getUserMedia failed', function() {
     var alertCalled = false;

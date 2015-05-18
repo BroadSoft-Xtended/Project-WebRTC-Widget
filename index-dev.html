@@ -17,13 +17,21 @@
   <div>
     <script src="dist/webrtc-bundle.dev.js" type="text/javascript" data-iconHightlightColor="#232323">
     {
-      "websocketsServers": [{"ws_uri":"ws://webrtc-gw1.broadsoftlabs.com:8060", "weight":0}],
+      "websocketsServers": [{"ws_uri":"wss://webrtc-gw1.broadsoftlabs.com:8443", "weight":0}],
+      "stunServer": "stun.broadsoftlabs.com",
+      "stunPort": 3478,
+      "networkUserId": "webrtc_user",
+      "domainFrom": "broadsoftlabs.com",
+      "domainTo": "broadsoftlabs.com",
       "view": "audioVideo",
       "enableSettings": true,
       "debug": true,
       "register": true,
       "enableConnectLocalMedia": false,
-      "enableFileShare": false
+      "enableFileShare": false,
+      "enableWhiteboard": true,
+      "enableSMS": true,
+      "enableXMPP": true
     }
     </script>
   </div>
