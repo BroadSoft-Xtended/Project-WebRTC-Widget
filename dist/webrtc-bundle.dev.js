@@ -6162,7 +6162,7 @@ function Configuration(options, eventbus, debug) {
   var screenshare = false;
   var offerToReceiveVideo = true;
   
-  var updateViews = function(){
+  self.updateViews = function(){
     var view = Utils.getSearchVariable("view");
     var views = [];
     if (self.view) {
@@ -6172,15 +6172,19 @@ function Configuration(options, eventbus, debug) {
       $.merge(views, view.split(' '));
     }
     self.views = $.unique(views);
-  }
+  };
+
+  self.bindings = {
+    views: {
+      configuration: 'view'
+    }
+  };
+
   self.props = {
     views: true,
     resolutionType: {
       value: function(value) {
         return options.resolutionType;
-      },
-      onSet: function(value){
-        eventbus.resolutionChanged(self);
       }
     },
     userid:  {
@@ -6244,9 +6248,6 @@ function Configuration(options, eventbus, debug) {
       else if(key === 'encodingResolution') {
         self.props[key] = {
           value: function(){
-            // console.log('options.encodingResolution : ', options.encodingResolution);
-            // console.log('$.cookie(settingsResolutionEncoding) : ', $.cookie('settingsResolutionEncoding'));
-            // console.log('$.cookie(settingsResolutionEncoding) : ', WebRTC_C.DEFAULT_RESOLUTION_ENCODING);
             return options.encodingResolution || $.cookie('settingsResolutionEncoding') || WebRTC_C.DEFAULT_RESOLUTION_ENCODING;
           }
         }
@@ -6257,24 +6258,6 @@ function Configuration(options, eventbus, debug) {
             return options[key];
           }
         };
-      }
-
-      if(key.match(/bandwidth/)) {
-        self.props[key].onSet = function(value){
-          // console.log('----------- bandwidthChanged : ', value)
-          eventbus.bandwidthChanged(self);
-        }
-      }
-      else if(key.match(/resolution/i)) {
-        self.props[key].onSet = function(value){
-          // console.log('----------- resolutionChanged : ', value)
-          eventbus.resolutionChanged(self);
-        }
-      }
-      else if(key.match(/view/i)) {
-        self.props[key].onSet = function(value){
-          updateViews();
-        }
       }
     } 
   });
@@ -7067,22 +7050,6 @@ function EventBus() {
 			isFromDestination: isFromDestination
 		});
 	};
-	self.resolutionChanged = function(resolution) {
-		var resolutionObj = {
-			type: resolution.resolutionType || resolution.type,
-			encoding: resolution.resolutionEncoding || resolution.encodingResolution || resolution.encoding,
-			display: resolution.resolutionDisplay || resolution.displayResolution || resolution.display
-		};
-		self.emit('resolutionChanged', resolutionObj);
-	};
-	self.bandwidthChanged = function(bandwidth) {
-		var bandwidthObj = {
-			type: bandwidth.bandwidthLow || bandwidth.low,
-			encoding: bandwidth.bandwidthMed || bandwidth.med,
-			display: bandwidth.bandwidthHigh || bandwidth.high
-		};
-		self.emit('bandwidthChanged', bandwidthObj);
-	};
 	self.authenticationFailed = function(authentication) {
 		self.emit('authenticationFailed', {
 			userid: authentication.userid,
@@ -7470,9 +7437,57 @@ function SIPStack(eventbus, debug, configuration) {
   self.activeSession = null;
   self.sessions = [];
 
-  self.props = {
-    callState: true,
-    registered: true
+  self.props = ['callState', 'registered'];
+
+  self.updateRtcMediaHandlerOptions = function() {
+    if (!self.ua) {
+      return;
+    }
+    // console.log('-------------- updateRtcMediaHandlerOptions : ', configuration.getRtcMediaHandlerOptions());
+    self.ua.setRtcMediaHandlerOptions(configuration.getRtcMediaHandlerOptions());
+  };
+
+  self.updateUserMedia = function(value, userMediaCallback, failureCallback) {
+    if(!self.ua) {
+      return;
+    }
+
+    if (!configuration.disabled && (configuration.enableConnectLocalMedia || self.activeSession)) {
+      // Connect to local stream
+      var options = configuration.getExSIPOptions();
+      self.ua.getUserMedia(options, function(localStream) {
+        eventbus.emit('userMediaUpdated', localStream);
+        if (self.activeSession) {
+          debug("changing active session ...");
+          self.activeSession.changeSession({
+            localMedia: localStream,
+            createOfferConstraints: options.createOfferConstraints
+          }, function() {
+            debug('change session succeeded');
+          }, function() {
+            debug('change session failed');
+          });
+        }
+
+        if (userMediaCallback) {
+          userMediaCallback(localStream);
+        }
+      }, function(e) {
+        eventbus.emit('message', {text: configuration.messageGetUserMedia || "Get User Media Failed", level: "alert"});
+        if (failureCallback) {
+          failureCallback(e);
+        }
+      }, true);
+    }
+  };
+
+  self.bindings = {
+    rtcMediaHandlerOptions: {
+      configuration: ['bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'resolutionType', 'encodingResolution']
+    },
+    userMedia: {
+      configuration: ['audioOnly', 'views', 'hd', 'resolutionType', 'encodingResolution', 'enableConnectLocalMedia']
+    }
   };
 
   var setActiveSession = function(session) {
@@ -7557,13 +7572,6 @@ function SIPStack(eventbus, debug, configuration) {
     });
     eventbus.on("started", function(e) {
       setActiveSession(e.sender);
-    });
-    eventbus.on("resolutionChanged", function(e) {
-      self.updateRtcMediaHandlerOptions();
-      self.updateUserMedia();
-    });
-    eventbus.on("bandwidthChanged", function(e) {
-      self.updateRtcMediaHandlerOptions();
     });
     eventbus.once("started", function(e) {
       var dtmfTones = Utils.parseDTMFTones(configuration.destination);
@@ -7676,7 +7684,7 @@ function SIPStack(eventbus, debug, configuration) {
         successCallback(localMedia);
       }
     };
-    self.updateUserMedia(onUserMediaUpdateSuccess, failureCallback);
+    self.updateUserMedia(null, onUserMediaUpdateSuccess, failureCallback);
   };
   self.call = function(destination) {
     var session = self.ua.call(destination, configuration.getExSIPOptions());
@@ -7712,45 +7720,9 @@ function SIPStack(eventbus, debug, configuration) {
       self.ua.transfer(transferTarget, self.activeSession);
     }
   };
-  self.updateRtcMediaHandlerOptions = function() {
-    if (typeof(self.ua) === 'undefined') {
-      return;
-    }
-    // console.log('-------------- updateRtcMediaHandlerOptions : ', configuration.getRtcMediaHandlerOptions());
-    self.ua.setRtcMediaHandlerOptions(configuration.getRtcMediaHandlerOptions());
-  };
   self.getCallState = function() {
     return self.callState;
   }
-  self.updateUserMedia = function(userMediaCallback, failureCallback) {
-    if (!configuration.disabled && (configuration.enableConnectLocalMedia || self.activeSession)) {
-      // Connect to local stream
-      var options = configuration.getExSIPOptions();
-      self.ua.getUserMedia(options, function(localStream) {
-        eventbus.emit('userMediaUpdated', localStream);
-        if (self.activeSession) {
-          debug("changing active session ...");
-          self.activeSession.changeSession({
-            localMedia: localStream,
-            createOfferConstraints: options.createOfferConstraints
-          }, function() {
-            debug('change session succeeded');
-          }, function() {
-            debug('change session failed');
-          });
-        }
-
-        if (userMediaCallback) {
-          userMediaCallback(localStream);
-        }
-      }, function(e) {
-        eventbus.emit('message', {text: configuration.messageGetUserMedia || "Get User Media Failed", level: "alert"});
-        if (failureCallback) {
-          failureCallback(e);
-        }
-      }, true);
-    }
-  };
 
   // Incoming reinvite function
   self.incomingReInvite = function(e) {
@@ -47259,17 +47231,13 @@ function SMSView(eventbus, debug, sound, sms) {
       self.statusContent.text(value);
     });
     databinder.onModelPropChange('inboxItems', function(items) {
-      if(arguments.length === 1) {
-        inboxItemViews = [];
-        self.inboxContent.html('');
-        for (var i = 0; i < items.length; i++) {
-          var inboxItemView = new InboxItemView(items[i]);
-          inboxItemView.appendTo(self.inboxContent);
-          inboxItemViews.push(inboxItemView);
-        }      
-      } else {
-        return inboxItemViews.map(function(view){ return view.inboxItem;});
-      }
+      inboxItemViews = [];
+      self.inboxContent.html('');
+      for (var i = 0; i < items.length; i++) {
+        var inboxItemView = new InboxItemView(items[i]);
+        inboxItemView.appendTo(self.inboxContent);
+        inboxItemViews.push(inboxItemView);
+      }      
     });
     eventbus.on('smsLoggedIn', function() {
       self.loginForm.toggleClass('hidden', true);
