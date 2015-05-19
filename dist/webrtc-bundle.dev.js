@@ -5500,11 +5500,12 @@ function Authentication(eventbus, debug, configuration, sipstack) {
     }
   }
 
-  self.listeners = function(authenticationDatabinder) {
-    authenticationDatabinder.onModelPropChange('visible', function(visible) {
+  self.listeners = function(databinder) {
+    databinder.onModelPropChange('visible', function(visible) {
       if (visible) {
         self.authUserid = configuration.authenticationUserid;
         self.userid = configuration.userid;
+        self.password = configuration.password;
       }
     });
     eventbus.on('registrationFailed', function(e) {
@@ -5513,6 +5514,12 @@ function Authentication(eventbus, debug, configuration, sipstack) {
       if ((statusCode === 403 && configuration.userid && !configuration.password) || configuration.register) {
         eventbus.emit('authenticationFailed', self);
       }
+    });
+    eventbus.on('authenticationFailed', function(e) {
+      self.show();
+    });
+    eventbus.on('authenticate', function(e) {
+      self.hide();
     });
   };
 
@@ -5554,13 +5561,6 @@ function AuthenticationView(eventbus, authentication) {
   self.elements = ['ok', 'userid', 'authUserid', 'password', 'alert', 'authPopup'];
 
   self.listeners = function() {
-    eventbus.on('authenticationFailed', function(e) {
-      authentication.visible = true;
-    });
-    eventbus.on('authenticate', function(e) {
-      authentication.visible = false;
-    });
-
     self.ok.bind('click', function() {
       authentication.authenticate();
     });
@@ -5898,6 +5898,7 @@ function View(constructor, options) {
 		(object.elements || []).forEach(function(element) {
 			require('./app').element(object, element, databinder(self.viewName));
 		});
+		bindings(object, constructorArgs);
 		call(object.listeners, options, self.viewName);
 		call(object.init, options, self.viewName);
 
@@ -5938,16 +5939,7 @@ function Model(constructor, options) {
 			}
 			require('./app')[type+'prop'](object, prop, databinder(self.name));
 		});
-		(object.bindings && Object.keys(object.bindings) || []).forEach(function(name) {
-			var from = object.bindings[name];
-			var binding;
-			if(name === 'classes') {
-				binding = require('./classesbinding')(object, name, from, constructorArgs);
-			} else {
-				binding = require('./binding')(object, name, from, constructorArgs);
-			}
-			binding.init();
-		});
+		bindings(object, constructorArgs);
 		call(object.listeners, options, self.name);
 		call(object.init, options, self.name);
 		return object;
@@ -5958,6 +5950,19 @@ function Model(constructor, options) {
 
 	return self;
 };
+
+function bindings(object, constructorArgs){
+	(object.bindings && Object.keys(object.bindings) || []).forEach(function(name) {
+		var from = object.bindings[name];
+		var binding;
+		if(name === 'classes') {
+			binding = require('./classesbinding')(object, name, from, constructorArgs);
+		} else {
+			binding = require('./binding')(object, name, from, constructorArgs);
+		}
+		binding.init();
+	});
+}
 
 function functionName(fun) {
 		var ret = fun.toString();
@@ -6053,6 +6058,8 @@ function Binding(object, toProp, from, constructorArgs) {
 				}
 			});
 		});
+
+		object[updateHandle]();
 	};
 
 	return self;
@@ -6106,12 +6113,6 @@ function ClassesBinding(object, toProp, from, constructorArgs) {
 			return clazz.match(/^\d/) && '_' + clazz || clazz
 		});
 		object[toProp] = classes;
-	};
-
-	var bindingInit = self.init;
-	self.init = function init(){
-		bindingInit();
-		object.updateClasses();
 	};
 
 	return self;
@@ -6175,18 +6176,21 @@ function Configuration(options, eventbus, debug) {
   self.props = {
     views: true,
     resolutionType: {
+      value: function(value) {
+        return options.resolutionType;
+      },
       onSet: function(value){
         eventbus.resolutionChanged(self);
       }
     },
     userid:  {
-      value: function(){return options.userid || $.cookie('settingUserid');}
+      value: function(){return options.userid || $.cookie('settingsUserid');}
     },
     password:  {
-      value: function(){return options.password || $.cookie('settingPassword');}
+      value: function(){return options.password || $.cookie('settingsPassword');}
     },
     authenticationUserid:  {
-      value: function(){return options.authenticationUserid || $.cookie('settingAuthenticationUserid');}
+      value: function(){return options.authenticationUserid || $.cookie('settingsAuthenticationUserid');}
     },
     destination: {
       value: function(){return options.destination || Utils.getSearchVariable("destination");}
@@ -6202,7 +6206,7 @@ function Configuration(options, eventbus, debug) {
     },
     sipDisplayName: {
       value: function(){
-        var name = options.displayName || Utils.getSearchVariable("name") || $.cookie('settingDisplayName');
+        var name = options.displayName || Utils.getSearchVariable("name") || $.cookie('settingsDisplayName');
         if (name) {
           name = name.replace(/%20/g, " ");
         }
@@ -6213,11 +6217,11 @@ function Configuration(options, eventbus, debug) {
       value: function(){return Utils.getSearchVariable("maxCallLength");}
     },
     size: {
-      value: function(){return Utils.getSearchVariable("size") || $.cookie('settingsize') || 1;}
+      value: function(){return Utils.getSearchVariable("size") || $.cookie('settingsSize') || 1;}
     },
     color: {
       value: function(){
-        return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingColor') || '#ffffff';
+        return Utils.colorNameToHex(Utils.getSearchVariable("color")) || $.cookie('settingsColor') || '#ffffff';
       }
     },
     enableMessages: {
@@ -6436,7 +6440,7 @@ function Configuration(options, eventbus, debug) {
 
     var config = {
       'uri': sip_uri,
-      'authorization_user': data.authenticationUserId || $.cookie('settingAuthenticationUserId') || userid,
+      'authorization_user': data.authenticationUserId || $.cookie('settingsAuthenticationUserId') || userid,
       'ws_servers': self.websocketsServers,
       'stun_servers': 'stun:' + self.stunServer + ':' + self.stunPort,
       'trace_sip': self.debug,
@@ -6453,7 +6457,7 @@ function Configuration(options, eventbus, debug) {
     // do registration if setting User ID or configuration register is set
     if (self.userid || self.register) {
       config.register = true;
-      config.password = data.password || $.cookie('settingPassword');
+      config.password = data.password || $.cookie('settingsPassword');
     } else {
       config.register = false;
     }
@@ -6654,7 +6658,8 @@ var ee = require('event-emitter');
 function DataBinder( objectid ) {
   var emitter = ee({});
 
-  var lastValues = {};
+  var lastViewValues = {};
+  var lastModelValues = {};
   var self = {};
 
   self.onModelChange = function(cb){
@@ -6667,10 +6672,12 @@ function DataBinder( objectid ) {
   self.onModelPropChange = function(name, cb){
     self.onModelChange(function(_name, value){
       if(Array.isArray(name) && name.indexOf(_name) !== -1 || _name === name) {
-        cb(value);
+        cb(value, _name);
       }
     });
-    lastValues[name] && cb(lastValues[name]);
+    (Array.isArray(name) && name || [name]).forEach(function(n){
+      lastModelValues[n] && cb(lastModelValues[n], n);
+    });
   };
   self.onViewChange = function(cb){
     emitter.on(objectid, function(data){
@@ -6682,13 +6689,15 @@ function DataBinder( objectid ) {
   self.onViewElChange = function(name, cb){
     self.onViewChange(function(_name, value){
         if(Array.isArray(name) && name.indexOf(_name) !== -1 || _name === name) {
-          cb(value);
+          cb(value, _name);
         }
     });
-    lastValues[name] && cb(lastValues[name]);
+    (Array.isArray(name) && name || [name]).forEach(function(n){
+      lastViewValues[n] && cb(lastViewValues[n], n);
+    });
   };
 
-  var emit  = function(name, value, fromView){
+  var emit  = function(name, value, fromView, lastValues){
     if(lastValues[name] !== value) {
       lastValues[name] = value;
       emitter.emit(objectid, {name: name, value: value, fromView: fromView});
@@ -6696,10 +6705,10 @@ function DataBinder( objectid ) {
   };
 
   self.viewChanged = function(name, value){
-    emit(name, value, true);
+    emit(name, value, true, lastViewValues);
   };
   self.modelChanged = function(name, value){
-    emit(name, value, false);
+    emit(name, value, false, lastModelValues);
   };
 
   return self;
@@ -6943,6 +6952,7 @@ function Element(object, name, databinder) {
 
 	databinder.onModelPropChange(name, function(value){
 		set(value);
+		databinder.viewChanged(name, value);
 	});
 
 	return self;
@@ -7417,7 +7427,8 @@ function Prop(obj, prop, databinder) {
 	};
 	var __init = function(){
 		if(prop.value && typeof prop.value() !== 'undefined') {
-			obj[_name] = prop.value();
+			__set(prop.value());
+			// obj[_name] = prop.value();
 		}
 		prop.onInit && prop.onInit();
 	};
@@ -7428,8 +7439,10 @@ function Prop(obj, prop, databinder) {
 	};
 
 	databinder.onViewElChange(_name, function(value){
-		internal = value;
-		prop.onSet && prop.onSet(value);
+		__set(value);
+		// internal = value;
+		// databinder.modelChanged(_name, value);
+		// prop.onSet && prop.onSet(value);
 	});
 
 	Object.defineProperty(obj, _name, {
@@ -46329,32 +46342,22 @@ function Settings(eventbus, debug, configuration, sipstack) {
     _type: 'cookie',
     classes: {type: 'default'},
     visible: {type: 'default'},
-    userid: {
-      onSet: function(value) {
-        configuration.userid = value;
-      }
-    },
-    password: {
-      onSet: function(value) {
-        configuration.password = value;
-      },
-    },
-    authenticationUserid: {
-      onSet: function(value) {
-        configuration.authenticationUserid = value;
-      },
-    },
-    resolutionType: {
-      onSet: function(value) {
-        configuration.resolutionType = value;
-      },
-    },
+    userid: true,
+    password: true,
+    authenticationUserid: true,
+    resolutionType: true,
     localVideoTop: true,
     localVideoLeft: true,
     callHistoryTop: true,
     callHistoryLeft: true,
     callStatsTop: true,
     callStatsLeft: true,
+    displayResolutionStandard: true,
+    displayResolutionWidescreen: true,
+    encodingResolutionStandard: true,
+    encodingResolutionWidescreen: true,
+    displayResolution: true,
+    encodingResolution: true,
     displayName: {
       value: function() {
         return configuration.sipDisplayName || $.cookie('settingsDisplayName')
@@ -46373,104 +46376,21 @@ function Settings(eventbus, debug, configuration, sipstack) {
     bandwidthLow: {
       value: function() {
         return configuration.bandwidthLow || $.cookie('settingsBandwidthLow')
-      },
-      onSet: function(value) {
-        configuration.bandwidthLow = value;
       }
     },
     bandwidthMed: {
       value: function() {
         return configuration.bandwidthMed || $.cookie('settingsBandwidthMed')
-      },
-      onSet: function(value) {
-        configuration.bandwidthMed = value;
       }
     },
     bandwidthHigh: {
       value: function() {
         return configuration.bandwidthHigh || $.cookie('settingsBandwidthHigh')
-      },
-      onSet: function(value) {
-        configuration.bandwidthHigh = value;
       }
     },
     color: {
       value: function() {
         return configuration.getBackgroundColor()
-      }
-    },
-    displayResolutionStandard: {
-      onSet: function(value) {
-        // console.log('displayResolutionStandard : onSet : '+value);
-        if(self.resolutionType === WebRTC_C.STANDARD) {
-          configuration.displayResolution = value;          
-        }
-      },
-      value: function() {
-        return configuration.displayResolution;
-      }
-    },
-    displayResolutionWidescreen: {
-      onSet: function(value) {
-        // console.log('displayResolutionWidescreen : onSet : '+value);
-        if(self.resolutionType === WebRTC_C.WIDESCREEN) {
-          configuration.displayResolution = value;          
-        }
-      },
-      value: function() {
-        return configuration.displayResolution;
-      }
-    },
-    encodingResolutionStandard: {
-      onSet: function(value) {
-        // console.log('encodingResolutionStandard : onSet : '+value);
-        if(self.resolutionType === WebRTC_C.STANDARD) {
-          configuration.encodingResolution = value;          
-        }
-      },
-      value: function() {
-        // console.log('encodingResolutionStandard : ', configuration.encodingResolution);
-        return configuration.encodingResolution;
-      }
-    },
-    encodingResolutionWidescreen: {
-      onSet: function(value) {
-        // console.log('encodingResolutionWidescreen : onSet : '+value);
-        if(self.resolutionType === WebRTC_C.WIDESCREEN) {
-          configuration.encodingResolution = value;          
-        }
-      },
-      value: function() {
-        return configuration.encodingResolution;
-      }
-    },
-    // TODO - look into better handle resolution properties 
-    displayResolution: {
-      get: function() {
-        return getResolution("displayResolutionStandard", "displayResolutionWidescreen");
-      },
-      set: function(resolution) {
-        // console.log('displayResolution : set : '+resolution);
-        configuration.displayResolution = resolution;
-        setResolution(resolution, "displayResolutionStandard", "displayResolutionWidescreen");
-        $.cookie('settingsDisplayResolution', resolution);
-      },
-      value: function() {
-        return configuration.displayResolution;
-      }
-    },
-    encodingResolution: {
-      get: function() {
-        return getResolution("encodingResolutionStandard", "encodingResolutionWidescreen");
-      },
-      set: function(resolution) {
-        // console.log('encodingResolution : set : '+resolution);
-        configuration.encodingResolution = resolution;
-        setResolution(resolution, "encodingResolutionStandard", "encodingResolutionWidescreen")
-        $.cookie('settingsEncodingResolution', resolution);
-      },
-      value: function() {
-        return configuration.encodingResolution;
       }
     },
     size: {
@@ -46494,23 +46414,59 @@ function Settings(eventbus, debug, configuration, sipstack) {
     }
   };
 
+  self.updateDisplayResolution = function(){
+    self.displayResolution = getResolution("displayResolutionStandard", "displayResolutionWidescreen");
+  };
+  self.updateDisplayResolutionStandard = self.updateDisplayResolutionWidescreen = function(){
+    setResolution(self.displayResolution, "displayResolutionStandard", "displayResolutionWidescreen");
+  };
+  self.updateEncodingResolution = function(){
+    self.encodingResolution = getResolution("encodingResolutionStandard", "encodingResolutionWidescreen");
+  };
+  self.updateEncodingResolutionStandard = self.updateEncodingResolutionWidescreen = function(){
+    setResolution(self.encodingResolution, "encodingResolutionStandard", "encodingResolutionWidescreen");
+  };
+
   self.bindings = {
     'classes': {
         settings: 'visible',
         sipstack: 'registered',
         configuration: 'enableSettings'
-    }
+    },
+    'displayResolution': {
+        settings: ['displayResolutionStandard', 'displayResolutionWidescreen']
+    },
+    'displayResolutionStandard': {
+        settings: 'displayResolution'
+    },
+    'displayResolutionWidescreen': {
+        settings: 'displayResolution'
+    },
+    'encodingResolution': {
+        settings: ['encodingResolutionStandard', 'encodingResolutionWidescreen']
+    },
+    'encodingResolutionStandard': {
+        settings: 'encodingResolution'
+    },
+    'encodingResolutionWidescreen': {
+        settings: 'encodingResolution'
+    },
   }
 
   self.init = function() {
     updatePageColor();
   };
 
-  self.listeners = function(configurationDatabinder, callcontrolDatabinder) {
+  self.listeners = function(databinder, configurationDatabinder, callcontrolDatabinder) {
+    databinder.onModelPropChange(['userid', 'password', 'authenticationUserid', 'resolutionType', 'bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 
+      'displayResolution', 'encodingResolution'], function(value, name){
+      configuration[name] = value;
+    });
     callcontrolDatabinder.onModelPropChange('visible', function(visible){
       visible && self.hide();
     });
-    configurationDatabinder.onModelChange(function(name, value){
+    configurationDatabinder.onModelPropChange(['userid', 'password', 'authenticationUserid', 'resolutionType', 'bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 
+      'displayResolution', 'encodingResolution'], function(value, name){
       self[name] = value;
     });
     eventbus.on("ended", function() {
@@ -46578,12 +46534,12 @@ var WebRTC_C = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
 
-function SettingsView(options, eventbus, debug, sound, settings) {
+function SettingsView(options, eventbus, configuration, debug, sound, settings) {
   var self = {};
 
   self.model = settings;
 
-  self.updateRowVisibility = function() {
+  var updateRowVisibility = function() {
     self.autoAnswerRow.toggleClass('hidden', options.hasOwnProperty("enableAutoAnswer"));
     self.selfViewDisableRow.toggleClass('hidden', options.hasOwnProperty("enableSelfView"));
     self.hdRow.toggleClass('hidden', options.hasOwnProperty("enableHD"));
@@ -46606,9 +46562,15 @@ function SettingsView(options, eventbus, debug, sound, settings) {
     'layout', 'clear', 'tabs', 'settingsPopup'
   ];
 
+  self.bindings = {
+    resolutionSelectVisibility: {
+      configuration: 'resolutionType',
+      settings: 'resolutionType'
+    }
+  };
+
   self.init = function(options) {
-    self.updateRowVisibility();
-    self.updateResolutionSelectVisibility();
+    updateRowVisibility();
   };
 
   self.listeners = function(callcontrolDatabinder) {
@@ -46617,9 +46579,6 @@ function SettingsView(options, eventbus, debug, sound, settings) {
     });
     eventbus.on(['signIn', 'signOut'], function() {
       self.enableRegistration(false);
-    });
-    eventbus.on("resolutionChanged", function() {
-      self.updateResolutionSelectVisibility();
     });
     self.clear.on('click', function(e) {
       e.preventDefault();
