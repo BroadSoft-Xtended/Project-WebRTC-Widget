@@ -6024,30 +6024,37 @@ function Binding(object, toProp, from, constructorArgs) {
 			}).pop();
 		}
 
-		if(!fromModelObj) {
-			throw Error(fromModel + ' does not exist in constructor of ' + object._name);
-		}
 		return fromModelObj;
 	};
 
 	self.init = function init() {
+		var fromKeys = Object.keys(from);
 		var updateHandle = utils.camelize('update ' + toProp);
 		if (!object.hasOwnProperty(updateHandle) && typeof object[updateHandle] !== 'function') {
-			throw Error(updateHandle + ' does not exist in ' + (object._name || object));
+			// add update method for single binding if not defined
+			if(fromKeys.length === 1 && !Array.isArray(from[fromKeys[0]])) {
+				object[updateHandle] = function(value){
+					object[toProp] = value;
+				};
+			} else {
+				throw Error(updateHandle + ' does not exist in ' + (object._name || object));
+			}
 		}
 
-		Object.keys(from).forEach(function(fromModel) {
+		fromKeys.forEach(function(fromModel) {
 			var databinder = bdsft.databinder(fromModel);
 			var fromProp = from[fromModel];
 			var fromObj = self.fromObject(fromModel);
-			if (Array.isArray(fromProp)) {
-				fromProp.forEach(function(p) {
-					if (!fromObj.hasOwnProperty(p)) {
-						throw Error(p + ' does not exist in ' + fromModel);
-					}
-				})
-			} else if (!fromObj.hasOwnProperty(fromProp)) {
-				throw Error(fromProp + ' does not exist in ' + fromModel);
+			if(fromObj) {
+				if (Array.isArray(fromProp)) {
+					fromProp.forEach(function(p) {
+						if (!fromObj.hasOwnProperty(p)) {
+							throw Error(p + ' does not exist in ' + fromModel);
+						}
+					})
+				} else if (!fromObj.hasOwnProperty(fromProp)) {
+					throw Error(fromProp + ' does not exist in ' + fromModel);
+				}
 			}
 
 			databinder.onModelPropChange(fromProp, function(value) {
@@ -6096,6 +6103,9 @@ function ClassesBinding(object, toProp, from, constructorArgs) {
 		Object.keys(from).forEach(function(fromModel) {
 			var fromProp = from[fromModel];
 			var fromObj = self.fromObject(fromModel);
+			if(!fromObj) {
+				throw Error(fromModel + ' does not exist in constructor of ' + object._name);
+			}
 
 			(Array.isArray(fromProp) && fromProp || [fromProp]).forEach(function(prop) {
 				var val = value(fromObj, prop);
@@ -6984,17 +6994,6 @@ function EventBus() {
 			doEmit(type, obj);
 		}
 	};
-	self.onToggleView = function(view, cb) {
-		self.on('toggleView', function(e){
-			if(e.view === view) {
-				cb(e.visible);
-			}
-		});
-	};
-
-	self.toggleView = function(view, visible) {
-		self.emit('toggleView', {view: view, visible: visible});
-	};
 	self.call = function(destination) {
 		self.emit('call', {destination: destination});
 	};
@@ -7361,9 +7360,6 @@ function PopupView(view, eventbus, opts) {
     view.model.visible = visible;
   };
 
-  eventbus.onToggleView(view._name, function(visible){
-    view.toggle(visible);
-  });    
   if(opts.modifier) {
     eventbus.on('modifier', function(e) {
       if (e.which === opts.modifier) {
@@ -43140,7 +43136,7 @@ var C = require('webrtc-core').constants;
 function CallControl(eventbus, debug, configuration, sipstack, sound) {
   var self = {};
 
-  self.props = ['destination', 'classes', 'visible'];
+  self.props = ['destination', 'classes', 'visible', 'historyVisible'];
 
   self.bindings = {
     'classes': {
@@ -43273,7 +43269,7 @@ module.exports = require('webrtc-core').bdsft.View(CallControlView, {
 var Utils = require('webrtc-core').utils;
 var Constants = require('webrtc-core').constants;
 
-function CallControlView(eventbus, callcontrol, sipstack, sound, dialpadView) {
+function CallControlView(eventbus, callcontrol, sipstack, sound, dialpadView, history) {
   var self = {};
 
   self.model = callcontrol;
@@ -43295,7 +43291,7 @@ function CallControlView(eventbus, callcontrol, sipstack, sound, dialpadView) {
     self.historyButton.bind('click', function(e) {
       e.preventDefault();
       sound.playClick();
-      eventbus.toggleView(Constants.VIEW_HISTORY);
+      history.toggle();
     });
     self.call.bind('click', function(e) {
       e.preventDefault();
@@ -45398,7 +45394,7 @@ function IncomingCall(eventbus, sound, sipstack) {
   var incomingSession;
 
   var handle = function(){
-    eventbus.toggleView(Constants.VIEW_INCOMINGCALL, false);
+    self.hide();
     sound.pause();
   };
 
@@ -45425,7 +45421,7 @@ function IncomingCall(eventbus, sound, sipstack) {
 
   self.listeners = function() {
     eventbus.on("canceled", function(e) {
-      self.visible = false;
+      self.hide();
     });
 
     eventbus.on("incomingCall", function(evt) {
@@ -45434,7 +45430,7 @@ function IncomingCall(eventbus, sound, sipstack) {
       eventbus.message("Incoming Call", "success");
       self.incomingCallName = from.display_name || '';
       self.incomingCallUser = from.uri && from.uri.user || '';
-      self.visible = true;
+      self.show();
       sound.playRingtone();
     });
   };
