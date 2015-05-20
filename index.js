@@ -1,3 +1,3 @@
-module.exports = {view: require('./lib/views/client'), model: require('./lib/models/client')};
+module.exports = {view: require('./lib/views/widget'), model: require('./lib/models/widget')};
 
 require('./lib/loader');

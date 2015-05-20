@@ -1,5 +1,5 @@
 require('./includes/common');
-describe('client', function() {
+describe('widget', function() {
 
   beforeEach(function() {
     setUp();
@@ -20,19 +20,19 @@ describe('client', function() {
     location.search = "?hd=false";
     $.cookie("settingsResolutionDisplay", Constants.R_960x720);
     $.cookie("settingsResolutionEncoding", Constants.R_320x240);
-    client = create(config);
+    widget = create(config);
     expect(configuration.displayResolution).toEqual(Constants.R_960x720);
-    expect(client.model.classes.indexOf('_'+Constants.R_960x720)).toNotEqual(-1);
+    expect(widget.model.classes.indexOf('_'+Constants.R_960x720)).toNotEqual(-1);
   });
   it('resolution class for hd=true', function() {
     location.search = "?hd=true";
-    client = create(config);
-    expect(client.model.classes.indexOf('_'+Constants.R_1280x720)).toNotEqual(-1);
+    widget = create(config);
+    expect(widget.model.classes.indexOf('_'+Constants.R_1280x720)).toNotEqual(-1);
   });
   it('getUserMedia failed', function() {
     var alertCalled = false;
-    client = create(config);
-    client.showErrorPopup = function() {
+    widget = create(config);
+    widget.showErrorPopup = function() {
       alertCalled = true;
     }
     eventbus.on("calling", function(e) {
