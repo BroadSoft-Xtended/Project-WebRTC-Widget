@@ -5908,11 +5908,19 @@ function View(constructor, options) {
 function Model(constructor, options) {
 	var self = {};
 
-	self.create = function(constructorArgs) {
+	self.create = function(constructorArgs, createOptions) {
 		constructorArgs = constructorArgs || [];
+		createOptions = createOptions || {};
 		options = options || {};
 		var object = createFun(constructor, constructorArgs);
 		object._name = self.name;
+		var medias = createOptions.medias && createOptions.medias[self.name]
+			|| options.medias && options.medias[self.name]
+			|| options.medias && options.medias['medias']
+			|| options.medias;
+		if(medias) {
+			object.medias = medias;
+		}
 		(Array.isArray(object.props) && object.props || object.props && Object.keys(object.props) || []).forEach(function(name) {
 			var prop = utils.extend({name: name}, object.props[name])
 			var type = prop.type || object.props._type || '';
@@ -7918,10 +7926,11 @@ function SIPStack(eventbus, debug, configuration) {
   return self;
 }
 },{"./bdsft":43,"./constants":47,"./utils":63,"exsip":98}],62:[function(require,module,exports){
-module.exports = require('./bdsft').Model(Sound);
+module.exports = require('./bdsft').Model(Sound, {
+  medias: require('../js/media') 
+});
 
 var utils = require('./utils');
-var medias = require('../js/media');
 
 function Sound(eventbus, configuration, sipstack) {
   var self = {};
@@ -8030,7 +8039,11 @@ function Sound(eventbus, configuration, sipstack) {
       return;
     }
     options = options || {};
-    audioSource.attr("src", 'data:audio/ogg;base64,'+medias[media]);
+    if(!self.medias[media]) {
+      console.error(media + ' not found for sound in ', Object.keys(self.medias))
+      return;
+    }
+    audioSource.attr("src", 'data:audio/ogg;base64,'+self.medias[media]);
     if (options.loop) {
       audioSource.attr('loop', 'true');
     } else {
