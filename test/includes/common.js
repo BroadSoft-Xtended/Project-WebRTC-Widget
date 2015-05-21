@@ -13,152 +13,152 @@ jsdom({
 Object.defineProperties(global, {
   connectionstatus: {
     get: function(){
-      return global.bdsft_client_instances.connectionstatus_test;
+      return global.bdsft_client_instances.test.connectionstatus;
     }
   },
   settings: {
     get: function(){
-      return global.bdsft_client_instances.settings_test;
+      return global.bdsft_client_instances.test.settings;
     }
   },
   stats: {
     get: function(){
-      return global.bdsft_client_instances.stats_test;
+      return global.bdsft_client_instances.test.stats;
     }
   },
   statsview: {
     get: function(){
-      return global.bdsft_client_instances.statsview_test;
+      return global.bdsft_client_instances.test.statsview;
     }
   },
   timer: {
     get: function(){
-      return global.bdsft_client_instances.timer_test;
+      return global.bdsft_client_instances.test.timer;
     }
   },
   timerview: {
     get: function(){
-      return global.bdsft_client_instances.timerview_test;
+      return global.bdsft_client_instances.test.timerview;
     }
   },
   smsprovider: {
     get: function(){
-      return global.bdsft_client_instances.smsprovider_test;
+      return global.bdsft_client_instances.test.smsprovider;
     }
   },
   sms: {
     get: function(){
-      return global.bdsft_client_instances.sms_test;
+      return global.bdsft_client_instances.test.sms;
     }
   },
   smsview: {
     get: function(){
-      return global.bdsft_client_instances.smsview_test;
+      return global.bdsft_client_instances.test.smsview;
     }
   },
   history: {
     get: function(){
-      return global.bdsft_client_instances.history_test;
+      return global.bdsft_client_instances.test.history;
     }
   },
   historyview: {
     get: function(){
-      return global.bdsft_client_instances.historyview_test;
+      return global.bdsft_client_instances.test.historyview;
     }
   },
   settingsview: {
     get: function(){
-      return global.bdsft_client_instances.settingsview_test;
+      return global.bdsft_client_instances.test.settingsview;
     }
   },
   reinvite: {
     get: function(){
-      return global.bdsft_client_instances.reinvite_test;
+      return global.bdsft_client_instances.test.reinvite;
     }
   },
   reinviteview: {
     get: function(){
-      return global.bdsft_client_instances.reinviteview_test;
+      return global.bdsft_client_instances.test.reinviteview;
     }
   },
   sipstack: {
     get: function(){
-      return global.bdsft_client_instances.sipstack_test;
+      return global.bdsft_client_instances.test.sipstack;
     }
   },
   authentication: {
     get: function(){
-      return global.bdsft_client_instances.authentication_test;
+      return global.bdsft_client_instances.test.authentication;
     }
   },
   authenticationview: {
     get: function(){
-      return global.bdsft_client_instances.authenticationview_test;
+      return global.bdsft_client_instances.test.authenticationview;
     }
   },
   incomingcall: {
     get: function(){
-      return global.bdsft_client_instances.incomingcall_test;
+      return global.bdsft_client_instances.test.incomingcall;
     }
   },
   incomingcallview: {
     get: function(){
-      return global.bdsft_client_instances.incomingcallview_test;
+      return global.bdsft_client_instances.test.incomingcallview;
     }
   },
   messages: {
     get: function(){
-      return global.bdsft_client_instances.messages_test;
+      return global.bdsft_client_instances.test.messages;
     }
   },
   messagesview: {
     get: function(){
-      return global.bdsft_client_instances.messagesview_test;
+      return global.bdsft_client_instances.test.messagesview;
     }
   },
   configuration: {
     get: function(){
-      return global.bdsft_client_instances.configuration_test;
+      return global.bdsft_client_instances.test.configuration;
     }
   },
   callcontrol: {
     get: function(){
-      return global.bdsft_client_instances.callcontrol_test;
+      return global.bdsft_client_instances.test.callcontrol;
     }
   },
   callcontrolview: {
     get: function(){
-      return global.bdsft_client_instances.callcontrolview_test;
+      return global.bdsft_client_instances.test.callcontrolview;
     }
   },
   video: {
     get: function(){
-      return global.bdsft_client_instances.videoview_test;
+      return global.bdsft_client_instances.test.videoview;
     }
   },
   dialpad: {
     get: function(){
-      return global.bdsft_client_instances.dialpadview_test;
+      return global.bdsft_client_instances.test.dialpadview;
     }
   },
   transfer: {
     get: function(){
-      return global.bdsft_client_instances.transfer_test;
+      return global.bdsft_client_instances.test.transfer;
     }
   },
   transferview: {
     get: function(){
-      return global.bdsft_client_instances.transferview_test;
+      return global.bdsft_client_instances.test.transferview;
     }
   },
   eventbus: {
     get: function(){
-      return global.bdsft_client_instances.eventbus_test;
+      return global.bdsft_client_instances.test.eventbus;
     }
   },
   videobar: {
     get: function(){
-      return global.bdsft_client_instances.videobarview_test;
+      return global.bdsft_client_instances.test.videobarview;
     }
   }
 });
@@ -176,7 +176,7 @@ setUp = function(){
 }
 
 create = function(config){
-  var configData = core.utils.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false}, config);
+  var configData = core.utils.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false, instancesObj: 'bdsft_client_instances'}, config);
   var loader = require('../../lib/loader');
   var client = loader.createClient(configData);
   client.appendTo(core.utils.getElement('body'));
