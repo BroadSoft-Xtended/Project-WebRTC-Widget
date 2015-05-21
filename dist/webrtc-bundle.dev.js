@@ -5880,7 +5880,15 @@ function View(constructor, options) {
 		|| options.style && options.style['styles']
 		|| options.style;
 		if(style) {
-			css.inject(self.viewName, createOptions.styleData, {style: style});
+			var styleData = Utils.extend({}, createOptions.styleData);
+			var images = createOptions.images && createOptions.images[self.viewName] 
+			|| options.images && options.images[self.viewName]
+			|| options.images && options.images['images']
+			|| options.images;
+			if(images) {
+				styleData = Utils.extend(styleData, images);
+			}
+			css.inject(self.viewName, styleData, {style: style});
 		}
 
 		var classesHolder = object.view.find('.classes:first');
@@ -6601,7 +6609,7 @@ var utils = require('./utils');
 var constants = require('./constants');
 
 var inject = function(name, styleData, options) {
-	var cssData = utils.extend({}, constants.STYLES, constants.FONTS, constants.IMAGES, styleData);
+	var cssData = utils.extend({}, constants.STYLES, constants.FONTS, styleData);
 	var styles = options.style || require(name+'-bdsft-webrtc-styles');
 	if(!styles) {
 		return;
@@ -50490,7 +50498,7 @@ module.exports = {view: require('./lib/views/video'), model: require('./lib/mode
 },{"./lib/models/video":1400,"./lib/views/video":1401}],1397:[function(require,module,exports){
 module.exports = {"videobg":"PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMTY1LjkgNjEyIDQ2MC4zIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMTY1LjkgNjEyIDQ2MC4zIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCgkgPGRlZnM+DQoJCTxsaW5lYXJHcmFkaWVudCBpZD0iU1ZHSURfMV8iIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMCUiIHkyPSIxMDAlIj4NCgkJCTxzdG9wIG9mZnNldD0iMCUiICAgc3R5bGU9InN0b3AtY29sb3I6IzAwMDAwMCIvPg0KCQkJPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNDk0OTQ5Ii8+DQoJCTwvbGluZWFyR3JhZGllbnQ+DQoJPC9kZWZzPg0KCTxyZWN0IHk9IjE2NS45IiBmaWxsPSJ1cmwoI1NWR0lEXzFfKSIgd2lkdGg9IjYxMiIgaGVpZ2h0PSI0NjAuMyIvPg0KCTxnPg0KCQk8Zz4NCgkJCTxwYXRoIGZpbGw9IiMyODI4MjgiIGQ9Ik00MzIuNywzMTkuMnYxNTMuNWMwLDMuOS0xLjgsNi44LTUuNCw4LjRjLTEuMywwLjctMi41LDEtMy40LDFjLTIuNywwLTQuOC0xLTYuNC0zbC01Ni45LTU2Ljl2MjMuOA0KCQkJCWMwLDExLjItNCwyMC44LTEyLjEsMjguN2MtOC4xLDcuOS0xNy44LDExLjgtMjksMTEuOGgtOTkuNWMtMTEuMiwwLTIwLjgtMy45LTI4LjctMTEuOGMtNy45LTcuOS0xMS44LTE3LjUtMTEuOC0yOC43VjM0Ng0KCQkJCWMwLTExLjIsMy45LTIwLjgsMTEuOC0yOC43YzcuOS03LjksMTcuNS0xMS44LDI4LjctMTEuOGg5OS41YzExLjIsMCwyMC44LDMuOSwyOSwxMS44YzguMSw3LjksMTIuMSwxNy41LDEyLjEsMjguN3YyMy44DQoJCQkJbDU2LjktNTYuOWMxLjYtMiwzLjgtMyw2LjQtM2MxLDAsMi4xLDAuMywzLjQsMUM0MzAuOCwzMTIuNSw0MzIuNywzMTUuMyw0MzIuNywzMTkuMnoiLz4NCgkJPC9nPg0KCTwvZz4NCjwvc3ZnPg0K"}
 },{}],1398:[function(require,module,exports){
-module.exports = {"video":".bdsft-client .video{position:relative;top:0;left:0;width:100%;height:auto;box-shadow:0 0 1px rgba(0,0,0,0.05);background-size:cover;background-repeat:no-repeat}.bdsft-client .video .remote{display:none;position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;border-radius:4px;border:2px solid #ddd;box-shadow:0 0 10px #000}.bdsft-client .video .localVideo{position:absolute;top:auto;left:0;bottom:0;right:auto;width:25%;height:25%;background-color:transparent}.bdsft-client .video .localVideo video{border-radius:0;box-shadow:none;background:#292929;border:1px solid #3c3c3c;cursor:move;width:100%;height:100%;position:absolute}.bdsft-client .video .localVideo .inner{margin:5px;position:absolute;top:0;bottom:0;right:0;left:0}.bdsft-client .video.fullscreen-shown{padding-bottom:0;bottom:40px;position:absolute;height:auto!important}.bdsft-client :-webkit-full-screen .remote{z-index:1}.bdsft-client :-webkit-full-screen .localVideo{z-index:2}.bdsft-client :-webkit-full-screen .remote,.bdsft-client :-webkit-full-screen .localVideo{border:0;border-radius:0}.bdsft-client .video.widescreen{padding-bottom:56.25%}.bdsft-client .video.standard{padding-bottom:75%}.bdsft-client .video.started .remote{display:inline;box-shadow:0 0 1px rgba(0,0,0,0.1)}.bdsft-client .video.bl .localVideo{top:auto;bottom:0;left:0;right:auto}.bdsft-client .video.tl .localVideo{top:0;bottom:auto;left:0;right:auto}.bdsft-client .video.tr .localVideo{top:0;bottom:auto;left:auto!important;right:0}.bdsft-client .video.br .localVideo{top:auto;bottom:0;left:auto!important;right:0}.bdsft-client .video._1x .localVideo{width:25%;height:25%}.bdsft-client .video._2x .localVideo{width:50%;height:50%}.bdsft-client .video.audioOnly{display:none!important}.bdsft-client .video.enableSelfView:not(.video-hidden) .localVideo{transition:all 1s linear;opacity:1;z-index:20}.bdsft-client .video.enableSelfView.video-hidden .localVideo{transition:all 1s linear;opacity:0;z-index:-1}"}
+module.exports = {"video":".bdsft-client .video{position:relative;top:0;left:0;width:100%;height:auto;box-shadow:0 0 1px rgba(0,0,0,0.05)}.bdsft-client .video .remote{display:none;position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;box-shadow:0 0 10px #000}.bdsft-client .video .localVideo{position:absolute;top:auto;left:0;bottom:0;right:auto;width:25%;height:25%;background-color:transparent}.bdsft-client .video .localVideo video{border-radius:0;box-shadow:none;background:#292929;border:1px solid #3c3c3c;cursor:move;width:100%;height:100%;position:absolute}.bdsft-client .video .localVideo .inner{margin:5px;position:absolute;top:0;bottom:0;right:0;left:0}.bdsft-client .video.fullscreen-shown{padding-bottom:0;bottom:40px;position:absolute;height:auto!important}.bdsft-client :-webkit-full-screen .remote{z-index:1}.bdsft-client :-webkit-full-screen .localVideo{z-index:2}.bdsft-client :-webkit-full-screen .remote,.bdsft-client :-webkit-full-screen .localVideo{border:0;border-radius:0}.bdsft-client .video.widescreen{padding-bottom:56.25%}.bdsft-client .video.standard{padding-bottom:75%}.bdsft-client .video.started .remote{display:inline;box-shadow:0 0 1px rgba(0,0,0,0.1)}.bdsft-client .video.bl .localVideo{top:auto;bottom:0;left:0;right:auto}.bdsft-client .video.tl .localVideo{top:0;bottom:auto;left:0;right:auto}.bdsft-client .video.tr .localVideo{top:0;bottom:auto;left:auto!important;right:0}.bdsft-client .video.br .localVideo{top:auto;bottom:0;left:auto!important;right:0}.bdsft-client .video._1x .localVideo{width:25%;height:25%}.bdsft-client .video._2x .localVideo{width:50%;height:50%}.bdsft-client .video.audioOnly{display:none!important}.bdsft-client .video.enableSelfView:not(.video-hidden) .localVideo{transition:all 1s linear;opacity:1;z-index:20}.bdsft-client .video.enableSelfView.video-hidden .localVideo{transition:all 1s linear;opacity:0;z-index:-1}.bdsft-client .video{background:url('data:image/svg+xml;base64,<%= videobg %>') no-repeat left center}"}
 },{}],1399:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -50611,10 +50619,9 @@ function Video(eventbus, debug, configuration, sipstack) {
 },{"webrtc-core":1405}],1401:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(VideoView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  images: require('../../js/images')
 });
-
-var videobg = require('../../js/images').videobg;
 
 // require('jquery-ui/draggable');
 
@@ -50626,7 +50633,6 @@ function VideoView(eventbus, configuration, debug, video) {
   self.elements = ['local', 'remote', 'localVideo', 'video'];
 
   self.init = function() {
-    self.video.css('background-image', "url('data:image/svg+xml;base64,"+videobg+"')");
     // Allow some windows to be draggable, required jQuery.UI
     // TODO - allow draggable window
     // if (configuration.enableWindowDrag) {
