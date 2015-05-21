@@ -43442,7 +43442,7 @@ function CallControl(eventbus, debug, configuration, sipstack, sound) {
       self.callUri(e.destination);
     });
     eventbus.on('calling', function(e) {
-      self.destination = e.destination;
+      self.destination = e.destination.replace('sip:', '').replace('@'+configuration.domainTo, '');
     });
     eventbus.on('digit', function(e) {
       self.processDigitInput(e.digit, e.isFromDestination);
