@@ -6026,6 +6026,9 @@ function Binding(object, toProp, from, constructorArgs) {
 		if (!object.hasOwnProperty(updateHandle) && typeof object[updateHandle] !== 'function') {
 			// add update method for single binding if not defined
 			if(fromKeys.length === 1 && !Array.isArray(from[fromKeys[0]])) {
+				if(!object.hasOwnProperty(toProp)) {
+					throw Error(toProp + ' does not exist in ' + (object._name || object));
+				}
 				object[updateHandle] = function(value){
 					object[toProp] = value;
 				};
@@ -7118,15 +7121,12 @@ module.exports = Factory;
 function Factory(options) {
 	options.dependencies = options.dependencies || {};
 
-	function getId(name) {
+	function getId() {
 		var id;
 		if (typeof options === "object") {
 			id = options.id;
 		}
-		id = id || 'default';
-
-		id = name + '_' + id;
-		return id;
+		return id || 'default';
 	};
 
 	function requireArg(argName, constructor) {
@@ -7173,18 +7173,19 @@ function Factory(options) {
 	};
 
 	function create(constructor) {
-		var prefix = options.instancesObj || 'bdsft';
+		var prefix = options.instancesObj || 'bdsft_instances';
 		global[prefix] = global[prefix] || {};
 		var name = constructor.name;
 		var id = getId(name);
-		if (!global[prefix][id]) {
+		global[prefix][id] = global[prefix][id] || {};
+		if (!global[prefix][id][name]) {
 			// console.log('factory : ' + id);
 			var constructorArgs = args(constructor);
 			// console.log('factory : create ' + id + ' with ', constructor.argNames);
 			var object = constructor.create(constructorArgs, options);
-			global[prefix][id] = object;
+			global[prefix][id][name] = object;
 		}
-		return global[prefix][id];
+		return global[prefix][id][name];
 	}
 
 	return create;
@@ -7299,7 +7300,6 @@ function Loader(Widget, options) {
     var factoryOptions = Utils.extend({}, Defaults, configData, options);
     factoryOptions.id = factoryOptions.id || window.BroadSoftWebRTC.clients.length === 0 && 'default' || Utils.rstring();
     factoryOptions.dependencies.core = require('../');
-    factoryOptions.instancesObj = 'bdsft_client_instances';
     factoryOptions.styleData = styleData;
     return Factory(factoryOptions)(Widget.view);
   }
@@ -43124,7 +43124,7 @@ module.exports = {
     if(!global.hasOwnProperty(name)) {
       Object.defineProperty(global, name, {
         get: function() {
-          return global[instancesObj][name+'_'+id];
+          return global[instancesObj][id][name];
         }
       });
     }
@@ -43136,8 +43136,8 @@ module.exports = {
     if(createOptions.lib) {
       options.dependencies[name.replace(/view/i, '')] = createOptions.lib;
     }
-    if(global[instancesObj] && global[instancesObj][name+'_'+id]) {
-      delete global[instancesObj][name+'_'+id];
+    if(global[instancesObj] && global[instancesObj][id] && global[instancesObj][id][name]) {
+      delete global[instancesObj][id][name];
     }
     core.factory(options)(createOptions.constructor);
   },
@@ -45174,18 +45174,18 @@ function Call(value) {
 function History(stats, configuration, eventbus, sipstack) {
   var self = {};
 
-  var _pageNumber = 0;
-  Object.defineProperty(self, 'pageNumber', {
-    get: function() {
-      return _pageNumber;
+  self.props = ['isForwardEnabled', 'isBackEnabled', 'calls', 'classes', 'visible', 'pageNumber', 'callsPerPage', 'maxPages'];
+
+  self.bindings = {
+    'classes': {
+      history: 'visible',
+      sipstack: 'callState',
+      configuration: 'enableCallHistory'
     },
-    set: function(value) {
-      _pageNumber = value;
-      updateContent();
+    'content': {
+      history: ['visible', 'pageNumber']
     }
-  });
-  self.callsPerPage = 10;
-  self.maxPages = 25;
+  }
 
   var createCall = function(rtcSession) {
     var call = new Call();
@@ -45217,23 +45217,13 @@ function History(stats, configuration, eventbus, sipstack) {
     self.isBackEnabled = self.pageNumber > 0;
   };
 
-  var updateContent = function() {
+  self.updateContent = function() {
     updateNavigation();
     var allCalls = self.getAllCalls();
     var startPos = self.callsPerPage * self.pageNumber;
     var endPos = Math.min(startPos + self.callsPerPage, allCalls.length);
     self.calls = allCalls.slice(startPos, endPos);
   };
-
-  self.props = ['isForwardEnabled', 'isBackEnabled', 'calls', 'classes', 'visible'];
-
-  self.bindings = {
-    'classes': {
-      history: 'visible',
-      sipstack: 'callState',
-      configuration: 'enableCallHistory'
-    }
-  }
 
   self.pagesAsString = function() {
     return self.pages().map(function(page) {
@@ -45283,14 +45273,18 @@ function History(stats, configuration, eventbus, sipstack) {
       localStorage.removeItem(Constants.HISTORY_PAGE_PREFIX + (pages[i].number));
     }
     self.pageNumber = 0;
+    self.updateContent();
   };
 
-  self.listeners = function(databinder, settingsDatabinder, callcontrolDatabinder) {
+  self.init = function() {
+    self.pageNumber = 0;
+    self.callsPerPage = 4;
+    self.maxPages = 10;
+  };
+
+  self.listeners = function(settingsDatabinder, callcontrolDatabinder) {
     eventbus.on("ended", function(e) {
       self.persistCall(e.sender);
-    });
-    databinder.onModelPropChange('visible', function(visible){
-      visible && updateContent();
     });
     settingsDatabinder.onModelPropChange('visible', function(visible){
       visible && self.hide();
@@ -45338,7 +45332,7 @@ function History(stats, configuration, eventbus, sipstack) {
     var call = createCall(rtcSession);
     page.calls.unshift(call);
     self.persistPage(page);
-    updateContent();
+    self.updateContent();
   };
 
   return self;
@@ -49723,6 +49717,12 @@ function StatsView(eventbus, stats) {
 
   self.model = stats;
   
+  self.bindings = {
+    'statsContainerId': {
+      stats: 'statsContainerId'
+    }
+  }
+
   self.elements = ['stats', 'statsVar', 'statsContainer', 'videoKiloBitsSentPerSecond', 'audioKiloBitsSentPerSecond', 
   'videoKiloBitsReceivedPerSecond', 'audioKiloBitsReceivedPerSecond', 'videoPacketsLost', 'videoPacketsLostPer',
   'audioPacketsLost', 'audioPacketsLostPer', 'videoGoogFrameRateSent', 'videoGoogFrameRateReceived', 'audioAudioInputLevel', 
@@ -49732,7 +49732,7 @@ function StatsView(eventbus, stats) {
   self.peerConnectionElement = function(){
     return self.statsContainer[0];
   };
-  self.statsContainerId = function(value){
+  self.updateStatsContainerId = function(value){
     self.statsContainer.attr('id', value);
   };
 
