@@ -79,7 +79,9 @@
     },
 
     answer: function(session){
-      session.answer(this.configuration.getExSIPOptions());
+      var hasVideo = session && session.rtcMediaHandler && session.rtcMediaHandler.peerConnection && session.rtcMediaHandler.peerConnection.remoteDescription &&
+      session.rtcMediaHandler.peerConnection.remoteDescription.hasVideo();
+      session.answer(this.configuration.getExSIPOptions(!hasVideo));
     },
 
     hold: function(successCallback, failureCallback){

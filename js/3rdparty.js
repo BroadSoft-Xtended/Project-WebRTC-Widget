@@ -127,7 +127,7 @@
             } else for (e in a) if (d = b.call(a[e], e, a[e]), d === !1) break;
             return a;
         },
-        trim: k && !k.call("﻿ ") ? function(a) {
+        trim: k && !k.call("\ufeff ") ? function(a) {
             return null == a ? "" : k.call(a);
         } : function(a) {
             return null == a ? "" : (a + "").replace(o, "");

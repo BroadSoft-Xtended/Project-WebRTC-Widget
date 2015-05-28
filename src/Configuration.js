@@ -93,14 +93,14 @@
     getDTMFOptions: function(){
       return {duration: WebRTC.C.DEFAULT_DURATION, interToneGap: WebRTC.C.DEFAULT_INTER_TONE_GAP};
     },
-    getExSIPOptions: function(){
+    getExSIPOptions: function(audioOnly){
       // Options Passed to ExSIP
       var options =
       {
         mediaConstraints:
         {
           audio: true,
-          video: this.getVideoConstraints()
+          video: audioOnly ? false : this.getVideoConstraints()
         },
         createOfferConstraints: {mandatory:{
           OfferToReceiveAudio:true,
