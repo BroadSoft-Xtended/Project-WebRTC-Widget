@@ -79,9 +79,20 @@
     },
 
     answer: function(session){
+      var self = this;
       var hasVideo = session && session.rtcMediaHandler && session.rtcMediaHandler.peerConnection && session.rtcMediaHandler.peerConnection.remoteDescription &&
       session.rtcMediaHandler.peerConnection.remoteDescription.hasVideo();
+      if(!hasVideo) {
+        // trigger reINVITE for audio only calls because of one way audio issue
+        session.once('started', function(e) {
+            logger.log('audio only call - update user media with audioOnly', self.configuration);
+            self.configuration.audioOnly = true;
+            self.configuration.offerToReceiveVideo = false;
+            self.updateUserMedia(null, session);
+        });
+      }
       session.answer(this.configuration.getExSIPOptions(!hasVideo));
+
     },
 
     hold: function(successCallback, failureCallback){
@@ -150,17 +161,17 @@
       }
     },
 
-    updateUserMedia: function(userMediaCallback){
+    updateUserMedia: function(userMediaCallback, session){
       var self = this;
-      if(this.configuration.enableConnectLocalMedia || this.activeSession) {
+      if(this.configuration.enableConnectLocalMedia || this.activeSession || session) {
         // Connect to local stream
         var options = this.configuration.getExSIPOptions();
         logger.log("updating user media ...", self.configuration);
         this.ua.getUserMedia(options, function(localStream){
           self.eventBus.userMediaUpdated(localStream);
-          if(self.activeSession) {
+          if(self.activeSession || session) {
             logger.log("changing active session ...", self.configuration);
-            self.activeSession.changeSession({localMedia: localStream, createOfferConstraints: options.createOfferConstraints}, function(){
+            (self.activeSession || session).changeSession({localMedia: localStream, createOfferConstraints: options.createOfferConstraints}, function(){
               logger.log('change session succeeded', self.configuration);
             }, function(){
               logger.log('change session failed', self.configuration);

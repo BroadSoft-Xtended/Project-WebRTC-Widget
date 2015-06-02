@@ -104,7 +104,7 @@
         },
         createOfferConstraints: {mandatory:{
           OfferToReceiveAudio:true,
-          OfferToReceiveVideo: !this.isAudioOnlyView() && this.offerToReceiveVideo
+          OfferToReceiveVideo: !audioOnly && !this.isAudioOnlyView() && this.offerToReceiveVideo
         }}
       };
 
