@@ -20,6 +20,7 @@
     "webrtc-callcontrol": "git+ssh://git.broadsoftlabs.net:7922/wrtc/callcontrol.git",
     "webrtc-connectionstatus": "git+ssh://git.broadsoftlabs.net:7922/wrtc/connectionstatus.git",
     "webrtc-fileshare": "git+ssh://git.broadsoftlabs.net:7922/wrtc/fileshare.git",
+    "webrtc-fullscreen": "git+ssh://git.broadsoftlabs.net:7922/wrtc/fullscreen.git",
     "webrtc-stats": "git+ssh://git.broadsoftlabs.net:7922/wrtc/stats.git",
     "webrtc-history": "git+ssh://git.broadsoftlabs.net:7922/wrtc/history.git",
     "webrtc-incomingcall": "git+ssh://git.broadsoftlabs.net:7922/wrtc/incomingcall.git",

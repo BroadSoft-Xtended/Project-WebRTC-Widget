@@ -17,21 +17,28 @@
   <div>
     <script src="dist/webrtc-bundle.dev.js" type="text/javascript" data-icon-hightlight-color="red">
     {
-      "websocketsServers": [{"ws_uri":"wss://webrtc-gw1.broadsoftlabs.com:8443", "weight":0}],
-      "stunServer": "stun.broadsoftlabs.com",
-      "stunPort": 3478,
-      "networkUserId": "webrtc_user",
-      "domainFrom": "broadsoftlabs.com",
-      "domainTo": "broadsoftlabs.com",
-      "view": "audioVideo",
-      "enableSettings": true,
-      "debug": true,
-      "register": true,
-      "enableConnectLocalMedia": false,
-      "enableFileShare": false,
-      "enableWhiteboard": false,
-      "enableSMS": true,
-      "enableXMPP": true
+      "sipstack": {
+        "websocketsServers": [{"ws_uri":"wss://webrtc-gw1.broadsoftlabs.com:8443", "weight":0}],
+        "stunServer": "stun.broadsoftlabs.com",
+        "stunPort": 3478,
+        "domainFrom": "broadsoftlabs.com",
+        "domainTo": "broadsoftlabs.com",
+        "debug": true,
+        "enableConnectLocalMedia": false,
+        "register": true
+      },
+      "sms": {
+        "enableSMS": true
+      },
+      "settings": {
+        "enableSettings": true
+      },
+      "xmpp": {
+        "enableXMPP": true
+      },
+      "whiteboard": {
+        "enableWhiteboard": false
+      }
     }
     </script>
   </div>

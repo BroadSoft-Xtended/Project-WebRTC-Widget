@@ -9,10 +9,6 @@
     position relative
     top 0
     left 0
-    &._1280x720
-      width 1280px
-    &._960x720
-      width 960px
     &::-webkit-scrollbar
       width 8px
     &::-webkit-scrollbar-track
@@ -20,26 +16,30 @@
       background rgba(39, 39, 39, 1)
       &:window-inactive
         background rgba(39, 39, 39, 1)
-    &.  centered
-      position absolute
-      top 50%
-      left 50%
-      transform translate(-50%, -50%)
-      backface-visibility hidden
 
-  .client._640x360, .client._640x480
-    width 640px
+    &._960x720
+      width 960px
 
-  .client._320x180, .client._320x240
-    width 320px
+    &._640x360, &._640x480
+      width 640px
 
-  .client .row:before, .client .row:after
-    display none
+    &._320x180, &._320x240
+      width 320px
 
-  .client.audioOnly
-    display inline-block
-    width auto
+    &._1280x720, &.hd
+      width 1280px
 
+    .row:before, .row:after
+      display none
+
+    &.audioOnly
+      display inline-block
+      width auto
+
+    &.fullscreen-shown
+      width 100% !important
+      height 100% !important
+      
   .main
     &:-webkit-full-screen-ancestor
       &:not(iframe)
@@ -50,14 +50,10 @@
         bottom 0px
         width 100%
         height 100%
-
-  .fullscreen-shown
-    &.client
-      width 100% !important
-      height 100% !important
-    .main
+        
+    &.fullscreen-shown
       height 100%
-      
+
   #screen_sharing_unsupported
     {unsupported}
     display none

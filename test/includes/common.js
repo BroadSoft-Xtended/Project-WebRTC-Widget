@@ -121,6 +121,11 @@ Object.defineProperties(global, {
       return global.bdsft_client_instances.test.configuration;
     }
   },
+  cookieconfig: {
+    get: function(){
+      return global.bdsft_client_instances.test.cookieconfig;
+    }
+  },
   callcontrol: {
     get: function(){
       return global.bdsft_client_instances.test.callcontrol;
@@ -156,6 +161,16 @@ Object.defineProperties(global, {
       return global.bdsft_client_instances.test.eventbus;
     }
   },
+  urlconfig: {
+    get: function(){
+      return global.bdsft_client_instances.test.urlconfig;
+    }
+  },
+  cookieconfig: {
+    get: function(){
+      return global.bdsft_client_instances.test.cookieconfig;
+    }
+  },
   videobar: {
     get: function(){
       return global.bdsft_client_instances.test.videobarview;
@@ -176,9 +191,9 @@ setUp = function(){
 }
 
 create = function(config){
-  var configData = core.utils.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false, instancesObj: 'bdsft_client_instances'}, config);
+  var configData = core.utils.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false, namespace: 'bdsft_client_instances'}, config);
   var loader = require('../../lib/loader');
-  var client = loader.createClient(configData);
+  var client = loader.create(configData);
   client.appendTo(core.utils.getElement('body'));
   return client;
 }
