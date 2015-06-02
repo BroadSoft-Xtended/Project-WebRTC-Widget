@@ -78,20 +78,13 @@
       });
     },
 
-    answer: function(session){
-      var self = this;
-      var hasVideo = session && session.rtcMediaHandler && session.rtcMediaHandler.peerConnection && session.rtcMediaHandler.peerConnection.remoteDescription &&
+    hasVideo: function(session){
+      return session && session.rtcMediaHandler && session.rtcMediaHandler.peerConnection && session.rtcMediaHandler.peerConnection.remoteDescription &&
       session.rtcMediaHandler.peerConnection.remoteDescription.hasVideo();
-      if(!hasVideo) {
-        // trigger reINVITE for audio only calls because of one way audio issue
-        session.once('started', function(e) {
-            logger.log('audio only call - update user media with audioOnly', self.configuration);
-            self.configuration.audioOnly = true;
-            self.configuration.offerToReceiveVideo = false;
-            self.updateUserMedia(null, session);
-        });
-      }
-      session.answer(this.configuration.getExSIPOptions(!hasVideo));
+    },
+
+    answer: function(session){
+      session.answer(this.configuration.getExSIPOptions(!this.hasVideo(session)));
 
     },
 
@@ -225,6 +218,7 @@
       // Start SIP Stack
       this.ua.start();
 
+      var isReinvite = false;
       // sipStack callbacks
       this.ua.on('connected', function(e)
       {
@@ -238,6 +232,7 @@
       });
       this.ua.on('onReInvite', function(e) {
         logger.log("incoming onReInvite event", self.configuration);
+        isReinvite = true;
         self.incomingReInvite(e);
       });
       this.ua.on('newRTCSession', function(e)
@@ -247,6 +242,15 @@
         self.eventBus.viewChanged(self);
 
         // call event handlers
+        isReinvite = false;
+        var isAudioOnlyAnswer = false;
+        session.once('iceconnected', function(){
+          if(isAudioOnlyAnswer && !isReinvite) {
+            self.configuration.audioOnly = true;
+            self.configuration.offerToReceiveVideo = false;
+            self.updateUserMedia(null, session);
+          }
+        });
         session.on('progress', function(e)
         {
           self.eventBus.progress(e.sender, e.data);
@@ -278,6 +282,7 @@
         // handle incoming call
         if (e.data.session.direction === "incoming")
         {
+          isAudioOnlyAnswer = !self.hasVideo();
           self.incomingCall(e);
         } else {
           if(!self.activeSession) {
