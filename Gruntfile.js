@@ -159,7 +159,7 @@ module.exports = function(grunt) {
         dest: 'index-dev.html'
       },
       webrtc: {
-        src: 'dist/<%= pkg.name %>-devel.js',
+        src: 'dist/<%= pkg.name %>-<%= pkg.version %>.min.js',
         dest: 'js/webrtc.js'
       }
     },
