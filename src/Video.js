@@ -47,7 +47,7 @@
     },
 
     setVideoStream: function(video, streams) {
-      var hasStream = streams && streams.length > 0 && typeof(streams[0]) !== 'undefined' && !streams[0].ended;
+      var hasStream = streams && streams.length > 0 && typeof(streams[0]) !== 'undefined';
       if (video && video.mozSrcObject !== undefined) {
         if(hasStream) {
           video.mozSrcObject = streams[0];

@@ -218,7 +218,6 @@
       // Start SIP Stack
       this.ua.start();
 
-      var isReinvite = false;
       // sipStack callbacks
       this.ua.on('connected', function(e)
       {
@@ -232,7 +231,6 @@
       });
       this.ua.on('onReInvite', function(e) {
         logger.log("incoming onReInvite event", self.configuration);
-        isReinvite = true;
         self.incomingReInvite(e);
       });
       this.ua.on('newRTCSession', function(e)
@@ -241,16 +239,6 @@
         self.sessions.push(session);
         self.eventBus.viewChanged(self);
 
-        // call event handlers
-        isReinvite = false;
-        var isAudioOnlyAnswer = false;
-        session.once('iceconnected', function(){
-          if(isAudioOnlyAnswer && !isReinvite) {
-            self.configuration.audioOnly = true;
-            self.configuration.offerToReceiveVideo = false;
-            self.updateUserMedia(null, session);
-          }
-        });
         session.on('progress', function(e)
         {
           self.eventBus.progress(e.sender, e.data);
@@ -282,7 +270,6 @@
         // handle incoming call
         if (e.data.session.direction === "incoming")
         {
-          isAudioOnlyAnswer = !self.hasVideo();
           self.incomingCall(e);
         } else {
           if(!self.activeSession) {
