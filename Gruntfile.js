@@ -126,9 +126,9 @@ module.exports = function(grunt) {
         }
       },
       options: {
-        beautify: true,
-        compress: false,
-        mangle: false,
+        beautify: false,
+        compress: true,
+        mangle: true,
         banner: '<%= meta.banner %>'
       }
     },
