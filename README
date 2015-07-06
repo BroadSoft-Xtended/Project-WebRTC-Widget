@@ -76,14 +76,13 @@ The following options exist
   enableCallControl: This feature enables a window to enter SIP URI and call button.
   enableCallTimer: This feature enables the display of how long the user is on a call.
   enableCallHistory: Allows the client to keep call history.  Show the history with <Shift>+H.
-  enableFullScreen: This feature enables the button for expanding the client to full screen.
+  enableFullacreen: This feature enables the button for expanding the client to full screen.
   enableSelfView: This feature enables the button for enabling/disabling self-view.
   enableCallStats: This feature enables the display of call statistics using <Shift>+S.  Statistics include bitrate in/out, lost packets, and lost percent for audio and video.  Video statistics also include frame rate in and out and resolution in and out.  Audio statistics also include audio level in and out.  The total jitter of the link is also shown.
-  enableDiaplad: This feature enables display of a dial pad.
   enableMute: This feature enables a mute button.
   enableMessages: This feature enables the status messages for connectivity, registration, and call progress.
-  enableRegistrationIcon: This feature enables an icon that indicates whether user is registered or not.  Fades away under normal operating conditions.  Stays red when there is a problem.
-  enableConnectionIcon: This feature enables an icon that indicates whether the user is connected via WebSockets.  The icon fades away under normal operating conditions and stays red when there is a problem.
+  enableRegistrationStatus: This feature enables an icon that indicates whether user is registered or not.  Fades away under normal operating conditions.  Stays red when there is a problem.
+  enableConnectionStatus: This feature enables an icon that indicates whether the user is connected via WebSockets.  The icon fades away under normal operating conditions and stays red when there is a problem.
   enableWindowDrag: This feature enables the user to drag the self-view, statistics, and history windows around.
   enableSettings: This feature enables the user to configure individual user settings that are stored as cookies.
   enableAutoAnswer: This feature enables being able to set auto answer in settings.
