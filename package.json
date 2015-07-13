@@ -28,7 +28,10 @@
     "webrtc-timer": "git+ssh://git.broadsoftlabs.net:7922/wrtc/timer.git",
     "webrtc-transfer": "git+ssh://git.broadsoftlabs.net:7922/wrtc/transfer.git",
     "webrtc-video": "git+ssh://git.broadsoftlabs.net:7922/wrtc/video.git",
-    "webrtc-videobar": "git+ssh://git.broadsoftlabs.net:7922/wrtc/videobar.git"
+    "webrtc-videobar": "git+ssh://git.broadsoftlabs.net:7922/wrtc/videobar.git",
+    "webrtc-sipstack": "git+ssh://git.broadsoftlabs.net:7922/wrtc/sipstack.git",
+    "webrtc-audio": "git+ssh://git.broadsoftlabs.net:7922/wrtc/audio.git",
+    "webrtc-sound": "git+ssh://git.broadsoftlabs.net:7922/wrtc/sound.git"
   },
   "devDependencies": {
     "brfs": "1.3.0",

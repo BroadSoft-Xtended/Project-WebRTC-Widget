@@ -1,0 +1,85 @@
+# Creating a Drop-in Widget
+
+If you want to completely recreate the BroadSoft WebRTC Widget that goes beyond simply configuring it with custom HTML templates and styles or you want to integrate your own modules then you might want to create your own Drop-in Widget.
+
+The recommended structure of a Drop-in Widget written as a CommonJS module is as following
+
+a)  [lib/loader.js](#lib_loader_js) : Bootstraping the widget using webrtc-core.Loader
+
+b)  [index.js](#index_js) : entry point to your module
+
+c)  [Makefile](#Makefile) : inheriting from webrtc-core/makefile.defs
+
+d)  [lib/views/<widgetname\>.js](CreatingModule.md#lib_views_modulename) : View inheriting from webrtc-core.bdsft.View
+
+e)  [lib/models/<widgetname\>.js](CreatingModule.md#lib_models_modulename) : Model inheriting from webrtc-core.bdsft.Model
+
+f)  (optional) [templates/<modulename\>.jade](CreatingModule.md#templates_modulename_jade) : HTML template
+
+g)  (optional) [styles/<modulename\>.styl](CreatingModule.md#styles_modulename_styl) : CSS styles
+
+h)  (optional) [images/<filename\>.\*](CreatingModule.md#images_filename) : Images
+
+i)  (optional) [media/<filename\>.\*](CreatingModule.md#media_filename) : Media
+
+j)  (optional) [js/config.js](CreatingModule.md#js_config_js) : Configuration parameters
+
+## lib/loader.js
+<a name="lib_loader_js"></a>
+
+The main purpose of this file is to bootstrap the widget and specify the dependencies of it.
+
+It can also be used to overwrite the default configurations of the module as described in [here](Configuration.md#configuration_in_loader).
+
+By using [webrtc-core.Loader](../../core/lib/loader.js) this class will also make sure that the Drop-in Widget is being inserted into the HTML host page.
+
+Under the hood the webrtc-core.Loader is using the [webrtc-core.Factory](../../core/lib/factory.js) and the dependencies provided to create all modules used in the widget and correctly inject them as parameters to other modules that depend on them.
+
+The BroadSoft WebRTC Widget contains the following [lib/loader.js](../lib/loader.js) file
+
+```
+var loader = require('webrtc-core').loader;
+
+var Widget = require('../');
+
+module.exports = loader(Widget, {
+	dependencies: {
+		authentication: require('webrtc-authentication'),
+		dialpad: require('webrtc-dialpad'),
+		// etc… adding more dependencies here
+	}
+});
+```
+## index.js
+<a name="index_js"></a>
+
+The only difference from a module's [index.js](CreatingModule.md#index_js) is that it needs to require additionally the [lib/loader.js](../lib/loader.js) file.
+
+So on the BroadSoft WebRTC Widget this looks like this
+
+```
+module.exports = {view: require('./lib/views/widget'), model: require('./lib/models/widget')};
+
+require('./lib/loader');
+```
+
+## Makefile
+<a name="Makefile"></a>
+
+In addition to the format described in the [Makefile](CreatingModule.md#Makefile) for a Drop-in Widget also needs a target to bundle the CommonJS modules using browserify.
+
+In the simplest case this target in the Makefile would look like this
+
+```
+dist/webrtc-bundle.js: js/templates.js js/styles.js js/images.js js/media.js
+
+./node\_modules/browserify/bin/cmd.js –t brfs index.js \> \$@
+```
+
+Most of the time you want also to additionally provide a target for a minimized production version of the Drop-in Widget
+
+```
+dist/webrtc-bundle.min.js: dist/webrtc-bundle.js
+
+./node\_modules/uglify-js/bin/uglifyjs \$\< \> \$@
+```
