@@ -4,25 +4,16 @@ If you want to completely recreate the BroadSoft WebRTC Widget that goes beyond 
 
 The recommended structure of a Drop-in Widget written as a CommonJS module is as following
 
-a)  [lib/loader.js](#lib_loader_js) : Bootstraping the widget using webrtc-core.Loader
-
-b)  [index.js](#index_js) : entry point to your module
-
-c)  [Makefile](#Makefile) : inheriting from webrtc-core/makefile.defs
-
-d)  [lib/views/<widgetname\>.js](CreatingModule.md#lib_views_modulename) : View inheriting from webrtc-core.bdsft.View
-
-e)  [lib/models/<widgetname\>.js](CreatingModule.md#lib_models_modulename) : Model inheriting from webrtc-core.bdsft.Model
-
-f)  (optional) [templates/<modulename\>.jade](CreatingModule.md#templates_modulename_jade) : HTML template
-
-g)  (optional) [styles/<modulename\>.styl](CreatingModule.md#styles_modulename_styl) : CSS styles
-
-h)  (optional) [images/<filename\>.\*](CreatingModule.md#images_filename) : Images
-
-i)  (optional) [media/<filename\>.\*](CreatingModule.md#media_filename) : Media
-
-j)  (optional) [js/config.js](CreatingModule.md#js_config_js) : Configuration parameters
+1. [lib/loader.js](#lib_loader_js) : Bootstraping the widget using webrtc-core.Loader
+2. [index.js](#index_js) : entry point to your module
+3. [Makefile](#Makefile) : inheriting from webrtc-core/makefile.defs
+4. [lib/views/<widgetname\>.js](CreatingModule.md#lib_views_modulename) : View inheriting from webrtc-core.bdsft.View
+5. [lib/models/<widgetname\>.js](CreatingModule.md#lib_models_modulename) : Model inheriting from webrtc-core.bdsft.Model
+6. (optional) [templates/<modulename\>.jade](CreatingModule.md#templates_modulename_jade) : HTML template
+7. (optional) [styles/<modulename\>.styl](CreatingModule.md#styles_modulename_styl) : CSS styles
+8. (optional) [images/<filename\>.\*](CreatingModule.md#images_filename) : Images
+9. (optional) [media/<filename\>.\*](CreatingModule.md#media_filename) : Media
+10. (optional) [js/config.js](CreatingModule.md#js_config_js) : Configuration parameters
 
 ## lib/loader.js
 <a name="lib_loader_js"></a>
@@ -31,11 +22,11 @@ The main purpose of this file is to bootstrap the widget and specify the depende
 
 It can also be used to overwrite the default configurations of the module as described in [here](Configuration.md#configuration_in_loader).
 
-By using [webrtc-core.Loader](../../core/lib/loader.js) this class will also make sure that the Drop-in Widget is being inserted into the HTML host page.
+By using [webrtc-core.Loader](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/loader.js) this class will also make sure that the Drop-in Widget is being inserted into the HTML host page.
 
-Under the hood the webrtc-core.Loader is using the [webrtc-core.Factory](../../core/lib/factory.js) and the dependencies provided to create all modules used in the widget and correctly inject them as parameters to other modules that depend on them.
+Under the hood the webrtc-core.Loader is using the [webrtc-core.Factory](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/factory.js) and the dependencies provided to create all modules used in the widget and correctly inject them as parameters to other modules that depend on them.
 
-The BroadSoft WebRTC Widget contains the following [lib/loader.js](../lib/loader.js) file
+The BroadSoft WebRTC Widget contains the following [lib/loader.js](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/loader.js) file
 
 ```
 var loader = require('webrtc-core').loader;
@@ -53,7 +44,7 @@ module.exports = loader(Widget, {
 ## index.js
 <a name="index_js"></a>
 
-The only difference from a module's [index.js](CreatingModule.md#index_js) is that it needs to require additionally the [lib/loader.js](../lib/loader.js) file.
+The only difference from a module's [index.js](CreatingModule.md#index_js) is that it needs to require additionally the [lib/loader.js](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/loader.js) file.
 
 So on the BroadSoft WebRTC Widget this looks like this
 
