@@ -180,11 +180,10 @@ Object.defineProperties(global, {
 
 
 setUp = function(){
+  test = require('../../node_modules/webrtc-sipstack/test/includes/common')(require('../../node_modules/webrtc-core/test/includes/common'));
   core = require('webrtc-core');
-  ExSIP = core.exsip;
   core.bdsft.databinders = {};
   global.bdsft_client_instances = {};
-  testUA = require('webrtc-core').testUA;
   Utils = core.utils;
   Constants = core.constants;  
   ClientConfig = core.defaults;

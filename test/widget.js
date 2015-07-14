@@ -3,8 +3,7 @@ describe('widget', function() {
 
   beforeEach(function() {
     setUp();
-    testUA.mockWebRTC();
-    testUA.setupLocalStorage();
+    test.setupLocalStorage();
     config = {
       sipstack: {
         domainTo: "domain.to",
