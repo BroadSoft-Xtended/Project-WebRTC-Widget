@@ -26,7 +26,7 @@ The built version of webrtc will be available in the `dist/` subdirectory in bot
 
 ### Installation
 
-Insert a <script\> tag with the src attribute pointing to the minified (webrtc-bundle.min.js) or uncompressed (webrtc-bundle.dev.js) file in the target html file inside the body where you want the WebRTC widget to be placed.
+Insert a \<script\> tag with the src attribute pointing to the minified (webrtc-bundle.min.js) or uncompressed (webrtc-bundle.dev.js) file in the target html file inside the body where you want the WebRTC widget to be placed.
 
 ```
 <html>
@@ -35,7 +35,6 @@ Insert a <script\> tag with the src attribute pointing to the minified (webrtc-b
   <body>
     <div>
       <script src=”dist/webrtc-bundle.min.js”>
-      {}
       </script>
     </div>
   </body>
