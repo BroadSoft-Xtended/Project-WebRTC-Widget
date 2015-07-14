@@ -20,7 +20,7 @@ The precedence of the configuration is to look first in the html host page, then
 
 ## Configuration in HTML host page<a name="configuration_html_host_page"></a>
 
-You can configure the widget by adding a javascript object inside the <script src="webrtc-bundle.min.js"\> tag.
+You can configure the widget by adding a javascript object inside the \<script src="webrtc-bundle.min.js"\> tag.
 
 The format of that object needs to be like this
 
@@ -32,7 +32,7 @@ The format of that object needs to be like this
 }
 ```
 
-For example in order to change the [websocketsServer](../../core/js/config.js) configuration from the sipstack module and the [domainTo](../../callcontrol/js/config.js) configuration from the callcontrol module the javascript object inside the <script\> tag would look like this
+For example in order to change the [websocketsServer](https://github.com/BroadSoft-Xtended/Library-WebRTC-SIPStack/blob/master/js/config.js) configuration from the sipstack module and the [domainTo](https://github.com/BroadSoft-Xtended/Library-WebRTC-CallControl/blob/master/js/config.js) configuration from the callcontrol module the javascript object inside the \<script\> tag would look like this
 
 ```
 <script src="webrtc-bundle.min.js">
@@ -87,7 +87,7 @@ In order to configure the other aspects of the modules those can be specified in
 }
 ```
 
-In order to replace the HTML template for a module you need to make sure that it contains CSS classes for every elements described in the lib/views/<modulename\>.js file. For example for the timer module the following elements are defined in [timer/lib/views/timer.js](../../timer/lib/views/timer.js)
+In order to replace the HTML template for a module you need to make sure that it contains CSS classes for every elements described in the lib/views/<modulename\>.js file. For example for the timer module the following elements are defined in [timer/lib/views/timer.js](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/views/timer.js)
 
 ```
 self.elements = ['text', 'timer'];
@@ -111,20 +111,20 @@ Especially if you are configuring templates or styles it might make sense to con
 
 Therefore you can use the existing [Makefile](../Makefile) to create those custom configuration. Just place a custom file inside the following directory depending on the aspect you want to configure
 
-a)  Media : widget/media/myaudio.ogg
-b)  Image : widget/images/mybgimage.svg
-c)  HTML template : widget/templates/<modulename\>.jade
-d)  CSS styles : widget/styles/<modulename\>.styl
+1. Media : widget/media/myaudio.ogg
+2. Image : widget/images/mybgimage.svg
+3. HTML template : widget/templates/<modulename\>.jade
+4. CSS styles : widget/styles/<modulename\>.styl
 
 And run 'make' from the widget/ directory. This will then output any of those files depending on the aspect
 
-a)  widget/js/media.js
-b)  widget/js/images.js
-c)  widget/js/templates.js
-d)  widget/js/styles.js
+1. widget/js/media.js
+2. widget/js/images.js
+3. widget/js/templates.js
+4. widget/js/styles.js
 
 Those files can then be used to configure the factory options parameter within the [widget/lib/loader.js](../lib/loader.js) file. The object has thereby the same
-format as described [above](#configuration_html_host_page). Eg assuming that we have generated custom styles and template for the authentication module we could specify those in the [widget/lib/loader.js](../lib/loader.js) file as following
+format as described [above](#configuration_html_host_page). Eg. assuming that we have generated custom styles and template for the authentication module we could specify those in the [widget/lib/loader.js](../lib/loader.js) file as following
 
 ```
 module.exports = loader(Widget, {
@@ -145,10 +145,10 @@ module.exports = loader(Widget, {
 The same structure of the configuration files for the different aspects described [above](#configuration_in_loader) also apply within the modules themselves. Either edit any existing files in those locations or create new ones and then run the make script through
 
 ```
-cd <module\> && make
+cd <module> && make
 ```
 
-The models or views then specify those files using the following syntax with the example of a [Model](../../core/lib/sound.js)
+The models or views then specify those files using the following syntax with the example of a [Model](https://github.com/BroadSoft-Xtended/Library-WebRTC-Sound/blob/master/lib/models/sound.js)
 
 ```
 module.exports = require('webrtc-core').bdsft.Model(Sound, {
@@ -157,7 +157,7 @@ module.exports = require('webrtc-core').bdsft.Model(Sound, {
 });
 ```
 
-Or for a [View]((../../timer/lib/views/timer.js)) it would look like this
+Or for a [View](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/views/timer.js) it would look like this
 
 ```
 module.exports = require('webrtc-core').bdsft.View(TimerView, {
@@ -166,9 +166,9 @@ module.exports = require('webrtc-core').bdsft.View(TimerView, {
 });
 ```
 
-## Configuration of CSS attributes through data attributes of the <script\> tag<a name="configuration_css_attributes"></a>
+## Configuration of CSS attributes through data attributes of the \<script\> tag<a name="configuration_css_attributes"></a>
 
-The following colors can be configured through data attributes of the <script\> tag that loads the WebRTC Widget and injects it into the page.
+The following colors can be configured through data attributes of the \<script\> tag that loads the WebRTC Widget and injects it into the page.
 
 Name                       | Attribute                          | Description
 -------------------------- | ---------------------------------- | -------------------------------------------------
@@ -189,4 +189,4 @@ They are defined on the <script\> tag like this
 </script>
 ```
 
-If you want to define your own styles to be configured through data attributes of the <script\> tag refer to [BroadSoft WebRTC SDK](CreatingModule.md#styles_modulename_styl).
+If you want to define your own styles to be configured through data attributes of the \<script\> tag refer to [BroadSoft WebRTC SDK](./CreatingModule.md#styles_modulename_styl).
