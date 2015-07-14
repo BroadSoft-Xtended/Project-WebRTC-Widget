@@ -1,17 +1,18 @@
 # Creating a Module
 
 Reusing WebRTC Core to create custom modules will greatly improve configurability and reduce the amount of source code to maintain.
+
 The recommended structure of a module written as a CommonJS module is as following
 
-a)  lib/views/<modulename\>.js : View inheriting from webrtc-core.bdsft.View
-b)  lib/models/<modulename\>.js : Model inheriting from webrtc-core.bdsft.Model
-c)  index.js : entry point to your module
-d)  Makefile : inheriting from webrtc-core/makefile.defs
-e)  (optional) templates/<modulename\>.jade : HTML template
-f)  (optional) styles/<modulename\>.styl : CSS styles
-g)  (optional) js/config.js : Configuration parameters
-h)  (optional) images/<filename\>.\* : Images
-i)  (optional) media/<filename\>.\* : Media
+1.  lib/views/<modulename\>.js : View inheriting from webrtc-core.bdsft.View
+2.  lib/models/<modulename\>.js : Model inheriting from webrtc-core.bdsft.Model
+3.  index.js : entry point to your module
+4.  Makefile : inheriting from webrtc-core/makefile.defs
+5.  (optional) templates/<modulename\>.jade : HTML template
+6.  (optional) styles/<modulename\>.styl : CSS styles
+7.  (optional) js/config.js : Configuration parameters
+8.  (optional) images/<filename\>.\* : Images
+9.  (optional) media/<filename\>.\* : Media
 
 ## lib/views/<modulename\>.js 
 <a name="lib_views_modulename"></a>
@@ -20,9 +21,9 @@ The view should inherit from **webrtc-core.bdsft.View**.
 
 It takes as arguments the constructor and options to specify templates, styles, images or media.
 
-The name of the constructor should end in <modulename\>View.
+The name of the constructor should end in \<modulename\>View.
 
-For example the [TimerView](../../timer/lib/views/timer.js) is defined as following
+For example the [TimerView](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/views/timer.js) is defined as following
 
 ```
 module.exports = require('webrtc-core').bdsft.View(TimerView, {
@@ -45,16 +46,16 @@ In above example the array **self.elements** matches the class names in the temp
         .text
 ```
 
-Thus those view elements can be accessed on [TimerView](../../timer/lib/views/timer.js) simply by their name and be wrapped as jQuery elements. In order to set the inner text of the Timer you would do
+Thus those view elements can be accessed on [TimerView](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/views/timer.js) simply by their name and be wrapped as jQuery elements. In order to set the inner text of the Timer you would do
 
 ```
 timerView.text.text('01:12:34')
 ```
 
-If a model exists in the same module with a property defined with the same name it would then automatically update the model too, which would be the case in our Timer module as it defines the property 'text' in [Timer](../../timer/lib/models/timer.js).
+If a model exists in the same module with a property defined with the same name it would then automatically update the model too, which would be the case in our Timer module as it defines the property 'text' in [Timer](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/models/timer.js).
 
 <a name="specify_constructor_arguments"></a>
-You can also specify arguments on the constructor. If using the [webrtc-core.factory](../../core/lib/factory.js)<a name="factory"></a> to instantiate the widget or module it will automatically be created and injected if the name matches any module or webrtc-core class name. For example if we wanted to use the [webrtc-core.debug](../../core/lib/debug.js) in order to print some logs for TimerView we can simply specify it as a parameter on the constructor
+You can also specify arguments on the constructor. If using the [webrtc-core.factory](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/factory.js)<a name="factory"></a> to instantiate the widget or module it will automatically be created and injected if the name matches any module or webrtc-core class name. For example if we wanted to use the [webrtc-core.debug](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/debug.js) in order to print some logs for TimerView we can simply specify it as a parameter on the constructor
 
 ```
 function TimerView(debug){
@@ -68,7 +69,7 @@ function TimerView(debug){
 
 The model should inherit from **webrtc-core.bdsft.Model**.
 
-It takes as arguments the constructor and options to specify config parameters. For example the [Timer](../../timer/lib/models/timer.js) is defined as following
+It takes as arguments the constructor and options to specify config parameters. For example the [Timer](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/models/timer.js) is defined as following
 
 ```
 module.exports = require('webrtc-core').bdsft.Model(Timer, {
@@ -115,14 +116,18 @@ The **self.props** array defines properties on any Timer instance that can be ac
 timer.text = '03:23:45'
 ```
 
-If a view exists in the same module with an element defined with the same name it would then automatically update the view too, which would be the case in our Timer module as it defines the element 'text' in [TimerView](../../timer/lib/views/timer.js).
+If a view exists in the same module with an element defined with the same name it would then automatically update the view too, which would be the case in our Timer module as it defines the element 'text' in [TimerView](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/views/timer.js).
 
 ### self.bindings
 <a name="databindings"></a>
 
 The **self.bindings** describes the data bindings for the Model. In our Timer example it defines two bindings, one for the property classes and one for enableCallTimer.
 
-The enableCallTimer property (which is defined in the configuration parameters [js/config.js](../../timer/js/config.js)) will be updated with the value of the [urlconfig.enableCallTimer](../../core/lib/urlconfig.js) property. This means that if the URL parameter 'enableCallTimer=true/false' is present, it will update the Timer's enableCallTimer property accordingly. If you want to handle the update of the property yourself, you can specify a function in the Model class with the name of
+The enableCallTimer property (which is defined in the configuration parameters [js/config.js](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/js/config.js) will be updated with the value of the [urlconfig.enableCallTimer](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/urlconfig.js) property. 
+
+This means that if the URL parameter 'enableCallTimer=true/false' is present, it will update the Timer's enableCallTimer property accordingly. 
+
+If you want to handle the update of the property yourself, you can specify a function in the Model class with the name of
 
 ```
 self.updateEnableCallTimer = function(value) {
@@ -148,7 +153,7 @@ This implements a specific data binder that will use any of the values of the bi
 
 This has the benefits that we are able to define state through CSS which allows for easy overwriting behavior through CSS, keeping view related handling in CSS and is easy testable through manipulating the CSS class names of the module.
 
-Depending on the type of the value of the binding sources it will either just use the value itself as a class name if it is of type string, or the name of the property itself if it is a boolean and of value true. In above [Timer](../../timer/lib/models/timer.js) example the classes binding sources are the following
+Depending on the type of the value of the binding sources it will either just use the value itself as a class name if it is of type string, or the name of the property itself if it is a boolean and of value true. In above [Timer](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/models/timer.js) example the classes binding sources are the following
 
 ```
 timer: 'enableCallTimer', // of type boolean as we have described above
@@ -162,13 +167,13 @@ Assuming that timer.enableCallTimer is true, that sipstack.callState is 'started
 ['enableCallTimer', 'started', 'audioOnly']
 ```
 
-And would end up as a class string on the [TimerView.classes](../../timer/templates/timer.jade) as
+And would end up as a class string on the [TimerView.classes](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/templates/timer.jade) as
 
 ```
 'enableCallTimer started audioOnly'
 ```
 
-The [styles/timer.styl](../../timer/styles/timer.styl) is then defining CSS rules to use those class names like this
+The [styles/timer.styl](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/styles/timer.styl) is then defining CSS rules to use those class names like this
 
 ```
 .timer.audioOnly
@@ -187,7 +192,11 @@ Both Model and View can also define two methods that will be called after the cl
 ### self.listeners
 
 <a name="self_listeners"></a>
-**self.listeners** is useful for registering listeners on [eventbus](../../core/lib/eventbus.js) or [databinders](../../core/lib/databinder.js). Databinders from other modules can be easily injected into the self.listeners function by adding the name of the databinder as an argument to the function. So if we wanted to add a listener to the databinder of the sipstack, we would add the self.listeners as following
+**self.listeners** is useful for registering listeners on [eventbus](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/eventbus.js) or [databinders](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/databinder.js). 
+
+Databinders from other modules can be easily injected into the self.listeners function by adding the name of the databinder as an argument to the function. 
+
+So if we wanted to add a listener to the databinder of the sipstack, we would add the self.listeners as following
 
 ```
 self.listeners = function(sipstackDatabinder) {
@@ -202,7 +211,9 @@ If specifying an argument with the name of databinder it will refer to the datab
 ### self.init
 
 <a name="self_init"></a>
-**self.init** is being called last before returning the instantiated Model or View object and can be used to trigger some initialization of properties or state. For the Timer Model it will update its text in order to be initialized as 00:00:00.
+**self.init** is being called last before returning the instantiated Model or View object and can be used to trigger some initialization of properties or state. 
+
+For the Timer Model it will update its text in order to be initialized as 00:00:00.
 
 ```
 self.init = function() {
@@ -215,7 +226,7 @@ self.init = function() {
 
 The index.js is the entry point to the module or widget.
 
-It should reference the view and model classes defined within the module or widget as following (as for [timer/index.js](../../timer/index.js))
+It should reference the view and model classes defined within the module or widget as following (as for [timer/index.js](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/index.js))
 
 ```
 module.exports = {view: require('./lib/views/timer'), model: require('./lib/models/timer')};
@@ -236,11 +247,11 @@ module.exports = {model: require('./lib/models/timer')};
 ## Makefile
 <a name="Makefile"></a>
 
-The Makefile should include the [makefile.defs](../../core/makefile.defs) from the webrtc-core.
+The Makefile should include the [makefile.defs](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/makefile.defs) from the webrtc-core.
 
 Depending on the aspects to build it should also define an all target for the make build.
 
-The Timer module has the following [Makefile](../../timer/Makefile)
+The Timer module has the following [Makefile](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/Makefile)
 
 ```
 all: js/templates.js js/styles.js
@@ -252,13 +263,10 @@ The Makefile will (re)build the HTML template and CSS styles when calling make i
 
 The webrtc-core.makefile.defs<a name="webrtc_core_makefile"></a> defines the following targets
 
-a)  [js/templates.js](#templates_modulename_jade) : rebuilds all templates/\*.jade files and outputs the HTML templates into js/templates.js
-
-b)  [js/styles.js](#styles_modulename_styl) : rebuilds all styles/\*.styl files and outputs the minimized CSS into js/styles.js
-
-c)  [js/media.js](#media_filename) : encodes all media/\*.\* files and outputs the object with the filenames as keys and the base64 strings as value to js/media.js
-
-d)  [js/images.js](#images_filename) : encodes all images/\*.\* files and outputs the object with the filenames as keys and the base64 strings as value to js/images.js
+1.  [js/templates.js](#templates_modulename_jade) : rebuilds all templates/\*.jade files and outputs the HTML templates into js/templates.js
+2.  [js/styles.js](#styles_modulename_styl) : rebuilds all styles/\*.styl files and outputs the minimized CSS into js/styles.js
+3.  [js/media.js](#media_filename) : encodes all media/\*.\* files and outputs the object with the filenames as keys and the base64 strings as value to js/media.js
+4.  [js/images.js](#images_filename) : encodes all images/\*.\* files and outputs the object with the filenames as keys and the base64 strings as value to js/images.js
 
 ## templates/<modulename\>.jade
 <a name="templates_modulename_jade"></a>
@@ -278,9 +286,9 @@ For ease of use and maintainability it is recommended to create the CSS styles a
 
 Using the js/styles.js target from the [webrtc-core.makefile.defs](#webrtc_core_makefile) the styles/<modulename\>.styl is converted to a minimized js/styles.js which is then referenced in the View constructor.
 
-The minimized CSS styles from js/styles.js will then be injected into the <head\> of the HTML host page once the module is being used and provided the module's View inherited from webrtc-core.bdsft.View.
+The minimized CSS styles from js/styles.js will then be injected into the \<head\> of the HTML host page once the module is being used and provided the module's View inherited from webrtc-core.bdsft.View.
 
-If you want to [make styles configurable](Configuration.md#configuration_css_attributes) through data attributes on the <script\> tag of the WebRTC Widget you can do so by first specifying the styles values inside a constants file like this
+If you want to [make styles configurable](./Configuration.md#configuration_css_attributes) through data attributes on the \<script\> tag of the WebRTC Widget you can do so by first specifying the styles values inside a constants file like this
 
 ```
 module.exports = {
@@ -300,7 +308,7 @@ module.exports = require('webrtc-core').bdsft.View(SettingsView, {
 });
 ```
 
-In the styl file you then reference the defined constant through the <%= %\> syntax
+In the styl file you then reference the defined constant through the \<%= %\> syntax
 
 ```
 @css {
@@ -310,7 +318,7 @@ In the styl file you then reference the defined constant through the <%= %\> syn
 }
 ```
 
-You can then overwrite that default value through the data attributes of the <script\> tag as shown [here](Configuration.md#configuration_css_attributes), in our example like this
+You can then overwrite that default value through the data attributes of the \<script\> tag as shown [here](Configuration.md#configuration_css_attributes), in our example like this
 
 ```
 <script src="dist/webrtc-bundle.dev.js" type="text/javascript" data-settings-tab-active-color ="green">
@@ -324,7 +332,7 @@ If the module has a View it might be using background images in CSS. To bundle t
 
 To convert the images to base64 encoded strings the images have to reside in /images directory. Then using the js/images.js target from the [webrtc-core.makefile.defs](#webrtc_core_makefile) the images/<filename\>.\* are converted to base64 encoded strings and put into an object in js/images.js which is then referenced in the View constructor.
 
-As described [here](Configuration.md#image_background_url) too the CSS styles for the modules need a background-url style that references the filename of the image in the format <%= filename %\>. Eg in the video module the images/videobg.svg file is then references in the CSS style of the video module as
+As described [here](Configuration.md#image_background_url) too the CSS styles for the modules need a background-url style that references the filename of the image in the format \<%= filename %\>. Eg in the video module the images/videobg.svg file is then references in the CSS style of the video module as
 
 ```
 .bdsft-webrtc .video {
@@ -340,7 +348,7 @@ If the module has a Model it might be using media files to play audio or video f
 
 To convert the media to base64 encoded strings the media files have to reside in /media directory. Then using the js/media.js target from the [webrtc-core.makefile.defs](#webrtc_core_makefile) the media/<filename\>.\* are converted to base64 encoded strings and put into an object in js/media.js which can then be referenced in the Model constructor.
 
-The media base64 encoded strings are then accessible from with the Model through the property self.medias. For example the [webrtc-core.Sound](../../core/lib/sound.js) class references audio media to play back ringing and dtmf tones.
+The media base64 encoded strings are then accessible from with the Model through the property self.medias. For example the [webrtc-core.Sound](https://github.com/BroadSoft-Xtended/Library-WebRTC-Sound/blob/master/lib/sound.js) class references audio media to play back ringing and dtmf tones.
 
 After creating the Model with
 
@@ -369,7 +377,7 @@ Where the media parameter contains the name of the audio file to play.
 
 If the module is using a Model it might need to use configuration parameters to specify overwritable properties with default values.
 
-Those can be specified in js/config.js as a simple object with key and values. For example the [js/config.js](../../timer/js/config.js) of the Timer module only defines one configuration parameter.
+Those can be specified in js/config.js as a simple object with key and values. For example the [js/config.js](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/js/config.js) of the Timer module only defines one configuration parameter.
 
 ```
 module.exports = {
