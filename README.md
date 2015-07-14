@@ -1,6 +1,6 @@
 # BroadSoft WebRTC Widget
 
-The BroadSoft WebRTC Widget is a javascript library that can be injected into a HTML5 page using a <script\> tag. After the library has loaded it will replace the <script\> tag with the widget.
+The BroadSoft WebRTC Widget is a SIP Endpoint bundled as a Drop-in Widget that can be injected into a HTML5 page using a <script> tag. After the library has loaded it will replace the <script> tag with the widget.
 
 ## Building
 
@@ -47,3 +47,6 @@ Once the page loads the webrtc-bundle.min.js <script\> tag will run and inject t
 ## Documentation
 
 [Configuration](documentation/Configuration.md)
+[SDK Overview](documentation/SDKOverview.md)
+[Creating a Module](documentation/CreatingModule.md)
+[Creating a Drop-in Widget](documentation/CreatingDropInWidget.md)
