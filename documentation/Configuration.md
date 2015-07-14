@@ -189,4 +189,4 @@ They are defined on the <script\> tag like this
 </script>
 ```
 
-If you want to define your own styles to be configured through data attributes of the \<script\> tag refer to [BroadSoft WebRTC SDK](./CreatingModule.md#styles_modulename_styl).
+If you want to define your own styles to be configured through data attributes of the \<script\> tag refer to [Creating A Module](./CreatingModule.md#styles_modulename_styl).
