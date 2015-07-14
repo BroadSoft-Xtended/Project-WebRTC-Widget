@@ -47,6 +47,9 @@ Once the page loads the webrtc-bundle.min.js <script\> tag will run and inject t
 ## Documentation
 
 [Configuration](documentation/Configuration.md)
+
 [SDK Overview](documentation/SDKOverview.md)
+
 [Creating a Module](documentation/CreatingModule.md)
+
 [Creating a Drop-in Widget](documentation/CreatingDropInWidget.md)
