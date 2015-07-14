@@ -3746,10 +3746,10 @@ function Loader(Widget, options) {
     window.BroadSoftWebRTC = window.BroadSoftWebRTC || {};
     window.BroadSoftWebRTC.widgets = [];
 
-    if (!currentScript.text()) {
-      return;
-    }
-    var configData = JSON.parse(currentScript.text());
+    // if (!currentScript.text()) {
+    //   return;
+    // }
+    var configData = currentScript.text().trim() ? JSON.parse(currentScript.text()) : {};
     console.log("script config : ", configData);
     var styleData = currentScript.data();
     var src = currentScript[0].src;
