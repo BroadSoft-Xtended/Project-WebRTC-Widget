@@ -2,7 +2,7 @@
   "name": "webrtc",
   "title": "webrtc",
   "description": "the broadsoft webrtc client",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "homepage": "http://exsip.net",
   "author": "Dominik Steiner",
   "main": "index.js",
