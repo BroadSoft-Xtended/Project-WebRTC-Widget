@@ -1,4 +1,4 @@
-// webrtc-bundle.dev.js 0.1.0
+// webrtc-bundle.dev.js 2.0.0
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = {view: require('./lib/views/widget'), model: require('./lib/models/widget')};
 
@@ -2701,8 +2701,8 @@ var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var ARGUMENT_NAMES = /([^\s,]+)/g;
 var DataBinder = require('./databinder');
 var Utils = require('./utils');
-var css = require('./css');
 var stylesCore = require('../js/styles').core;
+var cssCore = require('./css')({viewName: 'core'});
 
 var databinder = function(name) {
 	var databinder = bdsft.databinders[name];
@@ -2728,6 +2728,7 @@ function View(constructor, options) {
 	self.argNames = argNamesFun(constructor);
 	self.name = functionName(constructor);
 	self.viewName = self.name.replace('view', '');
+	var css = require('./css')(self);
 
 	self.create = function(constructorArgs, createOptions) {
 		constructorArgs = constructorArgs || [];
@@ -2751,7 +2752,7 @@ function View(constructor, options) {
 		call(object.listeners, options, self.viewName);
 		call(object.init, options, self.viewName);
 
-		css.inject('core', createOptions.styleData, {style: stylesCore});
+		cssCore.inject(createOptions.styleData, {style: stylesCore})
 		var style = createOptions.style && createOptions.style[self.viewName] 
 		|| options.style && options.style[self.viewName]
 		|| options.style && options.style['styles']
@@ -2767,7 +2768,29 @@ function View(constructor, options) {
 			if(Object.keys(images).length) {
 				styleData = Utils.extend(styleData, images);
 			}
-			css.inject(self.viewName, styleData, {constants: options.constants, style: style});
+			css.inject(styleData, {constants: options.constants, style: style});
+			if(!object.updateStyle) {
+				object.updateStyle = function(styles){
+					// only update if view contains constants.STYLES and styles keys
+					if(options.constants && options.constants.STYLES && Utils.contains(options.constants.STYLES, styles)) {
+						css.update(Utils.extend({}, styleData, styles), {constants: options.constants, style: style});
+					}
+				};
+			}
+			if(!object.styleChanges) {
+				object.styleChanges = function(){
+					var changes = {};
+					if(options.constants && options.constants.STYLES) {
+						for(var name in options.constants.STYLES) {
+							var value = options.constants.STYLES[name];
+							if(css.data && css.data[name] !== value) {
+								changes[name] = css.data[name];
+							}
+						}
+					}
+					return changes;
+				};
+			}
 		}
 
 		var classesHolder = object.view.find('.classes:first');
@@ -3145,31 +3168,61 @@ function CookieProp(obj, prop, databinder) {
 	return propObj;
 }
 },{"./constants":45,"./prop":58,"./utils":60,"jquery":85,"jquery.cookie":84}],48:[function(require,module,exports){
+module.exports = CSS;
+
 var ejs = require('ejs');
 var utils = require('./utils');
 var constants = require('./constants');
 
-var inject = function(name, styleData, options) {
-	var cssData = utils.extend({}, options.constants && options.constants.STYLES || constants.STYLES, styleData);
-	var styles = options.style;
-	if(!styles) {
-		return;
-	}
-	var cssStr = ejs.render(styles, cssData);
-	var id = 'bdsft_css_'+name;
-	var cssEl = utils.getElement('#'+id);
-	if (!cssEl || cssEl.length === 0) {
-		utils.createElement('<style>', {
-			id: id,
-			type: 'text/css',
-			text: cssStr
-		}, {
-			parent: 'head'
-		});
-	}
-};
+function CSS(view) {
+	var self = {};
 
-module.exports = {inject: inject};
+	var id = 'bdsft_css_'+view.viewName;
+
+	var cssData = function(styleData, options){
+		return utils.extend({}, options.constants && options.constants.STYLES || constants.STYLES, styleData);
+	};
+
+	var cssStr = function(styleData, options){
+		var styles = options.style;
+		if(!styles) {
+			return;
+		}
+		return ejs.render(styles, cssData(styleData, options));
+	};
+
+	self.inject = function(styleData, options) {
+		var css = cssStr(styleData, options);
+		if(!css) {
+			return;
+		}
+		var cssEl = utils.getElement('#'+id);
+		if (!cssEl || cssEl.length === 0) {
+			self.data = cssData(styleData, options);
+			utils.createElement('<style>', {
+				id: id,
+				type: 'text/css',
+				text: css
+			}, {
+				parent: 'head'
+			});
+		}
+	};
+
+	self.update = function(styleData, options) {
+		var css = cssStr(styleData, options);
+		if(!css) {
+			return;
+		}
+		var cssEl = utils.getElement('#'+id);
+		if (cssEl && cssEl.length > 0) {
+			self.data = cssData(styleData, options);
+			cssEl.text(css)
+		}
+	};
+
+	return self;
+}
 },{"./constants":45,"./utils":60,"ejs":66}],49:[function(require,module,exports){
 module.exports = DataBinder;
 
@@ -3718,6 +3771,7 @@ function Factory(options) {
     }
   };
 },{}],56:[function(require,module,exports){
+(function (global){
 // var jQuery = jquery = $ = require('jquery');
 // require('jquery.cookie')
 // var core = require('webrtc-core');
@@ -3732,12 +3786,12 @@ function Loader(Widget, options) {
 
   self.asScript = function(src, config, styles) {
     var script = '<script src="' + src + '" ';
-    var dataStrs = Object.keys(styles).map(function(key) {
+    var dataStrs = Object.keys(styles || {}).map(function(key) {
       var value = styles[key];
-      return "data-" + key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + "='" + value + "'";
+      return "data-" + key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + '="' + value + '"';
     });
     script += dataStrs.join(' ');
-    script += '>\n' + JSON.stringify(config, undefined, 2) + '\n</script>';
+    script += '>\n' + (config && Object.keys(config).length ? JSON.stringify(config, undefined, 2) : '') + '\n</script>';
     return script;
   };
 
@@ -3746,9 +3800,10 @@ function Loader(Widget, options) {
     window.BroadSoftWebRTC = window.BroadSoftWebRTC || {};
     window.BroadSoftWebRTC.widgets = [];
 
-    // if (!currentScript.text()) {
-    //   return;
-    // }
+    // for mocha tests
+    if(!currentScript[0]) {
+      return;
+    }
     var configData = currentScript.text().trim() ? JSON.parse(currentScript.text()) : {};
     console.log("script config : ", configData);
     var styleData = currentScript.data();
@@ -3769,24 +3824,41 @@ function Loader(Widget, options) {
     var widget = Factory(factoryOptions)(Widget.view);
 
     var modules = function(){
-      return window[factoryOptions.namespace][factoryOptions.id];
+      return (window[factoryOptions.namespace] || global[factoryOptions.namespace])[factoryOptions.id];
     }
     if(!widget.asScript) {
       widget.asScript = function(){
         var configs = {};
+        var styles = {};
         for(var name in modules()) {
           var module = modules()[name];
-          var changes = module.configChanges && module.configChanges();
-          configs = Utils.extend(configs, {name: changes});
+          var configChanges = module.configChanges && module.configChanges();
+          if(configChanges && Object.keys(configChanges).length) {
+            var changesObj = {};
+            changesObj[name] = configChanges; 
+            configs = Utils.extend(configs, changesObj);
+          }
+          var styleChanges = module.styleChanges && module.styleChanges();
+          if(styleChanges && Object.keys(styleChanges).length) {
+            styles = Utils.extend(styles, styleChanges);
+          }
         }
-        return self.asScript(src, configs, styleData);
+        return self.asScript(src, configs, styles);
       };
     }
-    if(!widget.updateConfig) {
-      widget.updateConfig = function(config){
+    if(!widget.updateConfigs) {
+      widget.updateConfigs = function(config){
         for(var name in modules()) {
           var module = modules()[name];
           module.updateConfig && module.updateConfig(config && config[name] || config);
+        }
+      };
+    }
+    if(!widget.updateStyles) {
+      widget.updateStyles = function(styles){
+        for(var name in modules()) {
+          var module = modules()[name];
+          module.updateStyle && module.updateStyle(styles && styles[name.replace(/view$/i, '')] || styles);
         }
       };
     }
@@ -3879,6 +3951,7 @@ function Loader(Widget, options) {
 //     }
 //   }
 // };
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../":41,"./constants":45,"./factory":54,"./utils":60,"deep-extend":65}],57:[function(require,module,exports){
 module.exports = PopupView;
 var $ = require('jquery');
@@ -4208,6 +4281,10 @@ var Utils = {
       }
     }
     return;
+  },
+
+  contains: function(srcObject, dstObject) {
+    return Object.keys(this.pick(srcObject, Object.keys(dstObject))).length;
   },
 
   containsKey: function(object, value) {
