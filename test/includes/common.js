@@ -190,7 +190,8 @@ setUp = function(){
 }
 
 create = function(config){
-  var configData = core.utils.extend({id: 'test', debug: false, disabled: false, enableWindowDrag: false, namespace: 'bdsft_client_instances'}, config);
+  config = config || {};
+  var configData = core.utils.extend({id: 'test', debug: {names: false}, sipstack: {enabled: false}, stats: {enableCallStats: false}, namespace: 'bdsft_client_instances'}, config);
   var loader = require('../../lib/loader');
   var client = loader.create(configData);
   client.appendTo(core.utils.getElement('body'));
