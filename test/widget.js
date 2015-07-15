@@ -40,8 +40,8 @@ describe('widget', function() {
 
   it('updateStyles() and asScript()', function() {
     widget = create();
-    widget.updateStyles({settings: {settingsTabActiveColor: "red"}})
-    expect(widget.asScript().replace(/\n/g,'')).toEqual('<script src="undefined" data-settings-tab-active-color="red"></script>');
+    widget.updateStyles({settings: {settingsTabActiveColor: "red"}, core: {iconHighlightColor: "blue"}})
+    expect(widget.asScript().replace(/\n/g,'')).toEqual('<script src="undefined" data-icon-highlight-color="blue" data-settings-tab-active-color="red"></script>');
   });
 
   it('classes for view=audioOnly', function() {
