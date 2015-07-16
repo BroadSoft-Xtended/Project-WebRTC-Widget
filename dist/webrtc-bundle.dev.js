@@ -4159,7 +4159,6 @@ function URLConfig() {
 		enableScreenshare: isTrueOrFeature('enableScreenshare'),
 		enableSelfView: isTrueOrFeature('enableSelfView'),
 		enableCallStats: isTrueOrFeature('enableCallStats'),
-		enableDialpad: isTrueOrFeature('enableDialpad'),
 		enableMute: isTrueOrFeature('enableMute'),
 		enableMessages: isTrueOrFeature('enableMessages'),
 		enableRegistrationStatus: isTrueOrFeature('enableRegistrationStatus'),
