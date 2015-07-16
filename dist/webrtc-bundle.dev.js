@@ -2424,6 +2424,9 @@ module.exports = {
 	debug: {
 		names: '*',
 		level: 'debug'
+	},
+	urlconfig: {
+		view: 'audioOnly'
 	}
 }
 
@@ -4096,7 +4099,9 @@ function StylesManager(){
 
 module.exports = StylesManager();
 },{"../js/styles":39,"./constants":45,"./css":48,"./utils":61}],60:[function(require,module,exports){
-module.exports = require('./bdsft').Model(URLConfig);
+module.exports = require('./bdsft').Model(URLConfig, {
+	js: require('../js/config')
+});
 
 var Flags = {
 	enableCallControl: 1,
@@ -4124,7 +4129,7 @@ function URLConfig() {
 	var self = {};
 
 	var contains = function(name, value) {
-		var val = Utils.getSearchVariable(name);
+		var val = self.props[name];
 		return val && val.indexOf(value) !== -1
 	};
 	var isTrue = function(name) {
@@ -4143,9 +4148,8 @@ function URLConfig() {
 
 	self.props = {
 		audioOnly: isTrue("audioOnly"),
-		audioOnlyView: contains('view', 'audioOnly'),
 		hd: isTrue("hd"),
-		view: Utils.getSearchVariable("view"),
+		view: Utils.getSearchVariable("view") || self.view,
 		maxCallLength: Utils.getSearchVariable("maxCallLength"),
 		destination: Utils.getSearchVariable("destination"),
 		networkUserId: Utils.getSearchVariable("networkUserId"),
@@ -4171,6 +4175,8 @@ function URLConfig() {
 		enableIms: isTrueOrFeature('enableIms')
 	}
 
+	self.props.audioOnlyView = self.props.view && self.props.view.indexOf('audioOnly') !== -1;
+
 	self.getFeatures = function() {
 		var flags = 0;
 		for (var flag in Flags) {
@@ -4195,7 +4201,7 @@ function URLConfig() {
 
 	return self;
 }
-},{"./bdsft":42,"./utils":61}],61:[function(require,module,exports){
+},{"../js/config":38,"./bdsft":42,"./utils":61}],61:[function(require,module,exports){
 var adapter = require('./adapter');
 var $ = require('jquery');
 
