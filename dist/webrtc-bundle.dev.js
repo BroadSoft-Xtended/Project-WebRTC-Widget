@@ -3955,7 +3955,7 @@ function StylesManager(){
 		var changes = {};
         for(var name in self.styles) {
           var style = self.styles[name];
-          changes = Utils.extend(changes, style.changes());
+          changes = utils.extend(changes, style.changes());
         }
         return changes;
 	};
