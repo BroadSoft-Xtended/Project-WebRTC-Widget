@@ -18,18 +18,18 @@
     <script src="dist/webrtc-bundle.dev.js" type="text/javascript" data-icon-hightlight-color="red">
     {
       "sipstack": {
-        "websocketsServers": [{"ws_uri":"wss://wrs2vm02pub.mtl.broadsoft.com:8070","weight":0}],
-        "stunServer": "wrs2vm02pub.mtl.broadsoft.com",
+        "websocketsServers": [{"ws_uri":"wss://webrtc-gw2.broadsoftlabs.com:8443", "weight":0}],
+        "stunServer": "stun.broadsoftlabs.com",
         "stunPort": 3478,
-        "domainFrom": "virtsanity.mtl.broadsoft.com",
+        "domainFrom": "broadsoftlabs.com",
         "debug": true,
         "enableConnectLocalMedia": false
       },
       "callcontrol": {
-        "domainTo": "virtsanity.mtl.broadsoft.com"
+        "domainTo": "broadsoftlabs.com"
       },
       "authentication": {
-        "register": false
+        "register": true
       },
       "sms": {
         "enableSMS": true
