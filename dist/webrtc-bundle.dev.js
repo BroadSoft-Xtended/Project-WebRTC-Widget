@@ -62,7 +62,7 @@ module.exports = loader(Widget, {
             widget: Widget
       }
 });
-},{"../":1,"webrtc-audio":14,"webrtc-authentication":20,"webrtc-callcontrol":26,"webrtc-connectionstatus":82,"webrtc-core":91,"webrtc-dialpad":138,"webrtc-fullscreen":142,"webrtc-history":148,"webrtc-incomingcall":156,"webrtc-messages":161,"webrtc-settings":218,"webrtc-sipstack":275,"webrtc-sound":362,"webrtc-stats":416,"webrtc-timer":474,"webrtc-transfer":480,"webrtc-video":486,"webrtc-videobar":543}],5:[function(require,module,exports){
+},{"../":1,"webrtc-audio":14,"webrtc-authentication":20,"webrtc-callcontrol":26,"webrtc-connectionstatus":82,"webrtc-core":91,"webrtc-dialpad":138,"webrtc-fullscreen":142,"webrtc-history":148,"webrtc-incomingcall":156,"webrtc-messages":161,"webrtc-settings":218,"webrtc-sipstack":275,"webrtc-sound":362,"webrtc-stats":416,"webrtc-timer":474,"webrtc-transfer":531,"webrtc-video":537,"webrtc-videobar":594}],5:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Widget);
 
 var Constants = require('webrtc-core').constants;
@@ -2938,8 +2938,7 @@ var C = {
   EXPIRES: 365,
 
   STYLES: {
-    iconHighlightColor: '#00adef',
-    timerColor: '#FFFFFF'
+    iconHighlightColor: '#00adef'
   }
 
 };
@@ -43853,7 +43852,7 @@ module.exports=require(80)
 module.exports=require(81)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":81}],474:[function(require,module,exports){
 module.exports = {view: require('./lib/views/timer'), model: require('./lib/models/timer')};
-},{"./lib/models/timer":478,"./lib/views/timer":479}],475:[function(require,module,exports){
+},{"./lib/models/timer":479,"./lib/views/timer":480}],475:[function(require,module,exports){
 module.exports = {
     enableCallTimer: true
 };
@@ -43884,6 +43883,14 @@ module.exports = {"timer":".bdsft-webrtc .timer{position:absolute;top:3px;left:0
     return templatizer;
 }));
 },{"fs":7}],478:[function(require,module,exports){
+var C = {
+  STYLES: {
+    timerColor: '#FFFFFF'
+  }
+};
+
+module.exports = C;
+},{}],479:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Timer, {
   config: require('../../js/config.js')
 });
@@ -43972,10 +43979,11 @@ function Timer(eventbus, debug, urlconfig, sipstack) {
 
   return self;
 }
-},{"../../js/config.js":475,"webrtc-core":91}],479:[function(require,module,exports){
+},{"../../js/config.js":475,"webrtc-core":484}],480:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(TimerView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  constants: require('../constants')
 });
 
 function TimerView(timer) {
@@ -43987,15 +43995,115 @@ function TimerView(timer) {
 
   return self;
 }
-},{"../../js/styles":476,"../../js/templates":477,"webrtc-core":91}],480:[function(require,module,exports){
+},{"../../js/styles":476,"../../js/templates":477,"../constants":478,"webrtc-core":484}],481:[function(require,module,exports){
+module.exports=require(32)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/config.js":32}],482:[function(require,module,exports){
+module.exports=require(33)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/styles.js":33}],483:[function(require,module,exports){
+module.exports=require(34)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/adapter.js":34}],484:[function(require,module,exports){
+module.exports=require(35)
+},{"./adapter":483,"./bdsft":485,"./constants":488,"./cookieconfig":489,"./cookieprop":490,"./dateformat":493,"./debug":494,"./element":495,"./eventbus":496,"./factory":497,"./icon":498,"./loader":499,"./popup":500,"./prop":501,"./urlconfig":503,"./utils":504,"./visibleprop":505,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/app.js":35}],485:[function(require,module,exports){
+module.exports=require(36)
+},{"./app":484,"./binding":486,"./classesbinding":487,"./databinder":492,"./stylesmanager":502,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/bdsft.js":36,"jquery":529}],486:[function(require,module,exports){
+module.exports=require(37)
+},{"./bdsft":485,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/binding.js":37}],487:[function(require,module,exports){
+module.exports=require(38)
+},{"./binding":486,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/classesbinding.js":38}],488:[function(require,module,exports){
+module.exports=require(39)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/constants.js":39}],489:[function(require,module,exports){
+module.exports=require(40)
+},{"./bdsft":485,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieconfig.js":40,"jquery":529,"jquery.cookie":528}],490:[function(require,module,exports){
+module.exports=require(41)
+},{"./constants":488,"./prop":501,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieprop.js":41,"jquery":529,"jquery.cookie":528}],491:[function(require,module,exports){
+module.exports=require(42)
+},{"./constants":488,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/css.js":42,"ejs":510}],492:[function(require,module,exports){
+module.exports=require(43)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/databinder.js":43,"event-emitter":513}],493:[function(require,module,exports){
+module.exports=require(44)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/dateformat.js":44}],494:[function(require,module,exports){
+module.exports=require(45)
+},{"../js/config":481,"./bdsft":485,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/debug.js":45,"debug":506,"stacktrace-js":530}],495:[function(require,module,exports){
+module.exports=require(46)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/element.js":46}],496:[function(require,module,exports){
+module.exports=require(47)
+},{"./bdsft":485,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/eventbus.js":47,"event-emitter":513}],497:[function(require,module,exports){
+module.exports=require(48)
+},{"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/factory.js":48,"jquery":529}],498:[function(require,module,exports){
+module.exports=require(49)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/icon.js":49}],499:[function(require,module,exports){
+module.exports=require(50)
+},{"../":484,"./constants":488,"./factory":497,"./stylesmanager":502,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/loader.js":50,"deep-extend":509}],500:[function(require,module,exports){
+module.exports=require(51)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/popup.js":51,"jquery":529}],501:[function(require,module,exports){
+module.exports=require(52)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/prop.js":52}],502:[function(require,module,exports){
+module.exports=require(53)
+},{"../js/styles":482,"./constants":488,"./css":491,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/stylesmanager.js":53}],503:[function(require,module,exports){
+module.exports=require(54)
+},{"../js/config":481,"./bdsft":485,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/urlconfig.js":54}],504:[function(require,module,exports){
+module.exports=require(55)
+},{"./adapter":483,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/utils.js":55,"jquery":529}],505:[function(require,module,exports){
+module.exports=require(56)
+},{"./constants":488,"./prop":501,"./utils":504,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/visibleprop.js":56}],506:[function(require,module,exports){
+module.exports=require(57)
+},{"./debug":507,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/browser.js":57}],507:[function(require,module,exports){
+module.exports=require(58)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/debug.js":58,"ms":508}],508:[function(require,module,exports){
+module.exports=require(59)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/node_modules/ms/index.js":59}],509:[function(require,module,exports){
+module.exports=require(60)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/deep-extend/lib/deep-extend.js":60,"buffer":8}],510:[function(require,module,exports){
+module.exports=require(61)
+},{"./filters":511,"./utils":512,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/ejs.js":61,"fs":7,"path":12}],511:[function(require,module,exports){
+module.exports=require(62)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/filters.js":62}],512:[function(require,module,exports){
+module.exports=require(63)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/utils.js":63}],513:[function(require,module,exports){
+module.exports=require(64)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/index.js":64,"d":514,"es5-ext/object/valid-callable":523}],514:[function(require,module,exports){
+module.exports=require(65)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":65,"es5-ext/object/assign":515,"es5-ext/object/is-callable":518,"es5-ext/object/normalize-options":522,"es5-ext/string/#/contains":525}],515:[function(require,module,exports){
+module.exports=require(66)
+},{"./is-implemented":516,"./shim":517,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":66}],516:[function(require,module,exports){
+module.exports=require(67)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":67}],517:[function(require,module,exports){
+module.exports=require(68)
+},{"../keys":519,"../valid-value":524,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":68}],518:[function(require,module,exports){
+module.exports=require(69)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":69}],519:[function(require,module,exports){
+module.exports=require(70)
+},{"./is-implemented":520,"./shim":521,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":70}],520:[function(require,module,exports){
+module.exports=require(71)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":71}],521:[function(require,module,exports){
+module.exports=require(72)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":72}],522:[function(require,module,exports){
+module.exports=require(73)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":73}],523:[function(require,module,exports){
+module.exports=require(74)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":74}],524:[function(require,module,exports){
+module.exports=require(75)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":75}],525:[function(require,module,exports){
+module.exports=require(76)
+},{"./is-implemented":526,"./shim":527,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":76}],526:[function(require,module,exports){
+module.exports=require(77)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":77}],527:[function(require,module,exports){
+module.exports=require(78)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":78}],528:[function(require,module,exports){
+module.exports=require(79)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery.cookie/jquery.cookie.js":79,"jquery":529}],529:[function(require,module,exports){
+module.exports=require(80)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":80}],530:[function(require,module,exports){
+module.exports=require(81)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":81}],531:[function(require,module,exports){
 module.exports = {view: require('./lib/views/transfer'), model: require('./lib/models/transfer')};
-},{"./lib/models/transfer":484,"./lib/views/transfer":485}],481:[function(require,module,exports){
+},{"./lib/models/transfer":535,"./lib/views/transfer":536}],532:[function(require,module,exports){
 module.exports = {
     enableTransfer: true
 };
-},{}],482:[function(require,module,exports){
+},{}],533:[function(require,module,exports){
 module.exports = {"transfer":".bdsft-webrtc .transferPopup{color:#fff}.bdsft-webrtc .transferPopup .target{width:200px;line-height:30px;margin:5px;margin-left:0}.bdsft-webrtc .transferPopup .actions{padding:10px}.bdsft-webrtc .transferPopup .actions button{margin-right:10px}.bdsft-webrtc .transferPopup .reject{color:#f00}.bdsft-webrtc .transferPopup.enableTransfer.started.transfer-shown{transition:all 1s linear;opacity:1;z-index:100}.bdsft-webrtc .transferPopup.enableTransfer:not(.transfer-shown){transition:all 1s linear;opacity:0;z-index:-1}"}
-},{}],483:[function(require,module,exports){
+},{}],534:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);
@@ -44024,7 +44132,7 @@ module.exports = {"transfer":".bdsft-webrtc .transferPopup{color:#fff}.bdsft-web
 
     return templatizer;
 }));
-},{"fs":7}],484:[function(require,module,exports){
+},{"fs":7}],535:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Transfer, {
   config: require('../../js/config.js')
 });
@@ -44058,7 +44166,7 @@ function Transfer(sipstack, callcontrol, urlconfig) {
 
   return self;
 }
-},{"../../js/config.js":481,"webrtc-core":91}],485:[function(require,module,exports){
+},{"../../js/config.js":532,"webrtc-core":91}],536:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(TransferView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles')
@@ -44094,9 +44202,9 @@ function TransferView(sound, transfer) {
 
   return self;
 }
-},{"../../js/styles":482,"../../js/templates":483,"webrtc-core":91}],486:[function(require,module,exports){
+},{"../../js/styles":533,"../../js/templates":534,"webrtc-core":91}],537:[function(require,module,exports){
 module.exports = {view: require('./lib/views/video'), model: require('./lib/models/video')};
-},{"./lib/models/video":491,"./lib/views/video":492}],487:[function(require,module,exports){
+},{"./lib/models/video":542,"./lib/views/video":543}],538:[function(require,module,exports){
 module.exports = {
 	enableSelfView: true,
     selfViewLocation: "bl",
@@ -44104,11 +44212,11 @@ module.exports = {
 	displayResolution: "640x480"
 }
 
-},{}],488:[function(require,module,exports){
+},{}],539:[function(require,module,exports){
 module.exports = {"videobg":"PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMTY1LjkgNjEyIDQ2MC4zIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMTY1LjkgNjEyIDQ2MC4zIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCgkgPGRlZnM+DQoJCTxsaW5lYXJHcmFkaWVudCBpZD0iU1ZHSURfMV8iIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMCUiIHkyPSIxMDAlIj4NCgkJCTxzdG9wIG9mZnNldD0iMCUiICAgc3R5bGU9InN0b3AtY29sb3I6IzAwMDAwMCIvPg0KCQkJPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNDk0OTQ5Ii8+DQoJCTwvbGluZWFyR3JhZGllbnQ+DQoJPC9kZWZzPg0KCTxyZWN0IHk9IjE2NS45IiBmaWxsPSJ1cmwoI1NWR0lEXzFfKSIgd2lkdGg9IjYxMiIgaGVpZ2h0PSI0NjAuMyIvPg0KCTxnPg0KCQk8Zz4NCgkJCTxwYXRoIGZpbGw9IiMyODI4MjgiIGQ9Ik00MzIuNywzMTkuMnYxNTMuNWMwLDMuOS0xLjgsNi44LTUuNCw4LjRjLTEuMywwLjctMi41LDEtMy40LDFjLTIuNywwLTQuOC0xLTYuNC0zbC01Ni45LTU2Ljl2MjMuOA0KCQkJCWMwLDExLjItNCwyMC44LTEyLjEsMjguN2MtOC4xLDcuOS0xNy44LDExLjgtMjksMTEuOGgtOTkuNWMtMTEuMiwwLTIwLjgtMy45LTI4LjctMTEuOGMtNy45LTcuOS0xMS44LTE3LjUtMTEuOC0yOC43VjM0Ng0KCQkJCWMwLTExLjIsMy45LTIwLjgsMTEuOC0yOC43YzcuOS03LjksMTcuNS0xMS44LDI4LjctMTEuOGg5OS41YzExLjIsMCwyMC44LDMuOSwyOSwxMS44YzguMSw3LjksMTIuMSwxNy41LDEyLjEsMjguN3YyMy44DQoJCQkJbDU2LjktNTYuOWMxLjYtMiwzLjgtMyw2LjQtM2MxLDAsMi4xLDAuMywzLjQsMUM0MzAuOCwzMTIuNSw0MzIuNywzMTUuMyw0MzIuNywzMTkuMnoiLz4NCgkJPC9nPg0KCTwvZz4NCjwvc3ZnPg0K"}
-},{}],489:[function(require,module,exports){
+},{}],540:[function(require,module,exports){
 module.exports = {"video":".bdsft-webrtc .video{position:relative;top:0;left:0;width:100%;height:auto;box-shadow:0 0 1px rgba(0,0,0,0.05)}.bdsft-webrtc .video .remote{display:none;position:absolute;top:0;left:0;width:100%;height:100%;backface-visibility:hidden;box-shadow:0 0 10px #000}.bdsft-webrtc .video .localVideo{position:absolute;top:auto;left:0;bottom:0;right:auto;width:25%;height:25%;background-color:transparent}.bdsft-webrtc .video .localVideo video{border-radius:0;box-shadow:none;background:#292929;border:1px solid #3c3c3c;cursor:move;width:100%;height:100%;position:absolute}.bdsft-webrtc .video .localVideo .inner{margin:5px;position:absolute;top:0;bottom:0;right:0;left:0}.bdsft-webrtc .video._960x720 .content,.bdsft-webrtc .video._640x480 .content,.bdsft-webrtc .video._320x240 .content{padding-bottom:75%}.bdsft-webrtc .video._1920x1080 .content,.bdsft-webrtc .video._1280x720 .content,.bdsft-webrtc .video._640x360 .content,.bdsft-webrtc .video._320x180 .content,.bdsft-webrtc .video.hd .content{padding-bottom:56.25%}.bdsft-webrtc .video._960x720{width:960px}.bdsft-webrtc .video._640x360,.bdsft-webrtc .video._640x480{width:640px}.bdsft-webrtc .video._320x180,.bdsft-webrtc .video._320x240{width:320px}.bdsft-webrtc .video._1280x720,.bdsft-webrtc .video.hd{width:1280px}.bdsft-webrtc .video._1920x1080{width:1920px}.bdsft-webrtc .video.fullscreen-shown{padding-bottom:0;bottom:40px;position:absolute;height:auto!important;width:100%}.bdsft-webrtc .video.started .remote{display:inline;box-shadow:0 0 1px rgba(0,0,0,0.1)}.bdsft-webrtc .video.bl .localVideo{top:auto;bottom:0;left:0;right:auto}.bdsft-webrtc .video.tl .localVideo{top:0;bottom:auto;left:0;right:auto}.bdsft-webrtc .video.tr .localVideo{top:0;bottom:auto;left:auto!important;right:0}.bdsft-webrtc .video.br .localVideo{top:auto;bottom:0;left:auto!important;right:0}.bdsft-webrtc .video._1x .localVideo{width:25%;height:25%}.bdsft-webrtc .video._2x .localVideo{width:50%;height:50%}.bdsft-webrtc .video.audioOnly{display:none!important}.bdsft-webrtc .video.enableSelfView:not(.video-hidden) .localVideo{transition:all 1s linear;opacity:1;z-index:20}.bdsft-webrtc .video.enableSelfView.video-hidden .localVideo{transition:all 1s linear;opacity:0;z-index:-1}.bdsft-webrtc :-webkit-full-screen .remote{z-index:1}.bdsft-webrtc :-webkit-full-screen .localVideo{z-index:2}.bdsft-webrtc :-webkit-full-screen .remote,.bdsft-webrtc :-webkit-full-screen .localVideo{border:0;border-radius:0}.bdsft-webrtc .video{background:url('data:image/svg+xml;base64,<%= videobg %>') no-repeat left center;background-size:cover}"}
-},{}],490:[function(require,module,exports){
+},{}],541:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);
@@ -44137,7 +44245,7 @@ module.exports = {"video":".bdsft-webrtc .video{position:relative;top:0;left:0;w
 
     return templatizer;
 }));
-},{"fs":7}],491:[function(require,module,exports){
+},{"fs":7}],542:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Video, {
   config: require('../../js/config.js')
 });
@@ -44242,7 +44350,7 @@ function Video(eventbus, debug, urlconfig, cookieconfig, sipstack, fullscreen) {
 
   return self;
 }
-},{"../../js/config.js":487,"webrtc-core":496}],492:[function(require,module,exports){
+},{"../../js/config.js":538,"webrtc-core":547}],543:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(VideoView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles'),
@@ -44346,115 +44454,115 @@ function VideoView(eventbus, debug, video, sipstack) {
 
   return self;
 }
-},{"../../js/images":488,"../../js/styles":489,"../../js/templates":490,"webrtc-core":496}],493:[function(require,module,exports){
+},{"../../js/images":539,"../../js/styles":540,"../../js/templates":541,"webrtc-core":547}],544:[function(require,module,exports){
 module.exports=require(32)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/config.js":32}],494:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/config.js":32}],545:[function(require,module,exports){
 module.exports=require(33)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/styles.js":33}],495:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/styles.js":33}],546:[function(require,module,exports){
 module.exports=require(34)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/adapter.js":34}],496:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/adapter.js":34}],547:[function(require,module,exports){
 module.exports=require(35)
-},{"./adapter":495,"./bdsft":497,"./constants":500,"./cookieconfig":501,"./cookieprop":502,"./dateformat":505,"./debug":506,"./element":507,"./eventbus":508,"./factory":509,"./icon":510,"./loader":511,"./popup":512,"./prop":513,"./urlconfig":515,"./utils":516,"./visibleprop":517,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/app.js":35}],497:[function(require,module,exports){
+},{"./adapter":546,"./bdsft":548,"./constants":551,"./cookieconfig":552,"./cookieprop":553,"./dateformat":556,"./debug":557,"./element":558,"./eventbus":559,"./factory":560,"./icon":561,"./loader":562,"./popup":563,"./prop":564,"./urlconfig":566,"./utils":567,"./visibleprop":568,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/app.js":35}],548:[function(require,module,exports){
 module.exports=require(36)
-},{"./app":496,"./binding":498,"./classesbinding":499,"./databinder":504,"./stylesmanager":514,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/bdsft.js":36,"jquery":541}],498:[function(require,module,exports){
+},{"./app":547,"./binding":549,"./classesbinding":550,"./databinder":555,"./stylesmanager":565,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/bdsft.js":36,"jquery":592}],549:[function(require,module,exports){
 module.exports=require(37)
-},{"./bdsft":497,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/binding.js":37}],499:[function(require,module,exports){
+},{"./bdsft":548,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/binding.js":37}],550:[function(require,module,exports){
 module.exports=require(38)
-},{"./binding":498,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/classesbinding.js":38}],500:[function(require,module,exports){
+},{"./binding":549,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/classesbinding.js":38}],551:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/constants.js":39}],501:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/constants.js":39}],552:[function(require,module,exports){
 module.exports=require(40)
-},{"./bdsft":497,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieconfig.js":40,"jquery":541,"jquery.cookie":540}],502:[function(require,module,exports){
+},{"./bdsft":548,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieconfig.js":40,"jquery":592,"jquery.cookie":591}],553:[function(require,module,exports){
 module.exports=require(41)
-},{"./constants":500,"./prop":513,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieprop.js":41,"jquery":541,"jquery.cookie":540}],503:[function(require,module,exports){
+},{"./constants":551,"./prop":564,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieprop.js":41,"jquery":592,"jquery.cookie":591}],554:[function(require,module,exports){
 module.exports=require(42)
-},{"./constants":500,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/css.js":42,"ejs":522}],504:[function(require,module,exports){
+},{"./constants":551,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/css.js":42,"ejs":573}],555:[function(require,module,exports){
 module.exports=require(43)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/databinder.js":43,"event-emitter":525}],505:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/databinder.js":43,"event-emitter":576}],556:[function(require,module,exports){
 module.exports=require(44)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/dateformat.js":44}],506:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/dateformat.js":44}],557:[function(require,module,exports){
 module.exports=require(45)
-},{"../js/config":493,"./bdsft":497,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/debug.js":45,"debug":518,"stacktrace-js":542}],507:[function(require,module,exports){
+},{"../js/config":544,"./bdsft":548,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/debug.js":45,"debug":569,"stacktrace-js":593}],558:[function(require,module,exports){
 module.exports=require(46)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/element.js":46}],508:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/element.js":46}],559:[function(require,module,exports){
 module.exports=require(47)
-},{"./bdsft":497,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/eventbus.js":47,"event-emitter":525}],509:[function(require,module,exports){
+},{"./bdsft":548,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/eventbus.js":47,"event-emitter":576}],560:[function(require,module,exports){
 module.exports=require(48)
-},{"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/factory.js":48,"jquery":541}],510:[function(require,module,exports){
+},{"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/factory.js":48,"jquery":592}],561:[function(require,module,exports){
 module.exports=require(49)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/icon.js":49}],511:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/icon.js":49}],562:[function(require,module,exports){
 module.exports=require(50)
-},{"../":496,"./constants":500,"./factory":509,"./stylesmanager":514,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/loader.js":50,"deep-extend":521}],512:[function(require,module,exports){
+},{"../":547,"./constants":551,"./factory":560,"./stylesmanager":565,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/loader.js":50,"deep-extend":572}],563:[function(require,module,exports){
 module.exports=require(51)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/popup.js":51,"jquery":541}],513:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/popup.js":51,"jquery":592}],564:[function(require,module,exports){
 module.exports=require(52)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/prop.js":52}],514:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/prop.js":52}],565:[function(require,module,exports){
 module.exports=require(53)
-},{"../js/styles":494,"./constants":500,"./css":503,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/stylesmanager.js":53}],515:[function(require,module,exports){
+},{"../js/styles":545,"./constants":551,"./css":554,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/stylesmanager.js":53}],566:[function(require,module,exports){
 module.exports=require(54)
-},{"../js/config":493,"./bdsft":497,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/urlconfig.js":54}],516:[function(require,module,exports){
+},{"../js/config":544,"./bdsft":548,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/urlconfig.js":54}],567:[function(require,module,exports){
 module.exports=require(55)
-},{"./adapter":495,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/utils.js":55,"jquery":541}],517:[function(require,module,exports){
+},{"./adapter":546,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/utils.js":55,"jquery":592}],568:[function(require,module,exports){
 module.exports=require(56)
-},{"./constants":500,"./prop":513,"./utils":516,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/visibleprop.js":56}],518:[function(require,module,exports){
+},{"./constants":551,"./prop":564,"./utils":567,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/visibleprop.js":56}],569:[function(require,module,exports){
 module.exports=require(57)
-},{"./debug":519,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/browser.js":57}],519:[function(require,module,exports){
+},{"./debug":570,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/browser.js":57}],570:[function(require,module,exports){
 module.exports=require(58)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/debug.js":58,"ms":520}],520:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/debug.js":58,"ms":571}],571:[function(require,module,exports){
 module.exports=require(59)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/node_modules/ms/index.js":59}],521:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/node_modules/ms/index.js":59}],572:[function(require,module,exports){
 module.exports=require(60)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/deep-extend/lib/deep-extend.js":60,"buffer":8}],522:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/deep-extend/lib/deep-extend.js":60,"buffer":8}],573:[function(require,module,exports){
 module.exports=require(61)
-},{"./filters":523,"./utils":524,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/ejs.js":61,"fs":7,"path":12}],523:[function(require,module,exports){
+},{"./filters":574,"./utils":575,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/ejs.js":61,"fs":7,"path":12}],574:[function(require,module,exports){
 module.exports=require(62)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/filters.js":62}],524:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/filters.js":62}],575:[function(require,module,exports){
 module.exports=require(63)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/utils.js":63}],525:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/utils.js":63}],576:[function(require,module,exports){
 module.exports=require(64)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/index.js":64,"d":526,"es5-ext/object/valid-callable":535}],526:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/index.js":64,"d":577,"es5-ext/object/valid-callable":586}],577:[function(require,module,exports){
 module.exports=require(65)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":65,"es5-ext/object/assign":527,"es5-ext/object/is-callable":530,"es5-ext/object/normalize-options":534,"es5-ext/string/#/contains":537}],527:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":65,"es5-ext/object/assign":578,"es5-ext/object/is-callable":581,"es5-ext/object/normalize-options":585,"es5-ext/string/#/contains":588}],578:[function(require,module,exports){
 module.exports=require(66)
-},{"./is-implemented":528,"./shim":529,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":66}],528:[function(require,module,exports){
+},{"./is-implemented":579,"./shim":580,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":66}],579:[function(require,module,exports){
 module.exports=require(67)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":67}],529:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":67}],580:[function(require,module,exports){
 module.exports=require(68)
-},{"../keys":531,"../valid-value":536,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":68}],530:[function(require,module,exports){
+},{"../keys":582,"../valid-value":587,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":68}],581:[function(require,module,exports){
 module.exports=require(69)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":69}],531:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":69}],582:[function(require,module,exports){
 module.exports=require(70)
-},{"./is-implemented":532,"./shim":533,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":70}],532:[function(require,module,exports){
+},{"./is-implemented":583,"./shim":584,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":70}],583:[function(require,module,exports){
 module.exports=require(71)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":71}],533:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":71}],584:[function(require,module,exports){
 module.exports=require(72)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":72}],534:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":72}],585:[function(require,module,exports){
 module.exports=require(73)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":73}],535:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":73}],586:[function(require,module,exports){
 module.exports=require(74)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":74}],536:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":74}],587:[function(require,module,exports){
 module.exports=require(75)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":75}],537:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":75}],588:[function(require,module,exports){
 module.exports=require(76)
-},{"./is-implemented":538,"./shim":539,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":76}],538:[function(require,module,exports){
+},{"./is-implemented":589,"./shim":590,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":76}],589:[function(require,module,exports){
 module.exports=require(77)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":77}],539:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":77}],590:[function(require,module,exports){
 module.exports=require(78)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":78}],540:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":78}],591:[function(require,module,exports){
 module.exports=require(79)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery.cookie/jquery.cookie.js":79,"jquery":541}],541:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery.cookie/jquery.cookie.js":79,"jquery":592}],592:[function(require,module,exports){
 module.exports=require(80)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":80}],542:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":80}],593:[function(require,module,exports){
 module.exports=require(81)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":81}],543:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":81}],594:[function(require,module,exports){
 module.exports = {view: require('./lib/views/videobar'), model: require('./lib/models/videobar')};
-},{"./lib/models/videobar":547,"./lib/views/videobar":548}],544:[function(require,module,exports){
+},{"./lib/models/videobar":598,"./lib/views/videobar":599}],595:[function(require,module,exports){
 module.exports = {
     enableHold: true
 };
-},{}],545:[function(require,module,exports){
+},{}],596:[function(require,module,exports){
 module.exports = {"videobar":".bdsft-webrtc .videoBar{position:relative;top:0;left:0;width:100%;height:40px;background:#000;background-image:-ms-linear-gradient(center top,#404040,#000);background-image:linear-gradient(to bottom,#404040,#000);background-image:-webkit-linear-gradient(#404040,#000);background-image:-moz-linear-gradient(top,#404040,#000);border-radius:4px;border:2px solid #ddd;box-shadow:0 0 10px #000;margin-top:5px;background-image:none;border-radius:0;border:0;box-shadow:none;margin-top:0;background:#292929;border-top:1px solid #3c3c3c}.bdsft-webrtc .videoBar .icon{margin:0 2.5px;position:absolute}.bdsft-webrtc .videoBar .table{height:100%;margin:6px;margin:0}.bdsft-webrtc .videoBar .cell{position:relative;top:0;left:0;width:35px;width:36px}.bdsft-webrtc .videoBar .cell .icon{width:100%;text-align:center;margin-top:10px;margin-right:0;margin-left:0}.bdsft-webrtc .videoBar .cell .icon a{margin:0}.bdsft-webrtc .videoBar .cell:first-child{padding:0}.bdsft-webrtc .videoBar span{color:#808080}.bdsft-webrtc .videoBar .unmuteAudio{margin-top:-1px}.bdsft-webrtc .videoBar .leftSpacer{width:8px}.bdsft-webrtc .videoBar .cell-hangup{width:42px}.bdsft-webrtc .videoBar .subtitle{display:none}.bdsft-webrtc .videoBar .timerHolder{position:relative;top:0;left:0;width:auto}.bdsft-webrtc .videoBar .rightSpacer{width:8px}.bdsft-webrtc .videoBar._960x720{width:960px}.bdsft-webrtc .videoBar._640x360,.bdsft-webrtc .videoBar._640x480{width:640px}.bdsft-webrtc .videoBar._320x180,.bdsft-webrtc .videoBar._320x240{width:320px}.bdsft-webrtc .videoBar._1280x720,.bdsft-webrtc .videoBar.hd{width:1280px}.bdsft-webrtc .videoBar._1920x1080{width:1920px}.bdsft-webrtc .hangup,.bdsft-webrtc .fullScreen,.bdsft-webrtc .selfView,.bdsft-webrtc .mute,.bdsft-webrtc .dialpadIcon,.bdsft-webrtc .messages{top:0;left:0}.bdsft-webrtc #videoBar #settings{width:auto;background-color:transparent}.bdsft-webrtc .videoBar.audioOnly{display:inline-block;width:auto}.bdsft-webrtc .videoBar.audioOnly .table{table-layout:auto;width:auto}.bdsft-webrtc .videoBar.audioOnly .cell-hangup{width:35px!important}.bdsft-webrtc .videoBar.conference .cell-hangup{width:30px!important;top:2px}.bdsft-webrtc .videoBar.conference .cell .hangup{margin-top:0;width:140px;background-color:#f00;border-radius:5px;margin-left:10px;height:36px;line-height:14px}.bdsft-webrtc .videoBar.conference .hangup .subtitle{display:block!important;font-size:14px;color:#fff}.bdsft-webrtc .videoBar .icon,.bdsft-webrtc .videoBar a{font-size:20px;color:#808080;text-decoration:none}.bdsft-webrtc .videoBar .hold,.bdsft-webrtc .videoBar .resume{margin-top:-1px}.bdsft-webrtc .videoBar .settings{margin-top:12px!important}.bdsft-webrtc .videoBar .settings .icon-settings{margin:0;font-size:18px;color:#fff}.bdsft-webrtc .videoBar.fullscreen-shown{top:auto!important;bottom:0;position:absolute;width:100%}.bdsft-webrtc .videoBar.conference .icon-hangup:before,.bdsft-webrtc .videoBar.conference .icon-hangup:hover:before{color:#fff!important}.bdsft-webrtc .videoBar.conference .selfViewHide,.bdsft-webrtc .videoBar.conference .selfViewShow{text-align:right!important}.bdsft-webrtc .videoBar.conference .fullscreenExpand,.bdsft-webrtc .videoBar.conference .fullscreenContract{text-align:left!important}.bdsft-webrtc .videoBar.audioOnly .fullscreenExpand,.bdsft-webrtc .videoBar.audioOnly .fullscreenContract,.bdsft-webrtc .videoBar.audioOnly .selfViewHide,.bdsft-webrtc .videoBar.audioOnly .selfViewShow,.bdsft-webrtc .videoBar.audioOnly .cell-fullScreen,.bdsft-webrtc .videoBar.audioOnly .cell-selfView{display:none!important}.bdsft-webrtc .videoBar.selfViewShow a,.bdsft-webrtc .videoBar.dialpadHide a,.bdsft-webrtc .videoBar.unmuteAudio a,.bdsft-webrtc .videoBar.fullscreenContract a{color:#04aff0!important}.bdsft-webrtc .videoBar.started .hangup,.bdsft-webrtc .videoBar.calling .hangup,.bdsft-webrtc .videoBar:not(.held).enableHold.started .hold,.bdsft-webrtc .videoBar.enableHold.held .resume,.bdsft-webrtc .videoBar.enableSettings .settings,.bdsft-webrtc .videoBar.enableSelfView:not(.video-hidden) .selfViewHide,.bdsft-webrtc .videoBar.enableSelfView.video-hidden .selfViewShow,.bdsft-webrtc .videoBar.enableTransfer.started .transfer,.bdsft-webrtc .videoBar.enableCallControl.callcontrol-shown .dialpadHide,.bdsft-webrtc .videoBar.enableCallControl:not(.callcontrol-shown) .dialpadShow,.bdsft-webrtc .videoBar.enableFullscreen:not(.fullscreen-shown) .fullscreenExpand,.bdsft-webrtc .videoBar.enableFullscreen.fullscreen-shown .fullscreenContract{transition:all 1s linear;opacity:1;z-index:20}.bdsft-webrtc .videoBar.connected .hangup,.bdsft-webrtc .videoBar.disconnected .hangup,.bdsft-webrtc .videoBar.held .hold,.bdsft-webrtc .videoBar:not(.started) .hold,.bdsft-webrtc .videoBar:not(.started) .resume,.bdsft-webrtc .videoBar:not(.held) .resume,.bdsft-webrtc .videoBar:not(.enableSettings) .settings,.bdsft-webrtc .videoBar.enableSelfView.video-hidden .selfViewHide,.bdsft-webrtc .videoBar.enableSelfView:not(.video-hidden) .selfViewShow,.bdsft-webrtc .videoBar.enableTransfer.connected .transfer,.bdsft-webrtc .videoBar.enableTransfer.disconnected .transfer,.bdsft-webrtc .videoBar.enableCallControl:not(.callcontrol-shown) .dialpadHide,.bdsft-webrtc .videoBar.enableCallControl.callcontrol-shown .dialpadShow,.bdsft-webrtc .videoBar.enableFullscreen.fullscreen-shown .fullscreenExpand,.bdsft-webrtc .videoBar.enableFullscreen:not(.fullscreen-shown) .fullscreenContract{transition:all 1s linear;opacity:0;z-index:-1}.bdsft-webrtc .videoBar:not(.enableTransfer) .cell-transfer,.bdsft-webrtc .videoBar:not(.enableHold) .cell-hold,.bdsft-webrtc .videoBar:not(.enableCallTimer) .cell-timer,.bdsft-webrtc .videoBar:not(.enableFullscreen) .cell-fullScreen,.bdsft-webrtc .videoBar:not(.enableSelfView) .cell-selfView,.bdsft-webrtc .videoBar:not(.enableSettings) .cell-settings,.bdsft-webrtc .videoBar:not(.enableCallControl) .cell-dialpad{display:none!important}"}
-},{}],546:[function(require,module,exports){
+},{}],597:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);
@@ -44478,7 +44586,7 @@ module.exports = {"videobar":".bdsft-webrtc .videoBar{position:relative;top:0;le
 
     return templatizer;
 }));
-},{"fs":7}],547:[function(require,module,exports){
+},{"fs":7}],598:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Videobar, {
   config: require('../../js/config.js')
 });
@@ -44511,7 +44619,7 @@ function Videobar(sipstack, sound, video, callcontrol, fullscreen, transfer, tim
 
   return self;
 }
-},{"../../js/config.js":544,"webrtc-core":552}],548:[function(require,module,exports){
+},{"../../js/config.js":595,"webrtc-core":603}],599:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(VideobarView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles')
@@ -44588,104 +44696,104 @@ function VideobarView(eventbus, sipstack, sound, timerView, videobar, callcontro
 
   return self;
 }
-},{"../../js/styles":545,"../../js/templates":546,"webrtc-core":552}],549:[function(require,module,exports){
+},{"../../js/styles":596,"../../js/templates":597,"webrtc-core":603}],600:[function(require,module,exports){
 module.exports=require(32)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/config.js":32}],550:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/config.js":32}],601:[function(require,module,exports){
 module.exports=require(33)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/styles.js":33}],551:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/styles.js":33}],602:[function(require,module,exports){
 module.exports=require(34)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/adapter.js":34}],552:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/adapter.js":34}],603:[function(require,module,exports){
 module.exports=require(35)
-},{"./adapter":551,"./bdsft":553,"./constants":556,"./cookieconfig":557,"./cookieprop":558,"./dateformat":561,"./debug":562,"./element":563,"./eventbus":564,"./factory":565,"./icon":566,"./loader":567,"./popup":568,"./prop":569,"./urlconfig":571,"./utils":572,"./visibleprop":573,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/app.js":35}],553:[function(require,module,exports){
+},{"./adapter":602,"./bdsft":604,"./constants":607,"./cookieconfig":608,"./cookieprop":609,"./dateformat":612,"./debug":613,"./element":614,"./eventbus":615,"./factory":616,"./icon":617,"./loader":618,"./popup":619,"./prop":620,"./urlconfig":622,"./utils":623,"./visibleprop":624,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/app.js":35}],604:[function(require,module,exports){
 module.exports=require(36)
-},{"./app":552,"./binding":554,"./classesbinding":555,"./databinder":560,"./stylesmanager":570,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/bdsft.js":36,"jquery":597}],554:[function(require,module,exports){
+},{"./app":603,"./binding":605,"./classesbinding":606,"./databinder":611,"./stylesmanager":621,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/bdsft.js":36,"jquery":648}],605:[function(require,module,exports){
 module.exports=require(37)
-},{"./bdsft":553,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/binding.js":37}],555:[function(require,module,exports){
+},{"./bdsft":604,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/binding.js":37}],606:[function(require,module,exports){
 module.exports=require(38)
-},{"./binding":554,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/classesbinding.js":38}],556:[function(require,module,exports){
+},{"./binding":605,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/classesbinding.js":38}],607:[function(require,module,exports){
 module.exports=require(39)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/constants.js":39}],557:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/constants.js":39}],608:[function(require,module,exports){
 module.exports=require(40)
-},{"./bdsft":553,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieconfig.js":40,"jquery":597,"jquery.cookie":596}],558:[function(require,module,exports){
+},{"./bdsft":604,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieconfig.js":40,"jquery":648,"jquery.cookie":647}],609:[function(require,module,exports){
 module.exports=require(41)
-},{"./constants":556,"./prop":569,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieprop.js":41,"jquery":597,"jquery.cookie":596}],559:[function(require,module,exports){
+},{"./constants":607,"./prop":620,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/cookieprop.js":41,"jquery":648,"jquery.cookie":647}],610:[function(require,module,exports){
 module.exports=require(42)
-},{"./constants":556,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/css.js":42,"ejs":578}],560:[function(require,module,exports){
+},{"./constants":607,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/css.js":42,"ejs":629}],611:[function(require,module,exports){
 module.exports=require(43)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/databinder.js":43,"event-emitter":581}],561:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/databinder.js":43,"event-emitter":632}],612:[function(require,module,exports){
 module.exports=require(44)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/dateformat.js":44}],562:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/dateformat.js":44}],613:[function(require,module,exports){
 module.exports=require(45)
-},{"../js/config":549,"./bdsft":553,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/debug.js":45,"debug":574,"stacktrace-js":598}],563:[function(require,module,exports){
+},{"../js/config":600,"./bdsft":604,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/debug.js":45,"debug":625,"stacktrace-js":649}],614:[function(require,module,exports){
 module.exports=require(46)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/element.js":46}],564:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/element.js":46}],615:[function(require,module,exports){
 module.exports=require(47)
-},{"./bdsft":553,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/eventbus.js":47,"event-emitter":581}],565:[function(require,module,exports){
+},{"./bdsft":604,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/eventbus.js":47,"event-emitter":632}],616:[function(require,module,exports){
 module.exports=require(48)
-},{"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/factory.js":48,"jquery":597}],566:[function(require,module,exports){
+},{"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/factory.js":48,"jquery":648}],617:[function(require,module,exports){
 module.exports=require(49)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/icon.js":49}],567:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/icon.js":49}],618:[function(require,module,exports){
 module.exports=require(50)
-},{"../":552,"./constants":556,"./factory":565,"./stylesmanager":570,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/loader.js":50,"deep-extend":577}],568:[function(require,module,exports){
+},{"../":603,"./constants":607,"./factory":616,"./stylesmanager":621,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/loader.js":50,"deep-extend":628}],619:[function(require,module,exports){
 module.exports=require(51)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/popup.js":51,"jquery":597}],569:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/popup.js":51,"jquery":648}],620:[function(require,module,exports){
 module.exports=require(52)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/prop.js":52}],570:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/prop.js":52}],621:[function(require,module,exports){
 module.exports=require(53)
-},{"../js/styles":550,"./constants":556,"./css":559,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/stylesmanager.js":53}],571:[function(require,module,exports){
+},{"../js/styles":601,"./constants":607,"./css":610,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/stylesmanager.js":53}],622:[function(require,module,exports){
 module.exports=require(54)
-},{"../js/config":549,"./bdsft":553,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/urlconfig.js":54}],572:[function(require,module,exports){
+},{"../js/config":600,"./bdsft":604,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/urlconfig.js":54}],623:[function(require,module,exports){
 module.exports=require(55)
-},{"./adapter":551,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/utils.js":55,"jquery":597}],573:[function(require,module,exports){
+},{"./adapter":602,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/utils.js":55,"jquery":648}],624:[function(require,module,exports){
 module.exports=require(56)
-},{"./constants":556,"./prop":569,"./utils":572,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/visibleprop.js":56}],574:[function(require,module,exports){
+},{"./constants":607,"./prop":620,"./utils":623,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/lib/visibleprop.js":56}],625:[function(require,module,exports){
 module.exports=require(57)
-},{"./debug":575,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/browser.js":57}],575:[function(require,module,exports){
+},{"./debug":626,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/browser.js":57}],626:[function(require,module,exports){
 module.exports=require(58)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/debug.js":58,"ms":576}],576:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/debug.js":58,"ms":627}],627:[function(require,module,exports){
 module.exports=require(59)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/node_modules/ms/index.js":59}],577:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/debug/node_modules/ms/index.js":59}],628:[function(require,module,exports){
 module.exports=require(60)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/deep-extend/lib/deep-extend.js":60,"buffer":8}],578:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/deep-extend/lib/deep-extend.js":60,"buffer":8}],629:[function(require,module,exports){
 module.exports=require(61)
-},{"./filters":579,"./utils":580,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/ejs.js":61,"fs":7,"path":12}],579:[function(require,module,exports){
+},{"./filters":630,"./utils":631,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/ejs.js":61,"fs":7,"path":12}],630:[function(require,module,exports){
 module.exports=require(62)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/filters.js":62}],580:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/filters.js":62}],631:[function(require,module,exports){
 module.exports=require(63)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/utils.js":63}],581:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/ejs/lib/utils.js":63}],632:[function(require,module,exports){
 module.exports=require(64)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/index.js":64,"d":582,"es5-ext/object/valid-callable":591}],582:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/index.js":64,"d":633,"es5-ext/object/valid-callable":642}],633:[function(require,module,exports){
 module.exports=require(65)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":65,"es5-ext/object/assign":583,"es5-ext/object/is-callable":586,"es5-ext/object/normalize-options":590,"es5-ext/string/#/contains":593}],583:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":65,"es5-ext/object/assign":634,"es5-ext/object/is-callable":637,"es5-ext/object/normalize-options":641,"es5-ext/string/#/contains":644}],634:[function(require,module,exports){
 module.exports=require(66)
-},{"./is-implemented":584,"./shim":585,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":66}],584:[function(require,module,exports){
+},{"./is-implemented":635,"./shim":636,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":66}],635:[function(require,module,exports){
 module.exports=require(67)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":67}],585:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":67}],636:[function(require,module,exports){
 module.exports=require(68)
-},{"../keys":587,"../valid-value":592,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":68}],586:[function(require,module,exports){
+},{"../keys":638,"../valid-value":643,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":68}],637:[function(require,module,exports){
 module.exports=require(69)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":69}],587:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":69}],638:[function(require,module,exports){
 module.exports=require(70)
-},{"./is-implemented":588,"./shim":589,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":70}],588:[function(require,module,exports){
+},{"./is-implemented":639,"./shim":640,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":70}],639:[function(require,module,exports){
 module.exports=require(71)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":71}],589:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":71}],640:[function(require,module,exports){
 module.exports=require(72)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":72}],590:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":72}],641:[function(require,module,exports){
 module.exports=require(73)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":73}],591:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":73}],642:[function(require,module,exports){
 module.exports=require(74)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":74}],592:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":74}],643:[function(require,module,exports){
 module.exports=require(75)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":75}],593:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":75}],644:[function(require,module,exports){
 module.exports=require(76)
-},{"./is-implemented":594,"./shim":595,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":76}],594:[function(require,module,exports){
+},{"./is-implemented":645,"./shim":646,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":76}],645:[function(require,module,exports){
 module.exports=require(77)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":77}],595:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":77}],646:[function(require,module,exports){
 module.exports=require(78)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":78}],596:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":78}],647:[function(require,module,exports){
 module.exports=require(79)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery.cookie/jquery.cookie.js":79,"jquery":597}],597:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery.cookie/jquery.cookie.js":79,"jquery":648}],648:[function(require,module,exports){
 module.exports=require(80)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":80}],598:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":80}],649:[function(require,module,exports){
 module.exports=require(81)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":81}]},{},[1]);
