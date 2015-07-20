@@ -17524,6 +17524,11 @@ function SIPStack(eventbus, debug, urlconfig, cookieconfig) {
     }
   };
 
+  self.updateBandwidth = function(value, name){
+    value = parseInt(value, 10);
+    self[name] = value;
+  };
+
   self.bindings = {
     mediaConstraints: {
       sipstack: ['audioOnly', 'encodingResolution', 'hd']
@@ -17538,14 +17543,8 @@ function SIPStack(eventbus, debug, urlconfig, cookieconfig) {
     userMedia: {
       sipstack: ['audioOnly', 'encodingResolution', 'enableConnectLocalMedia', 'offerToReceiveVideo']
     },
-    bandwidthLow: {
-      cookieconfig: 'bandwidthLow'
-    },
-    bandwidthMed: {
-      cookieconfig: 'bandwidthMed'
-    },
-    bandwidthHigh: {
-      cookieconfig: 'bandwidthHigh'
+    bandwidth: {
+      cookieconfig: ['bandwidthLow', 'bandwidthMed', 'bandwidthHigh']
     },
     hd: {
       cookieconfig: 'hd',
