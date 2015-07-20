@@ -33,7 +33,7 @@ module.exports = {"widget":".bdsft-reset{font-size:14px;font:normal normal 14px 
 var loader = require('webrtc-core').loader;
 var Widget = require('../');
 
-module.exports = loader(Widget, {
+var widgetLoader = loader(Widget, {
       // Overwrite styles and templates
       // style: {
       //       authentication: require('../js/styles').authentication
@@ -62,6 +62,11 @@ module.exports = loader(Widget, {
             widget: Widget
       }
 });
+
+window.BroadSoftWebRTC = window.BroadSoftWebRTC || {};
+window.BroadSoftWebRTC.loader = widgetLoader;
+
+module.exports = widgetLoader;
 },{"../":1,"webrtc-audio":14,"webrtc-authentication":20,"webrtc-callcontrol":26,"webrtc-connectionstatus":82,"webrtc-core":91,"webrtc-dialpad":138,"webrtc-fullscreen":142,"webrtc-history":148,"webrtc-incomingcall":156,"webrtc-messages":161,"webrtc-settings":218,"webrtc-sipstack":275,"webrtc-sound":362,"webrtc-stats":416,"webrtc-timer":474,"webrtc-transfer":531,"webrtc-video":537,"webrtc-videobar":594}],5:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Widget);
 
