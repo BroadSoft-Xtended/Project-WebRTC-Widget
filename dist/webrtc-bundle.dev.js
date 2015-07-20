@@ -2318,7 +2318,7 @@ module.exports = {
 		level: 'debug'
 	},
 	urlconfig: {
-		view: 'audioOnly'
+		view: 'audioVideo'
 	}
 }
 
@@ -3987,7 +3987,7 @@ function StylesManager(){
 module.exports = StylesManager();
 },{"../js/styles":33,"./constants":39,"./css":42,"./utils":55}],54:[function(require,module,exports){
 module.exports = require('./bdsft').Model(URLConfig, {
-	js: require('../js/config')
+	config: require('../js/config')
 });
 
 var Flags = {
