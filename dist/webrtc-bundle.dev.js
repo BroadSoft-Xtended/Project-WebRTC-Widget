@@ -2691,7 +2691,7 @@ function Model(constructor, options) {
 				object.updateConfig = function(config){
 					config = config || {};
 					for(var name in config) {
-						if(object[name]) {
+						if(typeof object[name] !== 'undefined') {
 							object[name] = config[name];
 						}
 					}
