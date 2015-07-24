@@ -2060,12 +2060,13 @@ module.exports = require('webrtc-core').bdsft.Model(CallControl, {
 
 var fs = require('fs');
 var C = require('webrtc-core').constants;
+var Utils = require('webrtc-core').utils;
 
 function CallControl(eventbus, debug, urlconfig, sipstack, sound, messages) {
   var self = {};
 
   self.updateDestination = function(value) {
-    var valueFormatted = value.replace(/[^a-z0-9()@\.\-\s]+/ig, '');
+    var valueFormatted = value && value.replace(/[^a-z0-9()@\.\-\s]+/ig, '');
     if(self.destination !== valueFormatted) {
       debug.log('formatted destination from '+value+' to '+valueFormatted);
       self.destination = valueFormatted;
@@ -2211,6 +2212,15 @@ function CallControl(eventbus, debug, urlconfig, sipstack, sound, messages) {
 
     // Start the Call
     sipstack.call(destination);
+
+    var dtmfTones = Utils.parseDTMFTones(destinationToValidate);
+    if(dtmfTones) {
+      debug.info("DTMF tones found in destination - sending DTMF tones when started : " + dtmfTones);
+      eventbus.once("started", function(e) {
+        sipstack.sendDTMF(dtmfTones);
+      });
+    }
+
   };
 
 
@@ -3228,7 +3238,7 @@ function Debug(options) {
 	var id = options && options.id || options || '';
 
 	var prefix = (options.name || caller()) + ':' + id;
-	var debugObj = debug(prefix);
+	var debugObj;
 
 	self.init = function(){
 		var logPrefix = self.names;
@@ -3244,6 +3254,8 @@ function Debug(options) {
 			delete enabled[id];
 		}
 		updateEnabled();
+
+		debugObj = debug(prefix);
 	};
 
 	var printMsg = function(level, msg) {
@@ -16950,8 +16962,8 @@ function Messages(eventbus, urlconfig, sipstack) {
 
   self.bindings = {
     classes: {
-        urlconfig: 'view',
         sipstack: ['registering', 'unregistering', 'connected', 'connecting', 'registered', 'registrationStatus', 'failed', 'userMediaFailed'],
+        urlconfig: 'view',
         messages: ['hasMessageAlert', 'hasMessageWarning', 'hasMessageSuccess', 'hasMessageNormal', 'enableMessages']
     },
     enableMessages: {
@@ -18025,13 +18037,6 @@ function SIPStack(eventbus, debug, urlconfig, cookieconfig) {
     eventbus.on("started", function(e) {
       setActiveSession(e.sender);
     });
-    var dtmfTones = Utils.parseDTMFTones(urlconfig.destination);
-    if(dtmfTones) {
-      eventbus.once("started", function(e) {
-        debug.info("DTMF tones found in destination - sending DTMF tones : " + dtmfTones);
-        self.sendDTMF(dtmfTones);
-      });
-    }
   };
 
   self.init = function() {
