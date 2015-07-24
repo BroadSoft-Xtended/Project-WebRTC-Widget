@@ -2217,10 +2217,16 @@ function CallControl(eventbus, debug, urlconfig, sipstack, sound, messages) {
     if(dtmfTones) {
       debug.info("DTMF tones found in destination - sending DTMF tones when started : " + dtmfTones);
       eventbus.once("started", function(e) {
+        sound.muteDTMF(true);
         sipstack.sendDTMF(dtmfTones);
       });
+      eventbus.once("newDTMF", function(e) {
+       var digit = e.data.tone;
+        if(digit === '#') {
+          sound.muteDTMF(false);
+        }
+      });
     }
-
   };
 
 
@@ -2948,8 +2954,8 @@ var C = {
   R_960x720: '960x720',
   R_640x480: '640x480',
   R_320x240: '320x240',
-  DEFAULT_DURATION: 100,
-  DEFAULT_INTER_TONE_GAP: 100,
+  DEFAULT_DURATION: 300,
+  DEFAULT_INTER_TONE_GAP: 500,
   EXPIRES: 365,
 
   STYLES: {
@@ -41662,6 +41668,10 @@ function Sound(eventbus, debug) {
       }
       self.playDtmfTone(file);
     });    
+  };
+
+  self.muteDTMF = function(mute) {
+    soundOutDTMF[0].muted = mute;
   };
 
   self.pause = function() {
