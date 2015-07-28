@@ -2954,8 +2954,6 @@ var C = {
   R_960x720: '960x720',
   R_640x480: '640x480',
   R_320x240: '320x240',
-  DEFAULT_DURATION: 300,
-  DEFAULT_INTER_TONE_GAP: 500,
   EXPIRES: 365,
 
   STYLES: {
@@ -3111,12 +3109,15 @@ function DataBinder( objectid ) {
       }
     });
   };
-  self.onModelPropChange = function(name, cb){
+  self.onModelPropChangeListener = function(name, cb){
     self.onModelChange(function(_name, value, sender){
       if(Array.isArray(name) && name.indexOf(_name) !== -1 || _name === name) {
         cb(value, _name, sender);
       }
     });
+  };
+  self.onModelPropChange = function(name, cb){
+    self.onModelPropChangeListener(name, cb);
     (Array.isArray(name) && name || [name]).forEach(function(n){
       lastValues[n] !== undefined && cb(lastValues[n], n);
     });
@@ -3128,12 +3129,15 @@ function DataBinder( objectid ) {
       }
     });
   };
-  self.onViewElChange = function(name, cb){
+  self.onViewElChangeListener = function(name, cb){
     self.onViewChange(function(_name, value, sender){
         if(Array.isArray(name) && name.indexOf(_name) !== -1 || _name === name) {
           cb(value, _name, sender);
         }
     });
+  };
+  self.onViewElChange = function(name, cb){
+    self.onViewElChangeListener(name, cb);
     (Array.isArray(name) && name || [name]).forEach(function(n){
       lastValues[n] !== undefined && cb(lastValues[n], n);
     });
@@ -17360,10 +17364,6 @@ function Settings(debug, cookieconfig, urlconfig, sipstack, authentication) {
     },
     encodingResolutionWidescreen: {
       settings: 'encodingResolution'
-    },
-    cookieconfig: {
-      settings: ['bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'displayResolution', 'encodingResolution', 
-      'displayName', 'enableSelfView', 'hd', 'enableAutoAnswer']
     }
   }
 
@@ -17378,6 +17378,16 @@ function Settings(debug, cookieconfig, urlconfig, sipstack, authentication) {
       'displayResolution', 'encodingResolution', 'displayName', 'enableSelfView', 'hd', 'size', 'enableAutoAnswer'
     ], function(value, name) {
       self[name] = value;
+    });
+    databinder.onViewElChangeListener(['bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'displayResolution', 'encodingResolution', 
+      'displayName', 'enableSelfView', 'hd', 'enableAutoAnswer'
+    ], function(value, name) {
+      cookieconfig[name] = value;
+    });
+    databinder.onModelPropChangeListener(['bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'displayResolution', 'encodingResolution', 
+      'displayName', 'enableSelfView', 'hd', 'enableAutoAnswer'
+    ], function(value, name) {
+      cookieconfig[name] = value;
     });
     callcontrolDatabinder.onModelPropChange('visible', function(visible) {
       visible && self.hide();
@@ -17579,7 +17589,9 @@ module.exports = {
     audioOnly: false,
     offerToReceiveVideo: true,
     networkUserId: false,
-    debug: false
+    debug: false,
+    dtmfDuration: 500,
+    dtmfInterToneGap: 100
 }
 
 },{}],327:[function(require,module,exports){
@@ -18010,8 +18022,8 @@ function SIPStack(eventbus, debug, urlconfig, cookieconfig) {
 
   self.getDTMFOptions = function() {
     return {
-      duration: Constants.DEFAULT_DURATION,
-      interToneGap: Constants.DEFAULT_INTER_TONE_GAP
+      duration: self.dtmfDuration,
+      interToneGap: self.dtmfInterToneGap
     };
   };
 
