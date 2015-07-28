@@ -4047,7 +4047,7 @@ function URLConfig() {
 		return val && val.indexOf(value) !== -1
 	};
 	var isTrue = function(name) {
-		return Utils.getSearchVariable(name) === 'true';
+		return Utils.getSearchVariable(name);
 	};
 	var isFeature = function(name) {
 		var features = Utils.getSearchVariable('features');
@@ -4057,7 +4057,11 @@ function URLConfig() {
 		return (features & Flags[name]) === Flags[name];
 	};
 	var isTrueOrFeature = function(name) {
-		return isTrue(name) || isFeature(name);
+		var search = Utils.getSearchVariable(name);
+		if(search !== undefined) {
+			return search;
+		}
+		return isFeature(name);
 	}
 
 	self.props = {
@@ -4248,10 +4252,16 @@ var Utils = {
       var pair = vars[i].split("=");
       if(pair[0] === variable)
       {
-        return pair[1];
+        if(pair[1] === 'true') {
+          return true;
+        } else if(pair[1] === 'false') {
+          return false
+        } else {
+          return pair[1];
+        }
       }
     }
-    return;
+    return undefined;
   },
 
   contains: function(srcObject, dstObject) {
