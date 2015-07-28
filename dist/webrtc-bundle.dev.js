@@ -7571,10 +7571,16 @@ function CallControl(eventbus, debug, urlconfig, sipstack, sound, messages) {
     if(dtmfTones) {
       debug.info("DTMF tones found in destination - sending DTMF tones when started : " + dtmfTones);
       eventbus.once("started", function(e) {
+        sound.muteDTMF(true);
         sipstack.sendDTMF(dtmfTones);
       });
+      eventbus.once("newDTMF", function(e) {
+       var digit = e.data.tone;
+        if(digit === '#') {
+          sound.muteDTMF(false);
+        }
+      });
     }
-
   };
 
 
@@ -8302,8 +8308,6 @@ var C = {
   R_960x720: '960x720',
   R_640x480: '640x480',
   R_320x240: '320x240',
-  DEFAULT_DURATION: 100,
-  DEFAULT_INTER_TONE_GAP: 100,
   EXPIRES: 365,
 
   STYLES: {
@@ -8459,12 +8463,15 @@ function DataBinder( objectid ) {
       }
     });
   };
-  self.onModelPropChange = function(name, cb){
+  self.onModelPropChangeListener = function(name, cb){
     self.onModelChange(function(_name, value, sender){
       if(Array.isArray(name) && name.indexOf(_name) !== -1 || _name === name) {
         cb(value, _name, sender);
       }
     });
+  };
+  self.onModelPropChange = function(name, cb){
+    self.onModelPropChangeListener(name, cb);
     (Array.isArray(name) && name || [name]).forEach(function(n){
       lastValues[n] !== undefined && cb(lastValues[n], n);
     });
@@ -8476,12 +8483,15 @@ function DataBinder( objectid ) {
       }
     });
   };
-  self.onViewElChange = function(name, cb){
+  self.onViewElChangeListener = function(name, cb){
     self.onViewChange(function(_name, value, sender){
         if(Array.isArray(name) && name.indexOf(_name) !== -1 || _name === name) {
           cb(value, _name, sender);
         }
     });
+  };
+  self.onViewElChange = function(name, cb){
+    self.onViewElChangeListener(name, cb);
     (Array.isArray(name) && name || [name]).forEach(function(n){
       lastValues[n] !== undefined && cb(lastValues[n], n);
     });
@@ -9391,7 +9401,7 @@ function URLConfig() {
 		return val && val.indexOf(value) !== -1
 	};
 	var isTrue = function(name) {
-		return Utils.getSearchVariable(name) === 'true';
+		return Utils.getSearchVariable(name);
 	};
 	var isFeature = function(name) {
 		var features = Utils.getSearchVariable('features');
@@ -9401,7 +9411,11 @@ function URLConfig() {
 		return (features & Flags[name]) === Flags[name];
 	};
 	var isTrueOrFeature = function(name) {
-		return isTrue(name) || isFeature(name);
+		var search = Utils.getSearchVariable(name);
+		if(search !== undefined) {
+			return search;
+		}
+		return isFeature(name);
 	}
 
 	self.props = {
@@ -9592,10 +9606,16 @@ var Utils = {
       var pair = vars[i].split("=");
       if(pair[0] === variable)
       {
-        return pair[1];
+        if(pair[1] === 'true') {
+          return true;
+        } else if(pair[1] === 'false') {
+          return false
+        } else {
+          return pair[1];
+        }
       }
     }
-    return;
+    return undefined;
   },
 
   contains: function(srcObject, dstObject) {
@@ -21482,6 +21502,7 @@ module.exports = {model: require('./lib/models/dms')};
 module.exports = {
 	enabled: true,
     xspHosts: ['dev-node.broadsoftlabs.com'],
+    port: 5060,
     domain: 'broadsoftlabs.com',
     deviceType: 'Business Communicator - PC'
 }
@@ -21534,11 +21555,13 @@ function DMS(urlconfig, debug) {
     currentHost = currentHost || getNextHost();
     var result = {
       host: currentHost,
-      port: 23471,
+      port: self.port,
       path: options.path || '/',
       method: options.type || 'GET',
     };
     if(options.user && options.password) {
+      result.username = options.user;
+      result.password = options.password;
       result.headers = {
            'Authorization': 'Basic ' + new Buffer(options.user + ':' + options.password).toString('base64'),
            'content-type': 'text/plain'
@@ -21548,17 +21571,23 @@ function DMS(urlconfig, debug) {
   };
 
   var digestRequest = function(username, password, options){
-    debug.info('requesting... : ' + JSON.stringify(options));
     var deferred = Q.defer();
-    https.get(options, function(res) {
-        // res.setEncoding('utf-8');
-        var result = ""
-        res.on('data', function(chunk) {
-            result += chunk;
-        });
-        res.on('end', function() {
-          debug.log('digest response : '+res.headers['www-authenticate']);
-          var challengeParams = parseDigest(res.headers['www-authenticate'])
+    var url = 'https://'+options.host+':'+options.port+options.path
+    debug.info('requesting... : ' + url);
+    var onDone = function(xml){
+      debug.info('response : ' + xml);
+      parseString(xml, {explicitArray: false}, function (err, resultJson) {
+        debug.log('response json : ' + JSON.stringify(resultJson));
+        deferred.resolve(resultJson);
+      });
+    };
+    jQuery.ajax({
+        type: 'GET',
+        url: url,
+        dataType: 'text',
+        error: function(xhr, status, error){
+          debug.log('digest response : '+xhr.getResponseHeader('www-authenticate'));
+          var challengeParams = parseDigest(xhr.getResponseHeader('www-authenticate'));
           var md5 = new Hashes.MD5();
           var ha1 = md5.hex(username + ':' + challengeParams.realm + ':' + password);
           var ha2 = md5.hex('GET:' + options.path);
@@ -21573,27 +21602,67 @@ function DMS(urlconfig, debug) {
             nc : '1',
             cnonce : ''
           };
-          options.headers = { 'Authorization' : renderDigest(authRequestParams) };
           debug.log('digest request : '+JSON.stringify(options));
-          https.get(options, function(res) {
-            res.setEncoding('utf-8')
-            var result = ''
-            res.on('data', function(chunk) {
-              result += chunk
-            }).on('end', function() {
-              debug.info('response : ' + result);
-              parseString(result, {explicitArray: false}, function (err, resultJson) {
-                debug.log('response json : ' + JSON.stringify(resultJson));
-                deferred.resolve(resultJson);
-              });
-            });
+          jQuery.ajax({
+            type: 'GET',
+            url: url,
+            dataType: 'text',
+            beforeSend: function (xhr) {
+              xhr.setRequestHeader('Authorization', renderDigest(authRequestParams));
+            }
+          }).done(onDone)
+          .fail(function(err){
+            console.error('error : ' + JSON.stringify(err));
+            currentHost = getNextHost();
+            deferred.reject(err);
           });
-      });
-  }).on('error', function(e){
-    console.error('error : ' + e.message);
-    currentHost = getNextHost();
-    deferred.reject(e.message);
-  });
+        }
+    }).done(onDone);
+
+  //   https.get(options, function(res) {
+  //       // res.setEncoding('utf-8');
+  //       var result = ""
+  //       res.on('data', function(chunk) {
+  //           result += chunk;
+  //       });
+  //       res.on('end', function() {
+  //         debug.log('digest response : '+res.headers['www-authenticate']);
+  //         var challengeParams = parseDigest(res.headers['www-authenticate'])
+  //         var md5 = new Hashes.MD5();
+  //         var ha1 = md5.hex(username + ':' + challengeParams.realm + ':' + password);
+  //         var ha2 = md5.hex('GET:' + options.path);
+  //         var response = md5.hex(ha1 + ':' + challengeParams.nonce + ':1::auth:' + ha2);
+  //         var authRequestParams = {
+  //           username : username,
+  //           realm : challengeParams.realm,
+  //           nonce : challengeParams.nonce,
+  //           uri : options.path, 
+  //           qop : challengeParams.qop,
+  //           response : response,
+  //           nc : '1',
+  //           cnonce : ''
+  //         };
+  //         options.headers = { 'Authorization' : renderDigest(authRequestParams) };
+  //         debug.log('digest request : '+JSON.stringify(options));
+  //         https.get(options, function(res) {
+  //           res.setEncoding('utf-8')
+  //           var result = ''
+  //           res.on('data', function(chunk) {
+  //             result += chunk
+  //           }).on('end', function() {
+  //             debug.info('response : ' + result);
+  //             parseString(result, {explicitArray: false}, function (err, resultJson) {
+  //               debug.log('response json : ' + JSON.stringify(resultJson));
+  //               deferred.resolve(resultJson);
+  //             });
+  //           });
+  //         });
+  //     });
+  // }).on('error', function(e){
+  //   console.error('error : ' + e.message);
+  //   currentHost = getNextHost();
+  //   deferred.reject(e.message);
+  // });
   return deferred.promise;
 };
 
@@ -21601,24 +21670,43 @@ function DMS(urlconfig, debug) {
     return value.match(/.*@.*/) || (value + '@' + self.domain);
   };
   var request = function(opts){
-    debug.info('requesting... : ' + JSON.stringify(opts));
+    var url = 'https://'+opts.host+':'+opts.port+opts.path
+    debug.info('requesting... : ' + url);
+    jQuery.support.cors = true;
     var deferred = Q.defer();
-    https.get(opts, function(res) {
-      var result = ''
-      res.on('data', function(chunk) {
-        result += chunk
-      }).on('end', function() {
-        debug.info('response : ' + result);
-        parseString(result, {explicitArray: false}, function (err, resultJson) {
-          debug.log('response json : ' + JSON.stringify(resultJson));
-          deferred.resolve(resultJson);
-        });
+    jQuery.ajax({
+      type: 'GET',
+      url: url,
+      dataType: 'text',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader("Authorization", "Basic "+new Buffer(opts.username + ':' + opts.password).toString('base64'));
+      }
+    }).done(function(result){
+      parseString(result, {explicitArray: false}, function (err, resultJson) {
+        debug.log('response json : ' + JSON.stringify(resultJson));
+        deferred.resolve(resultJson);
       });
-    }).on('error', function(err){
-        console.error("error : " + JSON.stringify(err));
-        currentHost = getNextHost();
-        deferred.reject(err);
+    }).fail(function(err){
+      console.error("error : " + JSON.stringify(err));
+      currentHost = getNextHost();
+      deferred.reject(err);
     });
+    // https.get(opts, function(res) {
+    //   var result = ''
+    //   res.on('data', function(chunk) {
+    //     result += chunk
+    //   }).on('end', function() {
+    //     debug.info('response : ' + result);
+    //     parseString(result, {explicitArray: false}, function (err, resultJson) {
+    //       debug.log('response json : ' + JSON.stringify(resultJson));
+    //       deferred.resolve(resultJson);
+    //     });
+    //   });
+    // }).on('error', function(err){
+    //     console.error("error : " + JSON.stringify(err));
+    //     currentHost = getNextHost();
+    //     deferred.reject(err);
+    // });
     return deferred.promise;
   };
 
@@ -41724,10 +41812,6 @@ function Settings(debug, cookieconfig, urlconfig, sipstack, authentication) {
     },
     encodingResolutionWidescreen: {
       settings: 'encodingResolution'
-    },
-    cookieconfig: {
-      settings: ['bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'displayResolution', 'encodingResolution', 
-      'displayName', 'enableSelfView', 'hd', 'enableAutoAnswer']
     }
   }
 
@@ -41742,6 +41826,16 @@ function Settings(debug, cookieconfig, urlconfig, sipstack, authentication) {
       'displayResolution', 'encodingResolution', 'displayName', 'enableSelfView', 'hd', 'size', 'enableAutoAnswer'
     ], function(value, name) {
       self[name] = value;
+    });
+    databinder.onViewElChangeListener(['bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'displayResolution', 'encodingResolution', 
+      'displayName', 'enableSelfView', 'hd', 'enableAutoAnswer'
+    ], function(value, name) {
+      cookieconfig[name] = value;
+    });
+    databinder.onModelPropChangeListener(['bandwidthLow', 'bandwidthMed', 'bandwidthHigh', 'displayResolution', 'encodingResolution', 
+      'displayName', 'enableSelfView', 'hd', 'enableAutoAnswer'
+    ], function(value, name) {
+      cookieconfig[name] = value;
     });
     callcontrolDatabinder.onModelPropChange('visible', function(visible) {
       visible && self.hide();
@@ -41943,7 +42037,9 @@ module.exports = {
     audioOnly: false,
     offerToReceiveVideo: true,
     networkUserId: false,
-    debug: false
+    debug: false,
+    dtmfDuration: 500,
+    dtmfInterToneGap: 100
 }
 
 },{}],493:[function(require,module,exports){
@@ -42374,8 +42470,8 @@ function SIPStack(eventbus, debug, urlconfig, cookieconfig) {
 
   self.getDTMFOptions = function() {
     return {
-      duration: Constants.DEFAULT_DURATION,
-      interToneGap: Constants.DEFAULT_INTER_TONE_GAP
+      duration: self.dtmfDuration,
+      interToneGap: self.dtmfInterToneGap
     };
   };
 
@@ -66034,6 +66130,10 @@ function Sound(eventbus, debug) {
     });    
   };
 
+  self.muteDTMF = function(mute) {
+    soundOutDTMF[0].muted = mute;
+  };
+
   self.pause = function() {
     soundOut.trigger('pause');
     soundOutDTMF.trigger('pause');
@@ -69283,10 +69383,10 @@ module.exports = {view: require('./lib/views/xmpp'), model: require('./lib/model
 },{"./lib/models/xmpp":870,"./lib/views/xmpp":871}],867:[function(require,module,exports){
 module.exports = {
     enableXMPP: false,
-    boshURL: 'http://ums1.broadsoftlabs.com:5280'
+    boshURL: 'https://ums.broadsoftlabs.com:5281'
 };
 },{}],868:[function(require,module,exports){
-module.exports = {"xmpp":".bdsft-webrtc .xmpp{color:#999}.bdsft-webrtc .xmpp .rosterHolder{float:left}.bdsft-webrtc .xmpp .messagesHolder{float:right}.bdsft-webrtc .xmpp.connected .content,.bdsft-webrtc .xmpp:not(.connected) .loginForm{display:block}.bdsft-webrtc .xmpp.connected .loginForm,.bdsft-webrtc .xmpp:not(.connected) .content{display:none}.bdsft-webrtc .enableXMPP.xmpp-shown.xmpp{transition:all 1s linear;opacity:1;z-index:100}.bdsft-webrtc .enableXMPP.xmpp-hidden.xmpp{transition:all 1s linear;opacity:0;z-index:-1}"}
+module.exports = {"xmpp":".bdsft-webrtc .xmpp{color:#999;border-spacing:5px}.bdsft-webrtc .xmpp .messagesHolder textarea{height:20px;font-size:12px}.bdsft-webrtc .xmpp.connected .content,.bdsft-webrtc .xmpp:not(.connected) .loginForm{display:block}.bdsft-webrtc .xmpp.connected .loginForm,.bdsft-webrtc .xmpp:not(.connected) .content{display:none}.bdsft-webrtc .enableXMPP.xmpp-shown.xmpp{transition:all 1s linear;opacity:1;z-index:100}.bdsft-webrtc .enableXMPP.xmpp-hidden.xmpp{transition:all 1s linear;opacity:0;z-index:-1}"}
 },{}],869:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -69306,7 +69406,7 @@ module.exports = {"xmpp":".bdsft-webrtc .xmpp{color:#999}.bdsft-webrtc .xmpp .ro
 
     // xmpp.jade compiled template
     templatizer["xmpp"] = function tmpl_xmpp() {
-        return '<div class="bdsft-webrtc"><div class="xmpp fadeable popup classes centered"><div class="table fixed loginForm"><div class="row"><label class="cell">Name:</label><input type="text" name="name" placeholder="Email" class="cell name"/></div><div class="row"><label class="cell">Password:</label><input type="password" name="password" class="cell password"/></div><div class="row"><div class="cell"></div><input type="button" value="Log In" class="cell login"/></div></div><div style="display:none" class="content"><div class="rosterHolder"><select size="10" class="rosterSelect"></select></div><div class="messagesHolder"><div class="messages"></div><textarea class="chatInput"></textarea></div></div></div></div>';
+        return '<div class="bdsft-webrtc"><div class="xmpp fadeable popup classes centered"><div class="table fixed loginForm"><div class="row"><label class="cell">Name:</label><input type="text" name="name" placeholder="Email" class="cell name"/></div><div class="row"><label class="cell">Password:</label><input type="password" name="password" class="cell password"/></div><div class="row"><div class="cell"></div><button type="button" class="login button">Connect</button></div></div><div class="content fixed table"><div class="row"><div class="rosterHolder cell"><select size="10" class="rosterSelect"></select></div><div class="messagesHolder cell"><div class="messages"></div><textarea class="chatInput"></textarea></div></div></div></div></div>';
     };
 
     return templatizer;
@@ -69323,7 +69423,7 @@ var Q = require('q');
 function XMPP(debug, eventbus, dms, cookieconfig) {
   var self = {};
 
-  self.props = ['classes', 'visible', 'connected', 'connecting'];
+  self.props = ['classes', 'visible', 'connected', 'connecting', 'disconnecting'];
 
   self.bindings = {
     'classes': {
@@ -69367,6 +69467,31 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
   self.client = require('stanza.io').createClient(opts);
 
 
+  self.disconnect = function() {
+    if(!self.connected || self.disconnecting) {
+      return Q();
+    }
+    var deferred = Q.defer();
+    self.disconnecting = true;
+    debug.log('disconnecting...');
+    self.client.disconnect();
+    self.client.on('disconnected', 'disconnect', function(msg, err){
+        debug.log('disconnected');
+        self.disconnecting = false;
+        self.connected = false;
+        self.client.releaseGroup('disconnect');
+        deferred.resolve();
+    });
+    self.client.once('stream:error', 'disconnect', function(msg, err){
+        debug.error('disconnected failed : '+ JSON.stringify(err || msg));
+        self.disconnecting = false;
+        self.client.releaseGroup('disconnect');
+        deferred.reject(JSON.stringify(err || msg));
+    });
+
+    return deferred.promise;
+  };
+
   self.connect = function(jid, password) {
     if(self.connecting) {
       return Q();
@@ -69381,7 +69506,7 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
         promise = dms.requestConfig(cookieconfig.userid, cookieconfig.password).then(function(dmsConfig){
           var xmppConfig = dmsConfig.protocols.xmpp;
           if(!xmppConfig || !xmppConfig.credentials) {
-            debug.error('no XMPP service enabled for user : ' + cookieconfig.userid);
+            debug.error('no XMPP service enabled for '+dms.deviceType+' and user : ' + cookieconfig.userid);
             return;
           }
           debug.log('credentials retrieved : '+xmppConfig.credentials.username);
@@ -69401,12 +69526,14 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
       self.client.once('auth:success', 'connect', function(msg, err){
           debug.log('connected');
           self.connecting = false;
+          self.connected = true;
           self.client.releaseGroup('connect');
           deferred.resolve();
       });
       self.client.once('stream:error', 'connect', function(msg, err){
           debug.error('connecting failed : '+ JSON.stringify(err || msg));
           self.connecting = false;
+          self.connected = true;
           self.client.releaseGroup('connect');
           deferred.reject(JSON.stringify(err || msg));
       });
@@ -69420,19 +69547,17 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
   };
 
   self.listeners = function(cookieconfigDatabinder, databinder) {
-    cookieconfigDatabinder.onModelPropChange(['userid', 'password'], function(){
-      self.connect();
+    cookieconfigDatabinder.onModelPropChange(['userid', 'password'], function(value, name){
+      if(!value) {
+        self.disconnect();
+      } else {
+        self.connect();
+      }
     });
     databinder.onModelPropChange('enableXMPP', function(){
       self.connect();
     });
 
-    self.client.on('connected', function () {
-      self.connected = true;
-    });
-    self.client.on('disconnected', function () {
-      self.connected = false;
-    });
     self.client.on('chat', function (msg) {
         self.messages.add({
             to: msg.to.bare,
