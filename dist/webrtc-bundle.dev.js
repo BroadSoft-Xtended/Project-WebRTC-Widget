@@ -21501,8 +21501,8 @@ module.exports = {model: require('./lib/models/dms')};
 },{"./lib/models/dms":174}],173:[function(require,module,exports){
 module.exports = {
 	enabled: true,
-    xspHosts: ['dev-node.broadsoftlabs.com'],
-    port: 5060,
+    xspHosts: ['xsp1.broadsoftlabs.com', 'xsp2.broadsoftlabs.com'],
+    port: 443,
     domain: 'broadsoftlabs.com',
     deviceType: 'Business Communicator - PC'
 }
@@ -69386,7 +69386,7 @@ module.exports = {
     boshURL: 'https://ums.broadsoftlabs.com:5281'
 };
 },{}],868:[function(require,module,exports){
-module.exports = {"xmpp":".bdsft-webrtc .xmpp{color:#999;border-spacing:5px}.bdsft-webrtc .xmpp .messagesHolder textarea{height:20px;font-size:12px}.bdsft-webrtc .xmpp.connected .content,.bdsft-webrtc .xmpp:not(.connected) .loginForm{display:block}.bdsft-webrtc .xmpp.connected .loginForm,.bdsft-webrtc .xmpp:not(.connected) .content{display:none}.bdsft-webrtc .enableXMPP.xmpp-shown.xmpp{transition:all 1s linear;opacity:1;z-index:100}.bdsft-webrtc .enableXMPP.xmpp-hidden.xmpp{transition:all 1s linear;opacity:0;z-index:-1}"}
+module.exports = {"xmpp":".bdsft-webrtc .xmpp{color:#999}.bdsft-webrtc .xmpp border-spacing 5px{display:block}.bdsft-webrtc .xmpp .messagesHolder{display:none}.bdsft-webrtc .xmpp .messagesHolder textarea{height:20px;font-size:12px}.bdsft-webrtc .xmpp.contact-selected .messagesHolder{display:block}.bdsft-webrtc .xmpp.connected .content,.bdsft-webrtc .xmpp:not(.connected) .loginForm{display:block}.bdsft-webrtc .xmpp.connected .loginForm,.bdsft-webrtc .xmpp:not(.connected) .content{display:none}.bdsft-webrtc .enableXMPP.xmpp-shown.xmpp{transition:all 1s linear;opacity:1;z-index:100}.bdsft-webrtc .enableXMPP.xmpp-hidden.xmpp{transition:all 1s linear;opacity:0;z-index:-1}"}
 },{}],869:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
