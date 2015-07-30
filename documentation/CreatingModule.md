@@ -194,11 +194,15 @@ Both Model and View can also define two methods that will be called after the cl
 <a name="self_listeners"></a>
 **self.listeners** is useful for registering listeners on [eventbus](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/eventbus.js) or [databinders](https://github.com/BroadSoft-Xtended/Library-WebRTC-Core/blob/master/lib/databinder.js). 
 
-Databinders from other modules can be easily injected into the self.listeners function by adding the name of the databinder as an argument to the function. 
+Databinders from other modules can be easily injected into the self.listeners function by adding the name of the databinder as an argument to the function and adding the module to the constructor. 
 
 So if we wanted to add a listener to the databinder of the sipstack, we would add the self.listeners as following
 
 ```
+function MyModule(sipstack) {
+
+// ...    
+
 self.listeners = function(sipstackDatabinder) {
     sipstackDatabinder.onModelPropChange('callState', function(value){
         // do something with the callState update
