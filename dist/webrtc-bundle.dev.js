@@ -71397,7 +71397,7 @@ module.exports = {"addcontact":".bdsft-webrtc .addcontact .cancelLink{display:no
 
     // addcontact.jade compiled template
     templatizer["addcontact"] = function tmpl_addcontact() {
-        return '<div class="addcontact"><div><a class="addLink">Add Contact</a><a class="cancelLink">Cancel</a></div><div class="form"><div class="table fixed"><div class="row"><span class="cell"> <Jabber>ID</Jabber></span><input class="cell jid"/></div><div class="row"><span class="cell"><Name></Name></span><input class="cell name"/></div></div><div><button class="button add">Add</button></div></div></div>';
+        return '<div class="addcontact"><div><a class="addLink">Add Contact</a><a class="cancelLink">Cancel</a></div><div class="form"><div class="table fixed"><div class="row"><span class="cell">Jabber ID</span><input class="cell jid"/></div><div class="row"><span class="cell">Name</span><input class="cell name"/></div></div><div><button class="button add">Add</button></div></div></div>';
     };
 
     // chat.jade compiled template
@@ -71412,7 +71412,7 @@ module.exports = {"addcontact":".bdsft-webrtc .addcontact .cancelLink{display:no
 
     // contact.jade compiled template
     templatizer["contact"] = function tmpl_contact() {
-        return '<div class="contact"><a class="close">close</a><span class="presence"></span><span class="name"></span><a class="remove">x</a></div>';
+        return '<div class="contact classes"><a class="close">close</a><span class="presence"></span><span class="name"></span><a class="remove">x</a></div>';
     };
 
     // message.jade compiled template
@@ -71455,10 +71455,16 @@ C.PRESENCES = {
 },{}],985:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Contact);
 
-function Contact(item) {
+function Contact(item, xmpp) {
 	var self = {};
 
-	self.props = ['id', 'name', 'messages', 'presence'];
+	self.props = ['id', 'name', 'messages', 'presence', 'classes', 'selected'];
+
+	self.bindings = {
+		classes: {
+			contact: ['presence', 'selected']
+		}
+	};
 
 	self.init = function(){
 		self.id = item.jid && item.jid.bare || item.bare;
@@ -71467,8 +71473,22 @@ function Contact(item) {
 		self.messages = [];
 	};
 
+	self.listeners = function(xmppDatabinder){
+	    xmppDatabinder.onModelPropChange('contact', function(value) {
+	    	self.selected = (self === value);
+	    });
+	};
+
 	self.addMessage = function(message){
 		self.messages = self.messages.concat([message]);
+	};
+
+	self.available = function(){
+		self.presence = 'available';
+	};
+
+	self.unavailable = function(){
+		self.presence = 'unavailable';
 	};
 
 	return self;
@@ -71636,20 +71656,6 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
     removeContact(contact.id);
   };
 
-  self.blockContact = function(contact){
-    self.client.block(contact.id, function(e){
-      debug.log('blockContact : '+JSON.stringify(e));
-    });
-    removeContact(contact.id);
-  };
-
-  self.unblockContact = function(contact){
-    self.client.unblock(contact.id, function(e){
-      debug.log('unblockContact : '+JSON.stringify(e));
-    });
-    addContact(contact);
-  };
-
   self.denySubscription = function(contact){
     self.client.denySubscription(contact.id);
     removeSubscription(contact.id);
@@ -71764,7 +71770,7 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
 
     self.client.on('subscribe', function (msg) {
         debug.log('subscribe : '+JSON.stringify(msg));
-        var subscription = Contact.create([msg.from]);
+        var subscription = Contact.create([msg.from, self]);
         addSubscription(subscription);
         self.subscriptionsVisible = true;
     });
@@ -71776,13 +71782,22 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
 
     self.client.on('available', function (msg) {
         debug.log('available : '+JSON.stringify(msg));
-        var contact = Contact.create([msg.from]);
-        addContact(contact);
+        var contact = self.contacts[msg.from.bare];
+        if(contact) {
+          contact.available();
+        } else {
+          debug.warn('no contact found : '+msg.from.bare);
+        }
     });
 
     self.client.on('unavailable', function (msg) {
         debug.log('unavailable : '+JSON.stringify(msg));
-        removeContact(msg.from.bare);
+        var contact = self.contacts[msg.from.bare];
+        if(contact) {
+          contact.unavailable();
+        } else {
+          debug.warn('no contact found : '+msg.from.bare);
+        }
     });
 
     self.client.on('chat', function (msg) {
@@ -71811,11 +71826,11 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
 
     self.client.on('session:started', function () {
         debug.log('session:started : getRoster');
-        self.myContact = Contact.create([self.client]);
+        self.myContact = Contact.create([self.client, self]);
         self.client.getRoster(function (err, res) {
             debug.log('session:started : contacts retrieved : '+JSON.stringify(res.roster.items));
             self.contacts = res.roster.items.map(function (item) {
-                return Contact.create([item]);
+                return Contact.create([item, self]);
             }).reduce(function(obj, contact) {
               obj[contact.id] = contact;
               return obj;
@@ -71826,7 +71841,22 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
     });
 
     self.client.on('*', function (msg, obj) {
-        debug.log('------ '+msg+' : '+JSON.stringify(obj));
+      function censor(censor) {
+        var i = 0;
+
+        return function(key, value) {
+          if(i !== 0 && typeof(censor) === 'object' && typeof(value) == 'object' && censor == value) 
+            return '[Circular]'; 
+
+          if(i >= 29) // seems to be a harded maximum of 30 serialized objects?
+            return '[Unknown]';
+
+          ++i; // so we know we aren't using the original object anymore
+
+          return value;  
+        }
+      }
+      debug.log('------ '+msg+' : '+JSON.stringify(obj, censor(obj)));
     });
 
     eventbus.on("started", function() {
@@ -71866,7 +71896,7 @@ function AddContactView(xmpp) {
       var jid = self.jid.val();
       var name = self.name.val();
       if(jid) {
-        var contact = Contact.create([{bare: jid, local: name}])
+        var contact = Contact.create([{bare: jid, local: name}, xmpp])
         xmpp.addContact(contact);
         toggle(false);
       }
@@ -72006,10 +72036,7 @@ function ContactView(contact, xmpp) {
     self.name.text(contact.name);
   };
 
-  self.listeners = function(xmppDatabinder) {
-    xmppDatabinder.onModelPropChange('contact', function(value) {
-      self.view.toggleClass('selected', contact === value);
-    });
+  self.listeners = function() {
     self.view.on('click', function(e){
       e.preventDefault();
       xmpp.selectContact(contact);
@@ -82617,6 +82644,7 @@ BOSHConnection.prototype.request = function (bosh) {
         var serr = new self.stanzas.StreamError({
             condition: 'connection-timeout'
         });
+        console.error(err.stack);
         self.emit('stream:error', serr, err);
         self.disconnect();
     }).catch(BPromise.CancellationError, function () {
