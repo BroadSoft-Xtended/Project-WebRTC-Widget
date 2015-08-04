@@ -69623,14 +69623,14 @@ module.exports=require(98)
 module.exports=require(99)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":99}],966:[function(require,module,exports){
 module.exports = {view: require('./lib/views/xmpp'), model: require('./lib/models/xmpp')};
-},{"./lib/models/xmpp":972,"./lib/views/xmpp":979}],967:[function(require,module,exports){
+},{"./lib/models/xmpp":973,"./lib/views/xmpp":982}],967:[function(require,module,exports){
 module.exports = {
     enableXMPP: false,
     boshURL: 'https://ums.broadsoftlabs.com:5281',
     removeContactFailed: 'Could not Remove Contact'
 };
 },{}],968:[function(require,module,exports){
-module.exports = {"chat":".bdsft-webrtc .chat{display:none}.bdsft-webrtc .chat .chatInput{width:100%;height:20px;font-size:12px}.bdsft-webrtc .chat.selected{display:block}","chattab":".bdsft-webrtc .chatTab .chatTabContent .contact{display:inline-block;border:1px solid #000;margin:0 5px}.bdsft-webrtc .chatTab .chatTabContent .contact.selected{border:2px solid #f00}.bdsft-webrtc .chatTab .chatTabContent .contact .presence,.bdsft-webrtc .chatTab .chatTabContent .contact .remove{display:none}.bdsft-webrtc .chatTab .chatTabContent .contact .close{display:inline}","contact":".bdsft-webrtc .contact .name{font-weight:bold;margin:0 5px}.bdsft-webrtc .contact .presence{display:inline-block;width:70px}.bdsft-webrtc .contact .close{display:none}","jquery.ui.resizable":".ui-resizable{position:absolute!important}.ui-resizable-handle{position:absolute;font-size:.1px;display:block}.ui-resizable-disabled .ui-resizable-handle,.ui-resizable-autohide .ui-resizable-handle{display:none}.ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}","message":".bdsft-webrtc .message{border:1px solid #000}.bdsft-webrtc .message .body{font-size:12px}","subscription":".bdsft-webrtc .subscription .name{font-weight:bold}.bdsft-webrtc .subscription .accept,.bdsft-webrtc .subscription .deny{margin:0 5px}","subscriptions":".bdsft-webrtc .subscriptionsView{display:none;border:1px solid #000;position:absolute;top:160px;left:10px;min-width:150px;min-height:150px}.bdsft-webrtc .subscriptionsView .closeHolder{text-align:right}.bdsft-webrtc .subscriptions-shown .subscriptionsView{display:block}","xmpp":".bdsft-webrtc .xmpp{border-spacing:5px;padding:0;position:absolute}.bdsft-webrtc .xmpp .ui-resizable{position:absolute!important}.bdsft-webrtc .xmpp .ui-resizable-handle{position:absolute;font-size:.1px;display:block}.bdsft-webrtc .xmpp .ui-resizable-disabled .ui-resizable-handle,.bdsft-webrtc .xmpp .ui-resizable-autohide .ui-resizable-handle{display:none}.bdsft-webrtc .xmpp .ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.bdsft-webrtc .xmpp .ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.bdsft-webrtc .xmpp .ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.bdsft-webrtc .xmpp .ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.bdsft-webrtc .xmpp .ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.bdsft-webrtc .xmpp .ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.bdsft-webrtc .xmpp .ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.bdsft-webrtc .xmpp .ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}.bdsft-webrtc .xmpp .loginView{padding:10px}.bdsft-webrtc .xmpp .contentView{position:relative}.bdsft-webrtc .xmpp .contentView .contactsView{border:1px solid #000;position:absolute;top:0;left:10px;min-width:150px;min-height:150px}.bdsft-webrtc .xmpp .contentView .contactsView .removeContactFailed{display:none}.bdsft-webrtc .xmpp .contentView .chatsView{border:1px solid #000;display:none;position:absolute;top:0;left:170px;height:100%;min-width:150px;min-height:150px;width:150px;height:150px;overflow:auto}.bdsft-webrtc .xmpp .contentView .chatsView .chatsContent{height:100%;margin-bottom:-20px}.bdsft-webrtc .xmpp.contactSelected .chatsView{display:block}.bdsft-webrtc .xmpp.connected .contentView,.bdsft-webrtc .xmpp:not(.connected) .loginView{display:block}.bdsft-webrtc .xmpp.connected .loginView,.bdsft-webrtc .xmpp:not(.connected) .contentView{display:none}.bdsft-webrtc .enableXMPP.xmpp-shown.xmpp{transition:opacity 1s linear,z-index 1s linear;opacity:1;z-index:100}.bdsft-webrtc .enableXMPP.xmpp-hidden.xmpp{transition:opacity 1s linear,z-index 1s linear;opacity:0;z-index:-1}"}
+module.exports = {"addcontact":".bdsft-webrtc .addcontact .cancelLink{display:none}.bdsft-webrtc .addcontact .form{display:none}.bdsft-webrtc .addcontact .form span{width:65px}.bdsft-webrtc .addcontact .form input{background:#fff;color:#000;width:120px;font-size:12px}","chat":".bdsft-webrtc .chat{display:none}.bdsft-webrtc .chat .chatInput{width:100%;height:20px;font-size:12px}.bdsft-webrtc .chat.selected{display:block}","chattab":".bdsft-webrtc .chatTab .chatTabContent .contact{display:inline-block;border:1px solid #000;margin:0 5px}.bdsft-webrtc .chatTab .chatTabContent .contact.selected{border:2px solid #f00}.bdsft-webrtc .chatTab .chatTabContent .contact .presence,.bdsft-webrtc .chatTab .chatTabContent .contact .remove{display:none}.bdsft-webrtc .chatTab .chatTabContent .contact .close{display:inline}","contact":".bdsft-webrtc .contact .name{font-weight:bold;margin:0 5px}.bdsft-webrtc .contact .presence{display:inline-block}.bdsft-webrtc .contact .close{display:none}","jquery.ui.resizable":".ui-resizable{position:absolute!important}.ui-resizable-handle{position:absolute;font-size:.1px;display:block}.ui-resizable-disabled .ui-resizable-handle,.ui-resizable-autohide .ui-resizable-handle{display:none}.ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}","message":".bdsft-webrtc .message{border:1px solid #000}.bdsft-webrtc .message .body{font-size:12px}","mycontact":".bdsft-webrtc .mycontact{margin:10px}.bdsft-webrtc .mycontact .name{font-weight:bold;margin:0 5px}.bdsft-webrtc .mycontact .presenceSelect{display:inline-block;width:70px}","subscription":".bdsft-webrtc .subscription .name{font-weight:bold}.bdsft-webrtc .subscription .accept,.bdsft-webrtc .subscription .deny{margin:0 5px}","subscriptions":".bdsft-webrtc .subscriptionsView{display:none;border:1px solid #000;position:absolute;top:160px;left:10px;min-width:150px;min-height:150px}.bdsft-webrtc .subscriptionsView .closeHolder{text-align:right}.bdsft-webrtc .subscriptions-shown .subscriptionsView{display:block}","xmpp":".bdsft-webrtc .xmpp{border-spacing:5px;padding:0;position:absolute}.bdsft-webrtc .xmpp .ui-resizable{position:absolute!important}.bdsft-webrtc .xmpp .ui-resizable-handle{position:absolute;font-size:.1px;display:block}.bdsft-webrtc .xmpp .ui-resizable-disabled .ui-resizable-handle,.bdsft-webrtc .xmpp .ui-resizable-autohide .ui-resizable-handle{display:none}.bdsft-webrtc .xmpp .ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.bdsft-webrtc .xmpp .ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.bdsft-webrtc .xmpp .ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.bdsft-webrtc .xmpp .ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.bdsft-webrtc .xmpp .ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.bdsft-webrtc .xmpp .ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.bdsft-webrtc .xmpp .ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.bdsft-webrtc .xmpp .ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}.bdsft-webrtc .xmpp .loginView{padding:10px}.bdsft-webrtc .xmpp .contentView{position:relative}.bdsft-webrtc .xmpp .contentView .contactsView{border:1px solid #000;position:absolute;top:0;left:10px;min-width:200px;min-height:150px;overflow:auto}.bdsft-webrtc .xmpp .contentView .contactsView .removeContactFailed{display:none}.bdsft-webrtc .xmpp .contentView .chatsView{border:1px solid #000;display:none;position:absolute;top:0;left:220px;height:100%;min-width:150px;min-height:150px;width:150px;height:150px;overflow:auto}.bdsft-webrtc .xmpp .contentView .chatsView .chatsContent{height:100%;margin-bottom:-20px}.bdsft-webrtc .xmpp a{text-decoration:underline}.bdsft-webrtc .xmpp.contactSelected .chatsView{display:block}.bdsft-webrtc .xmpp.connected .contentView,.bdsft-webrtc .xmpp:not(.connected) .loginView{display:block}.bdsft-webrtc .xmpp.connected .loginView,.bdsft-webrtc .xmpp:not(.connected) .contentView{display:none}.bdsft-webrtc .enableXMPP.xmpp-shown.xmpp{transition:opacity 1s linear,z-index 1s linear;opacity:1;z-index:100}.bdsft-webrtc .enableXMPP.xmpp-hidden.xmpp{transition:opacity 1s linear,z-index 1s linear;opacity:0;z-index:-1}"}
 },{}],969:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -69647,6 +69647,11 @@ module.exports = {"chat":".bdsft-webrtc .chat{display:none}.bdsft-webrtc .chat .
 
     var templatizer = {};
 
+
+    // addcontact.jade compiled template
+    templatizer["addcontact"] = function tmpl_addcontact() {
+        return '<div class="addcontact"><div><a class="addLink">Add Contact</a><a class="cancelLink">Cancel</a></div><div class="form"><div class="table fixed"><div class="row"><span class="cell">	Jabber ID</span><input class="cell jid"/></div><div class="row"><span class="cell">	Name</span><input class="cell name"/></div></div><div><button class="button add">Add</button></div></div></div>';
+    };
 
     // chat.jade compiled template
     templatizer["chat"] = function tmpl_chat() {
@@ -69668,6 +69673,11 @@ module.exports = {"chat":".bdsft-webrtc .chat{display:none}.bdsft-webrtc .chat .
         return '<div class="message"><span class="body"></span></div>';
     };
 
+    // mycontact.jade compiled template
+    templatizer["mycontact"] = function tmpl_mycontact() {
+        return '<div class="mycontact"><span class="presence"></span><span class="name"></span><select class="presenceSelect"></select></div>';
+    };
+
     // subscription.jade compiled template
     templatizer["subscription"] = function tmpl_subscription() {
         return '<div class="subscription"><span class="name"></span><button class="accept button">Accept</button><button class="deny button">Deny</button></div>';
@@ -69680,12 +69690,22 @@ module.exports = {"chat":".bdsft-webrtc .chat{display:none}.bdsft-webrtc .chat .
 
     // xmpp.jade compiled template
     templatizer["xmpp"] = function tmpl_xmpp() {
-        return '<div class="bdsft-webrtc"><div class="xmpp fadeable classes topright"><div class="loginView table fixed"><div class="row"><label class="cell">Name:</label><input type="text" name="name" placeholder="Email" class="cell name"/></div><div class="row"><label class="cell">Password:</label><input type="password" name="password" class="cell password"/></div><div class="row"><div class="cell"></div><button type="button" class="login button">Connect</button></div></div><div class="contentView"><div class="contactsView"><div class="removeContactFailed"></div><div class="contactsContent"></div></div><div class="chatsView"><div class="chatsContent"></div><div class="chatTabHolder"></div></div><div class="subscriptionsHolder"></div></div></div></div>';
+        return '<div class="bdsft-webrtc"><div class="xmpp fadeable classes topright"><div class="loginView table fixed"><div class="row"><label class="cell">Name:</label><input type="text" name="name" placeholder="Email" class="cell name"/></div><div class="row"><label class="cell">Password:</label><input type="password" name="password" class="cell password"/></div><div class="row"><div class="cell"></div><button type="button" class="login button">Connect</button></div></div><div class="contentView"><div class="contactsView"><div class="removeContactFailed"></div><div class="myContactHolder"></div><div class="addContactHolder"></div><div class="contactsContent"></div></div><div class="chatsView"><div class="chatsContent"></div><div class="chatTabHolder"></div></div><div class="subscriptionsHolder"></div></div></div></div>';
     };
 
     return templatizer;
 }));
 },{"fs":7}],970:[function(require,module,exports){
+var C = {};
+module.exports = C;
+
+C.PRESENCES = {
+  'Available': '',
+  'Busy': 'dnd',
+  'Away': 'away'
+};
+
+},{}],971:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Contact);
 
 function Contact(item) {
@@ -69695,8 +69715,8 @@ function Contact(item) {
 
 	self.init = function(){
 		self.id = item.jid && item.jid.bare || item.bare;
-		self.name = item.name || item.local;
-		self.presence = 'available';
+		self.name = item.name || (item.jid && item.jid.local) || item.local;
+		self.presence = '';
 		self.messages = [];
 	};
 
@@ -69707,7 +69727,7 @@ function Contact(item) {
 	return self;
 }
 
-},{"webrtc-core":1280}],971:[function(require,module,exports){
+},{"webrtc-core":1283}],972:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Message);
 
 function Message(msg) {
@@ -69727,7 +69747,7 @@ function Message(msg) {
 	return self;
 }
 
-},{"webrtc-core":1280}],972:[function(require,module,exports){
+},{"webrtc-core":1283}],973:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(XMPP, {
   config: require('../../js/config.js')
 });
@@ -69774,7 +69794,7 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
   var emitter = ee({});
 
   self.props = ['classes', 'visible', 'connected', 'connecting', 'disconnecting', 'contacts', 'contact', 
-  'contactSelected', 'subscriptions', 'subscriptionsVisible', 'removeContactFailed'];
+  'contactSelected', 'subscriptions', 'subscriptionsVisible', 'removeContactFailed', 'myContact'];
 
   self.bindings = {
     classes: {
@@ -69791,6 +69811,14 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
     wait: 20
   };
   self.client = require('stanza.io').createClient(opts);
+
+  self.sendPresence = function(presence){
+    if(presence) {
+      self.client.sendPresence({ show: presence });
+    } else {
+      self.client.sendPresence();
+    }
+  };
 
   self.busy = function(){
     self.client.sendPresence({ show: 'dnd' });
@@ -69824,12 +69852,27 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
   self.onRemoveContactFailed = function(cb){
     emitter.on('removeContactFailed', cb);
   };
+  self.onAddContactFailed = function(cb){
+    emitter.on('addContactFailed', cb);
+  };
 
   self.closeContact = function(contact){
     emitter.emit('closeContact', contact);
     if(contact === self.contact) {
       self.deselectContact();
     }
+  };
+
+  self.addContact = function(contact){
+    self.client.updateRosterItem({jid: contact.id, name: contact.name}, function(e){
+      debug.log('updateRosterItem : '+JSON.stringify(e));
+      if(e && e.error) {
+        emitter.emit('addContactFailed', e.error);
+      }
+    });
+    self.client.subscribe(contact.id, function(e){
+      debug.log('subscribe : '+JSON.stringify(e));
+    });
   };
 
   self.removeContact = function(contact){
@@ -69839,6 +69882,9 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
         emitter.emit('removeContactFailed', e.error);
         addContact(contact);
       }
+    });
+    self.client.unsubscribe(contact.id, function(e){
+      debug.log('unsubscribe : '+JSON.stringify(e));
     });
     removeContact(contact.id);
   };
@@ -70018,6 +70064,7 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
 
     self.client.on('session:started', function () {
         debug.log('session:started : getRoster');
+        self.myContact = Contact.create([self.client]);
         self.client.getRoster(function (err, res) {
             debug.log('session:started : contacts retrieved : '+JSON.stringify(res.roster.items));
             self.contacts = res.roster.items.map(function (item) {
@@ -70045,7 +70092,52 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
 
   return self;
 }
-},{"../../js/config.js":967,"./contact":970,"./message":971,"event-emitter":980,"extend":995,"q":1002,"stanza.io":1003,"webrtc-core":1280}],973:[function(require,module,exports){
+},{"../../js/config.js":967,"./contact":971,"./message":972,"event-emitter":983,"extend":998,"q":1005,"stanza.io":1006,"webrtc-core":1283}],974:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(AddContactView, {
+  template: require('../../js/templates'), 
+  style: require('../../js/styles')
+})
+
+var Contact = require('../models/contact');
+
+function AddContactView(xmpp) {
+  var self = {};
+
+  self.elements = ['name', 'jid', 'add', 'addLink', 'cancelLink', 'form'];
+
+  var toggle = function(visible){
+    self.form.toggle(visible);
+    self.addLink.toggle(!visible);
+    self.cancelLink.toggle(visible);
+  };
+
+  self.init = function(){
+  };
+
+  self.listeners = function(xmppDatabinder) {
+    self.add.on('click', function(e) {
+      var jid = self.jid.val();
+      var name = self.name.val();
+      if(jid) {
+        var contact = Contact.create([{bare: jid, local: name}])
+        xmpp.addContact(contact);
+        toggle(true);
+      }
+    });
+    self.cancelLink.on('click', function(e) {
+      toggle(false);
+    });
+    self.addLink.on('click', function(e) {
+      self.name.val('');
+      self.jid.val('');
+      toggle(true);
+    });
+  };
+
+  return self;
+
+}
+},{"../../js/styles":968,"../../js/templates":969,"../models/contact":971,"webrtc-core":1283}],975:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(ChatView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles')
@@ -70089,7 +70181,7 @@ function ChatView(contact, xmpp) {
   return self;
 
 }
-},{"../../js/styles":968,"../../js/templates":969,"./message":976,"webrtc-core":1280}],974:[function(require,module,exports){
+},{"../../js/styles":968,"../../js/templates":969,"./message":978,"webrtc-core":1283}],976:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(ChatTabView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles')
@@ -70150,7 +70242,7 @@ function ChatTabView(xmpp) {
   return self;
 
 }
-},{"../../js/styles":968,"../../js/templates":969,"./contact":975,"webrtc-core":1280}],975:[function(require,module,exports){
+},{"../../js/styles":968,"../../js/templates":969,"./contact":977,"webrtc-core":1283}],977:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(ContactView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles')
@@ -70188,7 +70280,7 @@ function ContactView(contact, xmpp) {
   return self;
 
 }
-},{"../../js/styles":968,"../../js/templates":969,"webrtc-core":1280}],976:[function(require,module,exports){
+},{"../../js/styles":968,"../../js/templates":969,"webrtc-core":1283}],978:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(MessageView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles')
@@ -70213,7 +70305,39 @@ function MessageView(message, xmpp) {
   return self;
 
 }
-},{"../../js/styles":968,"../../js/templates":969,"webrtc-core":1280}],977:[function(require,module,exports){
+},{"../../js/styles":968,"../../js/templates":969,"webrtc-core":1283}],979:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(MyContactView, {
+  template: require('../../js/templates'), 
+  style: require('../../js/styles')
+})
+
+var Utils = require('webrtc-core').utils;
+var constants = require('../constants');
+
+function MyContactView(xmpp) {
+  var self = {};
+
+  self.elements = ['name', 'presenceSelect', 'presence'];
+
+  self.init = function(){
+    Utils.addSelectOptions(constants.PRESENCES, self.presenceSelect);
+  };
+
+  self.listeners = function(xmppDatabinder) {
+    xmppDatabinder.onModelPropChange('myContact', function(myContact){
+      self.name.text(myContact.name);
+      self.presence.text(myContact.presence);
+      self.presenceSelect.val(myContact.presence);
+    });
+    self.presenceSelect.on('change', function(e) {
+      xmpp.sendPresence(self.presenceSelect.val());
+    });
+  };
+
+  return self;
+
+}
+},{"../../js/styles":968,"../../js/templates":969,"../constants":970,"webrtc-core":1283}],980:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(SubscriptionView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles')
@@ -70242,7 +70366,7 @@ function SubscriptionView(contact, xmpp) {
   return self;
 
 }
-},{"../../js/styles":968,"../../js/templates":969,"webrtc-core":1280}],978:[function(require,module,exports){
+},{"../../js/styles":968,"../../js/templates":969,"webrtc-core":1283}],981:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(SubscriptionsView, {
   template: require('../../js/templates'), 
   style: require('../../js/styles')
@@ -70279,7 +70403,7 @@ function SubscriptionsView(xmpp) {
   return self;
 
 }
-},{"../../js/styles":968,"../../js/templates":969,"./subscription":977,"jquery":1001,"jquery-ui/draggable":997,"jquery-ui/resizable":999,"webrtc-core":1280}],979:[function(require,module,exports){
+},{"../../js/styles":968,"../../js/templates":969,"./subscription":980,"jquery":1004,"jquery-ui/draggable":1000,"jquery-ui/resizable":1002,"webrtc-core":1283}],982:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.View(XMPPView, {
   template: require('../../js/templates'),
   style: require('../../js/styles')
@@ -70290,6 +70414,8 @@ var Constants = require('webrtc-core').constants;
 var ContactView = require('./contact');
 var ChatView = require('./chat');
 var ChatTabView = require('./chattab');
+var MyContactView = require('./mycontact');
+var AddContactView = require('./addcontact');
 var SubscriptionsView = require('./subscriptions');
 var jQuery = jquery = $ = require('jquery');
 require('jquery-ui/resizable');
@@ -70308,7 +70434,7 @@ function XMPPView(debug, eventbus, sound, xmpp) {
   self.model = xmpp;
 
   self.elements = ['name', 'password', 'login', 'contactsView', 'contactsContent', 'chatsView', 'chatsContent', 'chatTabHolder', 
-  'subscriptionsHolder', 'removeContactFailed'];
+  'subscriptionsHolder', 'removeContactFailed', 'myContactHolder', 'addContactHolder'];
 
   self.init = function() {
     jQuery(self.contactsView).resizable({
@@ -70321,6 +70447,10 @@ function XMPPView(debug, eventbus, sound, xmpp) {
     chatTabView.view.appendTo(self.chatTabHolder);
     var subscriptionsView = SubscriptionsView.create([xmpp]);
     self.subscriptionsHolder.replaceWith(subscriptionsView.view)
+    var myContactView = MyContactView.create([xmpp]);
+    self.myContactHolder.replaceWith(myContactView.view);
+    var addContactView = AddContactView.create([xmpp]);
+    self.addContactHolder.replaceWith(addContactView.view);
   };
 
   self.listeners = function(databinder) {
@@ -70355,37 +70485,37 @@ function XMPPView(debug, eventbus, sound, xmpp) {
 
   return self;
 }
-},{"../../js/styles":968,"../../js/templates":969,"./chat":973,"./chattab":974,"./contact":975,"./subscriptions":978,"jquery":1001,"jquery-ui/draggable":997,"jquery-ui/resizable":999,"webrtc-core":1280}],980:[function(require,module,exports){
+},{"../../js/styles":968,"../../js/templates":969,"./addcontact":974,"./chat":975,"./chattab":976,"./contact":977,"./mycontact":979,"./subscriptions":981,"jquery":1004,"jquery-ui/draggable":1000,"jquery-ui/resizable":1002,"webrtc-core":1283}],983:[function(require,module,exports){
 module.exports=require(82)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/index.js":82,"d":981,"es5-ext/object/valid-callable":990}],981:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/index.js":82,"d":984,"es5-ext/object/valid-callable":993}],984:[function(require,module,exports){
 module.exports=require(83)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":83,"es5-ext/object/assign":982,"es5-ext/object/is-callable":985,"es5-ext/object/normalize-options":989,"es5-ext/string/#/contains":992}],982:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":83,"es5-ext/object/assign":985,"es5-ext/object/is-callable":988,"es5-ext/object/normalize-options":992,"es5-ext/string/#/contains":995}],985:[function(require,module,exports){
 module.exports=require(84)
-},{"./is-implemented":983,"./shim":984,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":84}],983:[function(require,module,exports){
+},{"./is-implemented":986,"./shim":987,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":84}],986:[function(require,module,exports){
 module.exports=require(85)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":85}],984:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":85}],987:[function(require,module,exports){
 module.exports=require(86)
-},{"../keys":986,"../valid-value":991,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":86}],985:[function(require,module,exports){
+},{"../keys":989,"../valid-value":994,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":86}],988:[function(require,module,exports){
 module.exports=require(87)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":87}],986:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":87}],989:[function(require,module,exports){
 module.exports=require(88)
-},{"./is-implemented":987,"./shim":988,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":88}],987:[function(require,module,exports){
+},{"./is-implemented":990,"./shim":991,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":88}],990:[function(require,module,exports){
 module.exports=require(89)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":89}],988:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":89}],991:[function(require,module,exports){
 module.exports=require(90)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":90}],989:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":90}],992:[function(require,module,exports){
 module.exports=require(91)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":91}],990:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":91}],993:[function(require,module,exports){
 module.exports=require(92)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":92}],991:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":92}],994:[function(require,module,exports){
 module.exports=require(93)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":93}],992:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":93}],995:[function(require,module,exports){
 module.exports=require(94)
-},{"./is-implemented":993,"./shim":994,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":94}],993:[function(require,module,exports){
+},{"./is-implemented":996,"./shim":997,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":94}],996:[function(require,module,exports){
 module.exports=require(95)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":95}],994:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":95}],997:[function(require,module,exports){
 module.exports=require(96)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":96}],995:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":96}],998:[function(require,module,exports){
 'use strict';
 
 var hasOwn = Object.prototype.hasOwnProperty;
@@ -70473,7 +70603,7 @@ module.exports = function extend() {
 };
 
 
-},{}],996:[function(require,module,exports){
+},{}],999:[function(require,module,exports){
 var jQuery = require('jquery');
 
 /*!
@@ -70797,7 +70927,7 @@ $.extend( $.ui, {
 
 })( jQuery );
 
-},{"jquery":1001}],997:[function(require,module,exports){
+},{"jquery":1004}],1000:[function(require,module,exports){
 var jQuery = require('jquery');
 require('./core');
 require('./mouse');
@@ -71762,7 +71892,7 @@ $.ui.plugin.add("draggable", "zIndex", {
 
 })(jQuery);
 
-},{"./core":996,"./mouse":998,"./widget":1000,"jquery":1001}],998:[function(require,module,exports){
+},{"./core":999,"./mouse":1001,"./widget":1003,"jquery":1004}],1001:[function(require,module,exports){
 var jQuery = require('jquery');
 require('./widget');
 
@@ -71936,7 +72066,7 @@ $.widget("ui.mouse", {
 
 })(jQuery);
 
-},{"./widget":1000,"jquery":1001}],999:[function(require,module,exports){
+},{"./widget":1003,"jquery":1004}],1002:[function(require,module,exports){
 var jQuery = require('jquery');
 require('./core');
 require('./mouse');
@@ -72921,7 +73051,7 @@ $.ui.plugin.add("resizable", "grid", {
 
 })(jQuery);
 
-},{"./core":996,"./mouse":998,"./widget":1000,"jquery":1001}],1000:[function(require,module,exports){
+},{"./core":999,"./mouse":1001,"./widget":1003,"jquery":1004}],1003:[function(require,module,exports){
 var jQuery = require('jquery');
 
 /*!
@@ -73446,11 +73576,11 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 
 })( jQuery );
 
-},{"jquery":1001}],1001:[function(require,module,exports){
+},{"jquery":1004}],1004:[function(require,module,exports){
 module.exports=require(98)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":98}],1002:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":98}],1005:[function(require,module,exports){
 module.exports=require(277)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-dms/node_modules/q/q.js":277,"_process":22}],1003:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-dms/node_modules/q/q.js":277,"_process":22}],1006:[function(require,module,exports){
 'use strict';
 
 exports.VERSION = '7.0.6';
@@ -73466,7 +73596,7 @@ exports.createClient = function (opts) {
     return client;
 };
 
-},{"./lib/client":1004,"./lib/plugins":1027,"xmpp-jid":1275}],1004:[function(require,module,exports){
+},{"./lib/client":1007,"./lib/plugins":1030,"xmpp-jid":1278}],1007:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -73935,7 +74065,7 @@ Client.prototype.sendStreamError = function (data) {
 
 module.exports = Client;
 
-},{"./plugins/bind":1007,"./plugins/bosh":1011,"./plugins/features":1022,"./plugins/oldwebsocket":1038,"./plugins/sasl":1049,"./plugins/session":1050,"./plugins/smacks":1052,"./plugins/websocket":1056,"./sm":1057,"./stanza/error":1071,"./stanza/iq":1080,"./stanza/message":1086,"./stanza/presence":1092,"./stanza/streamError":1110,"alt-sasl-digest-md5":1119,"bluebird":1135,"hostmeta":1137,"jxt":1231,"jxt-xmpp-types":1230,"node-uuid":1244,"sasl-anonymous":1246,"sasl-external":1248,"sasl-plain":1250,"sasl-scram-sha-1":1251,"saslmechanisms":1272,"underscore":1273,"util":43,"wildemitter":1274,"xmpp-jid":1275}],1005:[function(require,module,exports){
+},{"./plugins/bind":1010,"./plugins/bosh":1014,"./plugins/features":1025,"./plugins/oldwebsocket":1041,"./plugins/sasl":1052,"./plugins/session":1053,"./plugins/smacks":1055,"./plugins/websocket":1059,"./sm":1060,"./stanza/error":1074,"./stanza/iq":1083,"./stanza/message":1089,"./stanza/presence":1095,"./stanza/streamError":1113,"alt-sasl-digest-md5":1122,"bluebird":1138,"hostmeta":1140,"jxt":1234,"jxt-xmpp-types":1233,"node-uuid":1247,"sasl-anonymous":1249,"sasl-external":1251,"sasl-plain":1253,"sasl-scram-sha-1":1254,"saslmechanisms":1275,"underscore":1276,"util":43,"wildemitter":1277,"xmpp-jid":1278}],1008:[function(require,module,exports){
 'use strict';
 
 
@@ -73958,7 +74088,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],1006:[function(require,module,exports){
+},{}],1009:[function(require,module,exports){
 'use strict';
 
 
@@ -74013,7 +74143,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/avatar":1058}],1007:[function(require,module,exports){
+},{"../stanza/avatar":1061}],1010:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -74055,7 +74185,7 @@ module.exports = function (client, stanzas, config) {
     });
 };
 
-},{"../stanza/bind":1059,"xmpp-jid":1275}],1008:[function(require,module,exports){
+},{"../stanza/bind":1062,"xmpp-jid":1278}],1011:[function(require,module,exports){
 'use strict';
 
 
@@ -74104,7 +74234,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/blocking":1060}],1009:[function(require,module,exports){
+},{"../stanza/blocking":1063}],1012:[function(require,module,exports){
 'use strict';
 
 
@@ -74124,7 +74254,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/bob":1061}],1010:[function(require,module,exports){
+},{"../stanza/bob":1064}],1013:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -74173,7 +74303,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/bookmarks":1062,"underscore":1273,"xmpp-jid":1275}],1011:[function(require,module,exports){
+},{"../stanza/bookmarks":1065,"underscore":1276,"xmpp-jid":1278}],1014:[function(require,module,exports){
 'use strict';
 
 var BOSHConnection = require('../transports/bosh');
@@ -74185,7 +74315,7 @@ module.exports = function (client, stanzas) {
     client.transports.bosh = BOSHConnection;
 };
 
-},{"../stanza/bosh":1063,"../transports/bosh":1116}],1012:[function(require,module,exports){
+},{"../stanza/bosh":1066,"../transports/bosh":1119}],1015:[function(require,module,exports){
 'use strict';
 
 
@@ -74256,7 +74386,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/carbons":1065}],1013:[function(require,module,exports){
+},{"../stanza/carbons":1068}],1016:[function(require,module,exports){
 'use strict';
 
 
@@ -74279,7 +74409,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],1014:[function(require,module,exports){
+},{}],1017:[function(require,module,exports){
 'use strict';
 
 
@@ -74301,7 +74431,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/command":1066}],1015:[function(require,module,exports){
+},{"../stanza/command":1069}],1018:[function(require,module,exports){
 'use strict';
 
 
@@ -74316,7 +74446,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],1016:[function(require,module,exports){
+},{}],1019:[function(require,module,exports){
 'use strict';
 
 
@@ -74345,7 +74475,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/csi":1067}],1017:[function(require,module,exports){
+},{"../stanza/csi":1070}],1020:[function(require,module,exports){
 'use strict';
 
 
@@ -74364,7 +74494,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/dataforms":1068}],1018:[function(require,module,exports){
+},{"../stanza/dataforms":1071}],1021:[function(require,module,exports){
 'use strict';
 
 
@@ -74373,7 +74503,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:delay');
 };
 
-},{"../stanza/delayed":1069}],1019:[function(require,module,exports){
+},{"../stanza/delayed":1072}],1022:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -74654,7 +74784,7 @@ module.exports = function (client, stanzas) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../stanza/caps":1064,"../stanza/disco":1070,"../stanza/rsm":1102,"buffer":9,"iana-hashes":1140,"underscore":1273,"xmpp-jid":1275}],1020:[function(require,module,exports){
+},{"../stanza/caps":1067,"../stanza/disco":1073,"../stanza/rsm":1105,"buffer":9,"iana-hashes":1143,"underscore":1276,"xmpp-jid":1278}],1023:[function(require,module,exports){
 'use strict';
 
 
@@ -74662,7 +74792,7 @@ module.exports = function (client) {
     client.disco.addFeature('jid\\20escaping');
 };
 
-},{}],1021:[function(require,module,exports){
+},{}],1024:[function(require,module,exports){
 'use strict';
 
 
@@ -74694,7 +74824,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/extdisco":1072}],1022:[function(require,module,exports){
+},{"../stanza/extdisco":1075}],1025:[function(require,module,exports){
 'use strict';
 
 var async = require('async');
@@ -74758,7 +74888,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/streamFeatures":1111,"async":1134}],1023:[function(require,module,exports){
+},{"../stanza/streamFeatures":1114,"async":1137}],1026:[function(require,module,exports){
 'use strict';
 
 
@@ -74768,7 +74898,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:forward:0');
 };
 
-},{"../stanza/forwarded":1074}],1024:[function(require,module,exports){
+},{"../stanza/forwarded":1077}],1027:[function(require,module,exports){
 'use strict';
 
 
@@ -74800,7 +74930,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/geoloc":1076}],1025:[function(require,module,exports){
+},{"../stanza/geoloc":1079}],1028:[function(require,module,exports){
 'use strict';
 
 var hashes = require('iana-hashes');
@@ -74817,7 +74947,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/hash":1077,"iana-hashes":1140}],1026:[function(require,module,exports){
+},{"../stanza/hash":1080,"iana-hashes":1143}],1029:[function(require,module,exports){
 'use strict';
 
 
@@ -74825,7 +74955,7 @@ module.exports = function (client) {
     client.disco.addFeature('urn:xmpp:idle:1');
 };
 
-},{}],1027:[function(require,module,exports){
+},{}],1030:[function(require,module,exports){
 'use strict';
 
 module.exports = function (client) {
@@ -74876,7 +75006,7 @@ module.exports = function (client) {
     client.use(require('./version'));
 };
 
-},{"./attention":1005,"./avatar":1006,"./blocking":1008,"./bob":1009,"./bookmarks":1010,"./carbons":1012,"./chatstates":1013,"./command":1014,"./correction":1015,"./csi":1016,"./dataforms":1017,"./delayed":1018,"./disco":1019,"./escaping":1020,"./extdisco":1021,"./forwarding":1023,"./geoloc":1024,"./hashes":1025,"./idle":1026,"./invisible":1028,"./jidprep":1029,"./jingle":1030,"./json":1031,"./keepalive":1032,"./logging":1033,"./mam":1034,"./mood":1035,"./muc":1036,"./nick":1037,"./oob":1039,"./ping":1040,"./private":1041,"./psa":1042,"./pubsub":1043,"./reach":1044,"./receipts":1045,"./register":1046,"./roster":1047,"./rtt":1048,"./shim":1051,"./time":1053,"./vcard":1054,"./version":1055}],1028:[function(require,module,exports){
+},{"./attention":1008,"./avatar":1009,"./blocking":1011,"./bob":1012,"./bookmarks":1013,"./carbons":1015,"./chatstates":1016,"./command":1017,"./correction":1018,"./csi":1019,"./dataforms":1020,"./delayed":1021,"./disco":1022,"./escaping":1023,"./extdisco":1024,"./forwarding":1026,"./geoloc":1027,"./hashes":1028,"./idle":1029,"./invisible":1031,"./jidprep":1032,"./jingle":1033,"./json":1034,"./keepalive":1035,"./logging":1036,"./mam":1037,"./mood":1038,"./muc":1039,"./nick":1040,"./oob":1042,"./ping":1043,"./private":1044,"./psa":1045,"./pubsub":1046,"./reach":1047,"./receipts":1048,"./register":1049,"./roster":1050,"./rtt":1051,"./shim":1054,"./time":1056,"./vcard":1057,"./version":1058}],1031:[function(require,module,exports){
 'use strict';
 
 
@@ -74899,7 +75029,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/visibility":1115}],1029:[function(require,module,exports){
+},{"../stanza/visibility":1118}],1032:[function(require,module,exports){
 'use strict';
 
 
@@ -74915,7 +75045,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/jidprep":1081}],1030:[function(require,module,exports){
+},{"../stanza/jidprep":1084}],1033:[function(require,module,exports){
 'use strict';
 
 var Jingle = require('jingle');
@@ -75018,7 +75148,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/file":1073,"../stanza/iceUdp":1079,"../stanza/jingle":1082,"../stanza/rtp":1103,"jingle":1157}],1031:[function(require,module,exports){
+},{"../stanza/file":1076,"../stanza/iceUdp":1082,"../stanza/jingle":1085,"../stanza/rtp":1106,"jingle":1160}],1034:[function(require,module,exports){
 'use strict';
 
 
@@ -75027,7 +75157,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:json:0');
 };
 
-},{"../stanza/json":1083}],1032:[function(require,module,exports){
+},{"../stanza/json":1086}],1035:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -75086,7 +75216,7 @@ module.exports = function (client) {
     });
 };
 
-},{"bluebird":1135}],1033:[function(require,module,exports){
+},{"bluebird":1138}],1036:[function(require,module,exports){
 'use strict';
 
 
@@ -75104,7 +75234,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/logging":1084}],1034:[function(require,module,exports){
+},{"../stanza/logging":1087}],1037:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -75251,7 +75381,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/mam":1085,"bluebird":1135,"xmpp-jid":1275}],1035:[function(require,module,exports){
+},{"../stanza/mam":1088,"bluebird":1138,"xmpp-jid":1278}],1038:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/mood';
@@ -75288,7 +75418,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/mood":1087}],1036:[function(require,module,exports){
+},{"../stanza/mood":1090}],1039:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -75538,7 +75668,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/hats":1078,"../stanza/muc":1088,"underscore":1273,"xmpp-jid":1275}],1037:[function(require,module,exports){
+},{"../stanza/hats":1081,"../stanza/muc":1091,"underscore":1276,"xmpp-jid":1278}],1040:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/nick';
@@ -75571,7 +75701,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/nick":1089}],1038:[function(require,module,exports){
+},{"../stanza/nick":1092}],1041:[function(require,module,exports){
 'use strict';
 
 var OldWSConnection = require('../transports/old-websocket');
@@ -75583,7 +75713,7 @@ module.exports = function (client, stanzas) {
     client.transports['old-websocket'] = OldWSConnection;
 };
 
-},{"../stanza/stream":1109,"../transports/old-websocket":1117}],1039:[function(require,module,exports){
+},{"../stanza/stream":1112,"../transports/old-websocket":1120}],1042:[function(require,module,exports){
 'use strict';
 
 
@@ -75592,7 +75722,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('jabber:x:oob');
 };
 
-},{"../stanza/oob":1090}],1040:[function(require,module,exports){
+},{"../stanza/oob":1093}],1043:[function(require,module,exports){
 'use strict';
 
 
@@ -75614,7 +75744,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/ping":1091}],1041:[function(require,module,exports){
+},{"../stanza/ping":1094}],1044:[function(require,module,exports){
 'use strict';
 
 
@@ -75636,7 +75766,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/private":1093}],1042:[function(require,module,exports){
+},{"../stanza/private":1096}],1045:[function(require,module,exports){
 'use strict';
 
 
@@ -75645,7 +75775,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:psa');
 };
 
-},{"../stanza/psa":1094}],1043:[function(require,module,exports){
+},{"../stanza/psa":1097}],1046:[function(require,module,exports){
 'use strict';
 
 
@@ -75899,7 +76029,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/pubsub":1095,"../stanza/pubsubError":1096,"../stanza/pubsubEvents":1097,"../stanza/pubsubOwner":1098}],1044:[function(require,module,exports){
+},{"../stanza/pubsub":1098,"../stanza/pubsubError":1099,"../stanza/pubsubEvents":1100,"../stanza/pubsubOwner":1101}],1047:[function(require,module,exports){
 'use strict';
 
 
@@ -75941,7 +76071,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/reach":1099}],1045:[function(require,module,exports){
+},{"../stanza/reach":1102}],1048:[function(require,module,exports){
 'use strict';
 
 module.exports = function (client) {
@@ -75967,7 +76097,7 @@ module.exports = function (client) {
     });
 };
 
-},{}],1046:[function(require,module,exports){
+},{}],1049:[function(require,module,exports){
 'use strict';
 
 
@@ -76002,7 +76132,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/register":1100}],1047:[function(require,module,exports){
+},{"../stanza/register":1103}],1050:[function(require,module,exports){
 'use strict';
 
 
@@ -76082,7 +76212,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/roster":1101}],1048:[function(require,module,exports){
+},{"../stanza/roster":1104}],1051:[function(require,module,exports){
 'use strict';
 
 
@@ -76099,7 +76229,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/rtt":1104}],1049:[function(require,module,exports){
+},{"../stanza/rtt":1107}],1052:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -76178,7 +76308,7 @@ module.exports = function (client, stanzas) {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../stanza/sasl":1105,"buffer":9}],1050:[function(require,module,exports){
+},{"../stanza/sasl":1108,"buffer":9}],1053:[function(require,module,exports){
 'use strict';
 
 
@@ -76216,7 +76346,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/session":1106}],1051:[function(require,module,exports){
+},{"../stanza/session":1109}],1054:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/shim';
@@ -76229,7 +76359,7 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature(NS + '#SubID', NS);
 };
 
-},{"../stanza/shim":1107}],1052:[function(require,module,exports){
+},{"../stanza/shim":1110}],1055:[function(require,module,exports){
 'use strict';
 
 
@@ -76288,7 +76418,7 @@ module.exports = function (client, stanzas, config) {
     client.registerFeature('streamManagement', 500, smacks);
 };
 
-},{"../stanza/sm":1108}],1053:[function(require,module,exports){
+},{"../stanza/sm":1111}],1056:[function(require,module,exports){
 'use strict';
 
 
@@ -76316,7 +76446,7 @@ module.exports = function (client, stanzas) {
     });
 };
 
-},{"../stanza/time":1112}],1054:[function(require,module,exports){
+},{"../stanza/time":1115}],1057:[function(require,module,exports){
 'use strict';
 
 
@@ -76341,7 +76471,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/vcard":1113}],1055:[function(require,module,exports){
+},{"../stanza/vcard":1116}],1058:[function(require,module,exports){
 'use strict';
 
 
@@ -76367,7 +76497,7 @@ module.exports = function (client, stanzas) {
     };
 };
 
-},{"../stanza/version":1114}],1056:[function(require,module,exports){
+},{"../stanza/version":1117}],1059:[function(require,module,exports){
 'use strict';
 
 var WSConnection = require('../transports/websocket');
@@ -76379,7 +76509,7 @@ module.exports = function (client, stanzas) {
     client.transports.websocket = WSConnection;
 };
 
-},{"../stanza/framing":1075,"../transports/websocket":1118}],1057:[function(require,module,exports){
+},{"../stanza/framing":1078,"../transports/websocket":1121}],1060:[function(require,module,exports){
 'use strict';
 
 var MAX_SEQ = Math.pow(2, 32);
@@ -76524,7 +76654,7 @@ Object.defineProperties(StreamManagement.prototype, {
 
 module.exports = StreamManagement;
 
-},{}],1058:[function(require,module,exports){
+},{}],1061:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -76575,7 +76705,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"underscore":1273}],1059:[function(require,module,exports){
+},{"underscore":1276}],1062:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-bind';
@@ -76602,7 +76732,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1060:[function(require,module,exports){
+},{}],1063:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -76672,7 +76802,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":1275}],1061:[function(require,module,exports){
+},{"xmpp-jid":1278}],1064:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:bob';
@@ -76707,7 +76837,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1062:[function(require,module,exports){
+},{}],1065:[function(require,module,exports){
 'use strict';
 
 
@@ -76740,7 +76870,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1063:[function(require,module,exports){
+},{}],1066:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/httpbind';
@@ -76811,7 +76941,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1064:[function(require,module,exports){
+},{}],1067:[function(require,module,exports){
 'use strict';
 
 
@@ -76839,7 +76969,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1065:[function(require,module,exports){
+},{}],1068:[function(require,module,exports){
 'use strict';
 
 
@@ -76895,7 +77025,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1066:[function(require,module,exports){
+},{}],1069:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/commands';
@@ -76977,7 +77107,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1067:[function(require,module,exports){
+},{}],1070:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:csi';
@@ -77012,7 +77142,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1068:[function(require,module,exports){
+},{}],1071:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -77297,7 +77427,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":1275}],1069:[function(require,module,exports){
+},{"xmpp-jid":1278}],1072:[function(require,module,exports){
 'use strict';
 
 
@@ -77324,7 +77454,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1070:[function(require,module,exports){
+},{}],1073:[function(require,module,exports){
 'use strict';
 
 var NSInfo = 'http://jabber.org/protocol/disco#info';
@@ -77396,7 +77526,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1071:[function(require,module,exports){
+},{}],1074:[function(require,module,exports){
 'use strict';
 
 var ERR_NS = 'urn:ietf:params:xml:ns:xmpp-stanzas';
@@ -77490,7 +77620,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1072:[function(require,module,exports){
+},{}],1075:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:extdisco:1';
@@ -77542,7 +77672,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1073:[function(require,module,exports){
+},{}],1076:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:apps:file-transfer:3';
@@ -77609,7 +77739,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1074:[function(require,module,exports){
+},{}],1077:[function(require,module,exports){
 'use strict';
 
 module.exports = function (stanza) {
@@ -77639,7 +77769,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1075:[function(require,module,exports){
+},{}],1078:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-framing';
@@ -77673,7 +77803,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1076:[function(require,module,exports){
+},{}],1079:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/geoloc';
@@ -77719,7 +77849,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1077:[function(require,module,exports){
+},{}],1080:[function(require,module,exports){
 'use strict';
 
 
@@ -77735,7 +77865,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1078:[function(require,module,exports){
+},{}],1081:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:hats:0';
@@ -77761,7 +77891,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1079:[function(require,module,exports){
+},{}],1082:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:transports:ice-udp:1';
@@ -77851,7 +77981,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1080:[function(require,module,exports){
+},{}],1083:[function(require,module,exports){
 'use strict';
 
 
@@ -77898,7 +78028,7 @@ module.exports = function (stanza) {
     };
 };
 
-},{}],1081:[function(require,module,exports){
+},{}],1084:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -77925,7 +78055,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":1275}],1082:[function(require,module,exports){
+},{"xmpp-jid":1278}],1085:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:1';
@@ -78044,7 +78174,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1083:[function(require,module,exports){
+},{}],1086:[function(require,module,exports){
 'use strict';
 
 
@@ -78076,7 +78206,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1084:[function(require,module,exports){
+},{}],1087:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:eventlog';
@@ -78126,7 +78256,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1085:[function(require,module,exports){
+},{}],1088:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -78242,7 +78372,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"xmpp-jid":1275}],1086:[function(require,module,exports){
+},{"xmpp-jid":1278}],1089:[function(require,module,exports){
 'use strict';
 
 
@@ -78288,7 +78418,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1087:[function(require,module,exports){
+},{}],1090:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/mood';
@@ -78399,7 +78529,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1088:[function(require,module,exports){
+},{}],1091:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/muc';
@@ -78674,7 +78804,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1089:[function(require,module,exports){
+},{}],1092:[function(require,module,exports){
 'use strict';
 
 
@@ -78695,7 +78825,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1090:[function(require,module,exports){
+},{}],1093:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:x:oob';
@@ -78717,7 +78847,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1091:[function(require,module,exports){
+},{}],1094:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:ping';
@@ -78735,7 +78865,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1092:[function(require,module,exports){
+},{}],1095:[function(require,module,exports){
 'use strict';
 
 
@@ -78809,7 +78939,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1093:[function(require,module,exports){
+},{}],1096:[function(require,module,exports){
 'use strict';
 
 
@@ -78826,7 +78956,7 @@ module.exports = function (stanza) {
 };
 
 
-},{}],1094:[function(require,module,exports){
+},{}],1097:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:psa';
@@ -78855,7 +78985,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1095:[function(require,module,exports){
+},{}],1098:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub';
@@ -79044,7 +79174,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1096:[function(require,module,exports){
+},{}],1099:[function(require,module,exports){
 'use strict';
 
 var ERRNS = 'http://jabber.org/protocol/pubsub#errors';
@@ -79080,7 +79210,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1097:[function(require,module,exports){
+},{}],1100:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub#event';
@@ -79213,7 +79343,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1098:[function(require,module,exports){
+},{}],1101:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub#owner';
@@ -79322,7 +79452,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1099:[function(require,module,exports){
+},{}],1102:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -79387,7 +79517,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{"underscore":1273}],1100:[function(require,module,exports){
+},{"underscore":1276}],1103:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:register';
@@ -79438,7 +79568,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1101:[function(require,module,exports){
+},{}],1104:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:roster';
@@ -79491,7 +79621,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1102:[function(require,module,exports){
+},{}],1105:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/rsm';
@@ -79528,7 +79658,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1103:[function(require,module,exports){
+},{}],1106:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:jingle:apps:rtp:1';
@@ -79823,7 +79953,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1104:[function(require,module,exports){
+},{}],1107:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:rtt:0';
@@ -79928,7 +80058,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1105:[function(require,module,exports){
+},{}],1108:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
@@ -80051,7 +80181,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1106:[function(require,module,exports){
+},{}],1109:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-session';
@@ -80078,7 +80208,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1107:[function(require,module,exports){
+},{}],1110:[function(require,module,exports){
 'use strict';
 
 var NS = 'http://jabber.org/protocol/shim';
@@ -80124,7 +80254,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1108:[function(require,module,exports){
+},{}],1111:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:sm:3';
@@ -80219,7 +80349,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1109:[function(require,module,exports){
+},{}],1112:[function(require,module,exports){
 'use strict';
 
 
@@ -80240,7 +80370,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1110:[function(require,module,exports){
+},{}],1113:[function(require,module,exports){
 'use strict';
 
 var ERR_NS = 'urn:ietf:params:xml:ns:xmpp-streams';
@@ -80318,7 +80448,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1111:[function(require,module,exports){
+},{}],1114:[function(require,module,exports){
 'use strict';
 
 
@@ -80347,7 +80477,7 @@ module.exports = function (stanza) {
     stanza.extend(StreamFeatures, SubscriptionPreApprovalFeature);
 };
 
-},{}],1112:[function(require,module,exports){
+},{}],1115:[function(require,module,exports){
 'use strict';
 
 
@@ -80368,7 +80498,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1113:[function(require,module,exports){
+},{}],1116:[function(require,module,exports){
 'use strict';
 
 var NS = 'vcard-temp';
@@ -80483,7 +80613,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1114:[function(require,module,exports){
+},{}],1117:[function(require,module,exports){
 'use strict';
 
 var NS = 'jabber:iq:version';
@@ -80508,7 +80638,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1115:[function(require,module,exports){
+},{}],1118:[function(require,module,exports){
 'use strict';
 
 var NS = 'urn:xmpp:invisible:0';
@@ -80521,7 +80651,7 @@ module.exports = function (stanza) {
     });
 };
 
-},{}],1116:[function(require,module,exports){
+},{}],1119:[function(require,module,exports){
 (function (process,Buffer){
 'use strict';
 
@@ -80761,7 +80891,7 @@ BOSHConnection.prototype.request = function (bosh) {
 module.exports = BOSHConnection;
 
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":22,"bluebird":1135,"buffer":9,"request":1136,"underscore":1273,"util":43,"wildemitter":1274}],1117:[function(require,module,exports){
+},{"_process":22,"bluebird":1138,"buffer":9,"request":1139,"underscore":1276,"util":43,"wildemitter":1277}],1120:[function(require,module,exports){
 'use strict';
 
 var WSConnection = require('./websocket');
@@ -80872,7 +81002,7 @@ OldWSConnection.prototype.closeHeader = function () {
 
 module.exports = OldWSConnection;
 
-},{"./websocket":1118,"underscore":1273,"util":43}],1118:[function(require,module,exports){
+},{"./websocket":1121,"underscore":1276,"util":43}],1121:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 
@@ -81029,7 +81159,7 @@ WSConnection.prototype.send = function (data) {
 module.exports = WSConnection;
 
 }).call(this,require("buffer").Buffer)
-},{"async":1134,"buffer":9,"faye-websocket":8,"util":43,"wildemitter":1274}],1119:[function(require,module,exports){
+},{"async":1137,"buffer":9,"faye-websocket":8,"util":43,"wildemitter":1277}],1122:[function(require,module,exports){
 var randomBytes = require('randombytes');
 var createHash = require('create-hash');
 
@@ -81170,7 +81300,7 @@ Mechanism.prototype.challenge = function(chal) {
 
 module.exports = Mechanism;
 
-},{"create-hash":1120,"randombytes":1133}],1120:[function(require,module,exports){
+},{"create-hash":1123,"randombytes":1136}],1123:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 var inherits = require('inherits')
@@ -81263,7 +81393,7 @@ module.exports = function createHash (alg) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./md5":1122,"buffer":9,"inherits":1123,"ripemd160":1124,"sha.js":1126,"stream":39}],1121:[function(require,module,exports){
+},{"./md5":1125,"buffer":9,"inherits":1126,"ripemd160":1127,"sha.js":1129,"stream":39}],1124:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 var intSize = 4;
@@ -81300,7 +81430,7 @@ function hash(buf, fn, hashSize, bigEndian) {
 }
 exports.hash = hash;
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],1122:[function(require,module,exports){
+},{"buffer":9}],1125:[function(require,module,exports){
 'use strict';
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
@@ -81457,9 +81587,9 @@ function bit_rol(num, cnt)
 module.exports = function md5(buf) {
   return helpers.hash(buf, core_md5, 16);
 };
-},{"./helpers":1121}],1123:[function(require,module,exports){
+},{"./helpers":1124}],1126:[function(require,module,exports){
 module.exports=require(19)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1124:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1127:[function(require,module,exports){
 (function (Buffer){
 /*
 CryptoJS v3.1.2
@@ -81673,7 +81803,7 @@ function ripemd160 (message) {
 module.exports = ripemd160
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],1125:[function(require,module,exports){
+},{"buffer":9}],1128:[function(require,module,exports){
 (function (Buffer){
 // prototype class for hash functions
 function Hash (blockSize, finalSize) {
@@ -81746,7 +81876,7 @@ Hash.prototype._update = function () {
 module.exports = Hash
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],1126:[function(require,module,exports){
+},{"buffer":9}],1129:[function(require,module,exports){
 var exports = module.exports = function SHA (algorithm) {
   algorithm = algorithm.toLowerCase()
 
@@ -81763,7 +81893,7 @@ exports.sha256 = require('./sha256')
 exports.sha384 = require('./sha384')
 exports.sha512 = require('./sha512')
 
-},{"./sha":1127,"./sha1":1128,"./sha224":1129,"./sha256":1130,"./sha384":1131,"./sha512":1132}],1127:[function(require,module,exports){
+},{"./sha":1130,"./sha1":1131,"./sha224":1132,"./sha256":1133,"./sha384":1134,"./sha512":1135}],1130:[function(require,module,exports){
 (function (Buffer){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
@@ -81866,7 +81996,7 @@ module.exports = Sha
 
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":1125,"buffer":9,"inherits":1123}],1128:[function(require,module,exports){
+},{"./hash":1128,"buffer":9,"inherits":1126}],1131:[function(require,module,exports){
 (function (Buffer){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
@@ -81965,7 +82095,7 @@ Sha1.prototype._hash = function () {
 module.exports = Sha1
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":1125,"buffer":9,"inherits":1123}],1129:[function(require,module,exports){
+},{"./hash":1128,"buffer":9,"inherits":1126}],1132:[function(require,module,exports){
 (function (Buffer){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -82021,7 +82151,7 @@ Sha224.prototype._hash = function () {
 module.exports = Sha224
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":1125,"./sha256":1130,"buffer":9,"inherits":1123}],1130:[function(require,module,exports){
+},{"./hash":1128,"./sha256":1133,"buffer":9,"inherits":1126}],1133:[function(require,module,exports){
 (function (Buffer){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -82174,7 +82304,7 @@ Sha256.prototype._hash = function () {
 module.exports = Sha256
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":1125,"buffer":9,"inherits":1123}],1131:[function(require,module,exports){
+},{"./hash":1128,"buffer":9,"inherits":1126}],1134:[function(require,module,exports){
 (function (Buffer){
 var inherits = require('inherits')
 var SHA512 = require('./sha512')
@@ -82234,7 +82364,7 @@ Sha384.prototype._hash = function () {
 module.exports = Sha384
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":1125,"./sha512":1132,"buffer":9,"inherits":1123}],1132:[function(require,module,exports){
+},{"./hash":1128,"./sha512":1135,"buffer":9,"inherits":1126}],1135:[function(require,module,exports){
 (function (Buffer){
 var inherits = require('inherits')
 var Hash = require('./hash')
@@ -82483,7 +82613,7 @@ Sha512.prototype._hash = function () {
 module.exports = Sha512
 
 }).call(this,require("buffer").Buffer)
-},{"./hash":1125,"buffer":9,"inherits":1123}],1133:[function(require,module,exports){
+},{"./hash":1128,"buffer":9,"inherits":1126}],1136:[function(require,module,exports){
 (function (process,global,Buffer){
 'use strict';
 
@@ -82515,7 +82645,7 @@ function oldBrowser() {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"_process":22,"buffer":9}],1134:[function(require,module,exports){
+},{"_process":22,"buffer":9}],1137:[function(require,module,exports){
 (function (process){
 /*!
  * async
@@ -83642,7 +83772,7 @@ function oldBrowser() {
 }());
 
 }).call(this,require('_process'))
-},{"_process":22}],1135:[function(require,module,exports){
+},{"_process":22}],1138:[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -88502,7 +88632,7 @@ module.exports = ret;
 },{"./es5.js":14}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":22}],1136:[function(require,module,exports){
+},{"_process":22}],1139:[function(require,module,exports){
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -88998,7 +89128,7 @@ function b64_enc (data) {
 }));
 //UMD FOOTER END
 
-},{}],1137:[function(require,module,exports){
+},{}],1140:[function(require,module,exports){
 'use strict';
 
 var BPromise = require('bluebird');
@@ -89047,7 +89177,7 @@ module.exports = function (opts, cb) {
     }).nodeify(cb);
 };
 
-},{"./lib/xrd":1138,"bluebird":1135,"jxt":1231,"request":1139}],1138:[function(require,module,exports){
+},{"./lib/xrd":1141,"bluebird":1138,"jxt":1234,"request":1142}],1141:[function(require,module,exports){
 'use strict';
 
 var jxt = require('jxt');
@@ -89102,7 +89232,7 @@ module.exports = function (registry) {
     return XRD;
 };
 
-},{"jxt":1231}],1139:[function(require,module,exports){
+},{"jxt":1234}],1142:[function(require,module,exports){
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -89515,7 +89645,7 @@ function b64_enc (data) {
     return enc;
 }
 
-},{}],1140:[function(require,module,exports){
+},{}],1143:[function(require,module,exports){
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
 var getHashes = require('./lib/get-hashes');
@@ -89560,38 +89690,38 @@ exports.createHmac = function (algorithm, key) {
     return createHmac(algorithm, key);
 };
 
-},{"./lib/get-hashes":1141,"create-hash":1142,"create-hmac":1155}],1141:[function(require,module,exports){
+},{"./lib/get-hashes":1144,"create-hash":1145,"create-hmac":1158}],1144:[function(require,module,exports){
 module.exports = function () {
     return ['sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'md5', 'rmd160'];
 };
 
-},{}],1142:[function(require,module,exports){
-module.exports=require(1120)
-},{"./md5":1144,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/browser.js":1120,"buffer":9,"inherits":1145,"ripemd160":1146,"sha.js":1148,"stream":39}],1143:[function(require,module,exports){
-module.exports=require(1121)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/helpers.js":1121,"buffer":9}],1144:[function(require,module,exports){
-module.exports=require(1122)
-},{"./helpers":1143,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/md5.js":1122}],1145:[function(require,module,exports){
-module.exports=require(19)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1146:[function(require,module,exports){
+},{}],1145:[function(require,module,exports){
+module.exports=require(1123)
+},{"./md5":1147,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/browser.js":1123,"buffer":9,"inherits":1148,"ripemd160":1149,"sha.js":1151,"stream":39}],1146:[function(require,module,exports){
 module.exports=require(1124)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":1124,"buffer":9}],1147:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/helpers.js":1124,"buffer":9}],1147:[function(require,module,exports){
 module.exports=require(1125)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/hash.js":1125,"buffer":9}],1148:[function(require,module,exports){
-module.exports=require(1126)
-},{"./sha":1149,"./sha1":1150,"./sha224":1151,"./sha256":1152,"./sha384":1153,"./sha512":1154,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/index.js":1126}],1149:[function(require,module,exports){
+},{"./helpers":1146,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/md5.js":1125}],1148:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1149:[function(require,module,exports){
 module.exports=require(1127)
-},{"./hash":1147,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha.js":1127,"buffer":9,"inherits":1145}],1150:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":1127,"buffer":9}],1150:[function(require,module,exports){
 module.exports=require(1128)
-},{"./hash":1147,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha1.js":1128,"buffer":9,"inherits":1145}],1151:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/hash.js":1128,"buffer":9}],1151:[function(require,module,exports){
 module.exports=require(1129)
-},{"./hash":1147,"./sha256":1152,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha224.js":1129,"buffer":9,"inherits":1145}],1152:[function(require,module,exports){
+},{"./sha":1152,"./sha1":1153,"./sha224":1154,"./sha256":1155,"./sha384":1156,"./sha512":1157,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/index.js":1129}],1152:[function(require,module,exports){
 module.exports=require(1130)
-},{"./hash":1147,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha256.js":1130,"buffer":9,"inherits":1145}],1153:[function(require,module,exports){
+},{"./hash":1150,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha.js":1130,"buffer":9,"inherits":1148}],1153:[function(require,module,exports){
 module.exports=require(1131)
-},{"./hash":1147,"./sha512":1154,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha384.js":1131,"buffer":9,"inherits":1145}],1154:[function(require,module,exports){
+},{"./hash":1150,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha1.js":1131,"buffer":9,"inherits":1148}],1154:[function(require,module,exports){
 module.exports=require(1132)
-},{"./hash":1147,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha512.js":1132,"buffer":9,"inherits":1145}],1155:[function(require,module,exports){
+},{"./hash":1150,"./sha256":1155,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha224.js":1132,"buffer":9,"inherits":1148}],1155:[function(require,module,exports){
+module.exports=require(1133)
+},{"./hash":1150,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha256.js":1133,"buffer":9,"inherits":1148}],1156:[function(require,module,exports){
+module.exports=require(1134)
+},{"./hash":1150,"./sha512":1157,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha384.js":1134,"buffer":9,"inherits":1148}],1157:[function(require,module,exports){
+module.exports=require(1135)
+},{"./hash":1150,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha512.js":1135,"buffer":9,"inherits":1148}],1158:[function(require,module,exports){
 (function (Buffer){
 'use strict';
 var createHash = require('create-hash/browser');
@@ -89663,9 +89793,9 @@ module.exports = function createHmac(alg, key) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9,"create-hash/browser":1142,"inherits":1156,"stream":39}],1156:[function(require,module,exports){
+},{"buffer":9,"create-hash/browser":1145,"inherits":1159,"stream":39}],1159:[function(require,module,exports){
 module.exports=require(19)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1157:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1160:[function(require,module,exports){
 var util = require('util');
 var intersect = require('intersect');
 var WildEmitter = require('wildemitter');
@@ -90079,7 +90209,7 @@ SessionManager.prototype.process = function (req) {
 
 module.exports = SessionManager;
 
-},{"intersect":1159,"jingle-filetransfer-session":1160,"jingle-media-session":1194,"jingle-session":1226,"util":43,"webrtcsupport":1229,"wildemitter":1274}],1158:[function(require,module,exports){
+},{"intersect":1162,"jingle-filetransfer-session":1163,"jingle-media-session":1197,"jingle-session":1229,"util":43,"webrtcsupport":1232,"wildemitter":1277}],1161:[function(require,module,exports){
 var arr = [];
 var each = arr.forEach;
 var slice = arr.slice;
@@ -90096,7 +90226,7 @@ module.exports = function(obj) {
     return obj;
 };
 
-},{}],1159:[function(require,module,exports){
+},{}],1162:[function(require,module,exports){
 module.exports = intersect;
 
 function intersect (a, b) {
@@ -90128,7 +90258,7 @@ function indexOf(arr, el) {
   return -1;
 }
 
-},{}],1160:[function(require,module,exports){
+},{}],1163:[function(require,module,exports){
 var util = require('util');
 var extend = require('extend-object');
 var BaseSession = require('jingle-session');
@@ -90392,7 +90522,7 @@ FileTransferSession.prototype = extend(FileTransferSession.prototype, {
 
 module.exports = FileTransferSession;
 
-},{"extend-object":1158,"filetransfer/hashed":1162,"jingle-session":1226,"rtcpeerconnection":1193,"util":43}],1161:[function(require,module,exports){
+},{"extend-object":1161,"filetransfer/hashed":1165,"jingle-session":1229,"rtcpeerconnection":1196,"util":43}],1164:[function(require,module,exports){
 var WildEmitter = require('wildemitter');
 var util = require('util');
 
@@ -90480,7 +90610,7 @@ module.exports.support = typeof window !== 'undefined' && window && window.File 
 module.exports.Sender = Sender;
 module.exports.Receiver = Receiver;
 
-},{"util":43,"wildemitter":1274}],1162:[function(require,module,exports){
+},{"util":43,"wildemitter":1277}],1165:[function(require,module,exports){
 var WildEmitter = require('wildemitter');
 var util = require('util');
 var hashes = require('iana-hashes');
@@ -90553,7 +90683,7 @@ module.exports.support = base.support;
 module.exports.Sender = Sender;
 module.exports.Receiver = Receiver;
 
-},{"./filetransfer":1161,"iana-hashes":1140,"util":43,"wildemitter":1274}],1163:[function(require,module,exports){
+},{"./filetransfer":1164,"iana-hashes":1143,"util":43,"wildemitter":1277}],1166:[function(require,module,exports){
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -90617,7 +90747,7 @@ var forEach = createForEach(arrayEach, baseEach);
 
 module.exports = forEach;
 
-},{"lodash._arrayeach":1164,"lodash._baseeach":1165,"lodash._bindcallback":1169,"lodash.isarray":1170}],1164:[function(require,module,exports){
+},{"lodash._arrayeach":1167,"lodash._baseeach":1168,"lodash._bindcallback":1172,"lodash.isarray":1173}],1167:[function(require,module,exports){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -90650,7 +90780,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],1165:[function(require,module,exports){
+},{}],1168:[function(require,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -90833,7 +90963,7 @@ function isObject(value) {
 
 module.exports = baseEach;
 
-},{"lodash.keys":1166}],1166:[function(require,module,exports){
+},{"lodash.keys":1169}],1169:[function(require,module,exports){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -91071,7 +91201,7 @@ function keysIn(object) {
 
 module.exports = keys;
 
-},{"lodash._getnative":1167,"lodash.isarguments":1168,"lodash.isarray":1170}],1167:[function(require,module,exports){
+},{"lodash._getnative":1170,"lodash.isarguments":1171,"lodash.isarray":1173}],1170:[function(require,module,exports){
 /**
  * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -91210,7 +91340,7 @@ function isNative(value) {
 
 module.exports = getNative;
 
-},{}],1168:[function(require,module,exports){
+},{}],1171:[function(require,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -91318,7 +91448,7 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
-},{}],1169:[function(require,module,exports){
+},{}],1172:[function(require,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -91385,7 +91515,7 @@ function identity(value) {
 
 module.exports = bindCallback;
 
-},{}],1170:[function(require,module,exports){
+},{}],1173:[function(require,module,exports){
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -91567,7 +91697,7 @@ function isNative(value) {
 
 module.exports = isArray;
 
-},{}],1171:[function(require,module,exports){
+},{}],1174:[function(require,module,exports){
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -91726,7 +91856,7 @@ function property(path) {
 
 module.exports = pluck;
 
-},{"lodash._baseget":1172,"lodash._topath":1173,"lodash.isarray":1174,"lodash.map":1175}],1172:[function(require,module,exports){
+},{"lodash._baseget":1175,"lodash._topath":1176,"lodash.isarray":1177,"lodash.map":1178}],1175:[function(require,module,exports){
 /**
  * lodash 3.7.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -91802,7 +91932,7 @@ function isObject(value) {
 
 module.exports = baseGet;
 
-},{}],1173:[function(require,module,exports){
+},{}],1176:[function(require,module,exports){
 /**
  * lodash 3.8.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -91851,9 +91981,9 @@ function toPath(value) {
 
 module.exports = toPath;
 
-},{"lodash.isarray":1174}],1174:[function(require,module,exports){
-module.exports=require(1170)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1170}],1175:[function(require,module,exports){
+},{"lodash.isarray":1177}],1177:[function(require,module,exports){
+module.exports=require(1173)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1173}],1178:[function(require,module,exports){
 /**
  * lodash 3.1.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92005,7 +92135,7 @@ function map(collection, iteratee, thisArg) {
 
 module.exports = map;
 
-},{"lodash._arraymap":1176,"lodash._basecallback":1177,"lodash._baseeach":1182,"lodash.isarray":1174}],1176:[function(require,module,exports){
+},{"lodash._arraymap":1179,"lodash._basecallback":1180,"lodash._baseeach":1185,"lodash.isarray":1177}],1179:[function(require,module,exports){
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92037,7 +92167,7 @@ function arrayMap(array, iteratee) {
 
 module.exports = arrayMap;
 
-},{}],1177:[function(require,module,exports){
+},{}],1180:[function(require,module,exports){
 /**
  * lodash 3.3.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92461,7 +92591,7 @@ function property(path) {
 
 module.exports = baseCallback;
 
-},{"lodash._baseisequal":1178,"lodash._bindcallback":1180,"lodash.isarray":1174,"lodash.pairs":1181}],1178:[function(require,module,exports){
+},{"lodash._baseisequal":1181,"lodash._bindcallback":1183,"lodash.isarray":1177,"lodash.pairs":1184}],1181:[function(require,module,exports){
 /**
  * lodash 3.0.7 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92805,7 +92935,7 @@ function isObject(value) {
 
 module.exports = baseIsEqual;
 
-},{"lodash.isarray":1174,"lodash.istypedarray":1179,"lodash.keys":1183}],1179:[function(require,module,exports){
+},{"lodash.isarray":1177,"lodash.istypedarray":1182,"lodash.keys":1186}],1182:[function(require,module,exports){
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92917,9 +93047,9 @@ function isTypedArray(value) {
 
 module.exports = isTypedArray;
 
-},{}],1180:[function(require,module,exports){
-module.exports=require(1169)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1169}],1181:[function(require,module,exports){
+},{}],1183:[function(require,module,exports){
+module.exports=require(1172)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1172}],1184:[function(require,module,exports){
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92999,15 +93129,15 @@ function pairs(object) {
 
 module.exports = pairs;
 
-},{"lodash.keys":1183}],1182:[function(require,module,exports){
-module.exports=require(1165)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1165,"lodash.keys":1183}],1183:[function(require,module,exports){
-module.exports=require(1166)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1166,"lodash._getnative":1184,"lodash.isarguments":1185,"lodash.isarray":1174}],1184:[function(require,module,exports){
-module.exports=require(1167)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1167}],1185:[function(require,module,exports){
+},{"lodash.keys":1186}],1185:[function(require,module,exports){
 module.exports=require(1168)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1168}],1186:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1168,"lodash.keys":1186}],1186:[function(require,module,exports){
+module.exports=require(1169)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1169,"lodash._getnative":1187,"lodash.isarguments":1188,"lodash.isarray":1177}],1187:[function(require,module,exports){
+module.exports=require(1170)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1170}],1188:[function(require,module,exports){
+module.exports=require(1171)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1171}],1189:[function(require,module,exports){
 var toSDP = require('./lib/tosdp');
 var toJSON = require('./lib/tojson');
 
@@ -93129,7 +93259,7 @@ exports.toCandidateJSON = toJSON.toCandidateJSON;
 exports.toMediaJSON = toJSON.toMediaJSON;
 exports.toSessionJSON = toJSON.toSessionJSON;
 
-},{"./lib/tojson":1189,"./lib/tosdp":1190}],1187:[function(require,module,exports){
+},{"./lib/tojson":1192,"./lib/tosdp":1193}],1190:[function(require,module,exports){
 exports.lines = function (sdp) {
     return sdp.split('\r\n').filter(function (line) {
         return line.length > 0;
@@ -93400,7 +93530,7 @@ exports.msid = function (line) {
     };
 };
 
-},{}],1188:[function(require,module,exports){
+},{}],1191:[function(require,module,exports){
 module.exports = {
     initiator: {
         incoming: {
@@ -93448,7 +93578,7 @@ module.exports = {
     }
 };
 
-},{}],1189:[function(require,module,exports){
+},{}],1192:[function(require,module,exports){
 var SENDERS = require('./senders');
 var parsers = require('./parsers');
 var idCounter = Math.random();
@@ -93672,7 +93802,7 @@ exports.toCandidateJSON = function (line) {
     return candidate;
 };
 
-},{"./parsers":1187,"./senders":1188}],1190:[function(require,module,exports){
+},{"./parsers":1190,"./senders":1191}],1193:[function(require,module,exports){
 var SENDERS = require('./senders');
 
 
@@ -93896,7 +94026,7 @@ exports.toCandidateSDP = function (candidate) {
     return 'a=candidate:' + sdp.join(' ');
 };
 
-},{"./senders":1188}],1191:[function(require,module,exports){
+},{"./senders":1191}],1194:[function(require,module,exports){
 // based on https://github.com/ESTOS/strophe.jingle/
 // adds wildemitter support
 var util = require('util');
@@ -94109,7 +94239,7 @@ TraceablePeerConnection.prototype.getStats = function () {
 
 module.exports = TraceablePeerConnection;
 
-},{"util":43,"webrtc-adapter-test":1192,"wildemitter":1274}],1192:[function(require,module,exports){
+},{"util":43,"webrtc-adapter-test":1195,"wildemitter":1277}],1195:[function(require,module,exports){
 /*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
@@ -94571,7 +94701,7 @@ if (typeof module !== 'undefined') {
   });
 }
 
-},{}],1193:[function(require,module,exports){
+},{}],1196:[function(require,module,exports){
 var util = require('util');
 var each = require('lodash.foreach');
 var pluck = require('lodash.pluck');
@@ -95423,7 +95553,7 @@ PeerConnection.prototype.getStats = function (cb) {
 
 module.exports = PeerConnection;
 
-},{"lodash.foreach":1163,"lodash.pluck":1171,"sdp-jingle-json":1186,"traceablepeerconnection":1191,"util":43,"webrtc-adapter-test":1192,"wildemitter":1274}],1194:[function(require,module,exports){
+},{"lodash.foreach":1166,"lodash.pluck":1174,"sdp-jingle-json":1189,"traceablepeerconnection":1194,"util":43,"webrtc-adapter-test":1195,"wildemitter":1277}],1197:[function(require,module,exports){
 var util = require('util');
 var extend = require('extend-object');
 var BaseSession = require('jingle-session');
@@ -96022,67 +96152,67 @@ MediaSession.prototype = extend(MediaSession.prototype, {
 
 module.exports = MediaSession;
 
-},{"extend-object":1158,"jingle-session":1226,"rtcpeerconnection":1225,"util":43}],1195:[function(require,module,exports){
-module.exports=require(1163)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/index.js":1163,"lodash._arrayeach":1196,"lodash._baseeach":1197,"lodash._bindcallback":1201,"lodash.isarray":1202}],1196:[function(require,module,exports){
-module.exports=require(1164)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._arrayeach/index.js":1164}],1197:[function(require,module,exports){
-module.exports=require(1165)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1165,"lodash.keys":1198}],1198:[function(require,module,exports){
+},{"extend-object":1161,"jingle-session":1229,"rtcpeerconnection":1228,"util":43}],1198:[function(require,module,exports){
 module.exports=require(1166)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1166,"lodash._getnative":1199,"lodash.isarguments":1200,"lodash.isarray":1202}],1199:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/index.js":1166,"lodash._arrayeach":1199,"lodash._baseeach":1200,"lodash._bindcallback":1204,"lodash.isarray":1205}],1199:[function(require,module,exports){
 module.exports=require(1167)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1167}],1200:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._arrayeach/index.js":1167}],1200:[function(require,module,exports){
 module.exports=require(1168)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1168}],1201:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1168,"lodash.keys":1201}],1201:[function(require,module,exports){
 module.exports=require(1169)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1169}],1202:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1169,"lodash._getnative":1202,"lodash.isarguments":1203,"lodash.isarray":1205}],1202:[function(require,module,exports){
 module.exports=require(1170)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1170}],1203:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1170}],1203:[function(require,module,exports){
 module.exports=require(1171)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/index.js":1171,"lodash._baseget":1204,"lodash._topath":1205,"lodash.isarray":1206,"lodash.map":1207}],1204:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1171}],1204:[function(require,module,exports){
 module.exports=require(1172)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash._baseget/index.js":1172}],1205:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1172}],1205:[function(require,module,exports){
 module.exports=require(1173)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash._topath/index.js":1173,"lodash.isarray":1206}],1206:[function(require,module,exports){
-module.exports=require(1170)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1170}],1207:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1173}],1206:[function(require,module,exports){
+module.exports=require(1174)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/index.js":1174,"lodash._baseget":1207,"lodash._topath":1208,"lodash.isarray":1209,"lodash.map":1210}],1207:[function(require,module,exports){
 module.exports=require(1175)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/index.js":1175,"lodash._arraymap":1208,"lodash._basecallback":1209,"lodash._baseeach":1214,"lodash.isarray":1206}],1208:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash._baseget/index.js":1175}],1208:[function(require,module,exports){
 module.exports=require(1176)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._arraymap/index.js":1176}],1209:[function(require,module,exports){
-module.exports=require(1177)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/index.js":1177,"lodash._baseisequal":1210,"lodash._bindcallback":1212,"lodash.isarray":1206,"lodash.pairs":1213}],1210:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash._topath/index.js":1176,"lodash.isarray":1209}],1209:[function(require,module,exports){
+module.exports=require(1173)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1173}],1210:[function(require,module,exports){
 module.exports=require(1178)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash._baseisequal/index.js":1178,"lodash.isarray":1206,"lodash.istypedarray":1211,"lodash.keys":1215}],1211:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/index.js":1178,"lodash._arraymap":1211,"lodash._basecallback":1212,"lodash._baseeach":1217,"lodash.isarray":1209}],1211:[function(require,module,exports){
 module.exports=require(1179)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash._baseisequal/node_modules/lodash.istypedarray/index.js":1179}],1212:[function(require,module,exports){
-module.exports=require(1169)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1169}],1213:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._arraymap/index.js":1179}],1212:[function(require,module,exports){
+module.exports=require(1180)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/index.js":1180,"lodash._baseisequal":1213,"lodash._bindcallback":1215,"lodash.isarray":1209,"lodash.pairs":1216}],1213:[function(require,module,exports){
 module.exports=require(1181)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash.pairs/index.js":1181,"lodash.keys":1215}],1214:[function(require,module,exports){
-module.exports=require(1165)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1165,"lodash.keys":1215}],1215:[function(require,module,exports){
-module.exports=require(1166)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1166,"lodash._getnative":1216,"lodash.isarguments":1217,"lodash.isarray":1206}],1216:[function(require,module,exports){
-module.exports=require(1167)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1167}],1217:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash._baseisequal/index.js":1181,"lodash.isarray":1209,"lodash.istypedarray":1214,"lodash.keys":1218}],1214:[function(require,module,exports){
+module.exports=require(1182)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash._baseisequal/node_modules/lodash.istypedarray/index.js":1182}],1215:[function(require,module,exports){
+module.exports=require(1172)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1172}],1216:[function(require,module,exports){
+module.exports=require(1184)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash.pairs/index.js":1184,"lodash.keys":1218}],1217:[function(require,module,exports){
 module.exports=require(1168)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1168}],1218:[function(require,module,exports){
-module.exports=require(1186)
-},{"./lib/tojson":1221,"./lib/tosdp":1222,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/index.js":1186}],1219:[function(require,module,exports){
-module.exports=require(1187)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/parsers.js":1187}],1220:[function(require,module,exports){
-module.exports=require(1188)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/senders.js":1188}],1221:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1168,"lodash.keys":1218}],1218:[function(require,module,exports){
+module.exports=require(1169)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1169,"lodash._getnative":1219,"lodash.isarguments":1220,"lodash.isarray":1209}],1219:[function(require,module,exports){
+module.exports=require(1170)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1170}],1220:[function(require,module,exports){
+module.exports=require(1171)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1171}],1221:[function(require,module,exports){
 module.exports=require(1189)
-},{"./parsers":1219,"./senders":1220,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tojson.js":1189}],1222:[function(require,module,exports){
+},{"./lib/tojson":1224,"./lib/tosdp":1225,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/index.js":1189}],1222:[function(require,module,exports){
 module.exports=require(1190)
-},{"./senders":1220,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tosdp.js":1190}],1223:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/parsers.js":1190}],1223:[function(require,module,exports){
 module.exports=require(1191)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/traceablepeerconnection/index.js":1191,"util":43,"webrtc-adapter-test":1224,"wildemitter":1274}],1224:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/senders.js":1191}],1224:[function(require,module,exports){
 module.exports=require(1192)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/webrtc-adapter-test/adapter.js":1192}],1225:[function(require,module,exports){
+},{"./parsers":1222,"./senders":1223,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tojson.js":1192}],1225:[function(require,module,exports){
+module.exports=require(1193)
+},{"./senders":1223,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tosdp.js":1193}],1226:[function(require,module,exports){
+module.exports=require(1194)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/traceablepeerconnection/index.js":1194,"util":43,"webrtc-adapter-test":1227,"wildemitter":1277}],1227:[function(require,module,exports){
+module.exports=require(1195)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/webrtc-adapter-test/adapter.js":1195}],1228:[function(require,module,exports){
 var util = require('util');
 var each = require('lodash.foreach');
 var pluck = require('lodash.pluck');
@@ -96938,7 +97068,7 @@ PeerConnection.prototype.getStats = function (cb) {
 
 module.exports = PeerConnection;
 
-},{"lodash.foreach":1195,"lodash.pluck":1203,"sdp-jingle-json":1218,"traceablepeerconnection":1223,"util":43,"webrtcsupport":1229,"wildemitter":1274}],1226:[function(require,module,exports){
+},{"lodash.foreach":1198,"lodash.pluck":1206,"sdp-jingle-json":1221,"traceablepeerconnection":1226,"util":43,"webrtcsupport":1232,"wildemitter":1277}],1229:[function(require,module,exports){
 var util = require('util');
 var uuid = require('uuid');
 var async = require('async');
@@ -97284,7 +97414,7 @@ JingleSession.prototype = extend(JingleSession.prototype, {
 
 module.exports = JingleSession;
 
-},{"async":1134,"extend-object":1158,"util":43,"uuid":1228,"wildemitter":1274}],1227:[function(require,module,exports){
+},{"async":1137,"extend-object":1161,"util":43,"uuid":1231,"wildemitter":1277}],1230:[function(require,module,exports){
 (function (global){
 
 var rng;
@@ -97319,7 +97449,7 @@ module.exports = rng;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],1228:[function(require,module,exports){
+},{}],1231:[function(require,module,exports){
 //     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -97504,7 +97634,7 @@ uuid.unparse = unparse;
 
 module.exports = uuid;
 
-},{"./rng":1227}],1229:[function(require,module,exports){
+},{"./rng":1230}],1232:[function(require,module,exports){
 // created by @HenrikJoreteg
 var prefix;
 var version;
@@ -97556,7 +97686,7 @@ module.exports = {
     getUserMedia: getUserMedia
 };
 
-},{}],1230:[function(require,module,exports){
+},{}],1233:[function(require,module,exports){
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -97711,7 +97841,7 @@ module.exports = function (JXT) {
     );
 };
 
-},{"xmpp-jid":1275}],1231:[function(require,module,exports){
+},{"xmpp-jid":1278}],1234:[function(require,module,exports){
 'use strict';
 
 var ltx = require('ltx');
@@ -97897,7 +98027,7 @@ JXT.getGlobalJXT = function () {
 
 module.exports = JXT;
 
-},{"./lib/helpers":1232,"./lib/stanza":1233,"./lib/types":1234,"extend-object":1237,"ltx":1240,"node-uuid":1244}],1232:[function(require,module,exports){
+},{"./lib/helpers":1235,"./lib/stanza":1236,"./lib/types":1237,"extend-object":1240,"ltx":1243,"node-uuid":1247}],1235:[function(require,module,exports){
 'use strict';
 
 var ltx = require('ltx');
@@ -98178,7 +98308,7 @@ exports.setBoolSub = function (xml, NS, element, value) {
     }
 };
 
-},{"ltx":1240}],1233:[function(require,module,exports){
+},{"ltx":1243}],1236:[function(require,module,exports){
 'use strict';
 
 var helpers = require('./helpers');
@@ -98291,7 +98421,7 @@ module.exports = function (JXT, opts) {
     return Stanza;
 };
 
-},{"./helpers":1232,"extend-object":1237}],1234:[function(require,module,exports){
+},{"./helpers":1235,"extend-object":1240}],1237:[function(require,module,exports){
 'use strict';
 
 var fromB64 = require('atob');
@@ -98684,7 +98814,7 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
     };
 };
 
-},{"./helpers":1232,"atob":1235,"btoa":1236,"extend-object":1237}],1235:[function(require,module,exports){
+},{"./helpers":1235,"atob":1238,"btoa":1239,"extend-object":1240}],1238:[function(require,module,exports){
 (function (Buffer){
 (function () {
   "use strict";
@@ -98697,7 +98827,7 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
 }());
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],1236:[function(require,module,exports){
+},{"buffer":9}],1239:[function(require,module,exports){
 (function (Buffer){
 (function () {
   "use strict";
@@ -98719,9 +98849,9 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
 }());
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],1237:[function(require,module,exports){
-module.exports=require(1158)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/extend-object/extend-object.js":1158}],1238:[function(require,module,exports){
+},{"buffer":9}],1240:[function(require,module,exports){
+module.exports=require(1161)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/extend-object/extend-object.js":1161}],1241:[function(require,module,exports){
 'use strict';
 
 var util = require('util')
@@ -98833,7 +98963,7 @@ DOMElement.prototype.removeChild = function (el) {
 
 module.exports = DOMElement
 
-},{"./element":1239,"util":43}],1239:[function(require,module,exports){
+},{"./element":1242,"util":43}],1242:[function(require,module,exports){
 'use strict';
 
 /**
@@ -99211,7 +99341,7 @@ function escapeXmlText(s) {
 exports.Element = Element
 exports.escapeXml = escapeXml
 
-},{}],1240:[function(require,module,exports){
+},{}],1243:[function(require,module,exports){
 'use strict';
 
 /* Cause browserify to bundle SAX parsers: */
@@ -99221,7 +99351,7 @@ parse.availableSaxParsers.push(parse.bestSaxParser = require('./sax/sax_ltx'))
 
 /* SHIM */
 module.exports = require('./index')
-},{"./index":1241,"./parse":1242,"./sax/sax_ltx":1243}],1241:[function(require,module,exports){
+},{"./index":1244,"./parse":1245,"./sax/sax_ltx":1246}],1244:[function(require,module,exports){
 'use strict';
 
 var parse = require('./parse')
@@ -99248,7 +99378,7 @@ exports.Parser = parse.Parser
 exports.availableSaxParsers = parse.availableSaxParsers
 exports.bestSaxParser = parse.bestSaxParser
 
-},{"./dom-element":1238,"./element":1239,"./parse":1242}],1242:[function(require,module,exports){
+},{"./dom-element":1241,"./element":1242,"./parse":1245}],1245:[function(require,module,exports){
 'use strict';
 
 var events = require('events')
@@ -99367,7 +99497,7 @@ exports.parse = function(data, saxParser) {
     }
 }
 
-},{"./dom-element":1238,"events":13,"util":43}],1243:[function(require,module,exports){
+},{"./dom-element":1241,"events":13,"util":43}],1246:[function(require,module,exports){
 'use strict';
 
 var util = require('util')
@@ -99539,7 +99669,7 @@ function unescapeXml(s) {
         replace(/\&(nbsp|#160);/g, '\n')
 }
 
-},{"events":13,"util":43}],1244:[function(require,module,exports){
+},{"events":13,"util":43}],1247:[function(require,module,exports){
 //     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -99788,7 +99918,7 @@ function unescapeXml(s) {
   }
 }).call(this);
 
-},{}],1245:[function(require,module,exports){
+},{}],1248:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -99844,7 +99974,7 @@ function unescapeXml(s) {
   
 }));
 
-},{}],1246:[function(require,module,exports){
+},{}],1249:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -99864,7 +99994,7 @@ function unescapeXml(s) {
   
 }));
 
-},{"./lib/mechanism":1245}],1247:[function(require,module,exports){
+},{"./lib/mechanism":1248}],1250:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -99920,9 +100050,9 @@ function unescapeXml(s) {
   
 }));
 
-},{}],1248:[function(require,module,exports){
-arguments[4][1246][0].apply(exports,arguments)
-},{"./lib/mechanism":1247,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":1246}],1249:[function(require,module,exports){
+},{}],1251:[function(require,module,exports){
+arguments[4][1249][0].apply(exports,arguments)
+},{"./lib/mechanism":1250,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":1249}],1252:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -99989,9 +100119,9 @@ arguments[4][1246][0].apply(exports,arguments)
   
 }));
 
-},{}],1250:[function(require,module,exports){
-arguments[4][1246][0].apply(exports,arguments)
-},{"./lib/mechanism":1249,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":1246}],1251:[function(require,module,exports){
+},{}],1253:[function(require,module,exports){
+arguments[4][1249][0].apply(exports,arguments)
+},{"./lib/mechanism":1252,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":1249}],1254:[function(require,module,exports){
 (function (Buffer){
 var bitops = require('./lib/bitops');
 var utils = require('./lib/utils');
@@ -100113,7 +100243,7 @@ RESP.final = function () {
 module.exports = Mechanism;
 
 }).call(this,require("buffer").Buffer)
-},{"./lib/bitops":1252,"./lib/utils":1253,"buffer":9}],1252:[function(require,module,exports){
+},{"./lib/bitops":1255,"./lib/utils":1256,"buffer":9}],1255:[function(require,module,exports){
 (function (Buffer){
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
@@ -100143,7 +100273,7 @@ exports.Hi = function (text, salt, iterations) {
 
 
 }).call(this,require("buffer").Buffer)
-},{"bitwise-xor":1254,"buffer":9,"create-hash":1255,"create-hmac":1268}],1253:[function(require,module,exports){
+},{"bitwise-xor":1257,"buffer":9,"create-hash":1258,"create-hmac":1271}],1256:[function(require,module,exports){
 var randomBytes = require('randombytes');
 
 
@@ -100179,7 +100309,7 @@ exports.genNonce = function (len) {
     return randomBytes((len || 32) / 2).toString('hex');
 };
 
-},{"randombytes":1270}],1254:[function(require,module,exports){
+},{"randombytes":1273}],1257:[function(require,module,exports){
 (function (Buffer){
 module.exports = xor
 
@@ -100200,39 +100330,39 @@ function xor(a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":9}],1255:[function(require,module,exports){
-module.exports=require(1120)
-},{"./md5":1257,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/browser.js":1120,"buffer":9,"inherits":1258,"ripemd160":1259,"sha.js":1261,"stream":39}],1256:[function(require,module,exports){
-module.exports=require(1121)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/helpers.js":1121,"buffer":9}],1257:[function(require,module,exports){
-module.exports=require(1122)
-},{"./helpers":1256,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/md5.js":1122}],1258:[function(require,module,exports){
-module.exports=require(19)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1259:[function(require,module,exports){
+},{"buffer":9}],1258:[function(require,module,exports){
+module.exports=require(1123)
+},{"./md5":1260,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/browser.js":1123,"buffer":9,"inherits":1261,"ripemd160":1262,"sha.js":1264,"stream":39}],1259:[function(require,module,exports){
 module.exports=require(1124)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":1124,"buffer":9}],1260:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/helpers.js":1124,"buffer":9}],1260:[function(require,module,exports){
 module.exports=require(1125)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/hash.js":1125,"buffer":9}],1261:[function(require,module,exports){
-module.exports=require(1126)
-},{"./sha":1262,"./sha1":1263,"./sha224":1264,"./sha256":1265,"./sha384":1266,"./sha512":1267,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/index.js":1126}],1262:[function(require,module,exports){
-module.exports=require(1127)
-},{"./hash":1260,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha.js":1127,"buffer":9,"inherits":1258}],1263:[function(require,module,exports){
-module.exports=require(1128)
-},{"./hash":1260,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha1.js":1128,"buffer":9,"inherits":1258}],1264:[function(require,module,exports){
-module.exports=require(1129)
-},{"./hash":1260,"./sha256":1265,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha224.js":1129,"buffer":9,"inherits":1258}],1265:[function(require,module,exports){
-module.exports=require(1130)
-},{"./hash":1260,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha256.js":1130,"buffer":9,"inherits":1258}],1266:[function(require,module,exports){
-module.exports=require(1131)
-},{"./hash":1260,"./sha512":1267,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha384.js":1131,"buffer":9,"inherits":1258}],1267:[function(require,module,exports){
-module.exports=require(1132)
-},{"./hash":1260,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha512.js":1132,"buffer":9,"inherits":1258}],1268:[function(require,module,exports){
-module.exports=require(1155)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/iana-hashes/node_modules/create-hmac/browser.js":1155,"buffer":9,"create-hash/browser":1255,"inherits":1269,"stream":39}],1269:[function(require,module,exports){
+},{"./helpers":1259,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/md5.js":1125}],1261:[function(require,module,exports){
 module.exports=require(19)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1270:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1262:[function(require,module,exports){
+module.exports=require(1127)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":1127,"buffer":9}],1263:[function(require,module,exports){
+module.exports=require(1128)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/hash.js":1128,"buffer":9}],1264:[function(require,module,exports){
+module.exports=require(1129)
+},{"./sha":1265,"./sha1":1266,"./sha224":1267,"./sha256":1268,"./sha384":1269,"./sha512":1270,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/index.js":1129}],1265:[function(require,module,exports){
+module.exports=require(1130)
+},{"./hash":1263,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha.js":1130,"buffer":9,"inherits":1261}],1266:[function(require,module,exports){
+module.exports=require(1131)
+},{"./hash":1263,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha1.js":1131,"buffer":9,"inherits":1261}],1267:[function(require,module,exports){
+module.exports=require(1132)
+},{"./hash":1263,"./sha256":1268,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha224.js":1132,"buffer":9,"inherits":1261}],1268:[function(require,module,exports){
 module.exports=require(1133)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/randombytes/browser.js":1133,"_process":22,"buffer":9}],1271:[function(require,module,exports){
+},{"./hash":1263,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha256.js":1133,"buffer":9,"inherits":1261}],1269:[function(require,module,exports){
+module.exports=require(1134)
+},{"./hash":1263,"./sha512":1270,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha384.js":1134,"buffer":9,"inherits":1261}],1270:[function(require,module,exports){
+module.exports=require(1135)
+},{"./hash":1263,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha512.js":1135,"buffer":9,"inherits":1261}],1271:[function(require,module,exports){
+module.exports=require(1158)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/iana-hashes/node_modules/create-hmac/browser.js":1158,"buffer":9,"create-hash/browser":1258,"inherits":1272,"stream":39}],1272:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1273:[function(require,module,exports){
+module.exports=require(1136)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/randombytes/browser.js":1136,"_process":22,"buffer":9}],1274:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -100305,7 +100435,7 @@ module.exports=require(1133)
   
 }));
 
-},{}],1272:[function(require,module,exports){
+},{}],1275:[function(require,module,exports){
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -100325,7 +100455,7 @@ module.exports=require(1133)
   
 }));
 
-},{"./lib/factory":1271}],1273:[function(require,module,exports){
+},{"./lib/factory":1274}],1276:[function(require,module,exports){
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -101670,7 +101800,7 @@ module.exports=require(1133)
   }
 }).call(this);
 
-},{}],1274:[function(require,module,exports){
+},{}],1277:[function(require,module,exports){
 /*
 WildEmitter.js is a slim little event emitter by @henrikjoreteg largely based 
 on @visionmedia's Emitter from UI Kit.
@@ -101815,7 +101945,7 @@ WildEmitter.prototype.getWildcardCallbacks = function (eventName) {
     return result;
 };
 
-},{}],1275:[function(require,module,exports){
+},{}],1278:[function(require,module,exports){
 'use strict';
 
 var StringPrep = require('./lib/stringprep');
@@ -102037,7 +102167,7 @@ exports.JID.prototype.toJSON = function () {
     return this.full;
 };
 
-},{"./lib/stringprep":1276}],1276:[function(require,module,exports){
+},{"./lib/stringprep":1279}],1279:[function(require,module,exports){
 'use strict';
 
 var punycode = require('punycode');
@@ -102059,104 +102189,104 @@ exports.resourceprep = function (str) {
     return str;
 };
 
-},{"punycode":23}],1277:[function(require,module,exports){
+},{"punycode":23}],1280:[function(require,module,exports){
 module.exports=require(50)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/js/config.js":50}],1278:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/js/config.js":50}],1281:[function(require,module,exports){
 module.exports=require(51)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/js/styles.js":51}],1279:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/js/styles.js":51}],1282:[function(require,module,exports){
 module.exports=require(52)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/adapter.js":52}],1280:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/adapter.js":52}],1283:[function(require,module,exports){
 module.exports=require(53)
-},{"./adapter":1279,"./bdsft":1281,"./constants":1284,"./cookieconfig":1285,"./cookieprop":1286,"./dateformat":1289,"./debug":1290,"./element":1291,"./eventbus":1292,"./factory":1293,"./icon":1294,"./loader":1295,"./popup":1296,"./prop":1297,"./urlconfig":1299,"./utils":1300,"./visibleprop":1301,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/app.js":53}],1281:[function(require,module,exports){
+},{"./adapter":1282,"./bdsft":1284,"./constants":1287,"./cookieconfig":1288,"./cookieprop":1289,"./dateformat":1292,"./debug":1293,"./element":1294,"./eventbus":1295,"./factory":1296,"./icon":1297,"./loader":1298,"./popup":1299,"./prop":1300,"./urlconfig":1302,"./utils":1303,"./visibleprop":1304,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/app.js":53}],1284:[function(require,module,exports){
 module.exports=require(54)
-},{"./app":1280,"./binding":1282,"./classesbinding":1283,"./databinder":1288,"./stylesmanager":1298,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/bdsft.js":54,"jquery":1325}],1282:[function(require,module,exports){
+},{"./app":1283,"./binding":1285,"./classesbinding":1286,"./databinder":1291,"./stylesmanager":1301,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/bdsft.js":54,"jquery":1328}],1285:[function(require,module,exports){
 module.exports=require(55)
-},{"./bdsft":1281,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/binding.js":55}],1283:[function(require,module,exports){
+},{"./bdsft":1284,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/binding.js":55}],1286:[function(require,module,exports){
 module.exports=require(56)
-},{"./binding":1282,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/classesbinding.js":56}],1284:[function(require,module,exports){
+},{"./binding":1285,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/classesbinding.js":56}],1287:[function(require,module,exports){
 module.exports=require(57)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/constants.js":57}],1285:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/constants.js":57}],1288:[function(require,module,exports){
 module.exports=require(58)
-},{"./bdsft":1281,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/cookieconfig.js":58,"jquery":1325,"jquery.cookie":1324}],1286:[function(require,module,exports){
+},{"./bdsft":1284,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/cookieconfig.js":58,"jquery":1328,"jquery.cookie":1327}],1289:[function(require,module,exports){
 module.exports=require(59)
-},{"./constants":1284,"./prop":1297,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/cookieprop.js":59,"jquery":1325,"jquery.cookie":1324}],1287:[function(require,module,exports){
+},{"./constants":1287,"./prop":1300,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/cookieprop.js":59,"jquery":1328,"jquery.cookie":1327}],1290:[function(require,module,exports){
 module.exports=require(60)
-},{"./constants":1284,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/css.js":60,"ejs":1306}],1288:[function(require,module,exports){
+},{"./constants":1287,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/css.js":60,"ejs":1309}],1291:[function(require,module,exports){
 module.exports=require(61)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/databinder.js":61,"event-emitter":1309}],1289:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/databinder.js":61,"event-emitter":1312}],1292:[function(require,module,exports){
 module.exports=require(62)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/dateformat.js":62}],1290:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/dateformat.js":62}],1293:[function(require,module,exports){
 module.exports=require(63)
-},{"../js/config":1277,"./bdsft":1281,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/debug.js":63,"debug":1302,"stacktrace-js":1326}],1291:[function(require,module,exports){
+},{"../js/config":1280,"./bdsft":1284,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/debug.js":63,"debug":1305,"stacktrace-js":1329}],1294:[function(require,module,exports){
 module.exports=require(64)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/element.js":64}],1292:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/element.js":64}],1295:[function(require,module,exports){
 module.exports=require(65)
-},{"./bdsft":1281,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/eventbus.js":65,"event-emitter":1309}],1293:[function(require,module,exports){
+},{"./bdsft":1284,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/eventbus.js":65,"event-emitter":1312}],1296:[function(require,module,exports){
 module.exports=require(66)
-},{"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/factory.js":66,"jquery":1325}],1294:[function(require,module,exports){
+},{"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/factory.js":66,"jquery":1328}],1297:[function(require,module,exports){
 module.exports=require(67)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/icon.js":67}],1295:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/icon.js":67}],1298:[function(require,module,exports){
 module.exports=require(68)
-},{"../":1280,"./constants":1284,"./factory":1293,"./stylesmanager":1298,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/loader.js":68,"deep-extend":1305}],1296:[function(require,module,exports){
+},{"../":1283,"./constants":1287,"./factory":1296,"./stylesmanager":1301,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/loader.js":68,"deep-extend":1308}],1299:[function(require,module,exports){
 module.exports=require(69)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/popup.js":69,"jquery":1325}],1297:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/popup.js":69,"jquery":1328}],1300:[function(require,module,exports){
 module.exports=require(70)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/prop.js":70}],1298:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/prop.js":70}],1301:[function(require,module,exports){
 module.exports=require(71)
-},{"../js/styles":1278,"./constants":1284,"./css":1287,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/stylesmanager.js":71}],1299:[function(require,module,exports){
+},{"../js/styles":1281,"./constants":1287,"./css":1290,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/stylesmanager.js":71}],1302:[function(require,module,exports){
 module.exports=require(72)
-},{"../js/config":1277,"./bdsft":1281,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/urlconfig.js":72}],1300:[function(require,module,exports){
+},{"../js/config":1280,"./bdsft":1284,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/urlconfig.js":72}],1303:[function(require,module,exports){
 module.exports=require(73)
-},{"./adapter":1279,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/utils.js":73,"jquery":1325}],1301:[function(require,module,exports){
+},{"./adapter":1282,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/utils.js":73,"jquery":1328}],1304:[function(require,module,exports){
 module.exports=require(74)
-},{"./constants":1284,"./prop":1297,"./utils":1300,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/visibleprop.js":74}],1302:[function(require,module,exports){
+},{"./constants":1287,"./prop":1300,"./utils":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/visibleprop.js":74}],1305:[function(require,module,exports){
 module.exports=require(75)
-},{"./debug":1303,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/browser.js":75}],1303:[function(require,module,exports){
+},{"./debug":1306,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/browser.js":75}],1306:[function(require,module,exports){
 module.exports=require(76)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/debug.js":76,"ms":1304}],1304:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/debug.js":76,"ms":1307}],1307:[function(require,module,exports){
 module.exports=require(77)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/node_modules/ms/index.js":77}],1305:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/node_modules/ms/index.js":77}],1308:[function(require,module,exports){
 module.exports=require(78)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/deep-extend/lib/deep-extend.js":78,"buffer":9}],1306:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/deep-extend/lib/deep-extend.js":78,"buffer":9}],1309:[function(require,module,exports){
 module.exports=require(79)
-},{"./filters":1307,"./utils":1308,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/ejs.js":79,"fs":7,"path":21}],1307:[function(require,module,exports){
+},{"./filters":1310,"./utils":1311,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/ejs.js":79,"fs":7,"path":21}],1310:[function(require,module,exports){
 module.exports=require(80)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/filters.js":80}],1308:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/filters.js":80}],1311:[function(require,module,exports){
 module.exports=require(81)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/utils.js":81}],1309:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/utils.js":81}],1312:[function(require,module,exports){
 module.exports=require(82)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/index.js":82,"d":1310,"es5-ext/object/valid-callable":1319}],1310:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/index.js":82,"d":1313,"es5-ext/object/valid-callable":1322}],1313:[function(require,module,exports){
 module.exports=require(83)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":83,"es5-ext/object/assign":1311,"es5-ext/object/is-callable":1314,"es5-ext/object/normalize-options":1318,"es5-ext/string/#/contains":1321}],1311:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":83,"es5-ext/object/assign":1314,"es5-ext/object/is-callable":1317,"es5-ext/object/normalize-options":1321,"es5-ext/string/#/contains":1324}],1314:[function(require,module,exports){
 module.exports=require(84)
-},{"./is-implemented":1312,"./shim":1313,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":84}],1312:[function(require,module,exports){
+},{"./is-implemented":1315,"./shim":1316,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":84}],1315:[function(require,module,exports){
 module.exports=require(85)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":85}],1313:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":85}],1316:[function(require,module,exports){
 module.exports=require(86)
-},{"../keys":1315,"../valid-value":1320,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":86}],1314:[function(require,module,exports){
+},{"../keys":1318,"../valid-value":1323,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":86}],1317:[function(require,module,exports){
 module.exports=require(87)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":87}],1315:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":87}],1318:[function(require,module,exports){
 module.exports=require(88)
-},{"./is-implemented":1316,"./shim":1317,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":88}],1316:[function(require,module,exports){
+},{"./is-implemented":1319,"./shim":1320,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":88}],1319:[function(require,module,exports){
 module.exports=require(89)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":89}],1317:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":89}],1320:[function(require,module,exports){
 module.exports=require(90)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":90}],1318:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":90}],1321:[function(require,module,exports){
 module.exports=require(91)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":91}],1319:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":91}],1322:[function(require,module,exports){
 module.exports=require(92)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":92}],1320:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":92}],1323:[function(require,module,exports){
 module.exports=require(93)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":93}],1321:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":93}],1324:[function(require,module,exports){
 module.exports=require(94)
-},{"./is-implemented":1322,"./shim":1323,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":94}],1322:[function(require,module,exports){
+},{"./is-implemented":1325,"./shim":1326,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":94}],1325:[function(require,module,exports){
 module.exports=require(95)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":95}],1323:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":95}],1326:[function(require,module,exports){
 module.exports=require(96)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":96}],1324:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":96}],1327:[function(require,module,exports){
 module.exports=require(97)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery.cookie/jquery.cookie.js":97,"jquery":1325}],1325:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery.cookie/jquery.cookie.js":97,"jquery":1328}],1328:[function(require,module,exports){
 module.exports=require(98)
-},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":98}],1326:[function(require,module,exports){
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":98}],1329:[function(require,module,exports){
 module.exports=require(99)
 },{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":99}]},{},[1]);
