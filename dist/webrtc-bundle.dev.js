@@ -70121,7 +70121,7 @@ function AddContactView(xmpp) {
       if(jid) {
         var contact = Contact.create([{bare: jid, local: name}])
         xmpp.addContact(contact);
-        toggle(true);
+        toggle(false);
       }
     });
     self.cancelLink.on('click', function(e) {
