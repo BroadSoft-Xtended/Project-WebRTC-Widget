@@ -17803,7 +17803,7 @@ function Chat(eventbus, debug, sipstack) {
 
   var addMessage = function(text) {
     var message = Message.create([text]);
-    messages.push(message);
+    self.messages.push(message);
   }
 
   self.send = function(){
