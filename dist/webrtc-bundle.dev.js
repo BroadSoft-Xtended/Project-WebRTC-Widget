@@ -17751,7 +17751,7 @@ module.exports = {
     enableChat: false
 };
 },{}],136:[function(require,module,exports){
-module.exports = {"chat":".bdsft-webrtc .chat{position:absolute;display:none;border:1px solid #000}.bdsft-webrtc .chat .input{height:20px;display:block;background:#fff;border:1px solid #d6d6d6;color:#606060;font-size:14px;padding:8px;border-radius:0}.bdsft-webrtc .chat .messagesContent{height:auto}.bdsft-webrtc .chat.enableChat.enableDatachannel.started{display:block}.bdsft-webrtc .chat:not(.started) .input{pointer-events:none;cursor:default;background-color:#999;opacity:.5}","message":".bdsft-webrtc .message{height:auto}.bdsft-webrtc .message .body{font-size:12px}"}
+module.exports = {"chat":".bdsft-webrtc .chat{position:absolute;display:none;border:1px solid #000}.bdsft-webrtc .chat .input{width:100%;box-sizing:border-box;margin:10px 0;display:block;background:#fff;border:1px solid #d6d6d6;color:#606060;font-size:14px;padding:8px;border-radius:0}.bdsft-webrtc .chat .messagesContent{height:auto}.bdsft-webrtc .chat.enableChat.enableDatachannel.started{display:block}.bdsft-webrtc .chat:not(.started) .input{pointer-events:none;cursor:default;background-color:#999;opacity:.5}","message":".bdsft-webrtc .message{padding:3px 0}.bdsft-webrtc .message .body{font-size:12px}.bdsft-webrtc .message.outgoing{text-align:left;background-color:#808080}.bdsft-webrtc .message.incoming{text-align:right;background-color:#d3d3d3}"}
 },{}],137:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -17771,12 +17771,12 @@ module.exports = {"chat":".bdsft-webrtc .chat{position:absolute;display:none;bor
 
     // chat.jade compiled template
     templatizer["chat"] = function tmpl_chat() {
-        return '<div class="bdsft-webrtc"><div class="chat classes bottomleft"><input type="text" class="input"/><div class="messagesContent"></div></div></div>';
+        return '<div class="bdsft-webrtc"><div class="chat classes bottomleft"><textarea class="input"></textarea><div class="messagesContent"></div></div></div>';
     };
 
     // message.jade compiled template
     templatizer["message"] = function tmpl_message() {
-        return '<div class="message"><span class="body"></span></div>';
+        return '<div class="message classes"><span class="body"></span></div>';
     };
 
     return templatizer;
@@ -17801,19 +17801,20 @@ function Chat(eventbus, debug, sipstack) {
     }
   }
 
-  var addMessage = function(text) {
-    var message = Message.create([text]);
-    self.messages.push(message);
+  var addMessage = function(text, direction) {
+    var message = Message.create([text, direction]);
+    self.messages[message.id] = message;
   }
 
-  self.send = function(){
-    sipstack.sendData("chat:" + self.input);
-    addMessage(self.input);
-    self.input = '';
+  self.send = function(text){
+    text = text || self.input;
+    debug.log('send : '+text);
+    sipstack.sendData("chat:" + text);
+    addMessage(text, 'outgoing');
   };
 
   self.init = function() {
-    self.messages = [];
+    self.messages = {};
   };
 
   self.listeners = function() {
@@ -17822,7 +17823,8 @@ function Chat(eventbus, debug, sipstack) {
       var regex = /^chat:/;
       if (data.match(regex)) {
         data = data.replace(regex, '');
-        addMessage(data);
+        debug.log('received : '+data);
+        addMessage(data, 'incoming');
       }
     });
   };
@@ -17832,14 +17834,22 @@ function Chat(eventbus, debug, sipstack) {
 },{"../../js/config.js":135,"./message":139,"webrtc-core":145}],139:[function(require,module,exports){
 module.exports = require('webrtc-core').bdsft.Model(Message);
 
-function Message(text) {
+function Message(text, direction) {
 	var self = {};
 
-	self.props = ['body', 'time'];
+	self.props = ['body', 'time', 'id', 'direction', 'classes'];
 
+	self.bindings = {
+		classes: {
+			self: 'direction'
+		}
+	};
+	
 	self.init = function(){
 		self.body = text;
 		self.time = new Date();
+		self.id = new Date().getTime();
+		self.direction = direction;
 	};
 
 	return self;
@@ -17857,8 +17867,8 @@ function ChatView(chat) {
   var self = {};
 
   self.model = chat;
-  
-  self.updateContactsContent = function(messages){
+
+  self.updateMessagesContent = function(messages){
     self.updateContentView(self.messagesContent, messages, function(message){
       return MessageView.create([message]);
     });
@@ -17876,7 +17886,8 @@ function ChatView(chat) {
   	self.input.keypress(function(e) {
       if (e.keyCode === 13) {
         e.preventDefault();
-        chat.send();
+        chat.send(self.input.val());
+        self.input.val('');
       }
     });
 
