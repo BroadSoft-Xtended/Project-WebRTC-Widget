@@ -7123,7 +7123,7 @@ module.exports = {
     enableMute: true
 };
 },{}],46:[function(require,module,exports){
-module.exports = {"audio":".bdsft-webrtc .enableMute:not(.muted).started .mute,.bdsft-webrtc .enableMute.muted.started .unmute{transition:all 1s linear;opacity:1;z-index:20}.bdsft-webrtc .enableMute:not(.started) .mute,.bdsft-webrtc .enableMute:not(.started) .unmute,.bdsft-webrtc .enableMute.muted.started .mute,.bdsft-webrtc .enableMute:not(.muted).started .unmute{transition:all 1s linear;opacity:0;z-index:-1}.bdsft-webrtc :not(.enableMute).cell-muteAudio{display:none!important}"}
+module.exports = {"audio":".bdsft-webrtc .cell-muteAudio.enableMute:not(.muted).started .mute,.bdsft-webrtc .cell-muteAudio.enableMute.muted.started .unmute{transition:opacity 1s linear,z-index 1s linear;opacity:1;z-index:20}.bdsft-webrtc .cell-muteAudio.enableMute:not(.started) .mute,.bdsft-webrtc .cell-muteAudio.enableMute:not(.started) .unmute,.bdsft-webrtc .cell-muteAudio.enableMute.muted.started .mute,.bdsft-webrtc .cell-muteAudio.enableMute:not(.muted).started .unmute{transition:opacity 1s linear,z-index 1s linear;opacity:0;z-index:-1}.bdsft-webrtc .cell-muteAudio:not(.enableMute){display:none!important}"}
 },{}],47:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
