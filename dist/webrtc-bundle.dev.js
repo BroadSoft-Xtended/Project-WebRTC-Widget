@@ -3484,17 +3484,19 @@ function Prop(obj, prop, databinder) {
 	};
 	var __set = function(value) {
 		internal = value;
-		if(Array.isArray(internal)) {
-			var observer = new ArrayObserver(internal);
-			observer.open(function(splices) {
-				databinder.modelChanged(_name, internal, self, true);
-			});
-		}
-		else if(typeof internal === 'object') {
-			var observer = new ObjectObserver(internal);
-			observer.open(function(added, removed, changed, getOldValueFn) {
-				databinder.modelChanged(_name, internal, self, true);
-			});
+		if(internal) {
+			if(Array.isArray(internal)) {
+				var observer = new ArrayObserver(internal);
+				observer.open(function(splices) {
+					databinder.modelChanged(_name, internal, self, true);
+				});
+			}
+			else if(typeof internal === 'object') {
+				var observer = new ObjectObserver(internal);
+				observer.open(function(added, removed, changed, getOldValueFn) {
+					databinder.modelChanged(_name, internal, self, true);
+				});
+			}
 		}
 		databinder.modelChanged(_name, value, self);
 		prop.onSet && prop.onSet(value);
@@ -3646,6 +3648,14 @@ var Utils = require('./utils');
 function URLConfig() {
 	var self = {};
 
+	var isAudioOnlyView = function(view) {
+		return view && view.indexOf('audioOnly') !== -1
+	};
+
+	self.updateAudioOnlyView = function(view){
+		self.audioOnlyView = isAudioOnlyView(view);
+	};
+
 	var contains = function(name, value) {
 		var val = self.props[name];
 		return val && val.indexOf(value) !== -1
@@ -3697,7 +3707,13 @@ function URLConfig() {
 		enableIms: isTrueOrFeature('enableIms')
 	}
 
-	self.props.audioOnlyView = self.props.view && self.props.view.indexOf('audioOnly') !== -1;
+	self.props.audioOnlyView = isAudioOnlyView(self.props.view);
+
+	self.bindings = {
+		audioOnlyView: {
+			self: 'view'
+		}
+	}
 
 	self.getFeatures = function() {
 		var flags = 0;
@@ -19172,7 +19188,7 @@ module.exports = {
     messageConnecting: "Connecting to WRS..."
 };
 },{}],377:[function(require,module,exports){
-module.exports = {"messages":".bdsft-webrtc .messages{position:absolute;font-family:arial;text-align:left;width:auto;font-size:12px;bottom:auto;top:10px;left:10px}.bdsft-webrtc .messages.audioOnly{left:10px!important;top:48px!important;font-weight:bold;font-size:14px}.bdsft-webrtc .messages .msg{display:none}.bdsft-webrtc .messages:not(.connecting).registering.enableMessages .messageRegistering,.bdsft-webrtc .messages:not(.connecting).unregistering.enableMessages .messageUnregistering,.bdsft-webrtc .messages.connecting.enableMessages .messageConnecting,.bdsft-webrtc .messages.failed.enableMessages .messageFailed,.bdsft-webrtc .messages:not(.registering)._403.enableMessages .messageRegistrationWrongPassword,.bdsft-webrtc .messages:not(.registering)._404.enableMessages .messageRegistrationNotFound,.bdsft-webrtc .messages.userMediaFailed.enableMessages .messageGetUserMedia{display:block}.bdsft-webrtc .messages.hasMessageAlert.enableMessages .messageAlert,.bdsft-webrtc .messages.hasMessageNormal.enableMessages .messageNormal,.bdsft-webrtc .messages.hasMessageWarning.enableMessages .messageWarning,.bdsft-webrtc .messages.hasMessageSuccess.enableMessages .messageSuccess,.bdsft-webrtc .messages:not(.registered):not(.connecting):not(.registering):not(.unregistering):not(._403):not(._404).enableMessages .messageUnregistered,.bdsft-webrtc .messages:not(.connecting):not(.registering).registered.enableMessages .messageRegistered,.bdsft-webrtc .messages:not(.connecting):not(.connected).enableMessages .messageConnectionFailed,.bdsft-webrtc .messages:not(.connecting).connected.enableMessages .messageConnected{opacity:0;height:0;display:block;animation:flickerAnimation 3s;-webkit-animation:flickerAnimation 3s;-moz-animation:flickerAnimation 3s;-o-animation:flickerAnimation 3s}.bdsft-webrtc .messages .normal{color:<%= infoMessageColor %>}.bdsft-webrtc .messages .success{color:<%= successMessageColor %>}.bdsft-webrtc .messages .warning{color:<%= warningMessageColor %>}.bdsft-webrtc .messages .alert{color:<%= alertMessageColor %>}"}
+module.exports = {"messages":".bdsft-webrtc .messages{position:absolute;font-family:arial;text-align:left;width:auto;font-size:12px;bottom:auto;top:10px;left:10px}.bdsft-webrtc .messages.audioOnly{left:10px!important;top:48px!important;font-weight:bold;font-size:14px}.bdsft-webrtc .messages .msg{display:none}.bdsft-webrtc .messages:not(.connecting).connected.registering.enableMessages .messageRegistering,.bdsft-webrtc .messages:not(.connecting).connected.unregistering.enableMessages .messageUnregistering,.bdsft-webrtc .messages.connecting.enableMessages .messageConnecting,.bdsft-webrtc .messages.failed.enableMessages .messageFailed,.bdsft-webrtc .messages:not(.registering)._403.enableMessages .messageRegistrationWrongPassword,.bdsft-webrtc .messages:not(.registering)._404.enableMessages .messageRegistrationNotFound,.bdsft-webrtc .messages.userMediaFailed.enableMessages .messageGetUserMedia{display:block}.bdsft-webrtc .messages.hasMessageAlert.enableMessages .messageAlert,.bdsft-webrtc .messages.hasMessageNormal.enableMessages .messageNormal,.bdsft-webrtc .messages.hasMessageWarning.enableMessages .messageWarning,.bdsft-webrtc .messages.hasMessageSuccess.enableMessages .messageSuccess,.bdsft-webrtc .messages:not(.registered):not(.connecting):not(.registering):not(.unregistering):not(._403):not(._404).enableMessages .messageUnregistered,.bdsft-webrtc .messages:not(.connecting):not(.registering).registered.enableMessages .messageRegistered,.bdsft-webrtc .messages:not(.connecting):not(.connected).enableMessages .messageConnectionFailed,.bdsft-webrtc .messages:not(.connecting).connected.enableMessages .messageConnected{opacity:0;height:0;display:block;animation:flickerAnimation 3s;-webkit-animation:flickerAnimation 3s;-moz-animation:flickerAnimation 3s;-o-animation:flickerAnimation 3s}.bdsft-webrtc .messages .normal{color:<%= infoMessageColor %>}.bdsft-webrtc .messages .success{color:<%= successMessageColor %>}.bdsft-webrtc .messages .warning{color:<%= warningMessageColor %>}.bdsft-webrtc .messages .alert{color:<%= alertMessageColor %>}"}
 },{}],378:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -19869,6 +19885,10 @@ function SIPStack(eventbus, debug, urlconfig, cookieconfig) {
   self.activeSession = null;
   self.sessions = [];
 
+  self.updateOfferToReceiveVideo = function(audioOnlyView){
+    self.offerToReceiveVideo = !audioOnlyView;
+  };
+
   self.updateUaConfig = function(){
     self.ua && self.ua.loadConfig(self.getExSIPConfig());
   };
@@ -19963,6 +19983,9 @@ function SIPStack(eventbus, debug, urlconfig, cookieconfig) {
     },
     audioOnly: {
       urlconfig: ['audioOnly', 'audioOnlyView']
+    },
+    offerToReceiveVideo: {
+      urlconfig: 'audioOnlyView'
     }
   };
 
@@ -20317,10 +20340,6 @@ function SIPStack(eventbus, debug, urlconfig, cookieconfig) {
   };
 
   self.init = function() {
-    if(urlconfig.audioOnlyView) {
-      self.offerToReceiveVideo = false;
-    }
-
     updateUA();
   };
 
@@ -20965,11 +20984,11 @@ module.exports={
   "description": "BroadSoft Javascript SIP library",
   "version": "2.0.0",
   "homepage": "http://www.broadsoft.com",
-  "author": {
-    "name": "BroadSoft, Inc."
-  },
+  "author": "BroadSoft, Inc.",
   "contributors": [
-    {}
+    {
+      "url": ""
+    }
   ],
   "main": "src/ExSIP.js",
   "repository": {
@@ -21009,13 +21028,7 @@ module.exports={
   "license": "MIT",
   "scripts": {
     "test": "grunt travis --verbose"
-  },
-  "readme": "<p align=\"center\"><a href=\"http://jssip.net\"><img src=\"http://jssip.net/images/jssip-banner-new.png\"/></a></p>\n\n[![Build Status](https://travis-ci.org/versatica/JsSIP.png?branch=new-design)](https://travis-ci.org/versatica/JsSIP)\n\n## Overview\n\n* Runs in the browser and Node.js.\n* SIP over [WebSocket](http://jssip.net/documentation/misc/sip_websocket/) (use real SIP in your web apps)\n* Audio/video calls ([WebRTC](http://jssip.net/documentation/misc/webrtc)), instant messaging and presence\n* Lightweight! (~140KB)\n* Easy to use and powerful user API\n* Works with OverSIP, Kamailio, Asterisk. Mobicents and repro (reSIProcate) servers ([more info](http://jssip.net/documentation/misc/interoperability))\n* Written by the authors of [RFC 7118 \"The WebSocket Protocol as a Transport for SIP\"](http://tools.ietf.org/html/rfc7118) and [OverSIP](http://oversip.net)\n\n\n## Getting Started\n\nThe following simple JavaScript code creates a JsSIP User Agent instance and makes a SIP call:\n\n```javascript\n// Create our JsSIP instance and run it:\n\nvar configuration = {\n  'ws_servers': 'ws://sip-ws.example.com',\n  'uri': 'sip:alice@example.com',\n  'password': 'superpassword'\n};\n\nvar coolPhone = new JsSIP.UA(configuration);\n\ncoolPhone.start();\n\n\n// Make an audio/video call:\n\n// HTML5 <video> elements in which local and remote video will be shown\nvar selfView =   document.getElementById('my-video');\nvar remoteView =  document.getElementById('peer-video');\n\n// Register callbacks to desired call events\nvar eventHandlers = {\n  'progress': function(e){\n    console.log('call is in progress');\n  },\n  'failed': function(e){\n    console.log('call failed with cause: '+ e.data.cause);\n  },\n  'ended': function(e){\n    console.log('call ended with cause: '+ e.data.cause);\n  },\n  'confirmed': function(e){\n    var rtcSession = e.sender;\n\n    console.log('call confirmed');\n\n    // Attach local stream to selfView\n    if (rtcSession.getLocalStreams().length > 0) {\n      selfView.src = window.URL.createObjectURL(rtcSession.getLocalStreams()[0]);\n    }\n\n    // Attach remote stream to remoteView\n    if (rtcSession.getRemoteStreams().length > 0) {\n      remoteView.src = window.URL.createObjectURL(rtcSession.getRemoteStreams()[0]);\n    }\n  }\n};\n\nvar options = {\n  'eventHandlers': eventHandlers,\n  'mediaConstraints': {'audio': true, 'video': true}\n};\n\n\ncoolPhone.call('sip:bob@example.com', options);\n```\n\nWant to see more? Check the full [Getting Started](http://jssip.net/documentation/0.3.x/getting_started/) section in the project website.\n\n\n## Online Demo\n\nCheck our **Tryit JsSIP** online demo:\n\n* [tryit.jssip.net](http://tryit.jssip.net)\n\n\n## Website and Documentation\n\n* [jssip.net](http://jssip.net/)\n\n\n## Download\n\n* As Node module: `$ npm install jssip`\n* As Bower module: `$ bower install jssip`\n* Manually: [jssip.net/download](http://jssip.net/download/)\n\n\n## Authors\n\n#### José Luis Millán\n\n* Main author. Core Designer and Developer.\n* <jmillan@aliax.net> (Github [@jmillan](https://github.com/jmillan))\n\n#### Iñaki Baz Castillo\n\n* Core Designer and Developer.\n* <ibc@aliax.net> (Github [@ibc](https://github.com/ibc))\n\n#### Saúl Ibarra Corretgé\n\n* Core Designer.\n* <saghul@gmail.com> (Github [@saghul](https://github.com/saghul))\n\n\n## License\n\nJsSIP is released under the [MIT license](http://jssip.net/license).\n",
-  "readmeFilename": "README.md",
-  "_id": "exsip@2.0.0",
-  "_shasum": "168aec3241007807f82988e9b98a5dc2591119f2",
-  "_resolved": "git+https://github.com/BroadSoft-Xtended/Library-ExSIP#a7be10d373fccde1215b653c09e3c9833f5932d6",
-  "_from": "exsip@git+https://github.com/BroadSoft-Xtended/Library-ExSIP#cjs"
+  }
 }
 
 },{}],500:[function(require,module,exports){
@@ -38154,23 +38167,23 @@ DataChannel.prototype.initSendChannel = function() {
 
     var onSendChannelStateChange = function() {
       var readyState = self.sendChannel.readyState;
-      this.logger.log('Send channel state is: ' + readyState, self.session.ua);
+      self.logger.log('Send channel state is: ' + readyState, self.session.ua);
     };
 
     this.sendChannel.onopen = onSendChannelStateChange;
     this.sendChannel.onclose = onSendChannelStateChange;
 
     var receiveChannelCallback = function(event) {
-      this.logger.log('Receive Channel Callback', self.session.ua);
+      self.logger.log('Receive Channel Callback', self.session.ua);
       self.receiveChannel = event.channel;
 
       var onReceiveChannelStateChange = function() {
         var readyState = self.receiveChannel.readyState;
-        this.logger.log('Receive channel state is: ' + readyState, self.session.ua);
+        self.logger.log('Receive channel state is: ' + readyState, self.session.ua);
       };
 
       var onReceiveMessageCallback = function(event) {
-        this.logger.log('Received Message : '+event.data, self.session.ua);
+        self.logger.log('Received Message : '+event.data, self.session.ua);
 
         if(event.data.indexOf('\n') !== -1) {
           self.dataReceived.push(event.data.replace('\n', ''));
@@ -46959,7 +46972,7 @@ module.exports = {
     enableHold: true
 };
 },{}],817:[function(require,module,exports){
-module.exports = {"videobar":".bdsft-webrtc .videoBar{position:relative;top:0;left:0;width:100%;height:40px;background:#000;background-image:-ms-linear-gradient(center top,#404040,#000);background-image:linear-gradient(to bottom,#404040,#000);background-image:-webkit-linear-gradient(#404040,#000);background-image:-moz-linear-gradient(top,#404040,#000);border-radius:4px;border:2px solid #ddd;box-shadow:0 0 10px #000;margin-top:5px;background-image:none;border-radius:0;border:0;box-shadow:none;margin-top:0;background:#292929;border-top:1px solid #3c3c3c}.bdsft-webrtc .videoBar .icon{margin:0 2.5px;position:absolute}.bdsft-webrtc .videoBar .table{height:100%;margin:6px;margin:0}.bdsft-webrtc .videoBar .cell{position:relative;top:0;left:0;width:35px;width:36px}.bdsft-webrtc .videoBar .cell .icon{width:100%;text-align:center;margin-top:10px;margin-right:0;margin-left:0}.bdsft-webrtc .videoBar .cell .icon a{margin:0}.bdsft-webrtc .videoBar .cell:first-child{padding:0}.bdsft-webrtc .videoBar span{color:#808080}.bdsft-webrtc .videoBar .unmuteAudio{margin-top:-1px}.bdsft-webrtc .videoBar .leftSpacer{width:8px}.bdsft-webrtc .videoBar .cell-hangup{width:42px}.bdsft-webrtc .videoBar .subtitle{display:none}.bdsft-webrtc .videoBar .timerHolder{position:relative;top:0;left:0;width:auto}.bdsft-webrtc .videoBar .rightSpacer{width:8px}.bdsft-webrtc .videoBar._960x720{width:960px}.bdsft-webrtc .videoBar._640x360,.bdsft-webrtc .videoBar._640x480{width:640px}.bdsft-webrtc .videoBar._320x180,.bdsft-webrtc .videoBar._320x240{width:320px}.bdsft-webrtc .videoBar._1280x720,.bdsft-webrtc .videoBar.hd{width:1280px}.bdsft-webrtc .videoBar._1920x1080{width:1920px}.bdsft-webrtc .hangup,.bdsft-webrtc .fullScreen,.bdsft-webrtc .selfView,.bdsft-webrtc .mute,.bdsft-webrtc .dialpadIcon,.bdsft-webrtc .messages{top:0;left:0}.bdsft-webrtc #videoBar #settings{width:auto;background-color:transparent}.bdsft-webrtc .videoBar.audioOnly{display:inline-block;width:auto}.bdsft-webrtc .videoBar.audioOnly .table{table-layout:auto;width:auto}.bdsft-webrtc .videoBar.audioOnly .cell-hangup{width:35px!important}.bdsft-webrtc .videoBar.conference .cell-hangup{width:30px!important;top:2px}.bdsft-webrtc .videoBar.conference .cell .hangup{margin-top:0;width:140px;background-color:#f00;border-radius:5px;margin-left:10px;height:36px;line-height:14px}.bdsft-webrtc .videoBar.conference .hangup .subtitle{display:block!important;font-size:14px;color:#fff}.bdsft-webrtc .videoBar .icon,.bdsft-webrtc .videoBar a{font-size:20px;color:#808080;text-decoration:none}.bdsft-webrtc .videoBar .hold,.bdsft-webrtc .videoBar .resume{margin-top:-1px}.bdsft-webrtc .videoBar .settings{margin-top:12px!important}.bdsft-webrtc .videoBar .settings .icon-settings{margin:0;font-size:18px;color:#fff}.bdsft-webrtc .videoBar.fullscreen-shown{top:auto!important;bottom:0;position:absolute;width:100%}.bdsft-webrtc .videoBar.conference .icon-hangup:before,.bdsft-webrtc .videoBar.conference .icon-hangup:hover:before{color:#fff!important}.bdsft-webrtc .videoBar.conference .selfViewHide,.bdsft-webrtc .videoBar.conference .selfViewShow{text-align:right!important}.bdsft-webrtc .videoBar.conference .fullscreenExpand,.bdsft-webrtc .videoBar.conference .fullscreenContract{text-align:left!important}.bdsft-webrtc .videoBar.audioOnly .fullscreenExpand,.bdsft-webrtc .videoBar.audioOnly .fullscreenContract,.bdsft-webrtc .videoBar.audioOnly .selfViewHide,.bdsft-webrtc .videoBar.audioOnly .selfViewShow,.bdsft-webrtc .videoBar.audioOnly .fullscreenHolder,.bdsft-webrtc .videoBar.audioOnly .cell-selfView{display:none!important}.bdsft-webrtc .videoBar.selfViewShow a,.bdsft-webrtc .videoBar.dialpadHide a,.bdsft-webrtc .videoBar.unmuteAudio a,.bdsft-webrtc .videoBar.fullscreenContract a{color:#04aff0!important}.bdsft-webrtc .videoBar.started .hangup,.bdsft-webrtc .videoBar.calling .hangup,.bdsft-webrtc .videoBar:not(.held).enableHold.started .hold,.bdsft-webrtc .videoBar.enableHold.held .resume,.bdsft-webrtc .videoBar.enableSettings .settings,.bdsft-webrtc .videoBar.enableSelfView:not(.video-hidden) .selfViewHide,.bdsft-webrtc .videoBar.enableSelfView.video-hidden .selfViewShow,.bdsft-webrtc .videoBar.enableTransfer.started .transfer,.bdsft-webrtc .videoBar.enableCallControl.callcontrol-shown .dialpadHide,.bdsft-webrtc .videoBar.enableCallControl:not(.callcontrol-shown) .dialpadShow{transition:all 1s linear;opacity:1;z-index:20}.bdsft-webrtc .videoBar.connected .hangup,.bdsft-webrtc .videoBar.disconnected .hangup,.bdsft-webrtc .videoBar.held .hold,.bdsft-webrtc .videoBar:not(.started) .hold,.bdsft-webrtc .videoBar:not(.started) .resume,.bdsft-webrtc .videoBar:not(.held) .resume,.bdsft-webrtc .videoBar:not(.enableSettings) .settings,.bdsft-webrtc .videoBar.enableSelfView.video-hidden .selfViewHide,.bdsft-webrtc .videoBar.enableSelfView:not(.video-hidden) .selfViewShow,.bdsft-webrtc .videoBar.enableTransfer.connected .transfer,.bdsft-webrtc .videoBar.enableTransfer.disconnected .transfer,.bdsft-webrtc .videoBar.enableCallControl:not(.callcontrol-shown) .dialpadHide,.bdsft-webrtc .videoBar.enableCallControl.callcontrol-shown .dialpadShow{transition:all 1s linear;opacity:0;z-index:-1}.bdsft-webrtc .videoBar:not(.enableTransfer) .cell-transfer,.bdsft-webrtc .videoBar:not(.enableHold) .cell-hold,.bdsft-webrtc .videoBar:not(.enableCallTimer) .cell-timer,.bdsft-webrtc .videoBar:not(.enableSelfView) .cell-selfView,.bdsft-webrtc .videoBar:not(.enableSettings) .cell-settings,.bdsft-webrtc .videoBar:not(.enableCallControl) .cell-dialpad,.bdsft-webrtc .videoBar:not(.enableMute) .muteHolder,.bdsft-webrtc .videoBar:not(.enableCallTimer) .timerHolder,.bdsft-webrtc .videoBar:not(.enableFullscreen) .fullscreenHolder{display:none!important}"}
+module.exports = {"videobar":".bdsft-webrtc .videoBar{position:relative;top:0;left:0;width:100%;height:40px;background:#000;background-image:-ms-linear-gradient(center top,#404040,#000);background-image:linear-gradient(to bottom,#404040,#000);background-image:-webkit-linear-gradient(#404040,#000);background-image:-moz-linear-gradient(top,#404040,#000);border-radius:4px;border:2px solid #ddd;box-shadow:0 0 10px #000;margin-top:5px;background-image:none;border-radius:0;border:0;box-shadow:none;margin-top:0;background:#292929;border-top:1px solid #3c3c3c}.bdsft-webrtc .videoBar .icon{margin:0 2.5px;position:absolute}.bdsft-webrtc .videoBar .table{height:100%;margin:6px;margin:0}.bdsft-webrtc .videoBar .cell{position:relative;top:0;left:0;width:35px;width:36px}.bdsft-webrtc .videoBar .cell .icon{width:100%;text-align:center;margin-top:10px;margin-right:0;margin-left:0}.bdsft-webrtc .videoBar .cell .icon a{margin:0}.bdsft-webrtc .videoBar .cell:first-child{padding:0}.bdsft-webrtc .videoBar span{color:#808080}.bdsft-webrtc .videoBar .unmuteAudio{margin-top:-1px}.bdsft-webrtc .videoBar .leftSpacer{width:8px}.bdsft-webrtc .videoBar .cell-hangup{width:42px}.bdsft-webrtc .videoBar .subtitle{display:none}.bdsft-webrtc .videoBar .timerHolder{position:relative;top:0;left:0;width:auto}.bdsft-webrtc .videoBar .rightSpacer{width:8px}.bdsft-webrtc .videoBar._960x720{width:960px}.bdsft-webrtc .videoBar._640x360,.bdsft-webrtc .videoBar._640x480{width:640px}.bdsft-webrtc .videoBar._320x180,.bdsft-webrtc .videoBar._320x240{width:320px}.bdsft-webrtc .videoBar._1280x720,.bdsft-webrtc .videoBar.hd{width:1280px}.bdsft-webrtc .videoBar._1920x1080{width:1920px}.bdsft-webrtc .hangup,.bdsft-webrtc .fullScreen,.bdsft-webrtc .selfView,.bdsft-webrtc .mute,.bdsft-webrtc .dialpadIcon,.bdsft-webrtc .messages{top:0;left:0}.bdsft-webrtc #videoBar #settings{width:auto;background-color:transparent}.bdsft-webrtc .videoBar.audioOnly{display:inline-block;width:auto}.bdsft-webrtc .videoBar.audioOnly .table{table-layout:auto;width:auto}.bdsft-webrtc .videoBar.audioOnly .cell-hangup{width:35px!important}.bdsft-webrtc .videoBar.conference .cell-hangup{width:30px!important;top:2px}.bdsft-webrtc .videoBar.conference .cell .hangup{margin-top:0;width:140px;background-color:#f00;border-radius:5px;margin-left:10px;height:36px;line-height:14px}.bdsft-webrtc .videoBar.conference .hangup .subtitle{display:block!important;font-size:14px;color:#fff}.bdsft-webrtc .videoBar .icon,.bdsft-webrtc .videoBar a{font-size:20px;color:#808080;text-decoration:none}.bdsft-webrtc .videoBar .hold,.bdsft-webrtc .videoBar .resume{margin-top:-1px}.bdsft-webrtc .videoBar .settings{margin-top:12px!important}.bdsft-webrtc .videoBar .settings .icon-settings{margin:0;font-size:18px;color:#fff}.bdsft-webrtc .videoBar.fullscreen-shown{top:auto!important;bottom:0;position:absolute;width:100%}.bdsft-webrtc .videoBar.conference .icon-hangup:before,.bdsft-webrtc .videoBar.conference .icon-hangup:hover:before{color:#fff!important}.bdsft-webrtc .videoBar.conference .selfViewHide,.bdsft-webrtc .videoBar.conference .selfViewShow{text-align:right!important}.bdsft-webrtc .videoBar.conference .fullscreenExpand,.bdsft-webrtc .videoBar.conference .fullscreenContract{text-align:left!important}.bdsft-webrtc .videoBar.audioOnly .fullscreenExpand,.bdsft-webrtc .videoBar.audioOnly .fullscreenContract,.bdsft-webrtc .videoBar.audioOnly .fullscreenHolder{display:none!important}.bdsft-webrtc .videoBar.selfViewShow a,.bdsft-webrtc .videoBar.dialpadHide a,.bdsft-webrtc .videoBar.unmuteAudio a,.bdsft-webrtc .videoBar.fullscreenContract a{color:#04aff0!important}.bdsft-webrtc .videoBar.started .hangup,.bdsft-webrtc .videoBar.calling .hangup,.bdsft-webrtc .videoBar:not(.held).enableHold.started .hold,.bdsft-webrtc .videoBar.enableHold.held .resume,.bdsft-webrtc .videoBar.enableSettings .settings,.bdsft-webrtc .videoBar.enableSelfView:not(.audioOnly) .selfViewHide,.bdsft-webrtc .videoBar.enableSelfView.audioOnly .selfViewShow,.bdsft-webrtc .videoBar.enableTransfer.started .transfer,.bdsft-webrtc .videoBar.enableCallControl.callcontrol-shown .dialpadHide,.bdsft-webrtc .videoBar.enableCallControl:not(.callcontrol-shown) .dialpadShow{transition:opacity 1s linear,z-index 1s linear;opacity:1;z-index:20}.bdsft-webrtc .videoBar.connected .hangup,.bdsft-webrtc .videoBar.disconnected .hangup,.bdsft-webrtc .videoBar.held .hold,.bdsft-webrtc .videoBar:not(.started) .hold,.bdsft-webrtc .videoBar:not(.started) .resume,.bdsft-webrtc .videoBar:not(.held) .resume,.bdsft-webrtc .videoBar:not(.enableSettings) .settings,.bdsft-webrtc .videoBar.enableSelfView.audioOnly .selfViewHide,.bdsft-webrtc .videoBar.enableSelfView:not(.audioOnly) .selfViewShow,.bdsft-webrtc .videoBar.enableTransfer.connected .transfer,.bdsft-webrtc .videoBar.enableTransfer.disconnected .transfer,.bdsft-webrtc .videoBar.enableCallControl:not(.callcontrol-shown) .dialpadHide,.bdsft-webrtc .videoBar.enableCallControl.callcontrol-shown .dialpadShow{transition:opacity 1s linear,z-index 1s linear;opacity:0;z-index:-1}.bdsft-webrtc .videoBar:not(.enableTransfer) .cell-transfer,.bdsft-webrtc .videoBar:not(.enableHold) .cell-hold,.bdsft-webrtc .videoBar:not(.enableCallTimer) .cell-timer,.bdsft-webrtc .videoBar:not(.enableSelfView) .cell-selfView,.bdsft-webrtc .videoBar:not(.enableSettings) .cell-settings,.bdsft-webrtc .videoBar:not(.enableCallControl) .cell-dialpad,.bdsft-webrtc .videoBar:not(.enableMute) .muteHolder,.bdsft-webrtc .videoBar:not(.enableCallTimer) .timerHolder,.bdsft-webrtc .videoBar:not(.enableFullscreen) .fullscreenHolder{display:none!important}"}
 },{}],818:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -47028,7 +47041,7 @@ var Icon = require('webrtc-core').icon;
 var Constants = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 
-function VideobarView(eventbus, sipstack, sound, timerView, videobar, callcontrol, video, settings, fullscreenView, audioView, transfer) {
+function VideobarView(eventbus, sipstack, sound, timerView, videobar, callcontrol, video, settings, fullscreenView, audioView, transfer, urlconfig) {
   var self = {};
 
   self.elements = ['transfer', 'settings', 'dialpadShow', 'dialpadHide', 'timerHolder', 'fullscreenHolder', 'muteHolder', 'hangup', 'selfViewShow', 'selfViewHide',
@@ -47074,10 +47087,10 @@ function VideobarView(eventbus, sipstack, sound, timerView, videobar, callcontro
       callcontrol.hide();
     }));
     self.selfViewHide.bind('click', clickHander(function() {
-      video.visible = false;
+      urlconfig.view = 'audioOnly';
     }));
     self.selfViewShow.bind('click', clickHander(function() {
-      video.visible = true;
+      urlconfig.view = 'audioVideo';
     }));
     self.hold.onClick(function(e) {
       self.hold.disable();
