@@ -23329,7 +23329,7 @@ function Chat(eventbus, debug, sipstack) {
 
   self.listeners = function() {
     eventbus.on('dataReceived', function(e) {
-      var data = e.data;
+      var data = e.data && e.data.data;
       var regex = /^chat:/;
       if (data.match(regex)) {
         data = data.replace(regex, '');
