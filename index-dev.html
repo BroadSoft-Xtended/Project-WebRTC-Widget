@@ -18,7 +18,7 @@
     <script src="dist/webrtc-bundle.dev.js" type="text/javascript" data-icon-hightlight-color="red">
     {
       "sipstack": {
-        "websocketsServers": [{"ws_uri":"wss://webrtc-gw2.broadsoftlabs.com:8443", "weight":0}],
+        "websocketsServers": [{"ws_uri":"wss://webrtc-gw1.broadsoftlabs.com:8443", "weight":0}],
         "stunServer": "stun.broadsoftlabs.com",
         "stunPort": 3478,
         "domainFrom": "broadsoftlabs.com",
@@ -46,6 +46,10 @@
       },
       "whiteboard": {
         "enableWhiteboard": false
+      },
+      "dms": {
+        "xspHosts": ["dev-node.broadsoftlabs.com"],
+        "port": 5060
       }
     }
     </script>
