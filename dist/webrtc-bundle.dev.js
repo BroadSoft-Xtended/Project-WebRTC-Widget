@@ -72418,7 +72418,7 @@ module.exports = {"addcontact":".bdsft-webrtc .addcontact{margin-bottom:14px;pad
 
     // chat.jade compiled template
     templatizer["chat"] = function tmpl_chat() {
-        return '<div class="chatXmpp"><div class="name"></div><div class="messagesContent"></div><textarea placeholder="Type a message here" class="input"></textarea></div>';
+        return '<div class="bdsft-webrtc"><div class="chatXmpp classes"><div class="name"></div><div class="messagesContent"></div><textarea placeholder="Type a message here" class="input"></textarea></div></div>';
     };
 
     // chats.jade compiled template
@@ -72880,6 +72880,7 @@ function Contact(item, eventbus, client) {
 			var message = Message.create([msg, 'incoming']);
 			if (message.from === self.id) {
 				self.addMessage(message);
+				self.select();
 			}
 		});
 
