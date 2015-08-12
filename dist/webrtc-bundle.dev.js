@@ -8961,10 +8961,7 @@ function Factory(options) {
 		var arg = options.dependencies[argName] || options.dependencies.core[argName];
 		if(!arg && argName.match(/view/i)) {
 			arg = options.dependencies[argName.replace(/view/i, '')];
-			if(!arg) {
-				throw Error('factory error : could not find dependency for '+argName + ' required by '+constructor.name + ' - dependencies : ', Object.keys(options.dependencies));
-			}
-			return arg.view;
+			arg = arg && arg.view;
 		}
 
 		if(!arg) {
@@ -8972,8 +8969,17 @@ function Factory(options) {
 			for(var i=0; i < keys.length; i++){
 				var dependency = options.dependencies[keys[i]][argName];
 				if(dependency) {
-					return dependency;
+					arg = dependency;
+					break;
 				}
+			}
+		}
+
+		if(!arg) {
+			var module = Utils.decamelize(argName).split(' ')[0];
+			if(options.dependencies[module]) {
+				var name = argName.replace(module, '').toLowerCase();
+				arg = options.dependencies[module][name];
 			}
 		}
 
@@ -9002,6 +9008,15 @@ function Factory(options) {
 		});
 	};
 
+	function moduleOf(className) {
+		for(var module in options.dependencies) {
+			if(options.dependencies[module][className]) {
+				return module;
+			}
+		}
+		return className.replace(/view$/i, '');
+	};
+
 	function create(constructor, parent) {
 		var prefix = options.namespace || 'bdsft_webrtc';
 		global[prefix] = global[prefix] || {};
@@ -9013,7 +9028,8 @@ function Factory(options) {
 			// console.log('factory : ' + id);
 			var constructorArgs = args(constructor);
 			// console.log('factory : create ' + id + ' with ', constructor.argNames);
-			var constructorOptions = Utils.extend({}, parent && parent.options || {}, options);
+			var module = moduleOf(name);
+			var constructorOptions = Utils.extend({module: module}, parent && parent.options || {}, options);
 			var object = constructor.create(constructorArgs, constructorOptions);
 			return object;
 		};
@@ -9368,7 +9384,9 @@ var stylesCore = require('../js/styles').core;
 function Styl(viewName, createOptions, viewOptions) {
 	var self = {};
 
-	var css = require('./css')(viewName);
+	var module = viewOptions.module || createOptions.module;
+	var name = (module && module + '_' || '') + viewName;
+	var css = require('./css')(name);
 
 	var style = function(){
 		return createOptions.style && createOptions.style[viewName] 
@@ -9429,6 +9447,7 @@ function StylesManager(){
 		var changes = {};
         for(var name in self.styles) {
           var style = self.styles[name];
+          style = style[name] || style;
           changes = utils.extend(changes, style.changes());
         }
         return changes;
@@ -9437,21 +9456,31 @@ function StylesManager(){
 	self.update = function(styles) {
         for(var name in styles) {
           var style = self.styles[name];
+          style = style[name] || style;
           style.update(styles && styles[name] || styles);
         }
 	};
 
 	self.inject = function(viewName, createOptions, viewOptions){
 		if(!self.styles['core']) {
-			var style = Styl('core', createOptions, {style: stylesCore, constants: constants});
+			var style = Styl('core', createOptions, {style: stylesCore, constants: constants, module: 'core'});
 			style.inject();
 			self.styles['core'] = style;
 		}
 
-		if(!self.styles[viewName]) {
+		var module = viewOptions.module || createOptions.module;
+		var moduleStyles;
+		if(module) {
+			self.styles[module] = self.styles[module] || {};
+			moduleStyles = self.styles[module];
+		} else {
+			moduleStyles = self.styles;
+		}
+
+		if(!moduleStyles[viewName]) {
 			var style = Styl(viewName, createOptions, viewOptions);
 			style.inject();
-			self.styles[viewName] = style;
+			moduleStyles[viewName] = style;
 		}
 	}
 
@@ -9677,6 +9706,10 @@ var Utils = {
     // write the ArrayBuffer to a blob, and you're done
     var blob = new Blob([ab], {type: mimeString});
     return blob;
+  },
+
+  decamelize: function (str) {
+    return str.replace(/([a-z](?=[A-Z]))/g, '$1 ');
   },
 
   camelize: function (str) {
@@ -70922,7 +70955,7 @@ module.exports = {"videobar":".bdsft-webrtc .videoBar{position:relative;top:0;le
 
     // videobar.jade compiled template
     templatizer["videobar"] = function tmpl_videobar() {
-        return '<div class="bdsft-webrtc"><div class="videoBar classes"><div class="table fixed collapse"><div class="cell leftSpacer"></div><div class="cell cell-selfView"><div class="selfViewHide icon fadeable"><a href="" title="Disable Video" class="icon-selfViewHide"></a></div><div class="selfViewShow icon fadeable"><a href="" title="Enable Video" class="icon-selfViewShow"></a></div></div><div class="cell cell-dialpad"><div class="dialpadShow icon fadeable"><a href="" title="Show Dialpad" class="icon-dialpadShow"></a></div><div class="dialpadHide icon fadeable"><a href="" title="Hide Dialpad" class="icon-dialpadHide"></a></div></div><div class="cell muteHolder"></div><div class="cell cell-hold"><div class="hold icon fadeable"><a href="" title="Hold Call" class="icon-hold"></a></div><div class="resume icon fadeable"><a href="" title="Resume Call" class="icon-resume"></a></div></div><div class="cell cell-hangup"><div class="hangup icon fadeable"><a href="" title="Hangup" class="icon-hangup"></a><div class="subtitle">End Conference</div></div></div><div class="cell cell-transfer"><div class="transfer icon fadeable"><a href="" title="Transfer" class="icon-transfer"></a></div></div><div class="cell timerHolder"></div><div class="cell cell-settings"><div class="settings icon fadeable"><a href="" title="Settings" class="icon-settings"></a></div></div><div class="cell fullscreenHolder"></div><div class="cell rightSpacer"></div></div></div></div>';
+        return '<div class="bdsft-webrtc"><div class="videoBar classes"><div class="table fixed collapse"><div class="cell leftSpacer"></div><div class="cell cell-selfView"><div class="selfViewHide icon fadeable"><a href="" title="Disable Video" class="icon-selfViewHide"></a></div><div class="selfViewShow icon fadeable"><a href="" title="Enable Video" class="icon-selfViewShow"></a></div></div><div class="cell cell-dialpad"><div class="dialpadShow icon fadeable"><a href="" title="Show Dialpad" class="icon-dialpadShow"></a></div><div class="dialpadHide icon fadeable"><a href="" title="Hide Dialpad" class="icon-dialpadHide"></a></div></div><div class="cell"><div class="icon xmppHolder xmpp"></div></div><div class="cell muteHolder"></div><div class="cell cell-hold"><div class="hold icon fadeable"><a href="" title="Hold Call" class="icon-hold"></a></div><div class="resume icon fadeable"><a href="" title="Resume Call" class="icon-resume"></a></div></div><div class="cell cell-hangup"><div class="hangup icon fadeable"><a href="" title="Hangup" class="icon-hangup"></a><div class="subtitle">End Conference</div></div></div><div class="cell cell-transfer"><div class="transfer icon fadeable"><a href="" title="Transfer" class="icon-transfer"></a></div></div><div class="cell timerHolder"></div><div class="cell cell-settings"><div class="settings icon fadeable"><a href="" title="Settings" class="icon-settings"></a></div></div><div class="cell fullscreenHolder"></div><div class="cell rightSpacer"></div></div></div></div>';
     };
 
     return templatizer;
@@ -70971,11 +71004,12 @@ var Icon = require('webrtc-core').icon;
 var Constants = require('webrtc-core').constants;
 var Utils = require('webrtc-core').utils;
 
-function VideobarView(eventbus, sipstack, sound, timerView, videobar, callcontrol, video, settings, fullscreenView, audioView, transfer, urlconfig) {
+function VideobarView(eventbus, sipstack, sound, timerView, videobar, callcontrol, video, settings, fullscreenView, audioView, transfer, 
+  urlconfig, xmppHandleView) {
   var self = {};
 
   self.elements = ['transfer', 'settings', 'dialpadShow', 'dialpadHide', 'timerHolder', 'fullscreenHolder', 'muteHolder', 'hangup', 'selfViewShow', 'selfViewHide',
-   'hold', 'resume', 'cell'
+   'hold', 'resume', 'cell', 'xmppHolder'
   ];
 
   var clickHander = function(callback){
@@ -70994,6 +71028,7 @@ function VideobarView(eventbus, sipstack, sound, timerView, videobar, callcontro
     fullscreenView.view.appendTo(self.fullscreenHolder);
     audioView.view.appendTo(self.muteHolder);
     timerView.view.appendTo(self.timerHolder);
+    xmppHandleView.view.appendTo(self.xmppHolder);
   };
 
   self.listeners = function() {
@@ -71116,6 +71151,7 @@ module.exports=require(98)
 module.exports=require(99)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":99}],720:[function(require,module,exports){
 module.exports=require(100)
+<<<<<<< HEAD
 },{"./is-implemented":721,"./shim":722,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":100}],721:[function(require,module,exports){
 module.exports=require(101)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":101}],722:[function(require,module,exports){
@@ -71143,14 +71179,30 @@ module.exports=require(112)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":112}],733:[function(require,module,exports){
 module.exports = {view: require('./lib/views/xmpp'), model: require('./lib/models/xmpp')};
 },{"./lib/models/xmpp":750,"./lib/views/xmpp":761}],734:[function(require,module,exports){
+=======
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/stacktrace-js/stacktrace.js":100}],1294:[function(require,module,exports){
+module.exports = {
+	view: require('./lib/views/xmpp'), 
+	model: require('./lib/models/xmpp'), 
+	handleview: require('./lib/views/handle'), 
+	handle: require('./lib/models/handle')
+};
+},{"./lib/models/handle":1307,"./lib/models/xmpp":1312,"./lib/views/handle":1319,"./lib/views/xmpp":1324}],1295:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = {
     enableXMPP: false,
     boshURL: 'https://ums.broadsoftlabs.com:5281',
     removeContactFailed: 'Could not Remove Contact'
 };
+<<<<<<< HEAD
 },{}],735:[function(require,module,exports){
 module.exports = {"addcontact":".bdsft-webrtc .addcontact{margin-bottom:14px;padding:8px;background-color:#e6e6e6;border-top:1px solid #d8d8d8;border-bottom:1px solid #d8d8d8}.bdsft-webrtc .addcontact .addLink{border:0;border-radius:4px;padding:5px 10px;font-size:13px;color:#fff;background-color:#737373;text-align:center;display:inline-block;text-decoration:none}.bdsft-webrtc .addcontact .addLink i{margin-right:6px}.bdsft-webrtc .addcontact .addLink:hover{background:#616161}.bdsft-webrtc .addcontact .cancelLink{display:none}.bdsft-webrtc .addcontact .form{display:none}.bdsft-webrtc .addcontact .form input{display:block;background:#fff;border:1px solid #d6d6d6;color:#606060;font-size:14px;padding:8px;border-radius:0;margin-bottom:8px;width:100%;box-sizing:border-box}.bdsft-webrtc .addcontact .form input::-webkit-input-placeholder{color:#d3d3d3}.bdsft-webrtc .addcontact .form input:-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .addcontact .form input::-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .addcontact .form input:-ms-input-placeholder{color:#d3d3d3}.bdsft-webrtc .addcontact .form .form-row button{border:0;border-radius:4px;padding:5px 10px;font-size:13px;color:#fff;background-color:#737373;text-align:center;display:inline-block;text-decoration:none;margin-left:6px}.bdsft-webrtc .addcontact .form .form-row button:hover{box-shadow:none;background:#616161}.bdsft-webrtc .addcontact .form .form-row:last-child{text-align:right}.bdsft-webrtc .addcontact.addcontact-shown .cancelLink,.bdsft-webrtc .addcontact.addcontact-shown .form{display:block}.bdsft-webrtc .addcontact.addcontact-shown .addLink{display:none}","chat":".bdsft-webrtc .chat{display:none;height:477px;position:relative}.bdsft-webrtc .chat .name{background-color:#fbfbfb;padding:8px;font-weight:bold;color:#616161;border-bottom:3px solid #03afef}.bdsft-webrtc .chat .input{position:absolute;bottom:0;width:100%;height:100px;background:#fff;border:1px solid #d6d6d6;color:#606060;font-size:14px;padding:8px;border-radius:0;box-sizing:border-box;border-right:0;border-left:0}.bdsft-webrtc .chat .input::-webkit-input-placeholder{color:#d3d3d3}.bdsft-webrtc .chat .input:-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .chat .input::-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .chat .input:-ms-input-placeholder{color:#d3d3d3}.bdsft-webrtc .chat.selected{display:block}","chats":".bdsft-webrtc .chatsView{display:none;position:absolute;top:0;left:285px;min-width:323px;min-height:250px;background-color:#f3f3f3;border:1px solid #d6d6d6}.bdsft-webrtc .chatsView .chatsContent{position:relative}.bdsft-webrtc .chatsView.contactSelected{display:block}","chattab":".bdsft-webrtc .chatTab{background-color:#e0e0e0}.bdsft-webrtc .chatTab .chatTabContent .contact{display:inline-block;border:0;width:140px;background-color:#f5f5f5;border-right:1px solid #d6d6d6;vertical-align:top}.bdsft-webrtc .chatTab .chatTabContent .contact:hover{background-color:#eee}.bdsft-webrtc .chatTab .chatTabContent .contact.selected{-webkit-box-shadow:inset 0 3px 0 0 #03afef;-moz-box-shadow:inset 0 3px 0 0 #03afef;box-shadow:inset 0 3px 0 0 #03afef}.bdsft-webrtc .chatTab .chatTabContent .contact .presence{position:static;margin-top:15px;margin-left:10px;display:inline-block;text-decoration:none;font-size:14px;color:#989898;background:0;width:14px;height:14px;margin-right:0}.bdsft-webrtc .chatTab .chatTabContent .contact .remove{display:none}.bdsft-webrtc .chatTab .chatTabContent .contact .name{position:static;font-size:13px;font-weight:bold;color:#606060;margin-left:8px;display:inline-block;line-height:15px;vertical-align:bottom;width:100px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;cursor:pointer}.bdsft-webrtc .chatTab .chatTabContent .contact .close{display:none;margin-top:15px;margin-left:10px;text-decoration:none;font-size:14px;color:#989898;width:14px;height:14px}.bdsft-webrtc .chatTab .chatTabContent .contact .close:hover{color:#666}.bdsft-webrtc .chatTab .chatTabContent .contact:hover .close{display:inline-block}.bdsft-webrtc .chatTab .chatTabContent .contact:hover .presence{display:none}.bdsft-webrtc .chatTab .chatTabContent .contact.available .presence{color:#8bc34a}.bdsft-webrtc .chatTab .chatTabContent .contact.dnd .presence{color:#b71c1c}.bdsft-webrtc .chatTab .chatTabContent .contact.away .presence{color:#e65100}.bdsft-webrtc .chatTab .chatTabContent .contact.unavailable .presence{color:#212121}","contact":".bdsft-webrtc .contact{cursor:pointer;height:42px;background-color:#fbfbfb;border-top:1px solid #ddd;position:relative}.bdsft-webrtc .contact:last-child{border-bottom:1px solid #ddd}.bdsft-webrtc .contact .name{display:inline-block;font-weight:bold;color:#606060;cursor:pointer;vertical-align:bottom;line-height:11px;width:220px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.bdsft-webrtc .contact .presence{width:12px;height:12px;display:inline-block;cursor:pointer;vertical-align:top;margin-left:10px;margin-right:12px;margin-top:14px}.bdsft-webrtc .contact.available .presence{color:#8bc34a}.bdsft-webrtc .contact.dnd .presence{color:#b71c1c}.bdsft-webrtc .contact.away .presence{color:#e65100}.bdsft-webrtc .contact.unavailable .presence{color:#212121}.bdsft-webrtc .contact .close{display:none}.bdsft-webrtc .contact .remove{display:none;text-decoration:none;float:right;font-size:16px;color:#989898;margin-top:14px;margin-right:10px}.bdsft-webrtc .contact .remove:hover{color:#666}.bdsft-webrtc .contact:hover{background:#eee}.bdsft-webrtc .contact:hover .remove{display:inline-block}","contacts":".bdsft-webrtc .contactsView{border:1px solid #000;position:absolute;top:0;left:2px;min-width:280px;min-height:519px;background-color:#f3f3f3;border:1px solid #d6d6d6}.bdsft-webrtc .contactsView .removeContactFailed{display:none}.bdsft-webrtc .contactsView .error{color:#f00}","jquery.ui.resizable":".ui-resizable{position:absolute!important}.ui-resizable-handle{position:absolute;font-size:.1px;display:block}.ui-resizable-disabled .ui-resizable-handle,.ui-resizable-autohide .ui-resizable-handle{display:none}.ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}","message":".bdsft-webrtc .message{margin-top:10px;margin-bottom:10px;-webkit-filter:drop-shadow(1px 1px 1px rgba(0,0,4,0.1));filter:drop-shadow(1px 1px 1px rgba(0,0,4,0.1))}.bdsft-webrtc .message .body{font-size:13px;background-color:#2196f3;display:block;width:190px;padding:8px;margin-left:14px;position:relative;border-radius:4px;color:#fff}.bdsft-webrtc .message .body:after{content:\"\";position:absolute;width:0;height:0;border-width:10px;border-style:solid;border-color:transparent #2196f3 transparent transparent;bottom:0;left:-18px;border-bottom-width:0}.bdsft-webrtc .message.incoming{text-align:right}.bdsft-webrtc .message.incoming .body{background-color:#8bc34a;margin-right:14px;display:inline-block}.bdsft-webrtc .message.incoming .body:after{border-color:transparent transparent transparent #8bc34a;bottom:0;right:-8px;left:auto;border-right-width:0}","mycontact":".bdsft-webrtc .mycontact{margin:10px;padding-top:6px;padding-bottom:6px}.bdsft-webrtc .mycontact .presence{background:#607d8b;box-shadow:rgba(96,125,139,0.5) 0 0 0 3px;width:42px;height:42px;border-radius:42px;display:inline-block;margin-right:10px;vertical-align:top;margin-left:4px}.bdsft-webrtc .mycontact .presence i{display:inline-block;width:100%;text-align:center;margin-top:8px;font-size:22px;color:#fff}.bdsft-webrtc .mycontact.available .presence{background:#8bc34a;box-shadow:rgba(139,195,74,0.5) 0 0 0 3px}.bdsft-webrtc .mycontact.dnd .presence{background:#b71c1c;box-shadow:rgba(183,28,28,0.5) 0 0 0 3px}.bdsft-webrtc .mycontact.away .presence{background:#e65100;box-shadow:rgba(230,81,0,0.5) 0 0 0 3px}.bdsft-webrtc .mycontact.unavailable .presence{background:#212121;box-shadow:rgba(33,33,33,0.5) 0 0 0 3px}.bdsft-webrtc .mycontact .name-container{display:inline-block;margin-top:-2px}.bdsft-webrtc .mycontact .name-container .name{font-weight:bold;margin:0 5px;font-size:16px;color:#616161;display:block;width:192px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;margin-bottom:3px}.bdsft-webrtc .mycontact .name-container .presenceSelect{display:block;width:77px;background-color:rgba(0,0,0,0);border:0;font-size:12px}.bdsft-webrtc .mycontact .name-container .presenceSelect:focus{outline:0}","subscription":".bdsft-webrtc .subscription .name{font-weight:bold}.bdsft-webrtc .subscription .accept,.bdsft-webrtc .subscription .deny{margin:0 5px}.bdsft-webrtc .subscription.accepted,.bdsft-webrtc .subscription.denied{display:none}","subscriptions":".bdsft-webrtc .subscriptionsView{display:none;border:1px solid #000;position:absolute;top:160px;left:10px;min-width:150px;min-height:150px}.bdsft-webrtc .subscriptionsView.hasSubscriptions{display:block}","xmpp-icons":"@font-face{font-family:'xmpp-icons';src:url(\"../fonts/xmpp-icons.eot?\") format(\"embedded-opentype\")}@font-face{font-family:'xmpp-icons';src:url(\"data:application/font-woff;base64,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\") format(\"woff\"),url(\"data:application/x-font-ttf;base64,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\") format(\"truetype\"),url(\"../fonts/xmpp-icons.svg#xmpp-icons\") format(\"svg\");font-weight:normal;font-style:normal}.bdsft-webrtc .xmpp [class^=\"icon-im-\"],.bdsft-webrtc .xmpp [class*=\" icon-im-\"]{font-family:'xmpp-icons';speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.bdsft-webrtc .xmpp .icon-im-comment-o:before{content:\"\\f0e5\"}.bdsft-webrtc .xmpp .icon-im-circle-o:before{content:\"\\f10c\"}.bdsft-webrtc .xmpp .icon-im-circle:before{content:\"\\f111\"}.bdsft-webrtc .xmpp .icon-im-smile-o:before{content:\"\\f118\"}.bdsft-webrtc .xmpp .icon-im-phone:before{content:\"\\e600\"}.bdsft-webrtc .xmpp .icon-im-phone-hang-up:before{content:\"\\e601\"}.bdsft-webrtc .xmpp .icon-im-address-book:before{content:\"\\e602\"}.bdsft-webrtc .xmpp .icon-im-attachment:before{content:\"\\e603\"}.bdsft-webrtc .xmpp .icon-im-bubble:before{content:\"\\e60c\"}.bdsft-webrtc .xmpp .icon-im-bubbles2:before{content:\"\\e60d\"}.bdsft-webrtc .xmpp .icon-im-email:before{content:\"\\e604\"}.bdsft-webrtc .xmpp .icon-im-remove-user:before{content:\"\\e605\"}.bdsft-webrtc .xmpp .icon-im-add-user:before{content:\"\\e606\"}.bdsft-webrtc .xmpp .icon-im-user:before{content:\"\\e607\"}.bdsft-webrtc .xmpp .icon-im-users:before{content:\"\\e608\"}.bdsft-webrtc .xmpp .icon-im-circle-with-cross:before{content:\"\\e60e\"}.bdsft-webrtc .xmpp .icon-im-circle-with-minus:before{content:\"\\e60f\"}.bdsft-webrtc .xmpp .icon-im-circle-with-plus:before{content:\"\\e610\"}.bdsft-webrtc .xmpp .icon-im-help-with-circle:before{content:\"\\e611\"}.bdsft-webrtc .xmpp .icon-im-info-with-circle:before{content:\"\\e612\"}.bdsft-webrtc .xmpp .icon-im-checkmark:before{content:\"\\e609\"}.bdsft-webrtc .xmpp .icon-im-cancel:before{content:\"\\e60a\"}.bdsft-webrtc .xmpp .icon-im-notice:before{content:\"\\e60b\"}.bdsft-webrtc .xmpp .icon-im-checkmark2:before{content:\"\\e613\"}.bdsft-webrtc .xmpp .icon-im-cancel2:before{content:\"\\e614\"}","xmpp":"@font-face{font-family:'xmpp-icons';src:url(\"../fonts/xmpp-icons.eot?\") format(\"embedded-opentype\")}@font-face{font-family:'xmpp-icons';src:url(\"data:application/font-woff;base64,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\") format(\"woff\"),url(\"data:application/x-font-ttf;base64,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\") format(\"truetype\"),url(\"../fonts/xmpp-icons.svg#xmpp-icons\") format(\"svg\");font-weight:normal;font-style:normal}.bdsft-webrtc .xmpp [class^=\"icon-im-\"],.bdsft-webrtc .xmpp [class*=\" icon-im-\"]{font-family:'xmpp-icons';speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.bdsft-webrtc .xmpp .icon-im-comment-o:before{content:\"\\f0e5\"}.bdsft-webrtc .xmpp .icon-im-circle-o:before{content:\"\\f10c\"}.bdsft-webrtc .xmpp .icon-im-circle:before{content:\"\\f111\"}.bdsft-webrtc .xmpp .icon-im-smile-o:before{content:\"\\f118\"}.bdsft-webrtc .xmpp .icon-im-phone:before{content:\"\\e600\"}.bdsft-webrtc .xmpp .icon-im-phone-hang-up:before{content:\"\\e601\"}.bdsft-webrtc .xmpp .icon-im-address-book:before{content:\"\\e602\"}.bdsft-webrtc .xmpp .icon-im-attachment:before{content:\"\\e603\"}.bdsft-webrtc .xmpp .icon-im-bubble:before{content:\"\\e60c\"}.bdsft-webrtc .xmpp .icon-im-bubbles2:before{content:\"\\e60d\"}.bdsft-webrtc .xmpp .icon-im-email:before{content:\"\\e604\"}.bdsft-webrtc .xmpp .icon-im-remove-user:before{content:\"\\e605\"}.bdsft-webrtc .xmpp .icon-im-add-user:before{content:\"\\e606\"}.bdsft-webrtc .xmpp .icon-im-user:before{content:\"\\e607\"}.bdsft-webrtc .xmpp .icon-im-users:before{content:\"\\e608\"}.bdsft-webrtc .xmpp .icon-im-circle-with-cross:before{content:\"\\e60e\"}.bdsft-webrtc .xmpp .icon-im-circle-with-minus:before{content:\"\\e60f\"}.bdsft-webrtc .xmpp .icon-im-circle-with-plus:before{content:\"\\e610\"}.bdsft-webrtc .xmpp .icon-im-help-with-circle:before{content:\"\\e611\"}.bdsft-webrtc .xmpp .icon-im-info-with-circle:before{content:\"\\e612\"}.bdsft-webrtc .xmpp .icon-im-checkmark:before{content:\"\\e609\"}.bdsft-webrtc .xmpp .icon-im-cancel:before{content:\"\\e60a\"}.bdsft-webrtc .xmpp .icon-im-notice:before{content:\"\\e60b\"}.bdsft-webrtc .xmpp .icon-im-checkmark2:before{content:\"\\e613\"}.bdsft-webrtc .xmpp .icon-im-cancel2:before{content:\"\\e614\"}.bdsft-webrtc .xmpp{border-spacing:5px;padding:0;position:absolute}.bdsft-webrtc .xmpp .ui-resizable{position:absolute!important}.bdsft-webrtc .xmpp .ui-resizable-handle{position:absolute;font-size:.1px;display:block}.bdsft-webrtc .xmpp .ui-resizable-disabled .ui-resizable-handle,.bdsft-webrtc .xmpp .ui-resizable-autohide .ui-resizable-handle{display:none}.bdsft-webrtc .xmpp .ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.bdsft-webrtc .xmpp .ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.bdsft-webrtc .xmpp .ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.bdsft-webrtc .xmpp .ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.bdsft-webrtc .xmpp .ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.bdsft-webrtc .xmpp .ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.bdsft-webrtc .xmpp .ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.bdsft-webrtc .xmpp .ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}.bdsft-webrtc .xmpp .loginView{padding:14px;background-color:#f3f3f3;border:1px solid #d6d6d6;width:254px;height:491px}.bdsft-webrtc .xmpp .loginView .logo-container{text-align:center;margin-bottom:30px}.bdsft-webrtc .xmpp .loginView .logo-container i{font-size:60px;color:#737373}.bdsft-webrtc .xmpp .loginView .form{width:200px;margin:0 auto;margin-top:90px}.bdsft-webrtc .xmpp .loginView label{display:block;font-weight:bolder;color:#606060;margin-bottom:2px;font-size:13px}.bdsft-webrtc .xmpp .loginView input{display:block;background:#fff;border:1px solid #d6d6d6;color:#606060;font-size:14px;padding:8px;border-radius:0;width:100%;box-sizing:border-box}.bdsft-webrtc .xmpp .loginView input::-webkit-input-placeholder{color:#d3d3d3}.bdsft-webrtc .xmpp .loginView input:-moz-placeholder{font-style:italic;color:#d3d3d3}.bdsft-webrtc .xmpp .loginView input::-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .xmpp .loginView input:-ms-input-placeholder{color:#d3d3d3}.bdsft-webrtc .xmpp .loginView button{border:0;border-radius:0;padding:5px 10px;font-size:14px;color:#fff;background-color:#737373;text-align:center;display:inline-block;width:100%;line-height:25px;box-sizing:border-box;border-radius:4px}.bdsft-webrtc .xmpp .loginView .form-row{margin-bottom:6px}.bdsft-webrtc .xmpp .loginView .form-row:last-child{margin-top:10px;margin-bottom:0;text-align:center}.bdsft-webrtc .xmpp .contentView{position:relative}.bdsft-webrtc .xmpp a{text-decoration:underline}.bdsft-webrtc .xmpp.connected .contentView,.bdsft-webrtc .xmpp:not(.connected) .loginView{display:block}.bdsft-webrtc .xmpp.connected .loginView,.bdsft-webrtc .xmpp:not(.connected) .contentView{display:none}.bdsft-webrtc .enableXMPP.xmpp-shown.xmpp{transition:opacity 1s linear,z-index 1s linear;opacity:1;z-index:100}.bdsft-webrtc .enableXMPP.xmpp-hidden.xmpp{transition:opacity 1s linear,z-index 1s linear;opacity:0;z-index:-1}"}
 },{}],736:[function(require,module,exports){
+=======
+},{}],1296:[function(require,module,exports){
+module.exports = {"addcontact":".bdsft-webrtc .addcontact{margin-bottom:14px;padding:8px;background-color:#e6e6e6;border-top:1px solid #d8d8d8;border-bottom:1px solid #d8d8d8}.bdsft-webrtc .addcontact .addLink{border:0;border-radius:4px;padding:5px 10px;font-size:13px;color:#fff;background-color:#737373;text-align:center;display:inline-block;text-decoration:none}.bdsft-webrtc .addcontact .addLink i{margin-right:6px}.bdsft-webrtc .addcontact .addLink:hover{background:#616161}.bdsft-webrtc .addcontact .cancelLink{display:none}.bdsft-webrtc .addcontact .form{display:none}.bdsft-webrtc .addcontact .form input{display:block;background:#fff;border:1px solid #d6d6d6;color:#606060;font-size:14px;padding:8px;border-radius:0;margin-bottom:8px;width:100%;box-sizing:border-box}.bdsft-webrtc .addcontact .form input::-webkit-input-placeholder{color:#d3d3d3}.bdsft-webrtc .addcontact .form input:-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .addcontact .form input::-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .addcontact .form input:-ms-input-placeholder{color:#d3d3d3}.bdsft-webrtc .addcontact .form .form-row button{border:0;border-radius:4px;padding:5px 10px;font-size:13px;color:#fff;background-color:#737373;text-align:center;display:inline-block;text-decoration:none;margin-left:6px}.bdsft-webrtc .addcontact .form .form-row button:hover{box-shadow:none;background:#616161}.bdsft-webrtc .addcontact .form .form-row:last-child{text-align:right}.bdsft-webrtc .addcontact.addcontact-shown .cancelLink,.bdsft-webrtc .addcontact.addcontact-shown .form{display:block}.bdsft-webrtc .addcontact.addcontact-shown .addLink{display:none}","chat":".bdsft-webrtc .chatXmpp{display:none;height:477px;position:relative}.bdsft-webrtc .chatXmpp .name{background-color:#fbfbfb;padding:8px;font-weight:bold;color:#616161;border-bottom:3px solid #03afef}.bdsft-webrtc .chatXmpp .input{position:absolute;bottom:0;width:100%;height:100px;background:#fff;border:1px solid #d6d6d6;color:#606060;font-size:14px;padding:8px;border-radius:0;box-sizing:border-box;border-right:0;border-left:0}.bdsft-webrtc .chatXmpp .input::-webkit-input-placeholder{color:#d3d3d3}.bdsft-webrtc .chatXmpp .input:-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .chatXmpp .input::-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .chatXmpp .input:-ms-input-placeholder{color:#d3d3d3}.bdsft-webrtc .chatXmpp.selected{display:block}","chats":".bdsft-webrtc .chatsView{display:none;position:absolute;top:0;left:285px;min-width:323px;min-height:250px;background-color:#f3f3f3;border:1px solid #d6d6d6}.bdsft-webrtc .chatsView .chatsContent{position:relative}.bdsft-webrtc .chatsView.contactSelected{display:block}","chattab":".bdsft-webrtc .chatTab{background-color:#e0e0e0}.bdsft-webrtc .chatTab .chatTabContent .contact{display:inline-block;border:0;width:140px;background-color:#f5f5f5;border-right:1px solid #d6d6d6;vertical-align:top}.bdsft-webrtc .chatTab .chatTabContent .contact:hover{background-color:#eee}.bdsft-webrtc .chatTab .chatTabContent .contact.selected{-webkit-box-shadow:inset 0 3px 0 0 #03afef;-moz-box-shadow:inset 0 3px 0 0 #03afef;box-shadow:inset 0 3px 0 0 #03afef}.bdsft-webrtc .chatTab .chatTabContent .contact .presence{position:static;margin-top:15px;margin-left:10px;display:inline-block;text-decoration:none;font-size:14px;color:#989898;background:0;width:14px;height:14px;margin-right:0}.bdsft-webrtc .chatTab .chatTabContent .contact .remove{display:none}.bdsft-webrtc .chatTab .chatTabContent .contact .name{position:static;font-size:13px;font-weight:bold;color:#606060;margin-left:8px;display:inline-block;line-height:15px;vertical-align:bottom;width:100px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;cursor:pointer}.bdsft-webrtc .chatTab .chatTabContent .contact .close{display:none;margin-top:15px;margin-left:10px;text-decoration:none;font-size:14px;color:#989898;width:14px;height:14px}.bdsft-webrtc .chatTab .chatTabContent .contact .close:hover{color:#666}.bdsft-webrtc .chatTab .chatTabContent .contact:hover .close{display:inline-block}.bdsft-webrtc .chatTab .chatTabContent .contact:hover .presence{display:none}.bdsft-webrtc .chatTab .chatTabContent .contact.available .presence{color:#8bc34a}.bdsft-webrtc .chatTab .chatTabContent .contact.dnd .presence{color:#b71c1c}.bdsft-webrtc .chatTab .chatTabContent .contact.away .presence{color:#e65100}.bdsft-webrtc .chatTab .chatTabContent .contact.unavailable .presence{color:#212121}","contact":".bdsft-webrtc .contact{cursor:pointer;height:42px;background-color:#fbfbfb;border-top:1px solid #ddd;position:relative}.bdsft-webrtc .contact:last-child{border-bottom:1px solid #ddd}.bdsft-webrtc .contact .name{display:inline-block;font-weight:bold;color:#606060;cursor:pointer;vertical-align:bottom;line-height:11px;width:220px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.bdsft-webrtc .contact .presence{width:12px;height:12px;display:inline-block;cursor:pointer;vertical-align:top;margin-left:10px;margin-right:12px;margin-top:14px}.bdsft-webrtc .contact.available .presence{color:#8bc34a}.bdsft-webrtc .contact.dnd .presence{color:#b71c1c}.bdsft-webrtc .contact.away .presence{color:#e65100}.bdsft-webrtc .contact.unavailable .presence{color:#212121}.bdsft-webrtc .contact .close{display:none}.bdsft-webrtc .contact .remove{display:none;text-decoration:none;float:right;font-size:16px;color:#989898;margin-top:14px;margin-right:10px}.bdsft-webrtc .contact .remove:hover{color:#666}.bdsft-webrtc .contact:hover{background:#eee}.bdsft-webrtc .contact:hover .remove{display:inline-block}","contacts":".bdsft-webrtc .contactsView{border:1px solid #000;position:absolute;top:0;left:2px;min-width:280px;min-height:519px;background-color:#f3f3f3;border:1px solid #d6d6d6}.bdsft-webrtc .contactsView .removeContactFailed{display:none}.bdsft-webrtc .contactsView .error{color:#f00}","handle":".bdsft-webrtc .xmppHandle{text-align:center}.bdsft-webrtc .xmppHandle .toggleVisibility{text-decoration:none}.bdsft-webrtc .xmppHandle.enableXMPP{transition:opacity 1s linear,z-index 1s linear;opacity:1;z-index:20}.bdsft-webrtc .xmppHandle:not(.enableXMPP){transition:opacity 1s linear,z-index 1s linear;opacity:0;z-index:-1}","jquery.ui.resizable":".ui-resizable{position:absolute!important}.ui-resizable-handle{position:absolute;font-size:.1px;display:block}.ui-resizable-disabled .ui-resizable-handle,.ui-resizable-autohide .ui-resizable-handle{display:none}.ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}","message":".bdsft-webrtc .message{margin-top:10px;margin-bottom:10px;-webkit-filter:drop-shadow(1px 1px 1px rgba(0,0,4,0.1));filter:drop-shadow(1px 1px 1px rgba(0,0,4,0.1))}.bdsft-webrtc .message .body{font-size:13px;background-color:#2196f3;display:block;width:190px;padding:8px;margin-left:14px;position:relative;border-radius:4px;color:#fff}.bdsft-webrtc .message .body:after{content:\"\";position:absolute;width:0;height:0;border-width:10px;border-style:solid;border-color:transparent #2196f3 transparent transparent;bottom:0;left:-18px;border-bottom-width:0}.bdsft-webrtc .message.incoming{text-align:right}.bdsft-webrtc .message.incoming .body{background-color:#8bc34a;margin-right:14px;display:inline-block}.bdsft-webrtc .message.incoming .body:after{border-color:transparent transparent transparent #8bc34a;bottom:0;right:-8px;left:auto;border-right-width:0}","mycontact":".bdsft-webrtc .mycontact{margin:10px;padding-top:6px;padding-bottom:6px}.bdsft-webrtc .mycontact .presence{background:#607d8b;box-shadow:rgba(96,125,139,0.5) 0 0 0 3px;width:42px;height:42px;border-radius:42px;display:inline-block;margin-right:10px;vertical-align:top;margin-left:4px}.bdsft-webrtc .mycontact .presence i{display:inline-block;width:100%;text-align:center;margin-top:8px;font-size:22px;color:#fff}.bdsft-webrtc .mycontact.available .presence{background:#8bc34a;box-shadow:rgba(139,195,74,0.5) 0 0 0 3px}.bdsft-webrtc .mycontact.dnd .presence{background:#b71c1c;box-shadow:rgba(183,28,28,0.5) 0 0 0 3px}.bdsft-webrtc .mycontact.away .presence{background:#e65100;box-shadow:rgba(230,81,0,0.5) 0 0 0 3px}.bdsft-webrtc .mycontact.unavailable .presence{background:#212121;box-shadow:rgba(33,33,33,0.5) 0 0 0 3px}.bdsft-webrtc .mycontact .name-container{display:inline-block;margin-top:-2px}.bdsft-webrtc .mycontact .name-container .name{font-weight:bold;margin:0 5px;font-size:16px;color:#616161;display:block;width:192px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;margin-bottom:3px}.bdsft-webrtc .mycontact .name-container .presenceSelect{display:block;width:77px;background-color:rgba(0,0,0,0);border:0;font-size:12px}.bdsft-webrtc .mycontact .name-container .presenceSelect:focus{outline:0}","subscription":".bdsft-webrtc .subscription .name{font-weight:bold}.bdsft-webrtc .subscription .accept,.bdsft-webrtc .subscription .deny{margin:0 5px}.bdsft-webrtc .subscription.accepted,.bdsft-webrtc .subscription.denied{display:none}","subscriptions":".bdsft-webrtc .subscriptionsView{display:none;border:1px solid #000;position:absolute;top:160px;left:10px;min-width:150px;min-height:150px}.bdsft-webrtc .subscriptionsView.hasSubscriptions{display:block}","xmpp-icons":"@font-face{font-family:'xmpp-icons';src:url(\"../fonts/xmpp-icons.eot?\") format(\"embedded-opentype\")}@font-face{font-family:'xmpp-icons';src:url(\"data:application/font-woff;base64,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\") format(\"woff\"),url(\"data:application/x-font-ttf;base64,AAEAAAALAIAAAwAwT1MvMg8SDjMAAAC8AAAAYGNtYXD8YK9KAAABHAAAAHRnYXNwAAAAEAAAAZAAAAAIZ2x5Zq21tK8AAAGYAAARoGhlYWQHcM8JAAATOAAAADZoaGVhCEIEXgAAE3AAAAAkaG10eGqAA9YAABOUAAAAdGxvY2E17DpkAAAUCAAAADxtYXhwACUAfwAAFEQAAAAgbmFtZd8aAvAAABRkAAABqnBvc3QAAwAAAAAWEAAAACAAAwPxAZAABQAAApkCzAAAAI8CmQLMAAAB6wAzAQkAAAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAAAAAAAABAAADxGAPA/8AAQAPAAEAAAAABAAAAAAAAAAAAAAAgAAAAAAADAAAAAwAAABwAAQADAAAAHAADAAEAAAAcAAQAWAAAABIAEAADAAIAAQAg5hTw5fEM8RHxGP/9//8AAAAAACDmAPDl8QzxEfEY//3//wAB/+MaBA80Dw4PCg8EAAMAAQAAAAAAAAAAAAAAAAAAAAAAAAABAAH//wAPAAEAAAAAAAAAAAACAAA3OQEAAAAAAQAAAAAAAAAAAAIAADc5AQAAAAABAAAAAAAAAAAAAgAANzkBAAAAAAEAAP/AA8ADgAAqAAABDgEjIiYnLgE1NDY3Ni4CIyIOAjEUHgIXHgMzMD4CNTQuAgcCwDAgMDBgMDBQUDAYJEhUGBhCPCotSVsvL4eRiTA8SDw+VFYYAUAwUFAwMGAwMCAwGFZUPjxIPDCJkYcvL1tJLSo8QhgYVEgkGAABAAcA4AP5AoAAOgAAAR4BBw4BLgE1NDYnLgEjIgYHBhYVFA4BJicmNjc+ATc4ATE+AzMxOgEzOgEzMTIeAhc4ATEeARcD+QYBEhBiaVMhHx9mPT1mHx8hU2liEBIBBgQeJRxJZohbAQIBAQIBW4hmSRwlHgQBgCphFRIRCSYkJDgkIw0NIyQ4JCQmCRESFWEqHD4mGi4jFRUjLhomPhwABwBA/8ADwAPAAAQAEgAeACMAKAAtADIAABMRIREhATIWFRQGIyImNTQ2MzETITU0NjMxMzIWHQEBMxUjNREzFSM1ETMVIzURMxUjNcADAP0AAYA1S0s1NUtLNcD+gEs1gDVL/UBgYGBgYGBgYAPA/AAEAP8ASzU1S0s1NUv+AEA1S0s1QALAwMD/AMDA/wDAwP8AwMAAAAABAH4AHgNdA30ASAAAAScBBhQXFjI3AT4BNCYnLgEiBgcBBjAxDgEUFhceATI2NzgBNzEBJwEGMDEOASImJy4BNDY3OAE3MQE2MhcWFAcBBiInJjQ3AQKaQf67KCgocygBhiEiIiEiVVhUIv5nAS8vLy8vdnt2LwEBF0H+6QEiVFhUISIhISIBAZkocikoKP56DScNDQ0BRQJ5Qf67KHIpKCgBhiJUWFUiISIiIf5nAS92e3YvLy8vLwEBF0H+6QEiISEiIVRYVCIBAZkoKClyKP56DQ0OJg0BRQAAAgAAAAAEAANVAAUACwAAAQM3FxMBCQEXEwMBAcwhy8PH/cwCNPwA8rmGAtsBSv62+1cCsf31Agv+WzD+gAGAAdUAAAACAAD/zQPfA8cAOQBGAAAFNC4CJy4BNTQ2NzYWNzQmMTA2NzYmJy4BNyYGBw4BFx4BMTAGFRY2Fx4BFRQGBw4BFxQGMSEwNDURJwcXBxc3FzcnNycHAzMnPk8pUj4lCwUgBBAJAgMvSgwDJ1ZGLicaAQMJEAQgBQslJlJSPQEBAzN2Nnt7N3V2Nnt7NnYHLEI0KRIjSEAmE0YdB0IaEj4eH2sUDScVBEYhHU8YHj4SGkIGHEYTJkA9IyRyUhgUFBgB0ns3dXY2eno2dnU3ewAAAgAA/80EAAPHADkARgAABTQuAicuATU0Njc2Fjc0JjEwNjc2JicuATcmBgcOARceATEwBhUWNhceARUUBgcOARcUBjEhMDQ1EzUjFSMVMxUzNTM1IwMzJj9PKVI+JQsFIAQQCQIDL0oMAydWRi4nGgEDCRAEIAULJSZSUj0BAQMzM2aammaamgcpQjYqEiNIQCYTRh0HQhoSPh4faxQNJxUERiEdTxgePhIaQgYcRhMmQD0jJHJSGBQUGAHUmZlnmZlnAAEAM//NA80DwgA3AAABDgEXHgExMAYVFjYXHgEVFAYHDgMdASE1NC4CJy4BNTQ2NzYWNzQmMTA2NzYmJy4BNyYGBwGMJxsCAwgQBSAECyU+USlQPicDmic+UClRPiULBCAFEAgDAi9JDQInVkctA18dTxkePRIaQgYdRRQmP0gjEikyPiYzMyY+MikRJEg/JhRFHQZCGhE+HiBqFQ0nFQRGIQAAAgAA/80EAAPHADkAbQAABTQuAicuATU0Njc2Fjc0JjEwNjc2JicuATcmBgcOARceATEwBhUWNhceARUUBgcOARcUBjEhMDQ1Ey4BNTQ2NzYWNzQmMTA2NzYmIyIGFx4BMTAGFRY2Fx4BFRQGBw4BBx4DFzMwNDU0JicDMyc+TylSPiULBSAEEAkCAy9KDAMnVkYuJxoBAwkQBCAFCyUmUlI9AQEDM4IsJxgHAxUDCwYCAi1JSS0BAgYKAhUDBxgoNQIFAh9NRzkMhx0uByxCNCkSI0hAJhNGHQdCGhI+Hh9rFA0nFQRGIR1PGB4+EhpCBhxGEyZAPSMkclIYFBQYASgRLykZDC0TBCoRDCgTGFtbGBMoDBEqBBMtDBkpLhcBAwEOJjdJMGcQJj4TAAAAAAMAYAAgA6ADYAAVACoAPwAAAScmIg8BJyYiDwEGFB8BFjI/ATY0JwMiDgIVFB4CMzI+AjU0LgIjESIuAjU0PgIzMh4CFRQOAiMCuiAEDQTBWwUMBSAEBIcEDAXrBQW6VphxQUFxmFZWmHFBQXGYVkJ1VzIyV3VCQnVXMjJXdUICHyAFBcBcBAQgBQwFhwQE7AQNBAFBQXGYVlaYcUFBcZhWVphxQf0gMld1QkJ1VzIyV3VCQnVXMgADAGAAIAOgA2AAFAApAE4AACUiLgI1ND4CMzIeAhUUDgIjESIOAhUUHgIzMj4CNTQuAiMTBwYiLwEHBiIvASY0PwEnJjQ/ATYyHwE3NjIfARYUDwEXFhQHAgBWmHFBQXGYVlaYcUFBcZhWQnVXMjJXdUJCdVcyMld1QpEgBQwFXFwEDQQhBARcXAQEIQQNBFxcBQwFIAUFXFwFBSBBcZhWVphxQUFxmFZWmHFBAuAyV3VCQnVXMjJXdUJCdVcy/k8hBARcXAQEIQQNBFxcBQwFIAUFXFwFBSAFDAVcXAQNBAAAAAAEAEAAAAOgA2AAFAApADgARQAAASIOAhUUHgIzMj4CNTQuAiMRIi4CNTQ+AjMyHgIVFA4CIxEiBh0BFBYzMjY9ATQmIxEiBhUUFjMyNjU0JiMB8FmedUREdZ5ZWZ51RER1nllGels1NVt6RkZ6WzU1W3pGFBwcFBQcHBQUHBwUFBwcFANgRHWeWVmedUREdZ5ZWZ51RP0ANVt6RkZ6WzU1W3pGRnpbNQIgHBSiFBwcFKIUHP7AHBQUHBwUFBwAAAABAAD/wAQAA4AAIwAAATIeAhUUDgIjIiYnDgMHNT4BNTQmJy4DNTQ+AjMCAGq7i1BQi7tqFCgUKVpdYDAzTQEBLEYxG1CLu2oDgEFxmFZWmHFBAwIpMx0KAhsaVzQHDwccSFJcMVaYcUEAAAACAAD/wASAA8AAJABJAAABMTIeAhUUDgIjIiYnDgMHNT4BNTQmJy4DNTQ+AjMBFBYXFS4BJw4BIyImJzI+Ajc+ATc+ATU0JjUeARUUBgcOARUB4GOvg0tLg69jEyYSJlNXWC0wRAEBKUIuGUuDr2MCBDIqTY9DECARSIE1N2hiWScnPhYXFwE2P1RGAQEDwD1pjlBRjWo9AgMnLxsKARkYUTEHDQcaQ01WLlCOaT38mSpFFBYCJkICAiUgEiEwIB9LKSxeMQcQCC13RE6HLgUMBgAAAAIAUgAfA64DewAUACEAAAEiDgIVFB4CMzI+AjU0LgIjEwcnByc3JzcXNxcHFwIAWZ10RER0nVlZnXRERHSdWfVYnZ1YnZ1YnZ1YnZ0De0R0nVlZnXVDQ3WdWVmddET9tVicnFidnVidnVidnQAAAAACAFIAHwOuA3sAFAAZAAABIg4CFRQeAjMyPgI1NC4CIwEhNSEVAgBZnXRERHSdWVmddEREdJ1ZAQD+AAIAA3tEdJ1ZWZ11Q0N1nVlZnXRE/h9mZgACAFIAHwOuA3sAFAAhAAABIg4CFRQeAjMyPgI1NC4CIwEjFSM1IzUzNTMVMxUCAFmddEREdJ1ZWZ10RER0nVkBAM1mzc1mzQN7RHSdWVmddUNDdZ1ZWZ10RP4fzc1mzc1mAAAAAwAU/+ED7AO4ABQAIwBbAAABIg4CFRQeAjMyPgI1NC4CIwMjLgE3NDY7AR4BFQ4BIxMOAQ8BDgEHDgEHFSM1PgE3PgE3PgE3PgE1NCYnLgEjIgYHDgEdASM1PgE3PgEzMhYXHgEVFAYHAgBms4VOToWzZmazhU5OhbNmCAIeJgEnHQMfJQEnHqkHHhMdDA4DAgIBbQEFDBM9AgYKAwkIBwgHGxQUGwgICXECJSMVNh8pRRwbHA4NA7hNhbNmZrOFTk6Fs2Zms4VN/PYBKB0dJgEnHx0lAU8KGg8UCREJBwkNBQkdJQ4VKwEFCgUMFAkNFwsKCgwNDRwOBQU0SxYODhQUFDsnFikSAAAAAAMAFP/hA+wDuAAUACEAPgAAASIOAhUUHgIzMj4CNTQuAiMXMhYVFAYjIiY3NDYzAyImPwE+ASMiBgcnPgEzMhYPAQYWMzI2NxcOASMCAGazhU5OhbNmZrOFTk6Fs2YuJBotKSIhASsvexgbESYFAQYHNBMQPHkdGQoNKwUDBgcqGBM6cBkDuE2Fs2Zms4ZNTYazZmazhU2xJBgdLyAcGDT9nypCmhMQFQ0bMjg2LaMVERISGDoyAAACAGAAIAOgA2AAFAAsAAABIg4CFRQeAjMyPgI1NC4CIxMBBiIvATEnJjQ/ATYyHwE3NjIfARYUBwIAVphxQUFxmFZWmHFBQXGYVuj+0QYQBganBgYpBhAGdvgGEAYpBgYDYEFxmFZWmHFBQXGYVlaYcUH+1v7RBgYGqAYQBikGBnf4BgYpBhAGAAAAAAIAYAAgA6ADYAAUADkAACUiLgI1ND4CMzIeAhUUDgIjEzY0LwEmIg8BJyYiDwEGFB8BBwYUHwEWMj8BFxYyPwE2NC8BNwIAVphxQUFxmFZWmHFBQXGYVr8GBisGEAZ4eQYQBisFBXl5BQUrBhAGeXgGEAYrBgZ5eSBBcZhWVphxQUFxmFZWmHFBAhkGEQYqBgZ4eAYGKgYRBnh4BhEGKgYGeHgGBioGEQZ4eAACAAD/twQAAyUAIABaAAABIgcGBwYVFBcWHwEHBgc2PwEXFjMyNzY3NjU0JyYnJiMBFAcGBwYjIicGBwYHIyInJicxJjc2NSY/ATE3NjE2NzY3Njc2NzY3NjcmJyY1NDc2NzYzMhcWFxYVAgB1ZWU8PCkpSjIQDRtXRxghJyN1ZWU8PDw8ZWV1AgBFRHZ2iygrcZYcJQMIBwcCAgECAQMEBAQEDg4GBgsMBwcICQZaMzRFRHZ2i4t2dkRFAtsnKENETkA6OiodNzQuJD4VAwUoKENETk5EQygn/txkVFQxMQVkJwgEBgYKAgUFAQEEBQUFBQ8PBwYQEA0OFBUXMktLVmNVVDExMTFUVWMAAgAAAAADbgNuABgAMQAAASIHBgcGFRQXFhcWMzI3Njc2NTQnJicmIwEUBwYHBiMiJyYnJjU0NzY3NjMyFxYXFhUBt1VHSCkqKilIR1VUSEcqKioqR0hUAbc7O2Vld3hkZTs7OztlZHh3ZWU7OwLuKipHSFRVR0gpKiopSEdVVEhHKir+yXhkZTs7OztlZHh3ZWU7Ozs7ZWV3AAAAAQAAAAADbgNuABgAAAEUBwYHBiMiJyYnJjU0NzY3NjMyFxYXFhUDbjs7ZWV3eGRlOzs7O2VkeHdlZTs7Abd4ZGU7Ozs7ZWR4d2VlOzs7O2VldwAABQAAAAADbgNuACAAMQBCAGMAfAAAAQYHBiMiJyYnJjc2NzYXFhcWFxYzMjc2NzY3NhcWFxYHJRQHBiMiJyY1NDc2MzIXFhUhFAcGIyInJjU0NzYzMhcWFRc0JyYnJicmIyIHBgcGBwYVFBcWFxYXFjMyNzY3Njc2NTMUBwYHBiMiJyYnJjU0NzY3NjMyFxYXFhUCiBU6OkhJOToVBQcHDw4NDgQPJicwMCYnDgUODQ8OBwcF/uYWFR4fFRYWFR8eFRYBJBUWHh4WFRUWHh4WFZMeHTEwRERKSkREMTEdHR0dMTFEREpKREQwMR0eSTs7ZWV3eGRlOzs7O2VkeHdlZTs7AVFGKioqKkYODQ4EBQcHDy0dHBwdLQ8HBwUEDg0O+B4WFRUWHh4WFRUWHh4WFRUWHh4WFRUWHpJKREQwMR0eHh0xMERESkpERDExHR0dHTExRERKeGRlOzs7O2VkeHdlZTs7OztlZXcAAAEAAAABAACtIoOnXw889QALBAAAAAAA0ejFRwAAAADR6MVHAAD/twSAA8cAAAAIAAIAAAAAAAAAAQAAA8D/wAAABIAAAAAABIAAAQAAAAAAAAAAAAAAAAAAAB0EAAAAAAAAAAAAAAACAAAABAAAAAQAAAcEAABABAAAfgQAAAAEAAAABAAAAAQAADMEAAAABAAAYAQAAGAEAABABAAAAASAAAAEAABSBAAAUgQAAFIEAAAUBAAAFAQAAGAEAABgBAAAAAQAAAAEAAAABAAAAAAAAAAACgAUAB4AXACsAPgBZgGIAfACUgKkAzwDmAQKBGoEoAUKBUIFbAWeBiQGgAbGBxwHogfwCBoI0AABAAAAHQB9AAcAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAADgCuAAEAAAAAAAEACgAAAAEAAAAAAAIABwB7AAEAAAAAAAMACgA/AAEAAAAAAAQACgCQAAEAAAAAAAUACwAeAAEAAAAAAAYACgBdAAEAAAAAAAoAGgCuAAMAAQQJAAEAFAAKAAMAAQQJAAIADgCCAAMAAQQJAAMAFABJAAMAAQQJAAQAFACaAAMAAQQJAAUAFgApAAMAAQQJAAYAFABnAAMAAQQJAAoANADIeG1wcC1pY29ucwB4AG0AcABwAC0AaQBjAG8AbgBzVmVyc2lvbiAxLjAAVgBlAHIAcwBpAG8AbgAgADEALgAweG1wcC1pY29ucwB4AG0AcABwAC0AaQBjAG8AbgBzeG1wcC1pY29ucwB4AG0AcABwAC0AaQBjAG8AbgBzUmVndWxhcgBSAGUAZwB1AGwAYQByeG1wcC1pY29ucwB4AG0AcABwAC0AaQBjAG8AbgBzRm9udCBnZW5lcmF0ZWQgYnkgSWNvTW9vbi4ARgBvAG4AdAAgAGcAZQBuAGUAcgBhAHQAZQBkACAAYgB5ACAASQBjAG8ATQBvAG8AbgAuAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==\") format(\"truetype\"),url(\"../fonts/xmpp-icons.svg#xmpp-icons\") format(\"svg\");font-weight:normal;font-style:normal}.bdsft-webrtc .xmpp [class^=\"icon-im-\"],.bdsft-webrtc .xmpp [class*=\" icon-im-\"]{font-family:'xmpp-icons';speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.bdsft-webrtc .xmpp .icon-im-comment-o:before{content:\"\\f0e5\"}.bdsft-webrtc .xmpp .icon-im-circle-o:before{content:\"\\f10c\"}.bdsft-webrtc .xmpp .icon-im-circle:before{content:\"\\f111\"}.bdsft-webrtc .xmpp .icon-im-smile-o:before{content:\"\\f118\"}.bdsft-webrtc .xmpp .icon-im-phone:before{content:\"\\e600\"}.bdsft-webrtc .xmpp .icon-im-phone-hang-up:before{content:\"\\e601\"}.bdsft-webrtc .xmpp .icon-im-address-book:before{content:\"\\e602\"}.bdsft-webrtc .xmpp .icon-im-attachment:before{content:\"\\e603\"}.bdsft-webrtc .xmpp .icon-im-bubble:before{content:\"\\e60c\"}.bdsft-webrtc .xmpp .icon-im-bubbles2:before{content:\"\\e60d\"}.bdsft-webrtc .xmpp .icon-im-email:before{content:\"\\e604\"}.bdsft-webrtc .xmpp .icon-im-remove-user:before{content:\"\\e605\"}.bdsft-webrtc .xmpp .icon-im-add-user:before{content:\"\\e606\"}.bdsft-webrtc .xmpp .icon-im-user:before{content:\"\\e607\"}.bdsft-webrtc .xmpp .icon-im-users:before{content:\"\\e608\"}.bdsft-webrtc .xmpp .icon-im-circle-with-cross:before{content:\"\\e60e\"}.bdsft-webrtc .xmpp .icon-im-circle-with-minus:before{content:\"\\e60f\"}.bdsft-webrtc .xmpp .icon-im-circle-with-plus:before{content:\"\\e610\"}.bdsft-webrtc .xmpp .icon-im-help-with-circle:before{content:\"\\e611\"}.bdsft-webrtc .xmpp .icon-im-info-with-circle:before{content:\"\\e612\"}.bdsft-webrtc .xmpp .icon-im-checkmark:before{content:\"\\e609\"}.bdsft-webrtc .xmpp .icon-im-cancel:before{content:\"\\e60a\"}.bdsft-webrtc .xmpp .icon-im-notice:before{content:\"\\e60b\"}.bdsft-webrtc .xmpp .icon-im-checkmark2:before{content:\"\\e613\"}.bdsft-webrtc .xmpp .icon-im-cancel2:before{content:\"\\e614\"}","xmpp":"@font-face{font-family:'xmpp-icons';src:url(\"../fonts/xmpp-icons.eot?\") format(\"embedded-opentype\")}@font-face{font-family:'xmpp-icons';src:url(\"data:application/font-woff;base64,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\") format(\"woff\"),url(\"data:application/x-font-ttf;base64,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\") format(\"truetype\"),url(\"../fonts/xmpp-icons.svg#xmpp-icons\") format(\"svg\");font-weight:normal;font-style:normal}.bdsft-webrtc .xmpp [class^=\"icon-im-\"],.bdsft-webrtc .xmpp [class*=\" icon-im-\"]{font-family:'xmpp-icons';speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.bdsft-webrtc .xmpp .icon-im-comment-o:before{content:\"\\f0e5\"}.bdsft-webrtc .xmpp .icon-im-circle-o:before{content:\"\\f10c\"}.bdsft-webrtc .xmpp .icon-im-circle:before{content:\"\\f111\"}.bdsft-webrtc .xmpp .icon-im-smile-o:before{content:\"\\f118\"}.bdsft-webrtc .xmpp .icon-im-phone:before{content:\"\\e600\"}.bdsft-webrtc .xmpp .icon-im-phone-hang-up:before{content:\"\\e601\"}.bdsft-webrtc .xmpp .icon-im-address-book:before{content:\"\\e602\"}.bdsft-webrtc .xmpp .icon-im-attachment:before{content:\"\\e603\"}.bdsft-webrtc .xmpp .icon-im-bubble:before{content:\"\\e60c\"}.bdsft-webrtc .xmpp .icon-im-bubbles2:before{content:\"\\e60d\"}.bdsft-webrtc .xmpp .icon-im-email:before{content:\"\\e604\"}.bdsft-webrtc .xmpp .icon-im-remove-user:before{content:\"\\e605\"}.bdsft-webrtc .xmpp .icon-im-add-user:before{content:\"\\e606\"}.bdsft-webrtc .xmpp .icon-im-user:before{content:\"\\e607\"}.bdsft-webrtc .xmpp .icon-im-users:before{content:\"\\e608\"}.bdsft-webrtc .xmpp .icon-im-circle-with-cross:before{content:\"\\e60e\"}.bdsft-webrtc .xmpp .icon-im-circle-with-minus:before{content:\"\\e60f\"}.bdsft-webrtc .xmpp .icon-im-circle-with-plus:before{content:\"\\e610\"}.bdsft-webrtc .xmpp .icon-im-help-with-circle:before{content:\"\\e611\"}.bdsft-webrtc .xmpp .icon-im-info-with-circle:before{content:\"\\e612\"}.bdsft-webrtc .xmpp .icon-im-checkmark:before{content:\"\\e609\"}.bdsft-webrtc .xmpp .icon-im-cancel:before{content:\"\\e60a\"}.bdsft-webrtc .xmpp .icon-im-notice:before{content:\"\\e60b\"}.bdsft-webrtc .xmpp .icon-im-checkmark2:before{content:\"\\e613\"}.bdsft-webrtc .xmpp .icon-im-cancel2:before{content:\"\\e614\"}.bdsft-webrtc .xmpp{border-spacing:5px;padding:0;position:absolute}.bdsft-webrtc .xmpp .ui-resizable{position:absolute!important}.bdsft-webrtc .xmpp .ui-resizable-handle{position:absolute;font-size:.1px;display:block}.bdsft-webrtc .xmpp .ui-resizable-disabled .ui-resizable-handle,.bdsft-webrtc .xmpp .ui-resizable-autohide .ui-resizable-handle{display:none}.bdsft-webrtc .xmpp .ui-resizable-n{cursor:n-resize;height:7px;width:100%;top:-5px;left:0}.bdsft-webrtc .xmpp .ui-resizable-s{cursor:s-resize;height:7px;width:100%;bottom:-5px;left:0}.bdsft-webrtc .xmpp .ui-resizable-e{cursor:e-resize;width:7px;right:-5px;top:0;height:100%}.bdsft-webrtc .xmpp .ui-resizable-w{cursor:w-resize;width:7px;left:-5px;top:0;height:100%}.bdsft-webrtc .xmpp .ui-resizable-se{cursor:se-resize;width:12px;height:12px;right:1px;bottom:1px}.bdsft-webrtc .xmpp .ui-resizable-sw{cursor:sw-resize;width:9px;height:9px;left:-5px;bottom:-5px}.bdsft-webrtc .xmpp .ui-resizable-nw{cursor:nw-resize;width:9px;height:9px;left:-5px;top:-5px}.bdsft-webrtc .xmpp .ui-resizable-ne{cursor:ne-resize;width:9px;height:9px;right:-5px;top:-5px}.bdsft-webrtc .xmpp .loginView{padding:14px;background-color:#f3f3f3;border:1px solid #d6d6d6;width:254px;height:491px}.bdsft-webrtc .xmpp .loginView .logo-container{text-align:center;margin-bottom:30px}.bdsft-webrtc .xmpp .loginView .logo-container i{font-size:60px;color:#737373}.bdsft-webrtc .xmpp .loginView .form{width:200px;margin:0 auto;margin-top:90px}.bdsft-webrtc .xmpp .loginView label{display:block;font-weight:bolder;color:#606060;margin-bottom:2px;font-size:13px}.bdsft-webrtc .xmpp .loginView input{display:block;background:#fff;border:1px solid #d6d6d6;color:#606060;font-size:14px;padding:8px;border-radius:0;width:100%;box-sizing:border-box}.bdsft-webrtc .xmpp .loginView input::-webkit-input-placeholder{color:#d3d3d3}.bdsft-webrtc .xmpp .loginView input:-moz-placeholder{font-style:italic;color:#d3d3d3}.bdsft-webrtc .xmpp .loginView input::-moz-placeholder{color:#d3d3d3}.bdsft-webrtc .xmpp .loginView input:-ms-input-placeholder{color:#d3d3d3}.bdsft-webrtc .xmpp .loginView button{border:0;border-radius:0;padding:5px 10px;font-size:14px;color:#fff;background-color:#737373;text-align:center;display:inline-block;width:100%;line-height:25px;box-sizing:border-box;border-radius:4px}.bdsft-webrtc .xmpp .loginView .form-row{margin-bottom:6px}.bdsft-webrtc .xmpp .loginView .form-row:last-child{margin-top:10px;margin-bottom:0;text-align:center}.bdsft-webrtc .xmpp .contentView{position:relative}.bdsft-webrtc .xmpp a{text-decoration:underline}.bdsft-webrtc .xmpp.connected .contentView,.bdsft-webrtc .xmpp:not(.connected) .loginView{display:block}.bdsft-webrtc .xmpp.connected .loginView,.bdsft-webrtc .xmpp:not(.connected) .contentView{display:none}.bdsft-webrtc .enableXMPP.xmpp-shown.xmpp{transition:opacity 1s linear,z-index 1s linear;opacity:1;z-index:100}.bdsft-webrtc .enableXMPP.xmpp-hidden.xmpp{transition:opacity 1s linear,z-index 1s linear;opacity:0;z-index:-1}"}
+},{}],1297:[function(require,module,exports){
+>>>>>>> cjs
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);
@@ -71174,7 +71226,7 @@ module.exports = {"addcontact":".bdsft-webrtc .addcontact{margin-bottom:14px;pad
 
     // chat.jade compiled template
     templatizer["chat"] = function tmpl_chat() {
-        return '<div class="chat"><div class="name"></div><div class="messagesContent"></div><textarea placeholder="Type a message here" class="input"></textarea></div>';
+        return '<div class="bdsft-webrtc"><div class="chatXmpp classes"><div class="name"></div><div class="messagesContent"></div><textarea placeholder="Type a message here" class="input"></textarea></div></div>';
     };
 
     // chats.jade compiled template
@@ -71195,6 +71247,11 @@ module.exports = {"addcontact":".bdsft-webrtc .addcontact{margin-bottom:14px;pad
     // contacts.jade compiled template
     templatizer["contacts"] = function tmpl_contacts() {
         return '<div class="contactsView"><div class="removeContactFailed error"></div><div class="myContactHolder"></div><div class="addContactHolder"></div><div class="contactsContent"></div></div>';
+    };
+
+    // handle.jade compiled template
+    templatizer["handle"] = function tmpl_handle() {
+        return '<div class="bdsft-webrtc"><div class="xmppHandle classes"><a class="toggleVisibility icon-im-bubble"></a></div></div>';
     };
 
     // message.jade compiled template
@@ -71232,6 +71289,7 @@ var opts = {
 	useStreamManagement: false,
 	transports: ['bosh'],
 	wait: 30
+	// sasl: 'anonymous'
 };
 
 var client = require('stanza.io').createClient(opts);
@@ -71248,6 +71306,22 @@ self.busy = function() {
 	client.sendPresence({
 		show: 'dnd'
 	});
+};
+
+self.ping = function(jid, cb) {
+	return client.ping(jid, cb);
+};
+
+self.getCurrentCaps = function() {
+	client.getCurrentCaps();
+};
+
+self.getDiscoInfo = function(jid, node, cb) {
+	client.getDiscoInfo(jid, node, cb);
+};
+
+self.getDiscoItems = function(jid, node, cb) {
+	client.getDiscoItems(jid, node, cb);
 };
 
 self.active = function() {
@@ -71323,7 +71397,11 @@ self.denySubscription = function(jid) {
 };
 
 
+<<<<<<< HEAD
 },{"stanza.io":770}],738:[function(require,module,exports){
+=======
+},{"stanza.io":1333}],1299:[function(require,module,exports){
+>>>>>>> cjs
 var C = {};
 module.exports = C;
 
@@ -71388,7 +71466,11 @@ self.createMyContactView = function() {
 };
 
 
+<<<<<<< HEAD
 },{"./client":737,"./models/addcontact":740,"./models/chats":742,"./models/chattab":743,"./models/contacts":745,"./models/mycontact":747,"./models/subscriptions":749,"./views/addcontact":751,"./views/chats":753,"./views/chattab":754,"./views/contacts":756,"./views/mycontact":758,"./views/subscriptions":760,"webrtc-core":1047}],740:[function(require,module,exports){
+=======
+},{"./client":1298,"./models/addcontact":1301,"./models/chats":1303,"./models/chattab":1304,"./models/contacts":1306,"./models/mycontact":1309,"./models/subscriptions":1311,"./views/addcontact":1313,"./views/chats":1315,"./views/chattab":1316,"./views/contacts":1318,"./views/mycontact":1321,"./views/subscriptions":1323,"webrtc-core":1610}],1301:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(AddContact);
 
 var Contact = require('../models/contact');
@@ -71451,7 +71533,11 @@ function AddContact(eventbus, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"../models/contact":744,"webrtc-core":1047}],741:[function(require,module,exports){
+=======
+},{"../models/contact":1305,"webrtc-core":1610}],1302:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(Chat);
 
 function Chat(contact, client) {
@@ -71487,7 +71573,11 @@ function Chat(contact, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"webrtc-core":1047}],742:[function(require,module,exports){
+=======
+},{"webrtc-core":1610}],1303:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(Chats);
 
 var Chat = require('./chat');
@@ -71524,7 +71614,11 @@ function Chats(eventbus, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"./chat":741,"webrtc-core":1047}],743:[function(require,module,exports){
+=======
+},{"./chat":1302,"webrtc-core":1610}],1304:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(ChatTab);
 
 function ChatTab(eventbus, client) {
@@ -71573,7 +71667,11 @@ function ChatTab(eventbus, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"webrtc-core":1047}],744:[function(require,module,exports){
+=======
+},{"webrtc-core":1610}],1305:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(Contact);
 
 var Message = require('./message');
@@ -71614,6 +71712,7 @@ function Contact(item, eventbus, client) {
 			var message = Message.create([msg, 'incoming']);
 			if (message.from === self.id) {
 				self.addMessage(message);
+				self.select();
 			}
 		});
 
@@ -71683,7 +71782,11 @@ function Contact(item, eventbus, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"./message":746,"webrtc-core":1047}],745:[function(require,module,exports){
+=======
+},{"./message":1308,"webrtc-core":1610}],1306:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(Contacts);
 
 var Contact = require('./contact');
@@ -71714,12 +71817,14 @@ function Contacts(eventbus, client) {
 
 		client.on('session:started', function() {
 			client.getRoster(function(err, res) {
-				self.items = res.roster.items.map(function(item) {
-					return Contact.create([item, eventbus, client]);
-				}).reduce(function(obj, contact) {
-					obj[contact.id] = contact;
-					return obj;
-				}, {}) || [];
+				if(res.roster && res.roster.items) {
+					self.items = res.roster.items.map(function(item) {
+						return Contact.create([item, eventbus, client]);
+					}).reduce(function(obj, contact) {
+						obj[contact.id] = contact;
+						return obj;
+					}, {});
+				}
 			});
 
 			client.sendPresence();
@@ -71732,7 +71837,31 @@ function Contacts(eventbus, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"./contact":744,"webrtc-core":1047}],746:[function(require,module,exports){
+=======
+},{"./contact":1305,"webrtc-core":1610}],1307:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.Model(Handle);
+
+function Handle(xmpp) {
+	var self = {};
+
+	self.props = ['classes'];
+
+	self.bindings = {
+		classes: {
+			xmpp: ['visible', 'enableXMPP']
+		}
+	};
+
+	self.toggle = function(){
+      xmpp.visible = !xmpp.visible;
+	};
+
+	return self;
+}
+},{"webrtc-core":1610}],1308:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(Message);
 
 function Message(msg, direction) {
@@ -71759,7 +71888,11 @@ function Message(msg, direction) {
 	return self;
 }
 
+<<<<<<< HEAD
 },{"webrtc-core":1047}],747:[function(require,module,exports){
+=======
+},{"webrtc-core":1610}],1309:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(MyContact);
 
 var Contact = require('./contact');
@@ -71813,7 +71946,11 @@ function MyContact(eventbus, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"./contact":744,"webrtc-core":1047}],748:[function(require,module,exports){
+=======
+},{"./contact":1305,"webrtc-core":1610}],1310:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(Subscription);
 
 function Subscription(item, eventbus, client) {
@@ -71854,7 +71991,11 @@ function Subscription(item, eventbus, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"webrtc-core":1047}],749:[function(require,module,exports){
+=======
+},{"webrtc-core":1610}],1311:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(Subscriptions);
 
 var Subscription = require('./subscription');
@@ -71901,7 +72042,11 @@ function Subscriptions(eventbus, client) {
 
 	return self;
 }
+<<<<<<< HEAD
 },{"./subscription":748,"webrtc-core":1047}],750:[function(require,module,exports){
+=======
+},{"./subscription":1310,"webrtc-core":1610}],1312:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.Model(XMPP, {
   config: require('../../js/config.js')
 });
@@ -71914,6 +72059,8 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
   var self = {};
 
   self.props = ['classes', 'visible', 'connected', 'connecting', 'disconnecting'];
+
+  self.client = client;
 
   self.bindings = {
     classes: {
@@ -71977,6 +72124,10 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
     promise.then(function(credentials){
       debug.log('connecting... : '+JSON.stringify(credentials)+' : '+JSON.stringify(client.config));
       client.connect(credentials);
+      // client.connect({
+      //       jid: 'anonymous@broadsoftlabs.com',
+      //       password: 'anonymous'
+      //   });
       client.once('auth:success', 'connect', function(msg, err){
           debug.log('connected');
           self.connecting = false;
@@ -72046,10 +72197,15 @@ function XMPP(debug, eventbus, dms, cookieconfig) {
 
   return self;
 }
+<<<<<<< HEAD
 },{"../../js/config.js":734,"../client":737,"extend":762,"q":769,"webrtc-core":1047}],751:[function(require,module,exports){
+=======
+},{"../../js/config.js":1295,"../client":1298,"extend":1325,"q":1332,"webrtc-core":1610}],1313:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(AddContactView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 function AddContactView(addcontact) {
@@ -72072,10 +72228,15 @@ function AddContactView(addcontact) {
   return self;
 
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"webrtc-core":1047}],752:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"webrtc-core":1610}],1314:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(ChatView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 var MessageView = require('./message');
@@ -72110,10 +72271,15 @@ function ChatView(chat) {
   return self;
 
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"./message":757,"webrtc-core":1047}],753:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"./message":1320,"webrtc-core":1610}],1315:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(ChatsView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 var Factory = require('../factory');
@@ -72148,10 +72314,15 @@ function ChatsView(chats) {
 
   return self;
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"../factory":739,"./chat":752,"jquery":768,"jquery-ui/draggable":764,"jquery-ui/resizable":766,"webrtc-core":1047}],754:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"../factory":1300,"./chat":1314,"jquery":1331,"jquery-ui/draggable":1327,"jquery-ui/resizable":1329,"webrtc-core":1610}],1316:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(ChatTabView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 var ContactView = require('./contact');
@@ -72176,10 +72347,15 @@ function ChatTabView(chattab) {
   return self;
 
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"./contact":755,"webrtc-core":1047}],755:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"./contact":1317,"webrtc-core":1610}],1317:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(ContactView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 function ContactView(contact) {
@@ -72208,10 +72384,15 @@ function ContactView(contact) {
   return self;
 
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"webrtc-core":1047}],756:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"webrtc-core":1610}],1318:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(ContactsView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 var Factory = require('../factory');
@@ -72253,12 +72434,53 @@ function ContactsView(contacts) {
   return self;
 
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"../factory":739,"./contact":755,"jquery":768,"jquery-ui/draggable":764,"jquery-ui/resizable":766,"webrtc-core":1047}],757:[function(require,module,exports){
 arguments[4][120][0].apply(exports,arguments)
 },{"../../js/styles":735,"../../js/templates":736,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-chat/lib/views/message.js":120,"webrtc-core":1047}],758:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"../factory":1300,"./contact":1317,"jquery":1331,"jquery-ui/draggable":1327,"jquery-ui/resizable":1329,"webrtc-core":1610}],1319:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(HandleView, {
+  template: require('../../js/templates'), 
+  style: require('../../js/styles'),
+  module: 'xmpp'
+})
+
+function HandleView(sound, xmppHandle) {
+  var self = {};
+
+  self.listeners = function() {
+    self.view.on('click', function(e) {
+      e.preventDefault();
+      sound.playClick();
+      xmppHandle.toggle();
+    });
+  };
+
+  return self;
+
+}
+},{"../../js/styles":1296,"../../js/templates":1297,"webrtc-core":1610}],1320:[function(require,module,exports){
+module.exports = require('webrtc-core').bdsft.View(MessageView, {
+  template: require('../../js/templates'), 
+  style: require('../../js/styles'),
+  module: 'xmpp'
+})
+
+function MessageView(message) {
+  var self = {};
+
+  self.elements = ['body'];
+
+  return self;
+
+}
+},{"../../js/styles":1296,"../../js/templates":1297,"webrtc-core":1610}],1321:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(MyContactView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 var Utils = require('webrtc-core').utils;
@@ -72282,10 +72504,15 @@ function MyContactView(mycontact) {
   return self;
 
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"../constants":738,"webrtc-core":1047}],759:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"../constants":1299,"webrtc-core":1610}],1322:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(SubscriptionView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 function SubscriptionView(subscription) {
@@ -72307,10 +72534,15 @@ function SubscriptionView(subscription) {
   return self;
 
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"webrtc-core":1047}],760:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"webrtc-core":1610}],1323:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(SubscriptionsView, {
   template: require('../../js/templates'), 
-  style: require('../../js/styles')
+  style: require('../../js/styles'),
+  module: 'xmpp'
 })
 
 var SubscriptionView = require('./subscription');
@@ -72343,7 +72575,11 @@ function SubscriptionsView(subscriptions) {
   return self;
 
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"./subscription":759,"jquery":768,"jquery-ui/draggable":764,"jquery-ui/resizable":766,"webrtc-core":1047}],761:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"./subscription":1322,"jquery":1331,"jquery-ui/draggable":1327,"jquery-ui/resizable":1329,"webrtc-core":1610}],1324:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = require('webrtc-core').bdsft.View(XMPPView, {
   template: require('../../js/templates'),
   style: require('../../js/styles')
@@ -72375,7 +72611,11 @@ function XMPPView(sound, xmpp) {
 
   return self;
 }
+<<<<<<< HEAD
 },{"../../js/styles":735,"../../js/templates":736,"../factory":739,"webrtc-core":1047}],762:[function(require,module,exports){
+=======
+},{"../../js/styles":1296,"../../js/templates":1297,"../factory":1300,"webrtc-core":1610}],1325:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var hasOwn = Object.prototype.hasOwnProperty;
@@ -72463,7 +72703,11 @@ module.exports = function extend() {
 };
 
 
+<<<<<<< HEAD
 },{}],763:[function(require,module,exports){
+=======
+},{}],1326:[function(require,module,exports){
+>>>>>>> cjs
 var jQuery = require('jquery');
 
 /*!
@@ -72787,7 +73031,11 @@ $.extend( $.ui, {
 
 })( jQuery );
 
+<<<<<<< HEAD
 },{"jquery":768}],764:[function(require,module,exports){
+=======
+},{"jquery":1331}],1327:[function(require,module,exports){
+>>>>>>> cjs
 var jQuery = require('jquery');
 require('./core');
 require('./mouse');
@@ -73752,7 +74000,11 @@ $.ui.plugin.add("draggable", "zIndex", {
 
 })(jQuery);
 
+<<<<<<< HEAD
 },{"./core":763,"./mouse":765,"./widget":767,"jquery":768}],765:[function(require,module,exports){
+=======
+},{"./core":1326,"./mouse":1328,"./widget":1330,"jquery":1331}],1328:[function(require,module,exports){
+>>>>>>> cjs
 var jQuery = require('jquery');
 require('./widget');
 
@@ -73926,7 +74178,11 @@ $.widget("ui.mouse", {
 
 })(jQuery);
 
+<<<<<<< HEAD
 },{"./widget":767,"jquery":768}],766:[function(require,module,exports){
+=======
+},{"./widget":1330,"jquery":1331}],1329:[function(require,module,exports){
+>>>>>>> cjs
 var jQuery = require('jquery');
 require('./core');
 require('./mouse');
@@ -74911,7 +75167,11 @@ $.ui.plugin.add("resizable", "grid", {
 
 })(jQuery);
 
+<<<<<<< HEAD
 },{"./core":763,"./mouse":765,"./widget":767,"jquery":768}],767:[function(require,module,exports){
+=======
+},{"./core":1326,"./mouse":1328,"./widget":1330,"jquery":1331}],1330:[function(require,module,exports){
+>>>>>>> cjs
 var jQuery = require('jquery');
 
 /*!
@@ -75436,11 +75696,19 @@ $.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
 
 })( jQuery );
 
+<<<<<<< HEAD
 },{"jquery":768}],768:[function(require,module,exports){
 module.exports=require(110)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":110}],769:[function(require,module,exports){
 module.exports=require(238)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-dms/node_modules/q/q.js":238,"_process":22}],770:[function(require,module,exports){
+=======
+},{"jquery":1331}],1331:[function(require,module,exports){
+module.exports=require(98)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":98}],1332:[function(require,module,exports){
+module.exports=require(442)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-dms/node_modules/q/q.js":442,"_process":22}],1333:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 exports.VERSION = '7.0.6';
@@ -75456,7 +75724,11 @@ exports.createClient = function (opts) {
     return client;
 };
 
+<<<<<<< HEAD
 },{"./lib/client":771,"./lib/plugins":794,"xmpp-jid":1042}],771:[function(require,module,exports){
+=======
+},{"./lib/client":1334,"./lib/plugins":1357,"xmpp-jid":1605}],1334:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var _ = require('underscore');
@@ -75925,7 +76197,11 @@ Client.prototype.sendStreamError = function (data) {
 
 module.exports = Client;
 
+<<<<<<< HEAD
 },{"./plugins/bind":774,"./plugins/bosh":778,"./plugins/features":789,"./plugins/oldwebsocket":805,"./plugins/sasl":816,"./plugins/session":817,"./plugins/smacks":819,"./plugins/websocket":823,"./sm":824,"./stanza/error":838,"./stanza/iq":847,"./stanza/message":853,"./stanza/presence":859,"./stanza/streamError":877,"alt-sasl-digest-md5":886,"bluebird":902,"hostmeta":904,"jxt":998,"jxt-xmpp-types":997,"node-uuid":1011,"sasl-anonymous":1013,"sasl-external":1015,"sasl-plain":1017,"sasl-scram-sha-1":1018,"saslmechanisms":1039,"underscore":1040,"util":43,"wildemitter":1041,"xmpp-jid":1042}],772:[function(require,module,exports){
+=======
+},{"./plugins/bind":1337,"./plugins/bosh":1341,"./plugins/features":1352,"./plugins/oldwebsocket":1368,"./plugins/sasl":1379,"./plugins/session":1380,"./plugins/smacks":1382,"./plugins/websocket":1386,"./sm":1387,"./stanza/error":1401,"./stanza/iq":1410,"./stanza/message":1416,"./stanza/presence":1422,"./stanza/streamError":1440,"alt-sasl-digest-md5":1449,"bluebird":1465,"hostmeta":1467,"jxt":1561,"jxt-xmpp-types":1560,"node-uuid":1574,"sasl-anonymous":1576,"sasl-external":1578,"sasl-plain":1580,"sasl-scram-sha-1":1581,"saslmechanisms":1602,"underscore":1603,"util":43,"wildemitter":1604,"xmpp-jid":1605}],1335:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -75948,7 +76224,11 @@ module.exports = function (client) {
     });
 };
 
+<<<<<<< HEAD
 },{}],773:[function(require,module,exports){
+=======
+},{}],1336:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76003,7 +76283,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/avatar":825}],774:[function(require,module,exports){
+=======
+},{"../stanza/avatar":1388}],1337:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -76045,7 +76329,11 @@ module.exports = function (client, stanzas, config) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/bind":826,"xmpp-jid":1042}],775:[function(require,module,exports){
+=======
+},{"../stanza/bind":1389,"xmpp-jid":1605}],1338:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76094,7 +76382,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/blocking":827}],776:[function(require,module,exports){
+=======
+},{"../stanza/blocking":1390}],1339:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76114,7 +76406,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/bob":828}],777:[function(require,module,exports){
+=======
+},{"../stanza/bob":1391}],1340:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var _ = require('underscore');
@@ -76163,7 +76459,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/bookmarks":829,"underscore":1040,"xmpp-jid":1042}],778:[function(require,module,exports){
+=======
+},{"../stanza/bookmarks":1392,"underscore":1603,"xmpp-jid":1605}],1341:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var BOSHConnection = require('../transports/bosh');
@@ -76175,7 +76475,11 @@ module.exports = function (client, stanzas) {
     client.transports.bosh = BOSHConnection;
 };
 
+<<<<<<< HEAD
 },{"../stanza/bosh":830,"../transports/bosh":883}],779:[function(require,module,exports){
+=======
+},{"../stanza/bosh":1393,"../transports/bosh":1446}],1342:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76246,7 +76550,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/carbons":832}],780:[function(require,module,exports){
+=======
+},{"../stanza/carbons":1395}],1343:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76269,7 +76577,11 @@ module.exports = function (client) {
     });
 };
 
+<<<<<<< HEAD
 },{}],781:[function(require,module,exports){
+=======
+},{}],1344:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76291,7 +76603,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/command":833}],782:[function(require,module,exports){
+=======
+},{"../stanza/command":1396}],1345:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76306,7 +76622,11 @@ module.exports = function (client) {
     });
 };
 
+<<<<<<< HEAD
 },{}],783:[function(require,module,exports){
+=======
+},{}],1346:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76335,7 +76655,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/csi":834}],784:[function(require,module,exports){
+=======
+},{"../stanza/csi":1397}],1347:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76354,7 +76678,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/dataforms":835}],785:[function(require,module,exports){
+=======
+},{"../stanza/dataforms":1398}],1348:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76363,7 +76691,11 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:delay');
 };
 
+<<<<<<< HEAD
 },{"../stanza/delayed":836}],786:[function(require,module,exports){
+=======
+},{"../stanza/delayed":1399}],1349:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 'use strict';
 
@@ -76644,7 +76976,11 @@ module.exports = function (client, stanzas) {
 };
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"../stanza/caps":831,"../stanza/disco":837,"../stanza/rsm":869,"buffer":9,"iana-hashes":907,"underscore":1040,"xmpp-jid":1042}],787:[function(require,module,exports){
+=======
+},{"../stanza/caps":1394,"../stanza/disco":1400,"../stanza/rsm":1432,"buffer":9,"iana-hashes":1470,"underscore":1603,"xmpp-jid":1605}],1350:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76652,7 +76988,11 @@ module.exports = function (client) {
     client.disco.addFeature('jid\\20escaping');
 };
 
+<<<<<<< HEAD
 },{}],788:[function(require,module,exports){
+=======
+},{}],1351:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76684,7 +77024,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/extdisco":839}],789:[function(require,module,exports){
+=======
+},{"../stanza/extdisco":1402}],1352:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var async = require('async');
@@ -76748,7 +77092,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/streamFeatures":878,"async":901}],790:[function(require,module,exports){
+=======
+},{"../stanza/streamFeatures":1441,"async":1464}],1353:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76758,7 +77106,11 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:forward:0');
 };
 
+<<<<<<< HEAD
 },{"../stanza/forwarded":841}],791:[function(require,module,exports){
+=======
+},{"../stanza/forwarded":1404}],1354:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76790,7 +77142,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/geoloc":843}],792:[function(require,module,exports){
+=======
+},{"../stanza/geoloc":1406}],1355:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var hashes = require('iana-hashes');
@@ -76807,7 +77163,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/hash":844,"iana-hashes":907}],793:[function(require,module,exports){
+=======
+},{"../stanza/hash":1407,"iana-hashes":1470}],1356:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76815,7 +77175,11 @@ module.exports = function (client) {
     client.disco.addFeature('urn:xmpp:idle:1');
 };
 
+<<<<<<< HEAD
 },{}],794:[function(require,module,exports){
+=======
+},{}],1357:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 module.exports = function (client) {
@@ -76866,7 +77230,11 @@ module.exports = function (client) {
     client.use(require('./version'));
 };
 
+<<<<<<< HEAD
 },{"./attention":772,"./avatar":773,"./blocking":775,"./bob":776,"./bookmarks":777,"./carbons":779,"./chatstates":780,"./command":781,"./correction":782,"./csi":783,"./dataforms":784,"./delayed":785,"./disco":786,"./escaping":787,"./extdisco":788,"./forwarding":790,"./geoloc":791,"./hashes":792,"./idle":793,"./invisible":795,"./jidprep":796,"./jingle":797,"./json":798,"./keepalive":799,"./logging":800,"./mam":801,"./mood":802,"./muc":803,"./nick":804,"./oob":806,"./ping":807,"./private":808,"./psa":809,"./pubsub":810,"./reach":811,"./receipts":812,"./register":813,"./roster":814,"./rtt":815,"./shim":818,"./time":820,"./vcard":821,"./version":822}],795:[function(require,module,exports){
+=======
+},{"./attention":1335,"./avatar":1336,"./blocking":1338,"./bob":1339,"./bookmarks":1340,"./carbons":1342,"./chatstates":1343,"./command":1344,"./correction":1345,"./csi":1346,"./dataforms":1347,"./delayed":1348,"./disco":1349,"./escaping":1350,"./extdisco":1351,"./forwarding":1353,"./geoloc":1354,"./hashes":1355,"./idle":1356,"./invisible":1358,"./jidprep":1359,"./jingle":1360,"./json":1361,"./keepalive":1362,"./logging":1363,"./mam":1364,"./mood":1365,"./muc":1366,"./nick":1367,"./oob":1369,"./ping":1370,"./private":1371,"./psa":1372,"./pubsub":1373,"./reach":1374,"./receipts":1375,"./register":1376,"./roster":1377,"./rtt":1378,"./shim":1381,"./time":1383,"./vcard":1384,"./version":1385}],1358:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76889,7 +77257,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/visibility":882}],796:[function(require,module,exports){
+=======
+},{"../stanza/visibility":1445}],1359:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -76905,7 +77277,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/jidprep":848}],797:[function(require,module,exports){
+=======
+},{"../stanza/jidprep":1411}],1360:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var Jingle = require('jingle');
@@ -77008,7 +77384,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/file":840,"../stanza/iceUdp":846,"../stanza/jingle":849,"../stanza/rtp":870,"jingle":924}],798:[function(require,module,exports){
+=======
+},{"../stanza/file":1403,"../stanza/iceUdp":1409,"../stanza/jingle":1412,"../stanza/rtp":1433,"jingle":1487}],1361:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77017,7 +77397,11 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:json:0');
 };
 
+<<<<<<< HEAD
 },{"../stanza/json":850}],799:[function(require,module,exports){
+=======
+},{"../stanza/json":1413}],1362:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var BPromise = require('bluebird');
@@ -77076,7 +77460,11 @@ module.exports = function (client) {
     });
 };
 
+<<<<<<< HEAD
 },{"bluebird":902}],800:[function(require,module,exports){
+=======
+},{"bluebird":1465}],1363:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77094,7 +77482,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/logging":851}],801:[function(require,module,exports){
+=======
+},{"../stanza/logging":1414}],1364:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var BPromise = require('bluebird');
@@ -77241,7 +77633,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/mam":852,"bluebird":902,"xmpp-jid":1042}],802:[function(require,module,exports){
+=======
+},{"../stanza/mam":1415,"bluebird":1465,"xmpp-jid":1605}],1365:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/mood';
@@ -77278,7 +77674,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/mood":854}],803:[function(require,module,exports){
+=======
+},{"../stanza/mood":1417}],1366:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var _ = require('underscore');
@@ -77528,7 +77928,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/hats":845,"../stanza/muc":855,"underscore":1040,"xmpp-jid":1042}],804:[function(require,module,exports){
+=======
+},{"../stanza/hats":1408,"../stanza/muc":1418,"underscore":1603,"xmpp-jid":1605}],1367:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/nick';
@@ -77561,7 +77965,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/nick":856}],805:[function(require,module,exports){
+=======
+},{"../stanza/nick":1419}],1368:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var OldWSConnection = require('../transports/old-websocket');
@@ -77573,7 +77981,11 @@ module.exports = function (client, stanzas) {
     client.transports['old-websocket'] = OldWSConnection;
 };
 
+<<<<<<< HEAD
 },{"../stanza/stream":876,"../transports/old-websocket":884}],806:[function(require,module,exports){
+=======
+},{"../stanza/stream":1439,"../transports/old-websocket":1447}],1369:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77582,7 +77994,11 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('jabber:x:oob');
 };
 
+<<<<<<< HEAD
 },{"../stanza/oob":857}],807:[function(require,module,exports){
+=======
+},{"../stanza/oob":1420}],1370:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77604,7 +78020,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/ping":858}],808:[function(require,module,exports){
+=======
+},{"../stanza/ping":1421}],1371:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77626,7 +78046,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/private":860}],809:[function(require,module,exports){
+=======
+},{"../stanza/private":1423}],1372:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77635,7 +78059,11 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature('urn:xmpp:psa');
 };
 
+<<<<<<< HEAD
 },{"../stanza/psa":861}],810:[function(require,module,exports){
+=======
+},{"../stanza/psa":1424}],1373:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77889,7 +78317,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/pubsub":862,"../stanza/pubsubError":863,"../stanza/pubsubEvents":864,"../stanza/pubsubOwner":865}],811:[function(require,module,exports){
+=======
+},{"../stanza/pubsub":1425,"../stanza/pubsubError":1426,"../stanza/pubsubEvents":1427,"../stanza/pubsubOwner":1428}],1374:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77931,7 +78363,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/reach":866}],812:[function(require,module,exports){
+=======
+},{"../stanza/reach":1429}],1375:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 module.exports = function (client) {
@@ -77957,7 +78393,11 @@ module.exports = function (client) {
     });
 };
 
+<<<<<<< HEAD
 },{}],813:[function(require,module,exports){
+=======
+},{}],1376:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -77992,7 +78432,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/register":867}],814:[function(require,module,exports){
+=======
+},{"../stanza/register":1430}],1377:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78072,7 +78516,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/roster":868}],815:[function(require,module,exports){
+=======
+},{"../stanza/roster":1431}],1378:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78089,7 +78537,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/rtt":871}],816:[function(require,module,exports){
+=======
+},{"../stanza/rtt":1434}],1379:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 'use strict';
 
@@ -78168,7 +78620,11 @@ module.exports = function (client, stanzas) {
 };
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"../stanza/sasl":872,"buffer":9}],817:[function(require,module,exports){
+=======
+},{"../stanza/sasl":1435,"buffer":9}],1380:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78206,7 +78662,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/session":873}],818:[function(require,module,exports){
+=======
+},{"../stanza/session":1436}],1381:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/shim';
@@ -78219,7 +78679,11 @@ module.exports = function (client, stanzas) {
     client.disco.addFeature(NS + '#SubID', NS);
 };
 
+<<<<<<< HEAD
 },{"../stanza/shim":874}],819:[function(require,module,exports){
+=======
+},{"../stanza/shim":1437}],1382:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78278,7 +78742,11 @@ module.exports = function (client, stanzas, config) {
     client.registerFeature('streamManagement', 500, smacks);
 };
 
+<<<<<<< HEAD
 },{"../stanza/sm":875}],820:[function(require,module,exports){
+=======
+},{"../stanza/sm":1438}],1383:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78306,7 +78774,11 @@ module.exports = function (client, stanzas) {
     });
 };
 
+<<<<<<< HEAD
 },{"../stanza/time":879}],821:[function(require,module,exports){
+=======
+},{"../stanza/time":1442}],1384:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78331,7 +78803,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/vcard":880}],822:[function(require,module,exports){
+=======
+},{"../stanza/vcard":1443}],1385:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78357,7 +78833,11 @@ module.exports = function (client, stanzas) {
     };
 };
 
+<<<<<<< HEAD
 },{"../stanza/version":881}],823:[function(require,module,exports){
+=======
+},{"../stanza/version":1444}],1386:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var WSConnection = require('../transports/websocket');
@@ -78369,7 +78849,11 @@ module.exports = function (client, stanzas) {
     client.transports.websocket = WSConnection;
 };
 
+<<<<<<< HEAD
 },{"../stanza/framing":842,"../transports/websocket":885}],824:[function(require,module,exports){
+=======
+},{"../stanza/framing":1405,"../transports/websocket":1448}],1387:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var MAX_SEQ = Math.pow(2, 32);
@@ -78514,7 +78998,11 @@ Object.defineProperties(StreamManagement.prototype, {
 
 module.exports = StreamManagement;
 
+<<<<<<< HEAD
 },{}],825:[function(require,module,exports){
+=======
+},{}],1388:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var _ = require('underscore');
@@ -78565,7 +79053,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{"underscore":1040}],826:[function(require,module,exports){
+=======
+},{"underscore":1603}],1389:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-bind';
@@ -78592,7 +79084,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],827:[function(require,module,exports){
+=======
+},{}],1390:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -78662,7 +79158,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{"xmpp-jid":1042}],828:[function(require,module,exports){
+=======
+},{"xmpp-jid":1605}],1391:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:bob';
@@ -78697,7 +79197,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],829:[function(require,module,exports){
+=======
+},{}],1392:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78730,7 +79234,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],830:[function(require,module,exports){
+=======
+},{}],1393:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/httpbind';
@@ -78801,7 +79309,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],831:[function(require,module,exports){
+=======
+},{}],1394:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78829,7 +79341,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],832:[function(require,module,exports){
+=======
+},{}],1395:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -78885,7 +79401,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],833:[function(require,module,exports){
+=======
+},{}],1396:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/commands';
@@ -78967,7 +79487,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],834:[function(require,module,exports){
+=======
+},{}],1397:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:csi';
@@ -79002,7 +79526,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],835:[function(require,module,exports){
+=======
+},{}],1398:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -79287,7 +79815,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{"xmpp-jid":1042}],836:[function(require,module,exports){
+=======
+},{"xmpp-jid":1605}],1399:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -79314,7 +79846,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],837:[function(require,module,exports){
+=======
+},{}],1400:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NSInfo = 'http://jabber.org/protocol/disco#info';
@@ -79386,7 +79922,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],838:[function(require,module,exports){
+=======
+},{}],1401:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var ERR_NS = 'urn:ietf:params:xml:ns:xmpp-stanzas';
@@ -79480,7 +80020,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],839:[function(require,module,exports){
+=======
+},{}],1402:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:extdisco:1';
@@ -79532,7 +80076,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],840:[function(require,module,exports){
+=======
+},{}],1403:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:jingle:apps:file-transfer:3';
@@ -79599,7 +80147,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],841:[function(require,module,exports){
+=======
+},{}],1404:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 module.exports = function (stanza) {
@@ -79629,7 +80181,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],842:[function(require,module,exports){
+=======
+},{}],1405:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-framing';
@@ -79663,7 +80219,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],843:[function(require,module,exports){
+=======
+},{}],1406:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/geoloc';
@@ -79709,7 +80269,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],844:[function(require,module,exports){
+=======
+},{}],1407:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -79725,7 +80289,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],845:[function(require,module,exports){
+=======
+},{}],1408:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:hats:0';
@@ -79751,7 +80319,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],846:[function(require,module,exports){
+=======
+},{}],1409:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:jingle:transports:ice-udp:1';
@@ -79841,7 +80413,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],847:[function(require,module,exports){
+=======
+},{}],1410:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -79888,7 +80464,11 @@ module.exports = function (stanza) {
     };
 };
 
+<<<<<<< HEAD
 },{}],848:[function(require,module,exports){
+=======
+},{}],1411:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -79915,7 +80495,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{"xmpp-jid":1042}],849:[function(require,module,exports){
+=======
+},{"xmpp-jid":1605}],1412:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:jingle:1';
@@ -80034,7 +80618,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],850:[function(require,module,exports){
+=======
+},{}],1413:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -80066,7 +80654,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],851:[function(require,module,exports){
+=======
+},{}],1414:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:eventlog';
@@ -80116,7 +80708,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],852:[function(require,module,exports){
+=======
+},{}],1415:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -80232,7 +80828,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{"xmpp-jid":1042}],853:[function(require,module,exports){
+=======
+},{"xmpp-jid":1605}],1416:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -80278,7 +80878,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],854:[function(require,module,exports){
+=======
+},{}],1417:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/mood';
@@ -80389,7 +80993,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],855:[function(require,module,exports){
+=======
+},{}],1418:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/muc';
@@ -80664,7 +81272,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],856:[function(require,module,exports){
+=======
+},{}],1419:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -80685,7 +81297,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],857:[function(require,module,exports){
+=======
+},{}],1420:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'jabber:x:oob';
@@ -80707,7 +81323,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],858:[function(require,module,exports){
+=======
+},{}],1421:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:ping';
@@ -80725,7 +81345,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],859:[function(require,module,exports){
+=======
+},{}],1422:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -80799,7 +81423,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],860:[function(require,module,exports){
+=======
+},{}],1423:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -80816,7 +81444,11 @@ module.exports = function (stanza) {
 };
 
 
+<<<<<<< HEAD
 },{}],861:[function(require,module,exports){
+=======
+},{}],1424:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:psa';
@@ -80845,7 +81477,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],862:[function(require,module,exports){
+=======
+},{}],1425:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub';
@@ -81034,7 +81670,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],863:[function(require,module,exports){
+=======
+},{}],1426:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var ERRNS = 'http://jabber.org/protocol/pubsub#errors';
@@ -81070,7 +81710,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],864:[function(require,module,exports){
+=======
+},{}],1427:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub#event';
@@ -81203,7 +81847,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],865:[function(require,module,exports){
+=======
+},{}],1428:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/pubsub#owner';
@@ -81312,7 +81960,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],866:[function(require,module,exports){
+=======
+},{}],1429:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var _ = require('underscore');
@@ -81377,7 +82029,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{"underscore":1040}],867:[function(require,module,exports){
+=======
+},{"underscore":1603}],1430:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'jabber:iq:register';
@@ -81428,7 +82084,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],868:[function(require,module,exports){
+=======
+},{}],1431:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'jabber:iq:roster';
@@ -81481,7 +82141,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],869:[function(require,module,exports){
+=======
+},{}],1432:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/rsm';
@@ -81518,7 +82182,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],870:[function(require,module,exports){
+=======
+},{}],1433:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:jingle:apps:rtp:1';
@@ -81813,7 +82481,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],871:[function(require,module,exports){
+=======
+},{}],1434:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:rtt:0';
@@ -81918,7 +82590,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],872:[function(require,module,exports){
+=======
+},{}],1435:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-sasl';
@@ -82041,7 +82717,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],873:[function(require,module,exports){
+=======
+},{}],1436:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:ietf:params:xml:ns:xmpp-session';
@@ -82068,7 +82748,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],874:[function(require,module,exports){
+=======
+},{}],1437:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'http://jabber.org/protocol/shim';
@@ -82114,7 +82798,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],875:[function(require,module,exports){
+=======
+},{}],1438:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:sm:3';
@@ -82209,7 +82897,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],876:[function(require,module,exports){
+=======
+},{}],1439:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -82230,7 +82922,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],877:[function(require,module,exports){
+=======
+},{}],1440:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var ERR_NS = 'urn:ietf:params:xml:ns:xmpp-streams';
@@ -82308,7 +83004,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],878:[function(require,module,exports){
+=======
+},{}],1441:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -82337,7 +83037,11 @@ module.exports = function (stanza) {
     stanza.extend(StreamFeatures, SubscriptionPreApprovalFeature);
 };
 
+<<<<<<< HEAD
 },{}],879:[function(require,module,exports){
+=======
+},{}],1442:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 
@@ -82358,7 +83062,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],880:[function(require,module,exports){
+=======
+},{}],1443:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'vcard-temp';
@@ -82473,7 +83181,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],881:[function(require,module,exports){
+=======
+},{}],1444:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'jabber:iq:version';
@@ -82498,7 +83210,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],882:[function(require,module,exports){
+=======
+},{}],1445:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var NS = 'urn:xmpp:invisible:0';
@@ -82511,7 +83227,11 @@ module.exports = function (stanza) {
     });
 };
 
+<<<<<<< HEAD
 },{}],883:[function(require,module,exports){
+=======
+},{}],1446:[function(require,module,exports){
+>>>>>>> cjs
 (function (process,Buffer){
 'use strict';
 
@@ -82751,7 +83471,11 @@ BOSHConnection.prototype.request = function (bosh) {
 module.exports = BOSHConnection;
 
 }).call(this,require('_process'),require("buffer").Buffer)
+<<<<<<< HEAD
 },{"_process":22,"bluebird":902,"buffer":9,"request":903,"underscore":1040,"util":43,"wildemitter":1041}],884:[function(require,module,exports){
+=======
+},{"_process":22,"bluebird":1465,"buffer":9,"request":1466,"underscore":1603,"util":43,"wildemitter":1604}],1447:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var WSConnection = require('./websocket');
@@ -82862,7 +83586,11 @@ OldWSConnection.prototype.closeHeader = function () {
 
 module.exports = OldWSConnection;
 
+<<<<<<< HEAD
 },{"./websocket":885,"underscore":1040,"util":43}],885:[function(require,module,exports){
+=======
+},{"./websocket":1448,"underscore":1603,"util":43}],1448:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 'use strict';
 
@@ -83019,7 +83747,11 @@ WSConnection.prototype.send = function (data) {
 module.exports = WSConnection;
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"async":901,"buffer":9,"faye-websocket":8,"util":43,"wildemitter":1041}],886:[function(require,module,exports){
+=======
+},{"async":1464,"buffer":9,"faye-websocket":8,"util":43,"wildemitter":1604}],1449:[function(require,module,exports){
+>>>>>>> cjs
 var randomBytes = require('randombytes');
 var createHash = require('create-hash');
 
@@ -83160,7 +83892,11 @@ Mechanism.prototype.challenge = function(chal) {
 
 module.exports = Mechanism;
 
+<<<<<<< HEAD
 },{"create-hash":887,"randombytes":900}],887:[function(require,module,exports){
+=======
+},{"create-hash":1450,"randombytes":1463}],1450:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 'use strict';
 var inherits = require('inherits')
@@ -83253,7 +83989,11 @@ module.exports = function createHash (alg) {
 }
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"./md5":889,"buffer":9,"inherits":890,"ripemd160":891,"sha.js":893,"stream":39}],888:[function(require,module,exports){
+=======
+},{"./md5":1452,"buffer":9,"inherits":1453,"ripemd160":1454,"sha.js":1456,"stream":39}],1451:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 'use strict';
 var intSize = 4;
@@ -83290,7 +84030,11 @@ function hash(buf, fn, hashSize, bigEndian) {
 }
 exports.hash = hash;
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"buffer":9}],889:[function(require,module,exports){
+=======
+},{"buffer":9}],1452:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
@@ -83447,9 +84191,15 @@ function bit_rol(num, cnt)
 module.exports = function md5(buf) {
   return helpers.hash(buf, core_md5, 16);
 };
+<<<<<<< HEAD
 },{"./helpers":888}],890:[function(require,module,exports){
 module.exports=require(19)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],891:[function(require,module,exports){
+=======
+},{"./helpers":1451}],1453:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1454:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 /*
 CryptoJS v3.1.2
@@ -83663,7 +84413,11 @@ function ripemd160 (message) {
 module.exports = ripemd160
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"buffer":9}],892:[function(require,module,exports){
+=======
+},{"buffer":9}],1455:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 // prototype class for hash functions
 function Hash (blockSize, finalSize) {
@@ -83736,7 +84490,11 @@ Hash.prototype._update = function () {
 module.exports = Hash
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"buffer":9}],893:[function(require,module,exports){
+=======
+},{"buffer":9}],1456:[function(require,module,exports){
+>>>>>>> cjs
 var exports = module.exports = function SHA (algorithm) {
   algorithm = algorithm.toLowerCase()
 
@@ -83753,7 +84511,11 @@ exports.sha256 = require('./sha256')
 exports.sha384 = require('./sha384')
 exports.sha512 = require('./sha512')
 
+<<<<<<< HEAD
 },{"./sha":894,"./sha1":895,"./sha224":896,"./sha256":897,"./sha384":898,"./sha512":899}],894:[function(require,module,exports){
+=======
+},{"./sha":1457,"./sha1":1458,"./sha224":1459,"./sha256":1460,"./sha384":1461,"./sha512":1462}],1457:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-0, as defined
@@ -83856,7 +84618,11 @@ module.exports = Sha
 
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"./hash":892,"buffer":9,"inherits":890}],895:[function(require,module,exports){
+=======
+},{"./hash":1455,"buffer":9,"inherits":1453}],1458:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 /*
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-1, as defined
@@ -83955,7 +84721,11 @@ Sha1.prototype._hash = function () {
 module.exports = Sha1
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"./hash":892,"buffer":9,"inherits":890}],896:[function(require,module,exports){
+=======
+},{"./hash":1455,"buffer":9,"inherits":1453}],1459:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -84011,7 +84781,11 @@ Sha224.prototype._hash = function () {
 module.exports = Sha224
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"./hash":892,"./sha256":897,"buffer":9,"inherits":890}],897:[function(require,module,exports){
+=======
+},{"./hash":1455,"./sha256":1460,"buffer":9,"inherits":1453}],1460:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 /**
  * A JavaScript implementation of the Secure Hash Algorithm, SHA-256, as defined
@@ -84164,7 +84938,11 @@ Sha256.prototype._hash = function () {
 module.exports = Sha256
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"./hash":892,"buffer":9,"inherits":890}],898:[function(require,module,exports){
+=======
+},{"./hash":1455,"buffer":9,"inherits":1453}],1461:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 var inherits = require('inherits')
 var SHA512 = require('./sha512')
@@ -84224,7 +85002,11 @@ Sha384.prototype._hash = function () {
 module.exports = Sha384
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"./hash":892,"./sha512":899,"buffer":9,"inherits":890}],899:[function(require,module,exports){
+=======
+},{"./hash":1455,"./sha512":1462,"buffer":9,"inherits":1453}],1462:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 var inherits = require('inherits')
 var Hash = require('./hash')
@@ -84473,7 +85255,11 @@ Sha512.prototype._hash = function () {
 module.exports = Sha512
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"./hash":892,"buffer":9,"inherits":890}],900:[function(require,module,exports){
+=======
+},{"./hash":1455,"buffer":9,"inherits":1453}],1463:[function(require,module,exports){
+>>>>>>> cjs
 (function (process,global,Buffer){
 'use strict';
 
@@ -84505,7 +85291,11 @@ function oldBrowser() {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
+<<<<<<< HEAD
 },{"_process":22,"buffer":9}],901:[function(require,module,exports){
+=======
+},{"_process":22,"buffer":9}],1464:[function(require,module,exports){
+>>>>>>> cjs
 (function (process){
 /*!
  * async
@@ -85632,7 +86422,11 @@ function oldBrowser() {
 }());
 
 }).call(this,require('_process'))
+<<<<<<< HEAD
 },{"_process":22}],902:[function(require,module,exports){
+=======
+},{"_process":22}],1465:[function(require,module,exports){
+>>>>>>> cjs
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -90492,7 +91286,11 @@ module.exports = ret;
 },{"./es5.js":14}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+<<<<<<< HEAD
 },{"_process":22}],903:[function(require,module,exports){
+=======
+},{"_process":22}],1466:[function(require,module,exports){
+>>>>>>> cjs
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -90988,7 +91786,11 @@ function b64_enc (data) {
 }));
 //UMD FOOTER END
 
+<<<<<<< HEAD
 },{}],904:[function(require,module,exports){
+=======
+},{}],1467:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var BPromise = require('bluebird');
@@ -91037,7 +91839,11 @@ module.exports = function (opts, cb) {
     }).nodeify(cb);
 };
 
+<<<<<<< HEAD
 },{"./lib/xrd":905,"bluebird":902,"jxt":998,"request":906}],905:[function(require,module,exports){
+=======
+},{"./lib/xrd":1468,"bluebird":1465,"jxt":1561,"request":1469}],1468:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var jxt = require('jxt');
@@ -91092,7 +91898,11 @@ module.exports = function (registry) {
     return XRD;
 };
 
+<<<<<<< HEAD
 },{"jxt":998}],906:[function(require,module,exports){
+=======
+},{"jxt":1561}],1469:[function(require,module,exports){
+>>>>>>> cjs
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -91505,7 +92315,11 @@ function b64_enc (data) {
     return enc;
 }
 
+<<<<<<< HEAD
 },{}],907:[function(require,module,exports){
+=======
+},{}],1470:[function(require,module,exports){
+>>>>>>> cjs
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
 var getHashes = require('./lib/get-hashes');
@@ -91550,11 +92364,16 @@ exports.createHmac = function (algorithm, key) {
     return createHmac(algorithm, key);
 };
 
+<<<<<<< HEAD
 },{"./lib/get-hashes":908,"create-hash":909,"create-hmac":922}],908:[function(require,module,exports){
+=======
+},{"./lib/get-hashes":1471,"create-hash":1472,"create-hmac":1485}],1471:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = function () {
     return ['sha1', 'sha224', 'sha256', 'sha384', 'sha512', 'md5', 'rmd160'];
 };
 
+<<<<<<< HEAD
 },{}],909:[function(require,module,exports){
 module.exports=require(887)
 },{"./md5":911,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/browser.js":887,"buffer":9,"inherits":912,"ripemd160":913,"sha.js":915,"stream":39}],910:[function(require,module,exports){
@@ -91582,6 +92401,35 @@ module.exports=require(898)
 },{"./hash":914,"./sha512":921,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha384.js":898,"buffer":9,"inherits":912}],921:[function(require,module,exports){
 module.exports=require(899)
 },{"./hash":914,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha512.js":899,"buffer":9,"inherits":912}],922:[function(require,module,exports){
+=======
+},{}],1472:[function(require,module,exports){
+module.exports=require(1450)
+},{"./md5":1474,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/browser.js":1450,"buffer":9,"inherits":1475,"ripemd160":1476,"sha.js":1478,"stream":39}],1473:[function(require,module,exports){
+module.exports=require(1451)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/helpers.js":1451,"buffer":9}],1474:[function(require,module,exports){
+module.exports=require(1452)
+},{"./helpers":1473,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/md5.js":1452}],1475:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1476:[function(require,module,exports){
+module.exports=require(1454)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":1454,"buffer":9}],1477:[function(require,module,exports){
+module.exports=require(1455)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/hash.js":1455,"buffer":9}],1478:[function(require,module,exports){
+module.exports=require(1456)
+},{"./sha":1479,"./sha1":1480,"./sha224":1481,"./sha256":1482,"./sha384":1483,"./sha512":1484,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/index.js":1456}],1479:[function(require,module,exports){
+module.exports=require(1457)
+},{"./hash":1477,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha.js":1457,"buffer":9,"inherits":1475}],1480:[function(require,module,exports){
+module.exports=require(1458)
+},{"./hash":1477,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha1.js":1458,"buffer":9,"inherits":1475}],1481:[function(require,module,exports){
+module.exports=require(1459)
+},{"./hash":1477,"./sha256":1482,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha224.js":1459,"buffer":9,"inherits":1475}],1482:[function(require,module,exports){
+module.exports=require(1460)
+},{"./hash":1477,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha256.js":1460,"buffer":9,"inherits":1475}],1483:[function(require,module,exports){
+module.exports=require(1461)
+},{"./hash":1477,"./sha512":1484,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha384.js":1461,"buffer":9,"inherits":1475}],1484:[function(require,module,exports){
+module.exports=require(1462)
+},{"./hash":1477,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha512.js":1462,"buffer":9,"inherits":1475}],1485:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 'use strict';
 var createHash = require('create-hash/browser');
@@ -91653,9 +92501,15 @@ module.exports = function createHmac(alg, key) {
 }
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"buffer":9,"create-hash/browser":909,"inherits":923,"stream":39}],923:[function(require,module,exports){
 module.exports=require(19)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],924:[function(require,module,exports){
+=======
+},{"buffer":9,"create-hash/browser":1472,"inherits":1486,"stream":39}],1486:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1487:[function(require,module,exports){
+>>>>>>> cjs
 var util = require('util');
 var intersect = require('intersect');
 var WildEmitter = require('wildemitter');
@@ -92069,7 +92923,11 @@ SessionManager.prototype.process = function (req) {
 
 module.exports = SessionManager;
 
+<<<<<<< HEAD
 },{"intersect":926,"jingle-filetransfer-session":927,"jingle-media-session":961,"jingle-session":993,"util":43,"webrtcsupport":996,"wildemitter":1041}],925:[function(require,module,exports){
+=======
+},{"intersect":1489,"jingle-filetransfer-session":1490,"jingle-media-session":1524,"jingle-session":1556,"util":43,"webrtcsupport":1559,"wildemitter":1604}],1488:[function(require,module,exports){
+>>>>>>> cjs
 var arr = [];
 var each = arr.forEach;
 var slice = arr.slice;
@@ -92086,7 +92944,11 @@ module.exports = function(obj) {
     return obj;
 };
 
+<<<<<<< HEAD
 },{}],926:[function(require,module,exports){
+=======
+},{}],1489:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = intersect;
 
 function intersect (a, b) {
@@ -92118,7 +92980,11 @@ function indexOf(arr, el) {
   return -1;
 }
 
+<<<<<<< HEAD
 },{}],927:[function(require,module,exports){
+=======
+},{}],1490:[function(require,module,exports){
+>>>>>>> cjs
 var util = require('util');
 var extend = require('extend-object');
 var BaseSession = require('jingle-session');
@@ -92382,7 +93248,11 @@ FileTransferSession.prototype = extend(FileTransferSession.prototype, {
 
 module.exports = FileTransferSession;
 
+<<<<<<< HEAD
 },{"extend-object":925,"filetransfer/hashed":929,"jingle-session":993,"rtcpeerconnection":960,"util":43}],928:[function(require,module,exports){
+=======
+},{"extend-object":1488,"filetransfer/hashed":1492,"jingle-session":1556,"rtcpeerconnection":1523,"util":43}],1491:[function(require,module,exports){
+>>>>>>> cjs
 var WildEmitter = require('wildemitter');
 var util = require('util');
 
@@ -92470,7 +93340,11 @@ module.exports.support = typeof window !== 'undefined' && window && window.File 
 module.exports.Sender = Sender;
 module.exports.Receiver = Receiver;
 
+<<<<<<< HEAD
 },{"util":43,"wildemitter":1041}],929:[function(require,module,exports){
+=======
+},{"util":43,"wildemitter":1604}],1492:[function(require,module,exports){
+>>>>>>> cjs
 var WildEmitter = require('wildemitter');
 var util = require('util');
 var hashes = require('iana-hashes');
@@ -92543,7 +93417,11 @@ module.exports.support = base.support;
 module.exports.Sender = Sender;
 module.exports.Receiver = Receiver;
 
+<<<<<<< HEAD
 },{"./filetransfer":928,"iana-hashes":907,"util":43,"wildemitter":1041}],930:[function(require,module,exports){
+=======
+},{"./filetransfer":1491,"iana-hashes":1470,"util":43,"wildemitter":1604}],1493:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.3 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92607,7 +93485,11 @@ var forEach = createForEach(arrayEach, baseEach);
 
 module.exports = forEach;
 
+<<<<<<< HEAD
 },{"lodash._arrayeach":931,"lodash._baseeach":932,"lodash._bindcallback":936,"lodash.isarray":937}],931:[function(require,module,exports){
+=======
+},{"lodash._arrayeach":1494,"lodash._baseeach":1495,"lodash._bindcallback":1499,"lodash.isarray":1500}],1494:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92640,7 +93522,11 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
+<<<<<<< HEAD
 },{}],932:[function(require,module,exports){
+=======
+},{}],1495:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -92823,7 +93709,11 @@ function isObject(value) {
 
 module.exports = baseEach;
 
+<<<<<<< HEAD
 },{"lodash.keys":933}],933:[function(require,module,exports){
+=======
+},{"lodash.keys":1496}],1496:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93061,7 +93951,11 @@ function keysIn(object) {
 
 module.exports = keys;
 
+<<<<<<< HEAD
 },{"lodash._getnative":934,"lodash.isarguments":935,"lodash.isarray":937}],934:[function(require,module,exports){
+=======
+},{"lodash._getnative":1497,"lodash.isarguments":1498,"lodash.isarray":1500}],1497:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.9.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93200,7 +94094,11 @@ function isNative(value) {
 
 module.exports = getNative;
 
+<<<<<<< HEAD
 },{}],935:[function(require,module,exports){
+=======
+},{}],1498:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93308,7 +94206,11 @@ function isArguments(value) {
 
 module.exports = isArguments;
 
+<<<<<<< HEAD
 },{}],936:[function(require,module,exports){
+=======
+},{}],1499:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93375,7 +94277,11 @@ function identity(value) {
 
 module.exports = bindCallback;
 
+<<<<<<< HEAD
 },{}],937:[function(require,module,exports){
+=======
+},{}],1500:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93557,7 +94463,11 @@ function isNative(value) {
 
 module.exports = isArray;
 
+<<<<<<< HEAD
 },{}],938:[function(require,module,exports){
+=======
+},{}],1501:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.1.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93716,7 +94626,11 @@ function property(path) {
 
 module.exports = pluck;
 
+<<<<<<< HEAD
 },{"lodash._baseget":939,"lodash._topath":940,"lodash.isarray":941,"lodash.map":942}],939:[function(require,module,exports){
+=======
+},{"lodash._baseget":1502,"lodash._topath":1503,"lodash.isarray":1504,"lodash.map":1505}],1502:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.7.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93792,7 +94706,11 @@ function isObject(value) {
 
 module.exports = baseGet;
 
+<<<<<<< HEAD
 },{}],940:[function(require,module,exports){
+=======
+},{}],1503:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.8.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93841,9 +94759,15 @@ function toPath(value) {
 
 module.exports = toPath;
 
+<<<<<<< HEAD
 },{"lodash.isarray":941}],941:[function(require,module,exports){
 module.exports=require(937)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":937}],942:[function(require,module,exports){
+=======
+},{"lodash.isarray":1504}],1504:[function(require,module,exports){
+module.exports=require(1500)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1500}],1505:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.1.4 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -93995,7 +94919,11 @@ function map(collection, iteratee, thisArg) {
 
 module.exports = map;
 
+<<<<<<< HEAD
 },{"lodash._arraymap":943,"lodash._basecallback":944,"lodash._baseeach":949,"lodash.isarray":941}],943:[function(require,module,exports){
+=======
+},{"lodash._arraymap":1506,"lodash._basecallback":1507,"lodash._baseeach":1512,"lodash.isarray":1504}],1506:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.0 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -94027,7 +94955,11 @@ function arrayMap(array, iteratee) {
 
 module.exports = arrayMap;
 
+<<<<<<< HEAD
 },{}],944:[function(require,module,exports){
+=======
+},{}],1507:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.3.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -94451,7 +95383,11 @@ function property(path) {
 
 module.exports = baseCallback;
 
+<<<<<<< HEAD
 },{"lodash._baseisequal":945,"lodash._bindcallback":947,"lodash.isarray":941,"lodash.pairs":948}],945:[function(require,module,exports){
+=======
+},{"lodash._baseisequal":1508,"lodash._bindcallback":1510,"lodash.isarray":1504,"lodash.pairs":1511}],1508:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.7 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -94795,7 +95731,11 @@ function isObject(value) {
 
 module.exports = baseIsEqual;
 
+<<<<<<< HEAD
 },{"lodash.isarray":941,"lodash.istypedarray":946,"lodash.keys":950}],946:[function(require,module,exports){
+=======
+},{"lodash.isarray":1504,"lodash.istypedarray":1509,"lodash.keys":1513}],1509:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.2 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -94907,9 +95847,15 @@ function isTypedArray(value) {
 
 module.exports = isTypedArray;
 
+<<<<<<< HEAD
 },{}],947:[function(require,module,exports){
 module.exports=require(936)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":936}],948:[function(require,module,exports){
+=======
+},{}],1510:[function(require,module,exports){
+module.exports=require(1499)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1499}],1511:[function(require,module,exports){
+>>>>>>> cjs
 /**
  * lodash 3.0.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash modern modularize exports="npm" -o ./`
@@ -94989,6 +95935,7 @@ function pairs(object) {
 
 module.exports = pairs;
 
+<<<<<<< HEAD
 },{"lodash.keys":950}],949:[function(require,module,exports){
 module.exports=require(932)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":932,"lodash.keys":950}],950:[function(require,module,exports){
@@ -94998,6 +95945,17 @@ module.exports=require(934)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":934}],952:[function(require,module,exports){
 module.exports=require(935)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":935}],953:[function(require,module,exports){
+=======
+},{"lodash.keys":1513}],1512:[function(require,module,exports){
+module.exports=require(1495)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1495,"lodash.keys":1513}],1513:[function(require,module,exports){
+module.exports=require(1496)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1496,"lodash._getnative":1514,"lodash.isarguments":1515,"lodash.isarray":1504}],1514:[function(require,module,exports){
+module.exports=require(1497)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1497}],1515:[function(require,module,exports){
+module.exports=require(1498)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1498}],1516:[function(require,module,exports){
+>>>>>>> cjs
 var toSDP = require('./lib/tosdp');
 var toJSON = require('./lib/tojson');
 
@@ -95119,7 +96077,11 @@ exports.toCandidateJSON = toJSON.toCandidateJSON;
 exports.toMediaJSON = toJSON.toMediaJSON;
 exports.toSessionJSON = toJSON.toSessionJSON;
 
+<<<<<<< HEAD
 },{"./lib/tojson":956,"./lib/tosdp":957}],954:[function(require,module,exports){
+=======
+},{"./lib/tojson":1519,"./lib/tosdp":1520}],1517:[function(require,module,exports){
+>>>>>>> cjs
 exports.lines = function (sdp) {
     return sdp.split('\r\n').filter(function (line) {
         return line.length > 0;
@@ -95390,7 +96352,11 @@ exports.msid = function (line) {
     };
 };
 
+<<<<<<< HEAD
 },{}],955:[function(require,module,exports){
+=======
+},{}],1518:[function(require,module,exports){
+>>>>>>> cjs
 module.exports = {
     initiator: {
         incoming: {
@@ -95438,7 +96404,11 @@ module.exports = {
     }
 };
 
+<<<<<<< HEAD
 },{}],956:[function(require,module,exports){
+=======
+},{}],1519:[function(require,module,exports){
+>>>>>>> cjs
 var SENDERS = require('./senders');
 var parsers = require('./parsers');
 var idCounter = Math.random();
@@ -95662,7 +96632,11 @@ exports.toCandidateJSON = function (line) {
     return candidate;
 };
 
+<<<<<<< HEAD
 },{"./parsers":954,"./senders":955}],957:[function(require,module,exports){
+=======
+},{"./parsers":1517,"./senders":1518}],1520:[function(require,module,exports){
+>>>>>>> cjs
 var SENDERS = require('./senders');
 
 
@@ -95886,7 +96860,11 @@ exports.toCandidateSDP = function (candidate) {
     return 'a=candidate:' + sdp.join(' ');
 };
 
+<<<<<<< HEAD
 },{"./senders":955}],958:[function(require,module,exports){
+=======
+},{"./senders":1518}],1521:[function(require,module,exports){
+>>>>>>> cjs
 // based on https://github.com/ESTOS/strophe.jingle/
 // adds wildemitter support
 var util = require('util');
@@ -96099,7 +97077,11 @@ TraceablePeerConnection.prototype.getStats = function () {
 
 module.exports = TraceablePeerConnection;
 
+<<<<<<< HEAD
 },{"util":43,"webrtc-adapter-test":959,"wildemitter":1041}],959:[function(require,module,exports){
+=======
+},{"util":43,"webrtc-adapter-test":1522,"wildemitter":1604}],1522:[function(require,module,exports){
+>>>>>>> cjs
 /*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
@@ -96609,7 +97591,11 @@ if (typeof module !== 'undefined') {
   });
 }
 
+<<<<<<< HEAD
 },{}],960:[function(require,module,exports){
+=======
+},{}],1523:[function(require,module,exports){
+>>>>>>> cjs
 var util = require('util');
 var each = require('lodash.foreach');
 var pluck = require('lodash.pluck');
@@ -97461,7 +98447,11 @@ PeerConnection.prototype.getStats = function (cb) {
 
 module.exports = PeerConnection;
 
+<<<<<<< HEAD
 },{"lodash.foreach":930,"lodash.pluck":938,"sdp-jingle-json":953,"traceablepeerconnection":958,"util":43,"webrtc-adapter-test":959,"wildemitter":1041}],961:[function(require,module,exports){
+=======
+},{"lodash.foreach":1493,"lodash.pluck":1501,"sdp-jingle-json":1516,"traceablepeerconnection":1521,"util":43,"webrtc-adapter-test":1522,"wildemitter":1604}],1524:[function(require,module,exports){
+>>>>>>> cjs
 var util = require('util');
 var extend = require('extend-object');
 var BaseSession = require('jingle-session');
@@ -98060,6 +99050,7 @@ MediaSession.prototype = extend(MediaSession.prototype, {
 
 module.exports = MediaSession;
 
+<<<<<<< HEAD
 },{"extend-object":925,"jingle-session":993,"rtcpeerconnection":992,"util":43}],962:[function(require,module,exports){
 module.exports=require(930)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/index.js":930,"lodash._arrayeach":963,"lodash._baseeach":964,"lodash._bindcallback":968,"lodash.isarray":969}],963:[function(require,module,exports){
@@ -98121,6 +99112,69 @@ module.exports=require(958)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/traceablepeerconnection/index.js":958,"util":43,"webrtc-adapter-test":991,"wildemitter":1041}],991:[function(require,module,exports){
 module.exports=require(959)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/webrtc-adapter-test/adapter.js":959}],992:[function(require,module,exports){
+=======
+},{"extend-object":1488,"jingle-session":1556,"rtcpeerconnection":1555,"util":43}],1525:[function(require,module,exports){
+module.exports=require(1493)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/index.js":1493,"lodash._arrayeach":1526,"lodash._baseeach":1527,"lodash._bindcallback":1531,"lodash.isarray":1532}],1526:[function(require,module,exports){
+module.exports=require(1494)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._arrayeach/index.js":1494}],1527:[function(require,module,exports){
+module.exports=require(1495)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1495,"lodash.keys":1528}],1528:[function(require,module,exports){
+module.exports=require(1496)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1496,"lodash._getnative":1529,"lodash.isarguments":1530,"lodash.isarray":1532}],1529:[function(require,module,exports){
+module.exports=require(1497)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1497}],1530:[function(require,module,exports){
+module.exports=require(1498)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1498}],1531:[function(require,module,exports){
+module.exports=require(1499)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1499}],1532:[function(require,module,exports){
+module.exports=require(1500)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1500}],1533:[function(require,module,exports){
+module.exports=require(1501)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/index.js":1501,"lodash._baseget":1534,"lodash._topath":1535,"lodash.isarray":1536,"lodash.map":1537}],1534:[function(require,module,exports){
+module.exports=require(1502)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash._baseget/index.js":1502}],1535:[function(require,module,exports){
+module.exports=require(1503)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash._topath/index.js":1503,"lodash.isarray":1536}],1536:[function(require,module,exports){
+module.exports=require(1500)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash.isarray/index.js":1500}],1537:[function(require,module,exports){
+module.exports=require(1505)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/index.js":1505,"lodash._arraymap":1538,"lodash._basecallback":1539,"lodash._baseeach":1544,"lodash.isarray":1536}],1538:[function(require,module,exports){
+module.exports=require(1506)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._arraymap/index.js":1506}],1539:[function(require,module,exports){
+module.exports=require(1507)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/index.js":1507,"lodash._baseisequal":1540,"lodash._bindcallback":1542,"lodash.isarray":1536,"lodash.pairs":1543}],1540:[function(require,module,exports){
+module.exports=require(1508)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash._baseisequal/index.js":1508,"lodash.isarray":1536,"lodash.istypedarray":1541,"lodash.keys":1545}],1541:[function(require,module,exports){
+module.exports=require(1509)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash._baseisequal/node_modules/lodash.istypedarray/index.js":1509}],1542:[function(require,module,exports){
+module.exports=require(1499)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._bindcallback/index.js":1499}],1543:[function(require,module,exports){
+module.exports=require(1511)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.pluck/node_modules/lodash.map/node_modules/lodash._basecallback/node_modules/lodash.pairs/index.js":1511,"lodash.keys":1545}],1544:[function(require,module,exports){
+module.exports=require(1495)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/index.js":1495,"lodash.keys":1545}],1545:[function(require,module,exports){
+module.exports=require(1496)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/index.js":1496,"lodash._getnative":1546,"lodash.isarguments":1547,"lodash.isarray":1536}],1546:[function(require,module,exports){
+module.exports=require(1497)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash._getnative/index.js":1497}],1547:[function(require,module,exports){
+module.exports=require(1498)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/lodash.foreach/node_modules/lodash._baseeach/node_modules/lodash.keys/node_modules/lodash.isarguments/index.js":1498}],1548:[function(require,module,exports){
+module.exports=require(1516)
+},{"./lib/tojson":1551,"./lib/tosdp":1552,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/index.js":1516}],1549:[function(require,module,exports){
+module.exports=require(1517)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/parsers.js":1517}],1550:[function(require,module,exports){
+module.exports=require(1518)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/senders.js":1518}],1551:[function(require,module,exports){
+module.exports=require(1519)
+},{"./parsers":1549,"./senders":1550,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tojson.js":1519}],1552:[function(require,module,exports){
+module.exports=require(1520)
+},{"./senders":1550,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/sdp-jingle-json/lib/tosdp.js":1520}],1553:[function(require,module,exports){
+module.exports=require(1521)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/traceablepeerconnection/index.js":1521,"util":43,"webrtc-adapter-test":1554,"wildemitter":1604}],1554:[function(require,module,exports){
+module.exports=require(1522)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/jingle-filetransfer-session/node_modules/rtcpeerconnection/node_modules/webrtc-adapter-test/adapter.js":1522}],1555:[function(require,module,exports){
+>>>>>>> cjs
 var util = require('util');
 var each = require('lodash.foreach');
 var pluck = require('lodash.pluck');
@@ -98976,7 +100030,11 @@ PeerConnection.prototype.getStats = function (cb) {
 
 module.exports = PeerConnection;
 
+<<<<<<< HEAD
 },{"lodash.foreach":962,"lodash.pluck":970,"sdp-jingle-json":985,"traceablepeerconnection":990,"util":43,"webrtcsupport":996,"wildemitter":1041}],993:[function(require,module,exports){
+=======
+},{"lodash.foreach":1525,"lodash.pluck":1533,"sdp-jingle-json":1548,"traceablepeerconnection":1553,"util":43,"webrtcsupport":1559,"wildemitter":1604}],1556:[function(require,module,exports){
+>>>>>>> cjs
 var util = require('util');
 var uuid = require('uuid');
 var async = require('async');
@@ -99322,7 +100380,11 @@ JingleSession.prototype = extend(JingleSession.prototype, {
 
 module.exports = JingleSession;
 
+<<<<<<< HEAD
 },{"async":901,"extend-object":925,"util":43,"uuid":995,"wildemitter":1041}],994:[function(require,module,exports){
+=======
+},{"async":1464,"extend-object":1488,"util":43,"uuid":1558,"wildemitter":1604}],1557:[function(require,module,exports){
+>>>>>>> cjs
 (function (global){
 
 var rng;
@@ -99357,7 +100419,11 @@ module.exports = rng;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+<<<<<<< HEAD
 },{}],995:[function(require,module,exports){
+=======
+},{}],1558:[function(require,module,exports){
+>>>>>>> cjs
 //     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -99542,7 +100608,11 @@ uuid.unparse = unparse;
 
 module.exports = uuid;
 
+<<<<<<< HEAD
 },{"./rng":994}],996:[function(require,module,exports){
+=======
+},{"./rng":1557}],1559:[function(require,module,exports){
+>>>>>>> cjs
 // created by @HenrikJoreteg
 var prefix;
 var version;
@@ -99594,7 +100664,11 @@ module.exports = {
     getUserMedia: getUserMedia
 };
 
+<<<<<<< HEAD
 },{}],997:[function(require,module,exports){
+=======
+},{}],1560:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var JID = require('xmpp-jid').JID;
@@ -99749,7 +100823,11 @@ module.exports = function (JXT) {
     );
 };
 
+<<<<<<< HEAD
 },{"xmpp-jid":1042}],998:[function(require,module,exports){
+=======
+},{"xmpp-jid":1605}],1561:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var ltx = require('ltx');
@@ -99935,7 +101013,11 @@ JXT.getGlobalJXT = function () {
 
 module.exports = JXT;
 
+<<<<<<< HEAD
 },{"./lib/helpers":999,"./lib/stanza":1000,"./lib/types":1001,"extend-object":1004,"ltx":1007,"node-uuid":1011}],999:[function(require,module,exports){
+=======
+},{"./lib/helpers":1562,"./lib/stanza":1563,"./lib/types":1564,"extend-object":1567,"ltx":1570,"node-uuid":1574}],1562:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var ltx = require('ltx');
@@ -100216,7 +101298,11 @@ exports.setBoolSub = function (xml, NS, element, value) {
     }
 };
 
+<<<<<<< HEAD
 },{"ltx":1007}],1000:[function(require,module,exports){
+=======
+},{"ltx":1570}],1563:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var helpers = require('./helpers');
@@ -100329,7 +101415,11 @@ module.exports = function (JXT, opts) {
     return Stanza;
 };
 
+<<<<<<< HEAD
 },{"./helpers":999,"extend-object":1004}],1001:[function(require,module,exports){
+=======
+},{"./helpers":1562,"extend-object":1567}],1564:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var fromB64 = require('atob');
@@ -100722,7 +101812,11 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
     };
 };
 
+<<<<<<< HEAD
 },{"./helpers":999,"atob":1002,"btoa":1003,"extend-object":1004}],1002:[function(require,module,exports){
+=======
+},{"./helpers":1562,"atob":1565,"btoa":1566,"extend-object":1567}],1565:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 (function () {
   "use strict";
@@ -100735,7 +101829,11 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
 }());
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"buffer":9}],1003:[function(require,module,exports){
+=======
+},{"buffer":9}],1566:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 (function () {
   "use strict";
@@ -100757,9 +101855,15 @@ exports.subMultiExtension = function (NS, sub, ChildJXT) {
 }());
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"buffer":9}],1004:[function(require,module,exports){
 module.exports=require(925)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/extend-object/extend-object.js":925}],1005:[function(require,module,exports){
+=======
+},{"buffer":9}],1567:[function(require,module,exports){
+module.exports=require(1488)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/jingle/node_modules/extend-object/extend-object.js":1488}],1568:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var util = require('util')
@@ -100871,7 +101975,11 @@ DOMElement.prototype.removeChild = function (el) {
 
 module.exports = DOMElement
 
+<<<<<<< HEAD
 },{"./element":1006,"util":43}],1006:[function(require,module,exports){
+=======
+},{"./element":1569,"util":43}],1569:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 /**
@@ -101249,7 +102357,11 @@ function escapeXmlText(s) {
 exports.Element = Element
 exports.escapeXml = escapeXml
 
+<<<<<<< HEAD
 },{}],1007:[function(require,module,exports){
+=======
+},{}],1570:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 /* Cause browserify to bundle SAX parsers: */
@@ -101259,7 +102371,11 @@ parse.availableSaxParsers.push(parse.bestSaxParser = require('./sax/sax_ltx'))
 
 /* SHIM */
 module.exports = require('./index')
+<<<<<<< HEAD
 },{"./index":1008,"./parse":1009,"./sax/sax_ltx":1010}],1008:[function(require,module,exports){
+=======
+},{"./index":1571,"./parse":1572,"./sax/sax_ltx":1573}],1571:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var parse = require('./parse')
@@ -101286,7 +102402,11 @@ exports.Parser = parse.Parser
 exports.availableSaxParsers = parse.availableSaxParsers
 exports.bestSaxParser = parse.bestSaxParser
 
+<<<<<<< HEAD
 },{"./dom-element":1005,"./element":1006,"./parse":1009}],1009:[function(require,module,exports){
+=======
+},{"./dom-element":1568,"./element":1569,"./parse":1572}],1572:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var events = require('events')
@@ -101405,7 +102525,11 @@ exports.parse = function(data, saxParser) {
     }
 }
 
+<<<<<<< HEAD
 },{"./dom-element":1005,"events":13,"util":43}],1010:[function(require,module,exports){
+=======
+},{"./dom-element":1568,"events":13,"util":43}],1573:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var util = require('util')
@@ -101577,7 +102701,11 @@ function unescapeXml(s) {
         replace(/\&(nbsp|#160);/g, '\n')
 }
 
+<<<<<<< HEAD
 },{"events":13,"util":43}],1011:[function(require,module,exports){
+=======
+},{"events":13,"util":43}],1574:[function(require,module,exports){
+>>>>>>> cjs
 //     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -101826,7 +102954,11 @@ function unescapeXml(s) {
   }
 }).call(this);
 
+<<<<<<< HEAD
 },{}],1012:[function(require,module,exports){
+=======
+},{}],1575:[function(require,module,exports){
+>>>>>>> cjs
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -101882,7 +103014,11 @@ function unescapeXml(s) {
   
 }));
 
+<<<<<<< HEAD
 },{}],1013:[function(require,module,exports){
+=======
+},{}],1576:[function(require,module,exports){
+>>>>>>> cjs
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -101902,7 +103038,11 @@ function unescapeXml(s) {
   
 }));
 
+<<<<<<< HEAD
 },{"./lib/mechanism":1012}],1014:[function(require,module,exports){
+=======
+},{"./lib/mechanism":1575}],1577:[function(require,module,exports){
+>>>>>>> cjs
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -101958,9 +103098,15 @@ function unescapeXml(s) {
   
 }));
 
+<<<<<<< HEAD
 },{}],1015:[function(require,module,exports){
 arguments[4][1013][0].apply(exports,arguments)
 },{"./lib/mechanism":1014,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":1013}],1016:[function(require,module,exports){
+=======
+},{}],1578:[function(require,module,exports){
+arguments[4][1576][0].apply(exports,arguments)
+},{"./lib/mechanism":1577,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":1576}],1579:[function(require,module,exports){
+>>>>>>> cjs
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -102027,9 +103173,15 @@ arguments[4][1013][0].apply(exports,arguments)
   
 }));
 
+<<<<<<< HEAD
 },{}],1017:[function(require,module,exports){
 arguments[4][1013][0].apply(exports,arguments)
 },{"./lib/mechanism":1016,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":1013}],1018:[function(require,module,exports){
+=======
+},{}],1580:[function(require,module,exports){
+arguments[4][1576][0].apply(exports,arguments)
+},{"./lib/mechanism":1579,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/sasl-anonymous/main.js":1576}],1581:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 var bitops = require('./lib/bitops');
 var utils = require('./lib/utils');
@@ -102151,7 +103303,11 @@ RESP.final = function () {
 module.exports = Mechanism;
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"./lib/bitops":1019,"./lib/utils":1020,"buffer":9}],1019:[function(require,module,exports){
+=======
+},{"./lib/bitops":1582,"./lib/utils":1583,"buffer":9}],1582:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 var createHash = require('create-hash');
 var createHmac = require('create-hmac');
@@ -102181,7 +103337,11 @@ exports.Hi = function (text, salt, iterations) {
 
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"bitwise-xor":1021,"buffer":9,"create-hash":1022,"create-hmac":1035}],1020:[function(require,module,exports){
+=======
+},{"bitwise-xor":1584,"buffer":9,"create-hash":1585,"create-hmac":1598}],1583:[function(require,module,exports){
+>>>>>>> cjs
 var randomBytes = require('randombytes');
 
 
@@ -102217,7 +103377,11 @@ exports.genNonce = function (len) {
     return randomBytes((len || 32) / 2).toString('hex');
 };
 
+<<<<<<< HEAD
 },{"randombytes":1037}],1021:[function(require,module,exports){
+=======
+},{"randombytes":1600}],1584:[function(require,module,exports){
+>>>>>>> cjs
 (function (Buffer){
 module.exports = xor
 
@@ -102238,6 +103402,7 @@ function xor(a, b) {
 }
 
 }).call(this,require("buffer").Buffer)
+<<<<<<< HEAD
 },{"buffer":9}],1022:[function(require,module,exports){
 module.exports=require(887)
 },{"./md5":1024,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/browser.js":887,"buffer":9,"inherits":1025,"ripemd160":1026,"sha.js":1028,"stream":39}],1023:[function(require,module,exports){
@@ -102271,6 +103436,41 @@ module.exports=require(19)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1037:[function(require,module,exports){
 module.exports=require(900)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/randombytes/browser.js":900,"_process":22,"buffer":9}],1038:[function(require,module,exports){
+=======
+},{"buffer":9}],1585:[function(require,module,exports){
+module.exports=require(1450)
+},{"./md5":1587,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/browser.js":1450,"buffer":9,"inherits":1588,"ripemd160":1589,"sha.js":1591,"stream":39}],1586:[function(require,module,exports){
+module.exports=require(1451)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/helpers.js":1451,"buffer":9}],1587:[function(require,module,exports){
+module.exports=require(1452)
+},{"./helpers":1586,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/md5.js":1452}],1588:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1589:[function(require,module,exports){
+module.exports=require(1454)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/ripemd160/lib/ripemd160.js":1454,"buffer":9}],1590:[function(require,module,exports){
+module.exports=require(1455)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/hash.js":1455,"buffer":9}],1591:[function(require,module,exports){
+module.exports=require(1456)
+},{"./sha":1592,"./sha1":1593,"./sha224":1594,"./sha256":1595,"./sha384":1596,"./sha512":1597,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/index.js":1456}],1592:[function(require,module,exports){
+module.exports=require(1457)
+},{"./hash":1590,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha.js":1457,"buffer":9,"inherits":1588}],1593:[function(require,module,exports){
+module.exports=require(1458)
+},{"./hash":1590,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha1.js":1458,"buffer":9,"inherits":1588}],1594:[function(require,module,exports){
+module.exports=require(1459)
+},{"./hash":1590,"./sha256":1595,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha224.js":1459,"buffer":9,"inherits":1588}],1595:[function(require,module,exports){
+module.exports=require(1460)
+},{"./hash":1590,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha256.js":1460,"buffer":9,"inherits":1588}],1596:[function(require,module,exports){
+module.exports=require(1461)
+},{"./hash":1590,"./sha512":1597,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha384.js":1461,"buffer":9,"inherits":1588}],1597:[function(require,module,exports){
+module.exports=require(1462)
+},{"./hash":1590,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/create-hash/node_modules/sha.js/sha512.js":1462,"buffer":9,"inherits":1588}],1598:[function(require,module,exports){
+module.exports=require(1485)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/iana-hashes/node_modules/create-hmac/browser.js":1485,"buffer":9,"create-hash/browser":1585,"inherits":1599,"stream":39}],1599:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/browserify/node_modules/inherits/inherits_browser.js":19}],1600:[function(require,module,exports){
+module.exports=require(1463)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-xmpp/node_modules/stanza.io/node_modules/alt-sasl-digest-md5/node_modules/randombytes/browser.js":1463,"_process":22,"buffer":9}],1601:[function(require,module,exports){
+>>>>>>> cjs
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -102343,7 +103543,11 @@ module.exports=require(900)
   
 }));
 
+<<<<<<< HEAD
 },{}],1039:[function(require,module,exports){
+=======
+},{}],1602:[function(require,module,exports){
+>>>>>>> cjs
 (function(root, factory) {
   if (typeof exports === 'object') {
     // CommonJS
@@ -102363,7 +103567,11 @@ module.exports=require(900)
   
 }));
 
+<<<<<<< HEAD
 },{"./lib/factory":1038}],1040:[function(require,module,exports){
+=======
+},{"./lib/factory":1601}],1603:[function(require,module,exports){
+>>>>>>> cjs
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -103708,7 +104916,11 @@ module.exports=require(900)
   }
 }).call(this);
 
+<<<<<<< HEAD
 },{}],1041:[function(require,module,exports){
+=======
+},{}],1604:[function(require,module,exports){
+>>>>>>> cjs
 /*
 WildEmitter.js is a slim little event emitter by @henrikjoreteg largely based 
 on @visionmedia's Emitter from UI Kit.
@@ -103853,7 +105065,11 @@ WildEmitter.prototype.getWildcardCallbacks = function (eventName) {
     return result;
 };
 
+<<<<<<< HEAD
 },{}],1042:[function(require,module,exports){
+=======
+},{}],1605:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var StringPrep = require('./lib/stringprep');
@@ -104075,7 +105291,11 @@ exports.JID.prototype.toJSON = function () {
     return this.full;
 };
 
+<<<<<<< HEAD
 },{"./lib/stringprep":1043}],1043:[function(require,module,exports){
+=======
+},{"./lib/stringprep":1606}],1606:[function(require,module,exports){
+>>>>>>> cjs
 'use strict';
 
 var punycode = require('punycode');
@@ -104097,6 +105317,7 @@ exports.resourceprep = function (str) {
     return str;
 };
 
+<<<<<<< HEAD
 },{"punycode":23}],1044:[function(require,module,exports){
 module.exports=require(62)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/js/config.js":62}],1045:[function(require,module,exports){
@@ -104174,6 +105395,109 @@ module.exports=require(98)
 },{"../keys":1082,"../valid-value":1087,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":98}],1081:[function(require,module,exports){
 module.exports=require(99)
 },{"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":99}],1082:[function(require,module,exports){
+=======
+},{"punycode":23}],1607:[function(require,module,exports){
+module.exports=require(50)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/js/config.js":50}],1608:[function(require,module,exports){
+module.exports=require(51)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/js/styles.js":51}],1609:[function(require,module,exports){
+module.exports=require(52)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/adapter.js":52}],1610:[function(require,module,exports){
+module.exports=require(53)
+},{"./adapter":1609,"./bdsft":1611,"./constants":1614,"./cookieconfig":1615,"./cookieprop":1616,"./dateformat":1619,"./debug":1620,"./element":1621,"./eventbus":1622,"./factory":1623,"./icon":1624,"./loader":1625,"./popup":1626,"./prop":1627,"./urlconfig":1629,"./utils":1630,"./visibleprop":1631,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/app.js":53}],1611:[function(require,module,exports){
+module.exports=require(54)
+},{"./app":1610,"./binding":1612,"./classesbinding":1613,"./databinder":1618,"./stylesmanager":1628,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/bdsft.js":54,"jquery":1655}],1612:[function(require,module,exports){
+module.exports=require(55)
+},{"./bdsft":1611,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/binding.js":55}],1613:[function(require,module,exports){
+module.exports=require(56)
+},{"./binding":1612,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/classesbinding.js":56}],1614:[function(require,module,exports){
+module.exports=require(57)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/constants.js":57}],1615:[function(require,module,exports){
+module.exports=require(58)
+},{"./bdsft":1611,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/cookieconfig.js":58,"jquery":1655,"jquery.cookie":1654}],1616:[function(require,module,exports){
+module.exports=require(59)
+},{"./constants":1614,"./prop":1627,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/cookieprop.js":59,"jquery":1655,"jquery.cookie":1654}],1617:[function(require,module,exports){
+module.exports=require(60)
+},{"./constants":1614,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/css.js":60,"ejs":1636}],1618:[function(require,module,exports){
+module.exports=require(61)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/databinder.js":61,"event-emitter":1639}],1619:[function(require,module,exports){
+module.exports=require(62)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/dateformat.js":62}],1620:[function(require,module,exports){
+module.exports=require(63)
+},{"../js/config":1607,"./bdsft":1611,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/debug.js":63,"debug":1632,"stacktrace-js":1657}],1621:[function(require,module,exports){
+module.exports=require(64)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/element.js":64}],1622:[function(require,module,exports){
+module.exports=require(65)
+},{"./bdsft":1611,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/eventbus.js":65,"event-emitter":1639}],1623:[function(require,module,exports){
+module.exports=require(66)
+},{"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/factory.js":66,"jquery":1655}],1624:[function(require,module,exports){
+module.exports=require(67)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/icon.js":67}],1625:[function(require,module,exports){
+module.exports=require(68)
+},{"../":1610,"./constants":1614,"./factory":1623,"./stylesmanager":1628,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/loader.js":68,"deep-extend":1635}],1626:[function(require,module,exports){
+module.exports=require(69)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/popup.js":69,"jquery":1655}],1627:[function(require,module,exports){
+module.exports=require(70)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/prop.js":70,"observe-js":1656}],1628:[function(require,module,exports){
+module.exports=require(71)
+},{"../js/styles":1608,"./constants":1614,"./css":1617,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/stylesmanager.js":71}],1629:[function(require,module,exports){
+module.exports=require(72)
+},{"../js/config":1607,"./bdsft":1611,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/urlconfig.js":72}],1630:[function(require,module,exports){
+module.exports=require(73)
+},{"./adapter":1609,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/utils.js":73,"jquery":1655}],1631:[function(require,module,exports){
+module.exports=require(74)
+},{"./constants":1614,"./prop":1627,"./utils":1630,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/lib/visibleprop.js":74}],1632:[function(require,module,exports){
+module.exports=require(75)
+},{"./debug":1633,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/browser.js":75}],1633:[function(require,module,exports){
+module.exports=require(76)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/debug.js":76,"ms":1634}],1634:[function(require,module,exports){
+module.exports=require(77)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/debug/node_modules/ms/index.js":77}],1635:[function(require,module,exports){
+module.exports=require(78)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/deep-extend/lib/deep-extend.js":78,"buffer":9}],1636:[function(require,module,exports){
+module.exports=require(79)
+},{"./filters":1637,"./utils":1638,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/ejs.js":79,"fs":7,"path":21}],1637:[function(require,module,exports){
+module.exports=require(80)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/filters.js":80}],1638:[function(require,module,exports){
+module.exports=require(81)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/ejs/lib/utils.js":81}],1639:[function(require,module,exports){
+module.exports=require(82)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/index.js":82,"d":1640,"es5-ext/object/valid-callable":1649}],1640:[function(require,module,exports){
+module.exports=require(83)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/d/index.js":83,"es5-ext/object/assign":1641,"es5-ext/object/is-callable":1644,"es5-ext/object/normalize-options":1648,"es5-ext/string/#/contains":1651}],1641:[function(require,module,exports){
+module.exports=require(84)
+},{"./is-implemented":1642,"./shim":1643,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/index.js":84}],1642:[function(require,module,exports){
+module.exports=require(85)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/is-implemented.js":85}],1643:[function(require,module,exports){
+module.exports=require(86)
+},{"../keys":1645,"../valid-value":1650,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/assign/shim.js":86}],1644:[function(require,module,exports){
+module.exports=require(87)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/is-callable.js":87}],1645:[function(require,module,exports){
+module.exports=require(88)
+},{"./is-implemented":1646,"./shim":1647,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":88}],1646:[function(require,module,exports){
+module.exports=require(89)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/is-implemented.js":89}],1647:[function(require,module,exports){
+module.exports=require(90)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/shim.js":90}],1648:[function(require,module,exports){
+module.exports=require(91)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/normalize-options.js":91}],1649:[function(require,module,exports){
+module.exports=require(92)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-callable.js":92}],1650:[function(require,module,exports){
+module.exports=require(93)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/valid-value.js":93}],1651:[function(require,module,exports){
+module.exports=require(94)
+},{"./is-implemented":1652,"./shim":1653,"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/index.js":94}],1652:[function(require,module,exports){
+module.exports=require(95)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/is-implemented.js":95}],1653:[function(require,module,exports){
+module.exports=require(96)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/string/#/contains/shim.js":96}],1654:[function(require,module,exports){
+module.exports=require(97)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery.cookie/jquery.cookie.js":97,"jquery":1655}],1655:[function(require,module,exports){
+module.exports=require(98)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/jquery/dist/jquery.js":98}],1656:[function(require,module,exports){
+module.exports=require(99)
+},{"/Users/dominiksteiner/Documents/workspace-broadsoft/wrtc/widget/node_modules/webrtc-audio/node_modules/webrtc-core/node_modules/observe-js/src/observe.js":99}],1657:[function(require,module,exports){
+>>>>>>> cjs
 module.exports=require(100)
 },{"./is-implemented":1083,"./shim":1084,"/home/vagrant/broadsoft/bs-xtended/widget/node_modules/webrtc-callcontrol/node_modules/webrtc-core/node_modules/event-emitter/node_modules/es5-ext/object/keys/index.js":100}],1083:[function(require,module,exports){
 module.exports=require(101)
