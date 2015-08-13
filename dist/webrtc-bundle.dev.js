@@ -7671,7 +7671,7 @@ function Model(constructor, options) {
 				object.configChanges = function() {
 					var changes = {};
 					for (var name in config) {
-						if (object[name] !== config[name]) {
+						if (JSON.stringify(object[name]) !== JSON.stringify(config[name])) {
 							changes[name] = object[name];
 						}
 					}
@@ -63549,15 +63549,15 @@ RTCMediaHandler.prototype = {
 
     this.peerConnection.onpeeridentity = function(e) { 
       self.logger.debug('pc.onpeeridentity : '+Utils.toString(e));
-    }
+    };
 
     this.peerConnection.onidpassertionerror = function(e) { 
       self.logger.debug('pc.onidpassertionerror : '+Utils.toString(e));
-    }
+    };
 
     this.peerConnection.onidpvalidationerror = function(e) { 
       self.logger.debug('pc.onidpvalidationerror : '+Utils.toString(e));
-    }
+    };
     
     this.peerConnection.onremovestream = function(e) {
       self.logger.debug('pc.onremovestream : '+ e.stream.id);
