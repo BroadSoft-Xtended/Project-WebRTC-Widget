@@ -24138,7 +24138,7 @@ function DMS(urlconfig, debug) {
 
   var digestRequest = function(username, password, options){
     var deferred = Q.defer();
-    var url = 'https://'+options.host+':'+options.port+options.path
+    var url = 'https://'+username+':'+password+'@'+options.host+':'+options.port+options.path
     debug.info('requesting... : ' + url);
     var onDone = function(xml){
       debug.info('response : ' + xml);
