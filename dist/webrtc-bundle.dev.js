@@ -61756,14 +61756,16 @@ RTCSession.prototype.changeSession = function(sdpOptions, inviteSuccessCallback,
   this.reconnectRtcMediaHandler(function() {
     self.logger.debug('changeSession : reconnectRtcMediaHandler : success');
     self.receiveResponse = self.receiveReinviteResponse;
-    self.reinviteSucceeded = inviteSuccessCallback;
+    self.reinviteSucceeded = function(){
+      if(sdpOptions.hold) {
+        self.held();
+      } else if(sdpOptions.resume) {
+        self.resumed();
+      }
+      inviteSuccessCallback && inviteSuccessCallback();
+    };
     self.reinviteFailed = inviteFailureCallback;
     self.sendInviteRequest(undefined, undefined);
-    if(sdpOptions.hold) {
-      self.held();
-    } else if(sdpOptions.resume) {
-      self.resumed();
-    }
   }, function() {
     self.logger.error("Could not change local mode");
   }, sdpOptions);
