@@ -47,7 +47,7 @@ describe('widget', function() {
   it('classes for view=audioOnly', function() {
     location.search = "?view=audioOnly";
     widget = create();
-    expect(widget.model.classes.indexOf('audioOnly')).toNotEqual(-1);
+    expect(widget.model.classes.indexOf('sendVideo')).toEqual(-1);
   });
 
 });
