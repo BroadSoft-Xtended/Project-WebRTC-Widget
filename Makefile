@@ -3,7 +3,7 @@ all: build
 
 build: dist/webrtc-bundle.min.js
 
-include ./node_modules/webrtc-core/makefile.defs
+include ./node_modules/bdsft-sdk-view/makefile.defs
 
 ## Build browserified files #######################################################
 TRANSFORMS :=  -t brfs
@@ -13,4 +13,4 @@ dist/webrtc-bundle.min.js: dist/webrtc-bundle.dev.js
 	cat <(echo '// webrtc-bundle.min.js '$(VERSION)) <(./node_modules/uglify-js/bin/uglifyjs $<) > $@
 
 dist/webrtc-bundle.dev.js: $(JS_FILES) js/templates.js js/styles.js
-	cat <(echo '// webrtc-bundle.dev.js '$(VERSION)) <(./node_modules/browserify/bin/cmd.js $(TRANSFORMS) index.js) > $@
+	cat <(echo '// webrtc-bundle.dev.js '$(VERSION)) <(./node_modules/browserify/bin/cmd.js -p ./node_modules/bundle-collapser/plugin $(TRANSFORMS) index.js) > $@

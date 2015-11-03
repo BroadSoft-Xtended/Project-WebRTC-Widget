@@ -143,7 +143,7 @@ Object.defineProperties(global, {
   },
   eventbus: {
     get: function(){
-      return global.bdsft_client_instances.test.core.eventbus;
+      return global.bdsft_client_instances.test.eventbus.eventbus;
     }
   },
   urlconfig: {
@@ -165,7 +165,7 @@ Object.defineProperties(global, {
 
 
 setUp = function(){
-  test = require('../../node_modules/webrtc-sipstack/test/includes/common')(require('../../node_modules/webrtc-core/test/includes/common'));
+  test = require('../../node_modules/webrtc-sipstack/test/includes/common')(require('../../node_modules/bdsft-sdk-test/test/includes/common'));
   core = require('webrtc-core');
   global.bdsft_client_instances = {};
   Utils = core.utils;

@@ -151,7 +151,7 @@ cd <module> && make
 The models or views then specify those files using the following syntax with the example of a [Model](https://github.com/BroadSoft-Xtended/Library-WebRTC-Sound/blob/master/lib/models/sound.js)
 
 ```
-module.exports = require('webrtc-core').bdsft.Model(Sound, {
+module.exports = require('bdsft-sdk-model')(Sound, {
 	media: require('../js/media'),
 	config: require('../js/config')
 });
@@ -160,7 +160,7 @@ module.exports = require('webrtc-core').bdsft.Model(Sound, {
 Or for a [View](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/views/timer.js) it would look like this
 
 ```
-module.exports = require('webrtc-core').bdsft.View(TimerView, {
+module.exports = require('bdsft-sdk-view')(TimerView, {
 	template: require('../../js/templates'),
 	style: require('../../js/styles')
 });

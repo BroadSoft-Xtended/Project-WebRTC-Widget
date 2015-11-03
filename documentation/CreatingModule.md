@@ -26,7 +26,7 @@ The name of the constructor should end in \<modulename\>View.
 For example the [TimerView](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/views/timer.js) is defined as following
 
 ```
-module.exports = require('webrtc-core').bdsft.View(TimerView, {
+module.exports = require('bdsft-sdk-view')(TimerView, {
     template: require('../../js/templates'),
     style: require('../../js/styles')
 });
@@ -72,7 +72,7 @@ The model should inherit from **webrtc-core.bdsft.Model**.
 It takes as arguments the constructor and options to specify config parameters. For example the [Timer](https://github.com/BroadSoft-Xtended/Library-WebRTC-Timer/blob/master/lib/models/timer.js) is defined as following
 
 ```
-module.exports = require('webrtc-core').bdsft.Model(Timer, {
+module.exports = require('bdsft-sdk-model')(Timer, {
     config: require('../../js/config)
 });
 
@@ -260,7 +260,7 @@ The Timer module has the following [Makefile](https://github.com/BroadSoft-Xtend
 ```
 all: js/templates.js js/styles.js
 
-include ./node_modules/webrtc-core/makefile.defs
+include ./node_modules/bdsft-sdk-view/makefile.defs
 ```
 
 The Makefile will (re)build the HTML template and CSS styles when calling make inside the Timer module.
@@ -305,7 +305,7 @@ module.exports = {
 Then specify this file in the options of the view 
 
 ```
-module.exports = require('webrtc-core').bdsft.View(SettingsView, {
+module.exports = require('bdsft-sdk-view')(SettingsView, {
     template: require('../../js/templates'),
     style: require('../../js/styles'),
     constants: require('../constants')
