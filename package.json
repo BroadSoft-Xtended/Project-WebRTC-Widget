@@ -20,6 +20,7 @@
     "bdsft-sdk-view": "BroadSoft-Xtended/Library-SDK-View.git",
     "bdsft-sdk-xsi": "BroadSoft-Xtended/Library-SDK-XSI.git",
     "bdsft-sdk-debug": "BroadSoft-Xtended/Library-SDK-Debug.git",
+    "bdsft-sdk-eventbus": "BroadSoft-Xtended/Library-SDK-Eventbus.git",
     "bundle-collapser": "^1.2.1",
     "jquery-ui": "1.10.5",
     "webrtc-audio": "BroadSoft-Xtended/Library-WebRTC-Audio.git",
