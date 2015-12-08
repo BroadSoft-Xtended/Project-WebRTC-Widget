@@ -13,6 +13,8 @@
     "library"
   ],
   "dependencies": {
+  },
+  "devDependencies": {
     "bdsft-sdk-model": "BroadSoft-Xtended/Library-SDK-Model.git",
     "bdsft-sdk-request": "BroadSoft-Xtended/Library-SDK-Request.git",
     "bdsft-sdk-view": "BroadSoft-Xtended/Library-SDK-View.git",
@@ -40,9 +42,7 @@
     "webrtc-transfer": "BroadSoft-Xtended/Library-WebRTC-Transfer.git",
     "webrtc-video": "BroadSoft-Xtended/Library-WebRTC-Video.git",
     "webrtc-videobar": "BroadSoft-Xtended/Library-WebRTC-VideoBar.git",
-    "webrtc-xmpp": "BroadSoft-Xtended/Library-WebRTC-XMPP.git"
-  },
-  "devDependencies": {
+    "webrtc-xmpp": "BroadSoft-Xtended/Library-WebRTC-XMPP.git",
     "brfs": "1.3.0",
     "pegjs": "0.8.0",
     "node-minify": "0.10.2",
