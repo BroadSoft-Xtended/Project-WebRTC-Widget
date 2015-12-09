@@ -68274,7 +68274,9 @@ RTCMediaHandler.prototype = {
       if(stopLocalMedia) {
         if(this.localMedia) {
           this.logger.log('stopping local media '+Utils.toString(this.localMedia), this.session.ua);
-          this.localMedia.stop();
+          (this.localMedia.getTracks() || []).forEach(function(track){
+            track.stop();
+          });
         }
       }
     }
@@ -70806,7 +70808,9 @@ UA.prototype.getUserMedia = function(options, success, failure, force) {
 
   if (this.localMedia) {
     this.logger.log("stopping existing local media stream", this);
-    this.localMedia.stop();
+    (this.localMedia.getTracks() || []).forEach(function(track){
+      track.stop();
+    });
   }
 
   this.logger.log('options : ' + Utils.toString(options), this);
