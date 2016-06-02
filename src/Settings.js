@@ -374,7 +374,7 @@
     persist: function(){
       for(var cookie in this.cookiesMapper) {
         var mapping = this.cookiesMapper[cookie];
-        $.cookie(cookie, mapping.inputGetter(), { expires: this.configuration.expires });
+        $.cookie(cookie, encodeURIComponent(mapping.inputGetter()), { expires: this.configuration.expires });
       }
     }
   };

@@ -300,14 +300,16 @@
     {
       if (digit.length !== 1)
       {
-        return;
+        return true;
       }
       if (this.sipStack.isStarted())
       {
         this.destination.val(this.destination.val() + digit);
         this.sound.playClick();
         this.sipStack.sendDTMF(digit);
+        return false;
       }
+      return true;
     },
 
     resumeCall: function() {
@@ -670,7 +672,7 @@
         if ((e.charCode >= 48 && e.charCode <= 57) || e.charCode === 35 || e.charCode === 42)
         {
           var digit = String.fromCharCode(e.charCode);
-          self.pressDTMF(digit);
+          return self.pressDTMF(digit);
         }
         else if (e.charCode === 83)
         {
