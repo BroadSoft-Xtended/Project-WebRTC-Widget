@@ -127,7 +127,7 @@ module.exports = function(grunt) {
       },
       options: {
         beautify: false,
-        compress: true,
+        compress: {},
         mangle: true,
         banner: '<%= meta.banner %>'
       }
