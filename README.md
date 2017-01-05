@@ -8,6 +8,11 @@ The BroadSoft WebRTC Widget is a SIP Endpoint bundled as a Drop-in Widget that c
 
 You need to have [Node.js](http://nodejs.org) installed on the system you want to build the WebRTC Widget. 
 
+The supported node/npm version is 
+
+"node":"0.12.7"
+"npm":"2.11.3"
+
 ### How to build the WebRTC Widget
 
 Install the Node.js dependencies:
