@@ -45,43 +45,46 @@
 
       var peerConnection = this.sipStack.activeSession.rtcMediaHandler.peerConnection;
 
-      peerConnection.getStats(function (stats)
+      if(peerConnection)
       {
-        var results = stats.result();
-        var reports = [];
-        for (var i = 0; i < results.length; ++i)
+        peerConnection.getStats(function (stats)
         {
-          var res = results[i];
-          var report = self.getReportById(reports, res.id);
-          if(!report)
+          var results = stats.result();
+          var reports = [];
+          for (var i = 0; i < results.length; ++i)
           {
-            report = {};
-            report["type"] = res.type;
-            report["id"] = res.id;
-          }
-
-          var names = res.names();
-          var values = [];
-          for(var j = 0; j < names.length; j++)
-          {
-            var name = names[j];
-            if(!name)
+            var res = results[i];
+            var report = self.getReportById(reports, res.id);
+            if(!report)
             {
-              continue;
+              report = {};
+              report["type"] = res.type;
+              report["id"] = res.id;
             }
-            var value = res.stat(name);
-            values.push(name);
-            values.push(value);
+
+            var names = res.names();
+            var values = [];
+            for(var j = 0; j < names.length; j++)
+            {
+              var name = names[j];
+              if(!name)
+              {
+                continue;
+              }
+              var value = res.stat(name);
+              values.push(name);
+              values.push(value);
+            }
+            var valueObj = {};
+            valueObj["timestamp"] = res.timestamp;
+            valueObj["values"] = values;
+            report["stats"] = valueObj;
+            reports.push(report);
           }
-          var valueObj = {};
-          valueObj["timestamp"] = res.timestamp;
-          valueObj["values"] = values;
-          report["stats"] = valueObj;
-          reports.push(report);
-        }
-        var data = {"lid":1,"pid":self.sipStack.getSessionId(),"reports":reports};
-        addStats(data);
-      });
+          var data = {"lid":1,"pid":self.sipStack.getSessionId(),"reports":reports};
+          addStats(data);
+        });
+      }
     },
 
     getDataSerie: function(type, label, sessionId) {
