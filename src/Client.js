@@ -258,7 +258,6 @@
         this.sipStack.terminateSession();
       }
       this.setEvent(null);
-      this.sound.pause();
       this.video.updateSessionStreams();
       // Bring up the main elements
       if (this.configuration.enableCallControl === true)
