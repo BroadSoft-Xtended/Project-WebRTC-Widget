@@ -95,6 +95,7 @@
     },
     getExSIPOptions: function(audioOnly){
       // Options Passed to ExSIP
+      audioOnly = audioOnly || this.audioOnly || this.isAudioOnlyView();
       var options =
       {
         mediaConstraints:
@@ -104,20 +105,15 @@
         },
         createOfferConstraints: {mandatory:{
           OfferToReceiveAudio:true,
-          OfferToReceiveVideo: !audioOnly && !this.isAudioOnlyView() && this.offerToReceiveVideo
+          OfferToReceiveVideo: !audioOnly && this.offerToReceiveVideo
         }}
       };
-
       return options;
     },
 
     getVideoConstraints: function(){
-      if (this.isAudioOnlyView() || this.audioOnly) {
-        return false;
-      } else {
-        var constraints = this.getResolutionConstraints();
-        return  constraints ? constraints : true;
-      }
+      var constraints = this.getResolutionConstraints();
+      return  constraints ? constraints : true;
     },
 
     getResolutionConstraints: function(){
@@ -179,7 +175,7 @@
 
     getRtcMediaHandlerOptions: function(){
       var options = {
-        reuseLocalMedia: this.enableConnectLocalMedia,
+        reuseLocalMedia: false,
         videoBandwidth: this.settings.getBandwidth(),
         disableICE: this.disableICE,
         RTCConstraints: {'optional': [],'mandatory': {}}

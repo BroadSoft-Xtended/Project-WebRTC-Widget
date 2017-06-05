@@ -18,7 +18,8 @@
     this.hangup = this.client.find(".hangup");
     this.callControl = this.client.find(".callControl");
     this.destination = this.callControl.find("input.destination");
-    this.callButton = this.client.find('.call');
+    this.audioCallButton = this.client.find('.audiocall');
+    this.videoCallButton = this.client.find('.videocall');
     this.reInvitePopup = this.client.find('.reInvitePopup');
     this.acceptReInviteCall = this.client.find(".acceptReInviteCall");
     this.rejectReInviteCall = this.client.find(".rejectReInviteCall");
@@ -26,7 +27,8 @@
     this.callPopup = this.client.find(".callPopup");
     this.incomingCallName = this.callPopup.find(".incomingCallName");
     this.incomingCallUser = this.callPopup.find(".incomingCallUser");
-    this.acceptIncomingCall = this.callPopup.find(".acceptIncomingCall");
+    this.acceptIncomingVideoCall = this.callPopup.find(".acceptIncomingVideoCall");
+    this.acceptIncomingAudioOnlyCall = this.callPopup.find(".acceptIncomingAudioOnlyCall");
     this.rejectIncomingCall = this.callPopup.find(".rejectIncomingCall");
     this.holdAndAnswerButton = this.callPopup.find(".holdAndAnswerButton");
     this.dropAndAnswerButton = this.callPopup.find(".dropAndAnswerButton");
@@ -285,7 +287,7 @@
 
       this.sipStack.init();
 
-      if(!this.configuration.enableConnectLocalMedia && this.configuration.destination) {
+      if(this.configuration.destination) {
         this.eventBus.once("connected", function(e){
           self.callUri(self.configuration.destination);
         });
@@ -491,12 +493,16 @@
       this.eventBus.on("incomingCall", function(evt){
         var incomingCallName = evt.data.request.from.display_name;
         var incomingCallUser = evt.data.request.from.uri.user;
+        var sheet = window.document.styleSheets[0];
+        sheet.insertRule('.client:not(.started) .acceptIncomingVideoCall { display:' + 
+          (evt.data.session.rtcMediaHandler.peerConnection.remoteDescription.hasVideo() ? 'inline-block' : 'none') +
+          '; }', sheet.cssRules.length);
         self.message("Incoming Call", "success");
         self.setEvent("incomingCall");
         self.incomingCallName.text(incomingCallName);
         self.incomingCallUser.text(incomingCallUser);
         WebRTC.Utils.rebindListeners("click",
-          [self.rejectIncomingCall, self.acceptIncomingCall, self.holdAndAnswerButton, self.dropAndAnswerButton],
+          [self.rejectIncomingCall, self.acceptIncomingVideoCall, self.acceptIncomingAudioOnlyCall, self.holdAndAnswerButton, self.dropAndAnswerButton],
           function(e) {
             e.preventDefault();
             self.incomingCallHandler($(this), evt.data.session);
@@ -552,10 +558,21 @@
       });
 
       // Buttons
-      this.callButton.bind('click', function(e)
+      this.audioCallButton.bind('click', function(e)
       {
         e.preventDefault();
         self.sound.playClick();
+        self.configuration.audioOnly = true;
+        self.configuration.view = 'audioOnly';
+        self.callUri(self.destination.val());
+      });
+
+      this.videoCallButton.bind('click', function(e)
+      {
+        e.preventDefault();
+        self.sound.playClick();
+        self.configuration.audioOnly = false;
+        delete self.configuration.view;
         self.callUri(self.destination.val());
       });
 
@@ -696,7 +713,13 @@
     incomingCallHandler: function(source, session){
       this.setEvent("incomingCall-done");
       this.sound.pause();
-      if (source.is(this.acceptIncomingCall)) {
+      if (source.is(this.acceptIncomingVideoCall)) {
+        this.configuration.audioOnly = false;
+        delete this.configuration.view;
+        this.sipStack.answer(session);
+      } else if (source.is(this.acceptIncomingAudioOnlyCall)) {
+        this.configuration.audioOnly = true;
+        this.configuration.view = 'audioOnly';
         this.sipStack.answer(session);
       } else if (source.is(this.dropAndAnswerButton)) {
         this.sipStack.terminateSession();

@@ -171,7 +171,7 @@
               logger.log('change session succeeded', self.configuration);
             }, function(){
               logger.log('change session failed', self.configuration);
-            });
+            }, true);
           }
 
           if(userMediaCallback) {

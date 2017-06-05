@@ -58,8 +58,11 @@
   <div class="callControl">
     <span>Enter Destination URI:</span><br>
     <input class="destination" type=text value=""/>
-    <div class="call fadeable">
-      <a href="" title="Call" class="icon-call"></a>
+    <div class="audiocall fadeable">
+      <a href="" title="Audio-Only Call" class="icon-audiocall"></a>
+    </div>
+    <div class="videocall fadeable">
+      <a href="" title="Video Call" class="icon-videocall"></a>
     </div>
   </div>
 
@@ -71,12 +74,13 @@
       <span class="incomingCallUser"></span><br><br>
       <div class="table">
           <div class="cell">
-              <button class="acceptIncomingCall button" type="button">Accept</button>
-              <button class="holdAndAnswerButton button" type="button">Hold And Answer</button><br>
-              <button class="dropAndAnswerButton button" type="button">Drop And Answer</button>
+              <button class="acceptIncomingVideoCall reactCall button" type="button">Answer Video</button>
+              <button class="acceptIncomingAudioOnlyCall reactCall button" type="button">Answer Audio-Only</button>
+              <button class="holdAndAnswerButton reactCall button" type="button">Hold And Answer</button><br>
+              <button class="dropAndAnswerButton reactCall button" type="button">Drop And Answer</button>
           </div>
           <div class="cell" style="text-align:right;">
-              <button class="rejectIncomingCall button" type="button">Reject</button>
+              <button class="rejectIncomingCall reactCall button" type="button">Reject</button>
           </div>
       </div>
     </div>

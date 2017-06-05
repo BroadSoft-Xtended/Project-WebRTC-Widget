@@ -167,7 +167,7 @@ body {
 
 /* Default size for all icons */
 
-.icon-call, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume {
+.icon-audiocall, .icon-videocall, .icon-hangup, .icon-fullScreenExpand, .icon-fullScreenContract, .icon-selfViewDisable, .icon-selfViewEnable, .icon-muteAudio, .icon-unmuteAudio, .icon-link, .icon-dialpadShow, .icon-dialpadHide, .icon-quality1, .icon-quality2, .icon-quality3, .icon-quality4, .icon-settings, .icon-ok, .icon-history, .icon-trash, .icon-left, .icon-right, .icon-transfer, .icon-hold, .icon-resume {
   font-family: 'Exario-Icon-Fonts';
   speak: none;
   text-decoration: none;
@@ -177,7 +177,7 @@ body {
 
 /* Call Button */
 
-.call {
+.audiocall {
   display: none;
   position: absolute;
   z-index: 10;
@@ -185,13 +185,31 @@ body {
   left: 265px;
 }
 
-.icon-call:before {
+.videocall {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 25px;
+  left: 300px;
+}
+
+.icon-audiocall:before {
   content: "\e00e";
   color: #3B9E3B;
 }
 
-.icon-call:hover:before {
+.icon-audiocall:hover:before {
   content: "\e00e";
+  color: #EFA233;
+}
+
+.icon-videocall:before {
+  content: "\e00a";
+  color: #3B9E3B;
+}
+
+.icon-videocall:hover:before {
+  content: "\e00a";
   color: #EFA233;
 }
 
@@ -493,6 +511,10 @@ body {
   box-shadow: 0px 0px 10px #999;
 }
 
+.reactCall {
+  font-size: 12px;
+}
+
 .icon-link:before {
   content: "\e00b";
 }
@@ -512,13 +534,13 @@ body {
   margin: auto;
   box-shadow: 0px 0px 10px #999999;
   border-radius: 3px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 18px;
   z-index: 100;
 }
 
 .callPopup, .reInvitePopup {
-    width:170px;
+    width:190px;
     height:137px;
 }
 .transferPopup {
@@ -930,13 +952,13 @@ body {
     z-index: -1;
 }
 
-.holdAndAnswerButton, .dropAndAnswerButton, .acceptIncomingCall {
+.holdAndAnswerButton, .dropAndAnswerButton, .acceptIncomingVideoCall, .acceptIncomingAudioOnlyCall {
     display:none;
 }
 
 .started .holdAndAnswerButton,
 .started .dropAndAnswerButton,
-.client:not(.started) .acceptIncomingCall {
+.client:not(.started) .acceptIncomingAudioOnlyCall {
     display:inline-block;
 }
 
@@ -951,7 +973,8 @@ body {
 .enable-dialpad.dialpad-shown .dialpadIconHide,
 .enable-dialpad.dialpad-hidden .dialpadIconShow,
 .started .hangup, .calling .hangup,
-.enable-call-control.connected .call,
+.enable-call-control.connected .audiocall,
+.enable-call-control.connected .videocall,
 .enable-transfer.started .transfer,
 .enable-timer.started .timer,
 .client:not(.held).enable-hold.started .hold,
@@ -984,7 +1007,8 @@ body {
 .enable-dialpad.dialpad-shown .dialpadIconShow,
 .enable-dialpad.dialpad-hidden .dialpad,
 .connected .hangup, .disconnected .hangup,
-.client:not(.connected) .call,
+.client:not(.connected) .audiocall,
+.client:not(.connected) .videocall,
 .enable-transfer.connected .transfer, .enable-transfer.disconnected .transfer,
 .enable-transfer.transfer-hidden .transferPopup,
 .client.disconnected .authPopup, .client.auth-hidden .authPopup,
