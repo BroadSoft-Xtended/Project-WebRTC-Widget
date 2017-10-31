@@ -281,14 +281,12 @@
     },
 
     onLoad: function() {
-      var self = this;
       logger.log("onLoad", this.configuration);
 
       this.sipStack.init();
 
       if(this.configuration.destination) {
         this.eventBus.once("connected", function(e){
-          self.callUri(self.configuration.destination);
         });
       }
 
