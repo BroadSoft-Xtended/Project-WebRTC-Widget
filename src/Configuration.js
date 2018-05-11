@@ -151,7 +151,6 @@
         'stun_servers': 'stun:' + this.stunServer + ':' + this.stunPort,
         'trace_sip': this.debug,
         'enable_ims': this.enableIms,
-        'certificate': this.certificate
       };
 
       // Add Display Name if set
