@@ -57,7 +57,7 @@
         }
       } else if(video) {
         if(hasStream) {
-          video.src = (window.URL && window.URL.createObjectURL(streams[0])) || streams[0];
+          video.srcObject = streams[0];
         }
         else {
           video.src = "";
