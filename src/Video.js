@@ -10,6 +10,7 @@
     this.ui = element;
     this.local = this.ui.find('.localVideo');
     this.remote = this.ui.find('.remoteVideo');
+    this.remoteAudio = this.ui.find('.remoteAudio');
     this.eventBus = eventBus;
 
     this.options = options || {};
@@ -34,8 +35,12 @@
 
     updateStreams: function(localStreams, remoteStreams) {
       logger.log("updating video streams", this.eventBus);
-      this.setVideoStream(this.local[0], localStreams);
-      this.setVideoStream(this.remote[0], remoteStreams);
+      var audioOnly = this.sipStack.configuration.audioOnly || false;  
+      logger.log("audioOnly = " + audioOnly, this.eventBus);
+      logger.log("setting local streams in media elements", this.eventBus);
+      this.setMediaElementStreams(this.local[0], null, localStreams);
+      logger.log("setting remote streams in media elements", this.eventBus);
+      this.setMediaElementStreams(audioOnly ? null : this.remote[0], this.remoteAudio[0], remoteStreams);
     },
 
     localWidth: function(){
@@ -46,21 +51,34 @@
       return this.local[0].videoHeight;
     },
 
-    setVideoStream: function(video, streams) {
+    setMediaElementStreams: function(video, audio, streams) {
       var hasStream = streams && streams.length > 0 && typeof(streams[0]) !== 'undefined';
-      if (video && video.mozSrcObject !== undefined) {
-        if(hasStream) {
-          video.mozSrcObject = streams[0];
-          video.play();
-        }  else {
-          video.mozSrcObject = null;
+      if(hasStream) {
+        if((video === null || streams[0].getVideoTracks().length <= 0) && audio !== null)
+        {
+          audio.muted = false;
+          audio.srcObject = streams[0];
         }
-      } else if(video) {
-        if(hasStream) {
+	else if((audio === null || streams[0].getAudioTracks().length <= 0) && video !== null)
+        {
           video.srcObject = streams[0];
         }
-        else {
-          video.src = "";
+        else if(audio !== null && video !== null)
+        {
+          // Video element needs the first video frame received to start playing audio, but we could get a stream with audio-Only before reciving any 
+          // video frame, so a work-around has been implemented to play audio in audio element until we get first video frame based on loadedmetadata event.
+          var videoStream = streams[0].clone();
+          videoStream.getAudioTracks()[0].enabled = false;
+          var audioStream = streams[0].clone();
+          audioStream.removeTrack(audioStream.getVideoTracks()[0]);
+          video.onloadedmetadata = function() {
+            logger.log("Meta data for video loaded, re-enabling audio in video element.", this.eventBus);
+            audioStream.getAudioTracks()[0].enabled = false;
+            audio.muted = true;
+            videoStream.getAudioTracks()[0].enabled = true;
+          };
+          video.srcObject = videoStream;
+          audio.srcObject = audioStream;
         }
       }
     }
