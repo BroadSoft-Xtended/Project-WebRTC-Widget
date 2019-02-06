@@ -491,8 +491,9 @@
         var incomingCallName = evt.data.request.from.display_name;
         var incomingCallUser = evt.data.request.from.uri.user;
         var sheet = window.document.styleSheets[0];
+        var enableVideo = !evt.data.session.rtcMediaHandler.peerConnection.remoteDescription || evt.data.session.rtcMediaHandler.peerConnection.remoteDescription.hasVideo();
         sheet.insertRule('.client:not(.started) .acceptIncomingVideoCall { display:' + 
-          (evt.data.session.rtcMediaHandler.peerConnection.remoteDescription.hasVideo() ? 'inline-block' : 'none') +
+          (enableVideo ? 'inline-block' : 'none') +
           '; }', sheet.cssRules.length);
         self.message("Incoming Call", "success");
         self.setEvent("incomingCall");

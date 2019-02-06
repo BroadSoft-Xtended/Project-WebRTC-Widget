@@ -83,8 +83,12 @@
       session.rtcMediaHandler.peerConnection.remoteDescription.hasVideo();
     },
 
+    hasRemoteDescription: function(session){
+      return session && session.rtcMediaHandler && session.rtcMediaHandler.peerConnection && session.rtcMediaHandler.peerConnection.remoteDescription;
+    },
+
     answer: function(session){
-      session.answer(this.configuration.getExSIPOptions(!this.hasVideo(session)));
+      session.answer(this.configuration.getExSIPOptions(this.hasRemoteDescription() && !this.hasVideo(session)));
 
     },
 
