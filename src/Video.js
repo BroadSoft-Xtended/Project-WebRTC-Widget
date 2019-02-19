@@ -67,6 +67,7 @@
         {
           // Video element needs the first video frame received to start playing audio, but we could get a stream with audio-Only before reciving any 
           // video frame, so a work-around has been implemented to play audio in audio element until we get first video frame based on loadedmetadata event.
+          audio.muted = false;
           var videoStream = streams[0].clone();
           videoStream.getAudioTracks()[0].enabled = false;
           var audioStream = streams[0].clone();
